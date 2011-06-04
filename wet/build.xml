@@ -1,6 +1,0 @@
-<project name="wet" default="war">
-
-<import file="../aelua/build.xml"/>
-
-</project>
-
