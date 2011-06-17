@@ -21,12 +21,13 @@ local t=os.time()
 local t1,t2=math.modf(t/(24*60*60))
 local t3=math.floor(t2*100)/100
 local t4=tonumber(os.date("%Y%m%d",t))
+local version=(t4+t3)
 
-data="bootstrapp_version="..(t4+t3)
+data="bootstrapp_version="..(version)
 
 data=edge.."\n"..data.."\n"..edge
 
-print(data)
+print(tostring(version))
 
 local fp=assert(io.open(fname,"w"))
 fp:write( text:sub(1,b1-1) )

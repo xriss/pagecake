@@ -18,7 +18,7 @@ local type=type
 module("opts")
 
 --Machine generated data. Read between the lines, but do not edit.
-bootstrapp_version=20110617.51
+bootstrapp_version=20110617.58
 --Machine generated data. Read between the lines, but do not edit.
 
 mail={}
