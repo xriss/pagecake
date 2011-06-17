@@ -1,0 +1,205 @@
+
+@import url("/css/note/import.css");
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+html{
+	overflow-y: scroll;
+	height: 100%;
+}
+:focus {
+	outline: 0;
+}
+body {
+	font-family: Lucida Sans Unicode, sans-serif;
+	height: 100%;
+	color: black;
+	background: white;
+}
+ol, ul {
+	list-style: none;
+}
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+caption, th, td {
+	text-align: left;
+	font-weight: normal;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+
+pre, tt, code, kbd, samp, var {
+  font-family: "Courier New", Courier, monospace;
+}
+
+th, strong, dt, b {
+  font-weight: bold;
+}
+
+h1 {font-size: 3em; margin: 0.3em 0px;}
+h2 {font-size: 1.8em;}
+h3 {font-size: 1.6em;}
+h4 {font-size: 1.4em;}
+h5 {font-size: 1.2em;}
+h6 {font-size: 1em;}
+
+a:link {color: #666; text-decoration: none;}
+a:visited {color: #666; text-decoration: none;}
+a:hover {color: #666; text-decoration: underline;}
+a:focus {color: #666; text-decoration: underline;}
+
+
+.aelua_body {
+	background-color: transparent;
+    margin: auto;
+	width: 960px;
+	position: relative;
+}
+
+.aelua_admin_bar {
+    left: 30%;
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    width: 40%;
+}
+
+.aelua_home_bar {
+	background-color: transparent;
+    float: left;
+    padding: 4px 0;
+}
+
+.aelua_user_bar {
+	background-color: transparent;
+    float: right;
+    padding: 4px 0;
+}
+
+.aelua_footer {
+    margin: auto;
+    width: 960px;
+    position: relative;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.aelua_clear{ clear: both; }
+
+
+.profile_layout{
+margin: 0 auto;
+width: 940px;
+padding-top: 20px;
+padding-bottom: 20px;
+}
+
+.profile_layout_head{
+    width: 960px;
+}
+
+
+.profile_layout_body{
+    width: 960px;
+}
+
+
+.profile_layout_wide{
+    width: 640px;
+    float: right;
+}
+
+
+.profile_layout_side{
+    width: 320px;
+    float: left;
+}
+
+
+.profile_layout_foot{
+    clear: both;
+    width: 640px;
+}
+
+.profile_name .wetnote_comment_div{
+width: 920px;
+}
+
+.profile_name .wetnote_comment_text {
+width: 760px;
+line-height: 1.1;
+padding-right: 20px;
+}
+
+
+.button, .button:hover, .button:visited ,.button:active {
+	display:inline;
+	cursor:pointer;
+	color: #000;
+	background-color: #ddd;
+	padding: 1px 2px 0px 3px ;
+	border-top:    solid #fff 1px;
+	border-right:  solid #888 1px;
+	border-bottom: solid #888 1px;
+	border-left:   solid #fff 1px;
+}  
+.button:active {
+	cursor:pointer;
+	padding: 0px 2px 0px 2px ;
+	border-bottom: solid #fff 1px;
+	border-left:   solid #444 2px;
+	border-top:    solid #444 2px;
+	border-right:  solid #fff 1px;
+}
+
+.field {
+	border-bottom: solid #ccc 1px;
+	border-left:   solid #444 2px;
+	border-top:    solid #444 2px;
+	border-right:  solid #ccc 1px;
+}
+
+.aelua_nags {
+background-color:#eee;
+width: 960px;
+margin: 0 auto;
+padding: 20px 0px;
+}
+.aelua_nag {
+-moz-border-radius: 8px;
+-webkit-border-radius: 8px;
+border-radius: 8px 8px;
+background-color: white;
+border: 0;
+margin: 0 auto;
+margin-top: 5px;
+margin-bottom: 5px;
+width: 900px;
+padding: 5px;
+text-align:center;
+}
+
