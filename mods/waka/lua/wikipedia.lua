@@ -12,7 +12,7 @@ local cache=require("wetgenes.aelua.cache")
 
 local log=require("wetgenes.aelua.log").log -- grab the func from the package
 
-local json=require("json")
+local json=require("wetgenes.json")
 
 local simpxml=require("wetgenes.simpxml")
 

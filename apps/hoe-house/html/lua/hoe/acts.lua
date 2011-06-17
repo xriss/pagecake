@@ -1,5 +1,5 @@
 
-local json=require("json")
+local json=require("wetgenes.json")
 
 local wet_html=require("wetgenes.html")
 

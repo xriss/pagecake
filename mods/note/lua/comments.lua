@@ -4,7 +4,7 @@ local url_esc=wet_html.url_esc
 
 local sys=require("wetgenes.aelua.sys")
 
-local json=require("json")
+local json=require("wetgenes.json")
 local dat=require("wetgenes.aelua.data")
 local cache=require("wetgenes.aelua.cache")
 

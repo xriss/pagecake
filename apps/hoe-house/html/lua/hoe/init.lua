@@ -15,7 +15,7 @@ local trim=wet_string.trim
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-local json=require("json")
+local json=require("wetgenes.json")
 
 local d_sess=require("dumid.sess")
 local d_users=require("dumid.users")
