@@ -85,7 +85,7 @@ print("found "..#tab.." ranges")
 tab=nt
 print("merged to "..#tab.." ranges")
 
-local fp = io.open("../mods/admin/lua/ipv4_tab.lua","w")
+local fp = io.open("../lua/ipv4_tab.lua","w")
 
 fp:write("module(...)\n")
 fp:write("data={\n")

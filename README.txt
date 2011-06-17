@@ -8,7 +8,7 @@ be considered beta quality.
 Look inside the mods directory for more information about what each module is
 hoping to achieve and if it is a good idea to try and use it yet.
 
-Do not run ant in this directory, go into apps/* and use the maklefiles.
+Do not run ant in this directory, go into apps/boot-str and use the makefile.
 
  All content is MIT licenesed unless explicitly stated otherwise.
 
