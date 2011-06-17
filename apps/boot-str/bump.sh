@@ -1,4 +1,4 @@
 lua bump.lua
 hg ci
 hg push
-ssh web "su wet;cd hg/aelua;hg up;cd apps/boot-str;make;cd ..;tail log.txt;exit"
+ssh web "su wet -c\"cd hg/aelua;hg up;cd apps/boot-str;make;cd ../../php;tail log.txt;exit\""
