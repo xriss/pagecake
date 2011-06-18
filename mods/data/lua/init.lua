@@ -431,7 +431,7 @@ end
 
 
 --
--- guess a mimetype give a filename
+-- guess a mimetype given a filename
 --
 local guess_mimetype_lookup={
 	[".jpg"]="image/jpeg",

@@ -321,7 +321,7 @@ function def_update(env,srv,id,f)
 	for retry=1,10 do
 		local mc={}
 		local t=dat.begin()
-		local e=env.get(srv,id,t)
+		local e=env.get(srv,id,t) -- must exist
 		if e then
 			env.cache_what(srv,e,mc) -- the original values
 			if e.props.created~=srv.time then -- not a newly created entity
@@ -343,6 +343,46 @@ function def_update(env,srv,id,f)
 	
 end
 
+--------------------------------------------------------------------------------
+--
+-- get or create then fill and put, similar to update but will create new data
+--
+-- f must be a function that fills the entity and returns true on success
+--
+-- id can be an id or an entity from which we will get the id
+--
+--------------------------------------------------------------------------------
+function def_manifest(env,srv,id,f)
+
+	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
+		
+	for retry=1,10 do
+		local mc={}
+		local t=dat.begin()
+		local e=env.get(srv,id,t) -- may or may not exist
+		if e then
+			env.cache_what(srv,e,mc) -- the original values
+			if e.cache.updated>=srv.time then t.rollback() return false end -- stop any updates that time travel
+			e.cache.updated=srv.time -- the next function can change this change if it wishes
+			if not f(srv,e) then t.rollback() return e end -- just return orig
+		else
+			e=env.create(srv)
+			e.key.id=id
+			e.cache.id=id
+			if not f(srv,e) then t.rollback() return false end -- hard fail
+		end
+		env.check(srv,e) -- keep consistant
+		if env.put(srv,e,t) then -- entity put ok
+			if t.commit() then -- success
+				env.cache_what(srv,e,mc) -- the new values
+				env.cache_fix(srv,mc) -- change any memcached values we just adjusted
+				return e -- return the adjusted entity
+			end
+		end
+		t.rollback() -- undo everything ready to try again
+	end
+	
+end
 
 --------------------------------------------------------------------------------
 --
@@ -396,12 +436,6 @@ end
 -- a table of default cache values
 -- a table of default props values
 --
--- you may also want to provide
---
--- a manifest function to auto create a given id
---
--- see dumid.users for an example of how to do this
---
 -----------------------------------------------------------------------------
 function set_defs(env)
 
@@ -409,6 +443,7 @@ function set_defs(env)
 	env.put        = function(srv,ent,t)  return def_put(env,srv,ent,t)         end
 	env.get        = function(srv,id,t)   return def_get(env,srv,id,t)          end
 	env.update     = function(srv,id,f)   return def_update(env,srv,id,f)       end
+	env.manifest   = function(srv,id,f)   return def_manifest(env,srv,id,f)     end
 	env.cache_key  = function(srv,id)     return def_cache_key(env,srv,id)      end
 	env.cache_what = function(srv,ent,mc) return def_cache_what(env,srv,ent,mc) end
 	env.cache_fix  = function(srv,mc)     return def_cache_fix(env,srv,mc)      end

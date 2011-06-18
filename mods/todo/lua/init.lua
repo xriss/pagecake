@@ -30,6 +30,8 @@ local note=require("note")
 local wakapages=require("waka.pages")
 local comments=require("note.comments")
 
+local things=require("todo.things")
+
 local math=math
 local string=string
 local table=table
@@ -106,7 +108,8 @@ end
 
 -----------------------------------------------------------------------------
 --
--- hook into waka page updates
+-- hook into waka page updates, any page under /todo will come in here
+-- that way we canuse the waka to update our basic todo data
 --
 -----------------------------------------------------------------------------
 function waka_changed(srv,page)
@@ -114,24 +117,36 @@ function waka_changed(srv,page)
 	if not page then return end
 	if tostring(page.key.id):sub(1,6)~="/todo/" then return end
 	
-	log(tostring(page.key.id))
+	local id=page.key.id
+	
+	log(tostring(id))
 	
 	local chunks=wet_waka.text_to_chunks( page.cache.text )
+	local title=chunks.title.text
 	
-	log(tostring(chunks.body.text))
+	log(tostring(title))
+	
+	if id and title then 
+	
+		local it=things.manifest(srv,id,function(srv,e)
+			e.cache.title=title
+			return true
+		end)
+	end
+	
 end
 
 -- add our hook to the waka stuffs, this should get called on module load
 -- so that we always watch the waka edits, the trailing slash is to make sure that
--- we only catch task pages and bellow
+-- we only catch todo sub pages and not the todo root
 waka.add_changed_hook("^/todo/",waka_changed)
 
 
 
-
+--[[
 -----------------------------------------------------------------------------
 --
--- hook into note posts
+-- hook into note posts?
 --
 -----------------------------------------------------------------------------
 function note_posted(srv,page,parent)
@@ -150,6 +165,6 @@ end
 -- so that we always watch the waka edits, the trailing slash is to make sure that
 -- we only catch task pages and bellow
 note.add_posted_hook("^/todo/",note_posted)
-
+]]
 
 

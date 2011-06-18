@@ -311,7 +311,7 @@ local put=make_put(srv)
 			
 			if not user then -- didnt get, so make and put a new user?
 			
-				user=d_users.manifest(srv,email,name,flavour) -- name can be nil, it will just be created from the email
+				user=d_users.fill(srv,nil,{email=email,name=name,flavour=flavour}) -- name can be nil, it will just be created from the email
 				if not d_users.put(srv,user,t) then user=nil end
 			end
 			
@@ -353,7 +353,7 @@ local put=make_put(srv)
 		for i=1,8 do
 			hash=hash..string.format("%04x", math.random(0,65535) ) -- not so good but meh it will do for now
 		end
-		sess=d_sess.manifest(srv,user,hash)
+		sess=d_sess.fill(srv,nil,{user=user,hash=hash})
 		d_users.put(srv,sess) -- dump the session
 		srv.set_cookie{name="wet_session",value=hash,domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
 	end

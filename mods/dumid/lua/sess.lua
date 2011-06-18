@@ -82,15 +82,15 @@ end
 -- Make a local session data, ready to be put
 --
 -----------------------------------------------------------------------------
-function manifest(srv,user,hash)
+function fill(srv,ent,tab)
 
-	local ent=create(srv)
+	local ent=ent or create(srv)
 	local p=ent.props
 	local c=ent.cache
 
-	ent.key.id=hash
+	ent.key.id=tab.hash
 	
-	c.userid=user.key.id
+	c.userid=tab.user.key.id
 	c.ip=srv.ip
 	
 	return ent

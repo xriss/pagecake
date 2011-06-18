@@ -63,9 +63,23 @@ function check(srv,ent)
 	return ent,ok
 end
 
+--------------------------------------------------------------------------------
+--
+-- fill a thing with the given data
+--
+--------------------------------------------------------------------------------
+function fill(srv,it,tab)
 
+	local it=it or create(srv)
+	
+	it.key.id=tab.id -- set id
+	it.cache.id=tab.id
+	
+	it.props.title=tab.title -- set title
+	it.cache.title=tab.title
 
-
+	return it
+end
 
 
 

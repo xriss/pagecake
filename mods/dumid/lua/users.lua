@@ -70,29 +70,29 @@ end
 -- Make a new local user data, ready to be put
 --
 -----------------------------------------------------------------------------
-function manifest(srv,userid,name,flavour)
+function fill(srv,user,tab)
 
-	local user=create(srv)
+	local user=user or create(srv)
 	
-	if not name or name=="" or name==userid then
+	if not tab.name or tab.name=="" or tab.name==tab.userid then
 	
-		user.cache.name=str_split("@",userid)[1] -- build a name from email
+		user.cache.name=str_split("@",tab.userid)[1] -- build a name from email
 		user.cache.name=string.sub(user.cache.name,1,32)
 		
 	else
 	
-		user.cache.name=name -- use given name
+		user.cache.name=tab.name -- use given name
 		
 	end
 
-	userid=string.lower(userid)
+	userid=string.lower(tab.userid)
 
-	user.key.id=userid -- each userid is unique
+	user.key.id=tab.userid -- each userid is unique
 	user.cache.id=user.key.id
 
-	user.cache.flavour=flavour -- provider hint, we can mostly work this out from the email if missing
+	user.cache.flavour=tab.flavour -- provider hint, we can mostly work this out from the email if missing
 	
-	user.cache.email=userid -- repeat the key as the email
+	user.cache.email=tab.userid -- repeat the key as the email
 
 	return user
 end
