@@ -163,7 +163,12 @@ function serv(srv)
 					{image,px,py,1,"TOP_LEFT"},
 				}) -- and force it to a JPEG with a white? background
 
+
+		if srv.url_slash[3]=="host.local:8080" then
+				image=img.resize(image,width,height) -- for somereason jpeg breaks locally, so this removes the errors
+		else
 				image=img.resize(image,width,height,"JPEG") -- resize image and force to jpeg
+		end
 
 					
 					cache.put(srv,cachename,{

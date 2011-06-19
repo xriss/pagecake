@@ -22,7 +22,7 @@ local d_sess =require("dumid.sess")
 local d_users=require("dumid.users")
 
 -- require all the module sub parts
-local html=require("profile.html")
+local html=require("todo.html")
 
 local waka=require("waka")
 local note=require("note")
@@ -96,13 +96,68 @@ local get,put=make_get_put(srv)
 	if name=="" then name=nil end -- can not be ""
 	if name then name=name:lower() end -- force to lower
 	
+	srv.crumbs={ {url="/",text="Home"} , {url="/todo",text="todo"} , }
+
+
 	if name then -- need to check the name is a valid thing
 	
+		local url_local="/todo/"..name
+	
+		local thing=things.get(srv,url_local)
+		
+		if thing then -- we gots a page
+	
+			srv.crumbs[#srv.crumbs+1]={url=url_local,text=name}
+			
+			local refined=wakapages.load(srv,url_local)[0]
+		
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put("header",{title="todo : "..refined.title})
+			put("todo_bar",{page=url_local:sub(2)})
+			
+			put( macro_replace(refined.plate or "<h1>{title}</h1>{body}", refined ) )
+					
+			comments.build(srv,{title=refined.title or name,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
+				
+			put("footer")
+			
+			return
+		end
+		
 	end
 
 -- by default list all possible things
 	
+-- need the base wiki page, for style yo
+	local refined=wakapages.load(srv,"/todo")[0]
 
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put("header",{title="todo"})
+	put("todo_bar",{page="todo"})
+	
+	local l=things.list(srv,{})
+	local things={}
+	for i,v in ipairs(l) do
+		dat.build_cache(v) -- expand
+		things[i]=v.cache
+	end
+	things.plate="plate_things"
+	refined.things=things
+	refined.plate_things=refined.plate_things or [[
+<a href="{it.id}"><span style="width:100px;display:inline-block;">{it.total}</span>{it.title}</a><br/>
+]]
+
+	refined.body=refined.body_things or [[
+<h1>This is a list of things we plan todo</h1>
+Click on an item for more info and the opportunity to bribe us to do it quicker.<br/>
+<br/>
+{things}
+<br/>
+<br/>
+]]
+	put( macro_replace(refined.plate or "{body}", refined ) )
+			
+	put("footer")
 end
 
 
@@ -117,19 +172,17 @@ function waka_changed(srv,page)
 	if not page then return end
 	if tostring(page.key.id):sub(1,6)~="/todo/" then return end
 	
-	local id=page.key.id
-	
-	log(tostring(id))
-	
+	local id=page.key.id	
 	local chunks=wet_waka.text_to_chunks( page.cache.text )
 	local title=chunks.title.text
 	
+	log(tostring(id))
 	log(tostring(title))
 	
 	if id and title then 
 	
-		local it=things.manifest(srv,id,function(srv,e)
-			e.cache.title=title
+		local it=things.manifest(srv,id,function(srv,e) -- create or update
+			e.cache.title=title -- update title
 			return true
 		end)
 	end

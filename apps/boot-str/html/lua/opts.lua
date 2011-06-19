@@ -59,8 +59,8 @@ map={ -- base lookup table
 						url="/",
 					},
 										
-["wiki"]		=	{			-- redirect
-						["#redirect"]	=	"/", 		-- remap this url and below
+["wiki"]		=	{			-- redirect old wiki content to the root
+						["#redirect"]	=	"/", 		-- remap to this url and below
 					},
 					
 ["blog"]		=	{			-- a blog module
@@ -135,10 +135,10 @@ map={ -- base lookup table
 											},
 					},
 
-["dice"]		=	{			-- roll some dice
-						["#default"]	=	"dice", 		-- no badlinks, we own everything under here
+["todo"]		=	{			-- stuff todo, kind of smarter wikipages
+						["#default"]	=	"todo", 		-- no badlinks, we own everything under here
 						["#opts"]		=	{
-												url="/dice",
+												url="/todo",
 											},
 					},
 

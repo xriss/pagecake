@@ -83,4 +83,46 @@ end
 
 
 
+--------------------------------------------------------------------------------
+--
+-- list comments
+--
+--------------------------------------------------------------------------------
+function list(srv,opts,t)
+	opts=opts or {} -- stop opts from being nil
+	
+	t=t or dat -- use transaction?
+	
+	local q={
+		kind=kind(srv),
+		limit=opts.limit or 100,
+		offset=opts.offset or 0,
+	}
+-- add filters?
+	for i,v in ipairs{"id","state"} do
+		if opts[v] then
+			local t=type(opts[v])
+			if t=="string" or t=="number" then
+				q[#q+1]={"filter",v,"==",opts[v]}
+			end
+		end
+	end
+
+-- sort by?
+	if opts.sortdate then
+		q[#q+1]={"sort","updated", opts.sortdate }
+	end
+	if opts.sortmake then
+		q[#q+1]={"sort","created", opts.csortdate }
+	end
+	
+	local r=t.query(q)
+
+	for i=1,#r.list do local v=r.list[i]
+		dat.build_cache(v)
+	end
+
+	return r.list
+end
+
 

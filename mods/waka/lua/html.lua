@@ -63,8 +63,9 @@ waka_edit_form=function(d)
 	d.text=html_esc(d.text)
 
 	return replace([[
+<div style="text-align:center;" >
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">
-	<textarea name="text" cols="80" rows="24" class="field" style="width:100%">{text}</textarea>
+	<textarea name="text" cols="80" rows="24" class="field" style="width:100%;max-width:960px;">{text}</textarea>
 	<br/>
 	<input type="submit" name="submit" value="Save" class="button" />
 	<input type="submit" name="submit" value="Write" class="button" />
@@ -76,6 +77,7 @@ waka_edit_form=function(d)
 		$('textarea[name=text]').indent();
 	});
 </script>
+</div>
 ]],d)
 
 end
