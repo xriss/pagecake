@@ -156,6 +156,11 @@ header=function(d)
 		end
 		d.title=s
 	end
+	
+	d.dotcss=".css"
+	if d.srv and d.srv.user and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
+		d.dotcss=".css?t="..os.time()
+	end
 
 	local p=get_plate_orig("header",
 [[<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -170,7 +175,7 @@ header=function(d)
 <link rel="shortcut icon" href="{favicon}" />
 
 <link rel="stylesheet" type="text/css" href="/css/base/aelua.css" /> 
-<link rel="stylesheet" type="text/css" href="/.css" /> 
+<link rel="stylesheet" type="text/css" href="/{dotcss}" /> 
 
 <script type="text/javascript"> /* head.js embed loader only */
 <!--
