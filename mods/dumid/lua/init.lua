@@ -311,7 +311,7 @@ local put=make_put(srv)
 			
 			if not user then -- didnt get, so make and put a new user?
 			
-				user=d_users.fill(srv,nil,{email=email,name=name,flavour=flavour}) -- name can be nil, it will just be created from the email
+				user=d_users.fill(srv,nil,{userid=email,name=name,flavour=flavour}) -- name can be nil, it will just be created from the userid
 				if not d_users.put(srv,user,t) then user=nil end
 			end
 			

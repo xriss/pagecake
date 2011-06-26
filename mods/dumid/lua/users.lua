@@ -76,7 +76,7 @@ function fill(srv,user,tab)
 	
 	if not tab.name or tab.name=="" or tab.name==tab.userid then
 	
-		user.cache.name=str_split("@",tab.userid)[1] -- build a name from email
+		user.cache.name=str_split("@",tab.userid)[1] -- build a short name from email
 		user.cache.name=string.sub(user.cache.name,1,32)
 		
 	else
@@ -87,12 +87,12 @@ function fill(srv,user,tab)
 
 	userid=string.lower(tab.userid)
 
-	user.key.id=tab.userid -- each userid is unique
+	user.key.id=userid -- each userid is unique
 	user.cache.id=user.key.id
 
 	user.cache.flavour=tab.flavour -- provider hint, we can mostly work this out from the email if missing
 	
-	user.cache.email=tab.userid -- repeat the key as the email
+	user.cache.email=tab.userid -- repeat the key as the email (but allow upper case here)
 
 	return user
 end

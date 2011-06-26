@@ -893,10 +893,11 @@ end
 
 	tab.put([[
 <script language="javascript" type="text/javascript">
-	$(function(){
+	var doit=function(){
 		$(".wetnote_comment_text a").autoembedlink({width:460,height:345});
-	});
-</script>	
+	};
+	head.js(head.fs.jquery_js,head.fs.jquery_wet_js,function(){ $(doit); });
+</script>
 	]])
 
 	return ret
