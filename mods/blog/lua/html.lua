@@ -56,11 +56,7 @@ blog_edit_form=function(d)
 	<input type="submit" name="submit" value="{publish}" class="button" />
 	<br/>	
 </form>
-<script type="text/javascript">
-	$(function(){
-		$('textarea[name=text]').indent();
-	});
-</script>
+
 ]],d)
 
 end

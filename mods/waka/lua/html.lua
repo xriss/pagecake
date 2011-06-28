@@ -65,7 +65,7 @@ waka_edit_form=function(d)
 	return replace([[
 <div  >
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">
-	<div id="editor_div" class="field" style="width:960px;height:480px;position:relative;margin:auto;display:none" ></div>
+	<div id="editor_div" class="field" style="width:960px;height:480px;position:relative;margin:auto;background:#fff;display:none" ></div>
 	<textarea id="editor_textarea" name="text" class="field" style="width:960px;height:480px;position:relative;margin:auto;display:block" >{text}</textarea>
 	<div style="text-align:center;">
 		<input type="submit" name="submit" value="Save" class="button" />
