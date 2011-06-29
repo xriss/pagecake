@@ -147,7 +147,7 @@ local get,put=make_get_put(srv)
 <a href="{it.id}"><span style="width:100px;display:inline-block;">{it.total}</span>{it.title}</a><br/>
 ]]
 
-	refined.body=refined.body_things or [[
+	refined.body=refined.body or [[
 <h1>This is a list of things we plan todo</h1>
 Click on an item for more info and the opportunity to bribe us to do it quicker.<br/>
 <br/>

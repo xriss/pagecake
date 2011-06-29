@@ -1,4 +1,5 @@
 
+
 local wet_html=require("wetgenes.html")
 
 local sys=require("wetgenes.aelua.sys")
@@ -204,7 +205,7 @@ function manifest(srv,id,t)
 		ent=create(srv)
 		ent.key.id=id -- force id which is page name string
 		ent.cache.id=id -- copy here
-		ent.cache.text="#title\n"..string.gsub(id,"/"," ").."\n#body\n".."MISSING CONTENT\n"
+		ent.cache.text=""--"#title\n"..string.gsub(id,"/"," ").."\n#body\n".."MISSING CONTENT\n"
 		ent.key.notsaved=true -- flag as not saved yet
 	end
 	
