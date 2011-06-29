@@ -173,12 +173,16 @@ local ext
 
 	if posts.text or posts.submit or (srv.vars.cmd and srv.vars.cmd=="edit") then
 	
+		if posts.submit=="Cancel" then
+			return srv.redirect(url)
+		end
+		
 		if posts.text then -- replace the page with what was in the form?
 			page.cache.text=posts.text
 		end
 		
 		if user and user.cache and user.cache.admin then -- admin
-			if posts.submit=="Save" or posts.submit=="Write" then -- save page to database
+			if posts.submit=="Save" or posts.submit=="Save and Edit" then -- save page to database
 				if posts.text then
 					local chunks=wet_waka.text_to_chunks(posts.text)
 					local e=pages.edit(srv,pagename,

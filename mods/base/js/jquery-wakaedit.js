@@ -47,7 +47,7 @@ var split_chunks=function(s){
 	for( var i=0 ; i<lines.length ; i++ )
 	{
 		var v=lines[i];
-		if( v.substring(0,1)=="#" )
+		if( (v.substring(0,1)=="#") && (v.substring(1,2)!="#") )
 		{
 			if( v.substring(1,2)==" " ) // continue chunk
 			{

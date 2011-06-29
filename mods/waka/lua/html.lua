@@ -63,7 +63,7 @@ waka_edit_form=function(d)
 	d.text=html_esc(d.text)
 
 	return replace([[
-<div id="wakaedit" >
+<div id="wakaedit" style="width:960px;position:relative;margin:auto;display:block">
 <form name="post"  action="" method="post" enctype="multipart/form-data">
 	<textarea name="text" class="field" style="width:960px;height:480px;position:relative;margin:auto;display:block" >{text}</textarea>
 	<div style="text-align:center;">
