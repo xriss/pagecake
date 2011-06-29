@@ -63,10 +63,9 @@ waka_edit_form=function(d)
 	d.text=html_esc(d.text)
 
 	return replace([[
-<div  >
-<form name="post" id="post" action="" method="post" enctype="multipart/form-data">
-	<div id="editor_div" class="field" style="width:960px;height:480px;position:relative;margin:auto;background:#fff;display:none" ></div>
-	<textarea id="editor_textarea" name="text" class="field" style="width:960px;height:480px;position:relative;margin:auto;display:block" >{text}</textarea>
+<div id="wakaedit" >
+<form name="post"  action="" method="post" enctype="multipart/form-data">
+	<textarea name="text" class="field" style="width:960px;height:480px;position:relative;margin:auto;display:block" >{text}</textarea>
 	<div style="text-align:center;">
 		<input type="submit" name="submit" value="Save" class="button" />
 		<input type="submit" name="submit" value="Save and Edit" class="button" />
@@ -76,39 +75,8 @@ waka_edit_form=function(d)
 </form>
 
 <script>
-head.js(
-	head.fs.jquery_js,
-	head.fs.ace_js,
-	head.fs.ace_theme_eclipse_js,
-	head.fs.ace_mode_html_js,
-	head.fs.ace_mode_css_js,
-	head.fs.ace_mode_javascript_js,
-	function() {
-		var text=$("#editor_textarea").val();
-		$("#editor_textarea").hide();
-		$("#editor_div").show();
-		var editor = ace.edit("editor_div");
-		editor.getSession().setUseSoftTabs(false);
-		editor.getSession().setUseWrapMode(false);
-		
-		var HtmlMode = require("ace/mode/html").Mode;
-		var CssMode = require("ace/mode/css").Mode;
-		var JavascriptMode = require("ace/mode/javascript").Mode;
-		
-		editor.getSession().setMode(new HtmlMode());
-		
-		editor.setTheme("ace/theme/eclipse");
-		
-		editor.getSession().setValue(text);
-		
-		window.aceEditor=editor;
-		
-		$("#post input").click(function(){
-			$("#editor_textarea").val( editor.getSession().getValue() );
-			return true;
-		});
-	}
-);
+window.auto_wakaedit={who:"#wakaedit",width:960,height:480};
+head.js(head.fs.jquery_wakaedit_js);
 </script>
 
 </div>

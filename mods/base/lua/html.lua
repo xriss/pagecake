@@ -187,7 +187,7 @@ head.fs.jquery_js="{jquery_js}";
 head.fs.jquery_ui_js="{jquery_ui_js}";
 head.fs.jquery_validate_js="{jquery_validate_js}";
 head.fs.jquery_wet_js="/js/base/jquery-wet.js";
-head.fs.jquery_indent_js="/js/base/jquery.indent-1.0.min.js";
+head.fs.jquery_wakaedit_js="/js/base/jquery-wakaedit.js";
 
 head.fs.ace_js="/js/base/ace/ace.js";
 head.fs.ace_theme_eclipse_js="/js/base/ace/theme-eclipse.js";
@@ -196,8 +196,6 @@ head.fs.ace_mode_css_js="/js/base/ace/mode-css.js";
 head.fs.ace_mode_javascript_js="/js/base/ace/mode-javascript.js";
 
 head.fs.swfobject_js="{swfobject_js}";
-
-//head.js( head.fs.jquery_js , head.fs.jquery_wet_js );
 
 </script>
 
