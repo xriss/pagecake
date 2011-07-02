@@ -158,7 +158,7 @@ $.fn.wakaedit=function(opts)
 // setup my defaults
 
 		editor.getSession().setUseSoftTabs(false);
-		editor.getSession().setUseWrapMode(false);
+		editor.getSession().setUseWrapMode(true);
 		
 		var HtmlMode = require("ace/mode/html").Mode;
 		var CssMode = require("ace/mode/css").Mode;
@@ -207,7 +207,7 @@ $.fn.wakaedit=function(opts)
 // magical auto callback
 	if(window.auto_wakaedit ){
 		var opts=window.auto_wakaedit;
-		auto_wakaedit=undefined; // clear to flag as done
+		window.auto_wakaedit=undefined; // clear to flag as done
 		$(opts.who+" textarea").wakaedit(opts);
 	}
 

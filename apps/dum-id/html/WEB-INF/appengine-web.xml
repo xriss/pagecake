@@ -3,5 +3,5 @@
   <application>dum-id</application>
 
   <version>1</version>
-
+  <threadsafe>true</threadsafe>
 </appengine-web-app>

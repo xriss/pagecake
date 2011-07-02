@@ -99,7 +99,8 @@ local get,put=make_get_put(srv)
 		
 		if em then -- got a data file to serv
 		
-			if em.cache.mimetype=="application/zip" then
+			-- if using a real pubname then do not try and list files or srv a file within
+			if em.cache.mimetype=="application/zip" and em.cache.pubname~=srv.url:sub(-#em.cache.pubname) then
 			
 				local ds={}
 				local ef=file.get(srv,em.cache.filekey)
@@ -137,7 +138,7 @@ local get,put=make_get_put(srv)
 --				srv.set_header("Cache-Control","public") -- allow caching of page
 --				srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 
-				srv.put("<html><head></head><body>\n")
+				srv.put("<html><head></head><body>\n") -- very bare contents list
 
 				for i,v in ipairs(t or {}) do
 				
@@ -180,7 +181,7 @@ local get,put=make_get_put(srv)
 	
 	
 	if not( user and user.cache and user.cache.admin ) then -- adminfail
-		return false
+		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
 -- upload / list for admin
@@ -215,7 +216,7 @@ local get,put=make_get_put(srv)
 		if posts.submit=="Upload" then
 		
 			local dat={}
-			dat.id=posts.dataid
+			dat.id=( (posts.dataid~="") and posts.dataid ) or 0
 			
 			dat.data=posts.filedata and posts.filedata.data
 			dat.size=posts.filedata and posts.filedata.size
@@ -227,11 +228,28 @@ local get,put=make_get_put(srv)
 			
 			upload(srv,dat)
 			
+			return srv.redirect("/data")
+			
 		end
 		
 --		put("<img src=\"/data{pubname}\" />",{H=H,pubname=pubname})
-			
-		put("data_upload_form",{H=H})
+		
+		local d={H=H}
+		if srv.url_slash[srv.url_slash_idx+0]=="" then --//commanands
+			if srv.url_slash[srv.url_slash_idx+1]=="edit" then
+				d.id=tonumber( srv.url_slash[srv.url_slash_idx+2] or 0) or 0
+
+				local em=meta.get(srv,d.id)
+				
+				if em then -- got a data file to serv
+					d.filename=em.cache.pubname:match("([^/]*)$")
+					d.mimetype=em.cache.mimetype
+				end
+				
+			end
+		end
+		
+		put("data_upload_form",d)
 		
 		local t=meta.list(srv,{sort="usedate"})
 		
@@ -336,7 +354,7 @@ function upload(srv,dat)
 local em
 local emc
 
-	if ( not dat.id ) or dat.id==0 then -- a new file
+	if ( not dat.id ) or dat.id==0 or dat.id=="" then -- a new file
 	
 		em=meta.create(srv)
 		emc=em.cache
@@ -352,21 +370,21 @@ local emc
 	
 	dat.ent=em
 			
+	if (not dat.mimetype) or (dat.mimetype=="") then
+		emc.mimetype=guess_mimetype(dat.name)
+	else
+		emc.mimetype=dat.mimetype
+	end
+
+	emc.filename=dat.name
+
 	if dat.data then -- got a file to create
 
 		file.delete(srv,emc.filekey) -- remove any old file data
 		
 		emc.size=dat.size
 		emc.owner=dat.owner
-		
-		if (not dat.mimetype) or (dat.mimetype=="") then
-		
-			emc.mimetype=guess_mimetype(dat.name)
-			
-		else
-			emc.mimetype=dat.mimetype
-		end
-					
+							
 		if not emc.id or emc.id==0 then
 			meta.put(srv,em)  -- write once to get an id for the meta
 			emc=em.cache
@@ -413,12 +431,13 @@ local emc
 			file.put(srv,v.ef) -- save the data, for real
 		end
 	end
-			
+	
 	if dat.pubname then
 		emc.pubname=dat.pubname
 	else
-		emc.pubname="/"..emc.id .."/".. dat.name -- default url
+		emc.pubname="/".. emc.id .."/".. (dat.name or "")-- default url
 	end
+
 	meta.put(srv,em)  -- save the meta
 	emc=em.cache
 	
@@ -438,13 +457,21 @@ local guess_mimetype_lookup={
 	[".jpeg"]="image/jpeg",
 	[".png"]="image/png",
 	[".gif"]="image/gif",
+	[".bmp"]="image/bmp",
+	[".tif"]="image/tiff",
+	[".tiff"]="image/tiff",
+	[".pcx"]="image/x-pcx",
 	[".txt"]="text/plain",
 	[".css"]="text/css",
 	[".htm"]="text/html",
 	[".html"]="text/html",
 	[".js"]="text/javascript",
 	[".zip"]="application/zip",
+	[".pdf"]="application/pdf",
+	[".flac"]="audio/flac",
+	[".ogv"]="video/ogg",
 	[".ogg"]="audio/ogg",
+	[".oga"]="audio/ogg",
 	[".mp3"]="audio/mp3",
 	[".manifest"]="text/cache-manifest",
 }

@@ -263,13 +263,15 @@ function delete(srv,id)
 	if id==0 then return end -- nothing to do
 	
 	local e=get(srv,id) -- get entity first
-	dat.del(e.key) -- delete first chunk
-	
-	while e.cache.nextkey~=0 do -- 0 termed
+	if e then
+		dat.del(e.key) -- delete first chunk
 		
-		e=get(srv,e.cache.nextkey) -- get entity first
-		dat.del(e.key) -- delete linked chunk
-		
+		while e.cache.nextkey~=0 do -- 0 termed
+			
+			e=get(srv,e.cache.nextkey) -- get entity first
+			dat.del(e.key) -- delete linked chunk
+			
+		end
 	end
 
 end

@@ -3,5 +3,5 @@
   <application>hoe-house</application>
 
   <version>1</version>
-
+  <threadsafe>true</threadsafe>
 </appengine-web-app>
