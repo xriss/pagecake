@@ -289,7 +289,7 @@ function def_get(env,srv,id,tt)
 	local ck=env.cache_key(srv,ent.key.id)
 	if not tt then -- can try for cached value outside of transactions
 		local ent=cache.get(srv,ck)
-		if ent then return env.check(srv,ent) end -- Yay, we got a cached value
+		if ent then return env.check(srv,json.decode(ent)) end -- Yay, we got a cached value
 	end
 	
 	local t=tt or dat -- use transaction?
@@ -298,7 +298,7 @@ function def_get(env,srv,id,tt)
 	dat.build_cache(ent)
 	
 	if not tt then -- auto cache ent for one hour
-		cache.put(srv,ck,ent,60*60)
+		cache.put(srv,ck,json.encode(ent),60*60)
 	end
 	
 	return env.check(srv,ent)

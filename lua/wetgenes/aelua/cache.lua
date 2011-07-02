@@ -38,6 +38,7 @@ end
 function put(srv,id,tab,ttl)
 	if srv then srv.cache[id]=tab end -- this local cache only lasts as long as a request
 	apis()
+--if( type(tab)~="string" ) then log(type(tab).." "..tostring(tab)) end -- it seems to be only safe to cache strings
 	return apie(core.put(id,tab,ttl))
 
 end
@@ -49,7 +50,7 @@ function get(srv,id)
 	count=count+1
 
 	local r=apie(core.get(id))
-	
+
 	if type(r)~="nil" then count_got=count_got+1 end -- a false is still a good result
 
 	return r
