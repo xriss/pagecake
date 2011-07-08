@@ -43,7 +43,12 @@ admin_edit=function(d)
 <div>
 <p>This install is running {bootstrapp} version {version}</p>
 <p>Visit <a href="http://www.wetgenes.com/bootstrapp.php">http://www.wetgenes.com/bootstrapp.php</a> to upgrade (relax all your site data will remain).</p>
-<p> <a href="/admin/console">console</a> <a href="/data">data</a> <a href="/blog//admin">blog</a> <a href="/blog//note">note</a> </p>
+<p>
+<a href="/admin/console" class="button" >console</a>
+<a href="/data" class="button" >data</a>
+<a href="/blog//admin" class="button" >blog</a>
+<a href="/blog//note" class="button" >note</a>
+</p>
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">
 	<textarea name="text" cols="120" rows="24" class="field" >{text}</textarea>
 	<br/>

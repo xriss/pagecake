@@ -1155,9 +1155,9 @@ You do not have the {need} bux needed.
 		<div class="trade">
 			<div class="trade1">
 			<div class="trade4">
-			Only the best offer in each catagory is available to buy so you should consider selling for less than that price if you want a quick sell.<br />
-			Remember that your trade offer will sit in the queue for a random amount of time, possibly many hours before it shows up as available to buy.<br />
-			You might want to keep checking this page in case someone is offering a good deal.
+			Only the best offer in each catagory is available to trader so you should consider selling for less than that price if you want a quick sell.<br />
+			You might want to keep checking this page in case someone is offering a good deal.<br />
+			If you see something you like then make the reverse offer and the trades will auto find each other.<br />
 			</div>
 			</div>
 		</div>
@@ -1203,7 +1203,7 @@ $(function(){ tradeshowtab("all"); });
 <div class="cont">
 	<div class="chunk3a">
 		<div class="chunk3ait">
-			<br/><img src="/art/upoffer.png" width="30" height="30" /> Recent Offers<br/>
+			<br/><img src="/art/upoffer.png" width="30" height="30" /> Your active trades<br/>
 		<div class="chunk3line"></div>
 		</div>
 		<div class="clear"></div>
@@ -1304,24 +1304,15 @@ $("#trade_{trade.offer}4{trade.seek}").validate({
 	<div class="chunk3line"></div>
 	<div class="trade2">
 	<div class="trade3a">
-		<form action="{url}" method="POST" enctype="multipart/form-data">
-		
-		<input type="hidden" name="key" value="{best.id}" /> 
-		<input type="hidden" name="cmd" value="buy" /> 
-		<input type="hidden" name="count" value="{best.count}" /> 
-		<input type="hidden" name="cost" value="{best.cost}" /> 
-		<input type="hidden" name="trade" value="{best.offer}4{best.seek}" /> 
 		
 		<div class="player">
 			<div class="player{random}"></div>
 			<div class="playershout"></div>
 		</div>
 		<div class="trade3b">
-		Someone is offering {best.count} <img src="/art/{best.offer}.png" /> {best.offer} for {best.price} <img src="/art/{best.seek}.png" /> {best.seek}
-		<br /> ( {best.cost} <img src="/art/{trade.b}.png" /> {trade.b} each )
-		<button type="submit" class="button">Buy {best.offer}!</button>
+		<a href="{H.url_base}profile/{best.player}">#{best.player}</a> is offering {best.count} <img src="/art/{best.offer}.png" /> {best.offer} for {best.price} <img src="/art/{best.seek}.png" /> {best.seek}
+		<br /> ( {best.cost} <img src="/art/{trade.b}.png" /> {trade.b} each ) {locktime}
 		
-		</form>
 		</div>
 		<div class="clear"></div>
 	</div>
@@ -1412,8 +1403,6 @@ $("#trade_{trade.offer}4{trade.seek}").validate({
 	<div class="chunk6">
 		<div class="alert">
 			<img src="/art/win.png" /> Congratulations! You've just offered {trade.count} <img src="/art/{trade.offer}.png" /> {trade.offer} for {trade.price} <img src="/art/{trade.seek}.png" /> {trade.seek}.<br/>
-			The <img src="/art/{trade.offer}.png" /> {trade.offer} have been placed in escrow.<br/>
-			Please wait whilst we add it to the queue, a buyer will purchase it shortly.
 		</div>
 
 	<div class="clear"></div>

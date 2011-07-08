@@ -29,9 +29,33 @@ users.admin={ -- users with admin rights for this app
 
 map={ -- base lookup table 
 
+["#index"]		=	"hoe", 
+["#default"]	=	"waka", 		-- no badlinks, everything defaults to a wikipage
+["#flavour"]	=	app_name, 			-- use this flavour when serving
+["#opts"]		=	{
+						url="/",
+					},
+--[[										
+["help"]		=	{			-- redirect old wiki content to the root
+						["#redirect"]	=	"/", 		-- remap to this url and below
+					},
+]]
+					
+--[[
 ["#default"]	=	serv_fail, -- bad link if we do not understand
 ["#flavour"]	=	"hoe", 
 ["#index"]		=	"hoe", 
+
+					
+["help"]		=	{			-- a wiki like module
+						["#default"]	=	"waka", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	"hoe", 			-- use this flavour when serving
+						["#opts"]		=	{
+												url="/help",
+											},
+					},
+
+]]
 					
 ["hoe"]			=	{			-- the base module
 						["#default"]	=	"hoe", 		-- no badlinks, we own everything under here
@@ -67,14 +91,6 @@ map={ -- base lookup table
 						["#default"]	=	"thumbcache", 		-- no badlinks, we own everything under here
 						["#opts"]		=	{
 												url="/thumbcache",
-											},
-					},
-					
-["help"]		=	{			-- a wiki like module
-						["#default"]	=	"waka", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	"hoe", 			-- use this flavour when serving
-						["#opts"]		=	{
-												url="/help",
 											},
 					},
 					

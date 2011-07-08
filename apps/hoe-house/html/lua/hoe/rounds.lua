@@ -101,6 +101,8 @@ function check(H,ent)
 		end
 	end
 	
+	c.tradewait=math.floor(12*12*c.timestep) -- 12 hours with default 5min timestep
+	
 	return ent
 end
 

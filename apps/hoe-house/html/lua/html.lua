@@ -474,6 +474,7 @@ end
 trade_header=function(d)
 	return replace(get_plate("trade_header"),d)
 end
+
 -----------------------------------------------------------------------------
 --
 -- trade options
@@ -481,7 +482,6 @@ end
 -----------------------------------------------------------------------------
 trade_footer=function(d)
 	return replace(get_plate("trade_footer"),d)
-
 end
 
 -----------------------------------------------------------------------------
@@ -499,6 +499,21 @@ end
 
 trade_row_best=function(d)
 d.random=math.random(1,12)
+d.locktime=""
+	local t=math.floor(os.time()-d.best.created)
+	local twait=d.H.round.cache.tradewait
+	if t < twait then
+		d.locktime="<span style='color:red;'>locked for "..rough_english_duration(twait-t).."</span>"
+	end
+	if not d.trade then -- need to know what we are offering so guess
+		d.trade={}
+		d.trade.a=d.best.offer
+		d.trade.b=d.best.seek
+		if d.best.count > d.best.price then
+			d.trade.b=d.best.offer
+			d.trade.a=d.best.seek
+		end
+	end
 	return replace(get_plate("trade_row_best"),d)
 end
 
@@ -516,7 +531,7 @@ d.random=math.random(1,12)
 	if not d.best then -- none available	
 		d.part1=replace(get_plate("trade_row_none"),d)
 	else
-		d.part1=replace(get_plate("trade_row_best"),d)
+		d.part1=trade_row_best(d)
 	end
 
 	return replace(get_plate("trade_row_parts"),d)

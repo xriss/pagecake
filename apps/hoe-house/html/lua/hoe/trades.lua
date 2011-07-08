@@ -20,6 +20,8 @@ local serialize=wet_string.serialize
 -- require all the module sub parts
 local html  =require("hoe.html")
 local rounds=require("hoe.rounds")
+local players=require("hoe.players")
+local acts=require("hoe.acts")
 
 
 
@@ -86,7 +88,7 @@ function create(H)
 	p.seek="bux"	-- the item wanted in payment
 	p.cost=0		-- the number(integer) of items needed per single item (may not be 0)
 	
-	p.price=0		-- this is the full price which is count*cost
+	p.price=0		-- this is the full price which is count*cost or count/cost
 	
 	dat.build_cache(ent) -- this just copies the props across
 	
@@ -111,7 +113,8 @@ function check(H,ent)
 	
 -- how long to sit in limbo for?
 
-	c.limbo=c.limbo or math.random( 2*12*H.round.cache.timestep , 24*12*H.round.cache.timestep ) --  2-24 hours with default 5min timestep
+	c.limbo=c.limbo or math.random( 2*12*H.round.cache.timestep , 24*12*H.round.cache.timestep ) 
+	
 
 -- check?
 	if c.price<=0 then ok=false end
@@ -276,13 +279,13 @@ local reverse=false
 	
 	local r=cache.get(H.srv,cachekey) -- do we already know the answer?
 
-	if not r then
+	if not r then -- get the answer
 	
 		t=t or dat -- transactions shouldnt be used anyhow?
 		
 		local q={
 			kind=kind(H),
-			limit=100, -- there are probably not 100, and we need to skip any in limbo
+			limit=1,
 			offset=0,
 				{"filter","round_id","==",H.round.key.id},
 				{"filter","buyer","==",0}, -- must be available to buy
@@ -302,27 +305,15 @@ local reverse=false
 			
 			
 		r=t.query(q)
-		cache.put(H.srv,cachekey,r,10*60) -- save this (possibly random) result for 10 mins
+		cache.put(H.srv,cachekey,r,1*60) -- save this (possibly random) result for 1 min
 	
 	end
 	
-	local best
-		
-	for i=1,#r.list do local v=r.list[i] -- look for the first one that has passed its limbo wait period?
-		dat.build_cache(v)
-		if (not opts.skipmine) or (v.cache.player~=opts.skipmine) then -- we skip our own trades?
-			if opts.nowait then -- actually, we are not waiting
-				best=v
-				break
-			end
-			if (v.cache.created+(v.cache.limbo or 0)) < H.srv.time then -- ignore new trades for a little while
-				best=v
-				break
-			end
-		end
-	end
-	-- if we have 100 trades in limbo then no trades will be available...
+	local best=r.list[1]
 
+	if best then
+		dat.build_cache(best)
+	end
 	
 	return best
 end
@@ -360,4 +351,132 @@ local reverse=false
 	end
 	
 	return r.list	
+end
+
+
+--------------------------------------------------------------------------------
+--
+-- check and satisfy or remove trades of the current round
+--
+--------------------------------------------------------------------------------
+function pulse(H)
+local valid_trades={
+	{"houses","hoes",min=5,max=50,},
+	{"hoes","bros",min=40,max=1000,},
+	{"bros","bux",min=1000,max=10000,},
+}
+
+	for i,v in ipairs(valid_trades) do
+		local best={}
+		best[1]=find_cheapest(H,{offer=v[1],seek=v[2],reverse=false}) -- get the best trade
+		best[2]=find_cheapest(H,{offer=v[2],seek=v[1],reverse=true}) -- get the best reverse trade
+		
+		H.srv.put("checking "..v[1].." for "..v[2].."\n")
+		
+		if best[1] then
+			local c=best[1].cache
+			H.srv.put(c.player.." is selling "..c.count.." for "..c.cost.."\n")
+			local need=c.count
+			if best[1]=="houses" then need=need+1 end -- must keep 1 house
+			
+			local p=players.get(H,c.player)
+			
+			if p.cache[ best[1].cache.offer ] < need then -- not enough?
+				H.srv.put("canceling "..c.player.." trade due to lack of funds\n")
+				update_set(H,best[1],{buyer=-1}) -- cancel it
+				best[1]=nil
+			end
+			
+		end
+		if best[2] then
+			local c=best[2].cache
+			H.srv.put(c.player.." is buying "..(c.count/c.cost).." for "..c.cost.."\n")
+			local need=c.count
+			if best[2]=="houses" then need=need+1 end -- must keep 1 house
+
+			local p=players.get(H,c.player)
+
+			if p.cache[ best[2].cache.offer ] < need then -- not enough?
+				H.srv.put("canceling "..c.player.." trade due to lack of funds\n")
+				update_set(H,best[2],{buyer=-1}) -- cancel it
+				best[2]=nil			
+			end
+			
+		end
+		
+		if best[1] and best[2] then -- wealready checked that both parties have the goods so now we check if they will deal
+			if best[1].cache.cost <= best[2].cache.cost then
+			
+				H.srv.put("performing deal\n")
+				
+				local count=best[1].cache.count -- start with number needed by trade 2
+				local cost=math.floor( ( best[1].cache.cost + best[2].cache.cost ) / 2 ) -- we meet halfway on price
+				local price=count*cost
+				
+-- work out how many we will actually exchange, it wil satisfy one of the trades, possibly both
+
+				local count2=math.floor(best[2].cache.count/best[2].cache.cost) -- number needed by trade 2
+
+
+				if count<count2 then --trade1 is satisfied, trade2 is just reduced
+
+					H.srv.put("trade1 is satisfied, trade2 is just reduced\n")
+				
+					update_set(H,best[1],{buyer=best[2].cache.player , cost=cost , price = price , count=count })
+					
+					local up={}
+					up.price= (count2-count)
+					up.count= up.price*best[2].cache.cost
+					update_set(H,best[2],up)
+				
+				elseif count2<count then --trade2 is satisfied, trade1 is just reduced
+				
+					H.srv.put("trade2 is satisfied, trade1 is just reduced\n")
+					
+					local up={}
+					up.count=count-count2
+					up.price=up.count*best[1].cache.cost
+					update_set(H,best[1],up)
+					
+					update_set(H,best[2],{buyer=best[1].cache.player , cost=cost , count=price , price=count })
+
+
+				else -- both trades are satisfied, one of them will get marked as a dupe/deleted ?
+
+					H.srv.put("both trades are satisfied, one of them will get marked as a dupe/deleted\n")
+
+					update_set(H,best[1],{buyer=best[2].cache.player , cost=cost , price=price , count=count })
+					update_set(H,best[2],{buyer=-1}) -- cancel it
+
+				end
+
+-- update players stats by exchanging value
+
+				local adjust={}
+				adjust[ v[1] ]=-count;
+				adjust[ v[2] ]=price;
+				players.update_add(H,best[1].cache.player,adjust) -- exchange
+				adjust[ v[1] ]=count;
+				adjust[ v[2] ]=-price;
+				players.update_add(H,best[2].cache.player,adjust) -- exchange
+				
+-- log the trade
+				local seller=players.get(H,best[1].cache.player) -- get sellers name
+				local buyer=players.get(H,best[2].cache.player) -- get buyers name
+
+				acts.add_trade(H,{
+					actor1 = seller.key.id ,
+					name1  = seller.cache.name ,
+					actor2 = buyer.key.id ,
+					name2  = buyer.cache.name ,
+					offer  = v[1],
+					seek   = v[2],
+					count  = count,
+					cost   = cost,
+					price  = price,
+					})
+
+			end
+		end
+	end
 end
