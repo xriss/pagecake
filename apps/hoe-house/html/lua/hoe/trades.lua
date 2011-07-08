@@ -25,6 +25,7 @@ local acts=require("hoe.acts")
 
 
 
+local os=os
 local math=math
 local string=string
 local table=table
@@ -404,7 +405,24 @@ local valid_trades={
 			
 		end
 		
-		if best[1] and best[2] then -- wealready checked that both parties have the goods so now we check if they will deal
+		
+		local timeon=true -- are trades out of limbo?
+		
+		local twait=H.round.cache.tradewait
+
+		if best[1] then
+			if math.floor(os.time()-best[1].cache.created) < twait then
+				timeon=false
+			end
+		end
+		if best[2] then
+			if math.floor(os.time()-best[2].cache.created) < twait then
+				timeon=false
+			end
+		end
+		
+		
+		if timeon and best[1] and best[2] then -- wealready checked that both parties have the goods so now we check if they will deal
 			if best[1].cache.cost <= best[2].cache.cost then
 			
 				H.srv.put("performing deal\n")
