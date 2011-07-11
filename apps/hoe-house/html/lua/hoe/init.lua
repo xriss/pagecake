@@ -954,9 +954,6 @@ local valid_trades={
 	local tradea,tradeb -- [1] and [2] fixed for reverse purchase
 	local results="" -- any extra result html
 	
--- get this here to test now and display later		
-local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
-
 	if H.player and posts.trade then -- we want to trade
 	
 		local reverse=false 
@@ -1003,6 +1000,8 @@ local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
 
 			if posts.cmd=="sell" and trade and cost>=trade.min and cost<=trade.max then -- valid?
 							
+				local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
+
 				if mytrades and ( #mytrades > 10 ) then -- only allowed 10 active trades at a time
 
 					results=results..get("trade_sell_fail_queue")
@@ -1065,8 +1064,6 @@ local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
 							})
 					end
 
--- update mytrades
-mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
 
 				end
 			end
@@ -1119,10 +1116,12 @@ mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
 	
 	put("trade_footer",{trades=trades})
 	
-	for i,v in ipairs(mytrades or {} ) do -- list all my active trades
-		put("trade_row_best",{best=v.cache})
+	if H.player then
+		local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
+		for i,v in ipairs(mytrades or {} ) do -- list all my active trades
+			put("trade_row_best",{best=v.cache})
+		end
 	end
-
 --[[
 	local a=acts.list(H,{ act="tradeoffer" , private=0 , limit=20 , offset=0 })
 	if a then

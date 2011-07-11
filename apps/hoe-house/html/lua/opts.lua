@@ -16,6 +16,8 @@ local type=type
 
 module("opts")
 
+local app_name="hoe"
+
 mail={}
 mail.from="spam@hoe-house.appspotmail.com"
 
@@ -35,31 +37,10 @@ map={ -- base lookup table
 ["#opts"]		=	{
 						url="/",
 					},
---[[										
-["help"]		=	{			-- redirect old wiki content to the root
-						["#redirect"]	=	"/", 		-- remap to this url and below
-					},
-]]
-					
---[[
-["#default"]	=	serv_fail, -- bad link if we do not understand
-["#flavour"]	=	"hoe", 
-["#index"]		=	"hoe", 
-
-					
-["help"]		=	{			-- a wiki like module
-						["#default"]	=	"waka", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	"hoe", 			-- use this flavour when serving
-						["#opts"]		=	{
-												url="/help",
-											},
-					},
-
-]]
 					
 ["hoe"]			=	{			-- the base module
 						["#default"]	=	"hoe", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	"hoe", 		-- use this flavour when serving
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/hoe",
 											},
@@ -67,12 +48,13 @@ map={ -- base lookup table
 					
 ["admin"]		=	{			-- all admin stuff
 						["#default"]	=	"admin",
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/admin",
 											},
 						["console"]		=	{			-- a console module
 											["#default"]	=	"console",
-											["#flavour"]	=	"hoe",
+											["#flavour"]	=	app_name, 			-- use this flavour when serving
 											["#opts"]		=	{
 																	url="/admin/console",
 																},
@@ -81,7 +63,7 @@ map={ -- base lookup table
 					
 ["dumid"]		=	{			-- a dumid module
 						["#default"]	=	"dumid", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	"hoe", 			-- use this flavour when serving
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/dumid",
 											},
@@ -89,6 +71,7 @@ map={ -- base lookup table
 
 ["thumbcache"]		=	{			-- cache some images
 						["#default"]	=	"thumbcache", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/thumbcache",
 											},
@@ -96,7 +79,7 @@ map={ -- base lookup table
 					
 ["blog"]		=	{			-- a blog module
 						["#default"]	=	"blog", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	"hoe", 			-- use this flavour when serving
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/blog",
 											},
@@ -104,6 +87,7 @@ map={ -- base lookup table
 					
 ["note"]		=	{			-- a sitewide comment module
 						["#default"]	=	"note", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/note",
 											},
@@ -111,6 +95,7 @@ map={ -- base lookup table
 
 ["profile"]		=	{			-- a sitewide comment module
 						["#default"]	=	"profile", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/profile",
 											},
@@ -118,6 +103,7 @@ map={ -- base lookup table
 
 ["data"]		=	{			-- a data module
 						["#default"]	=	"data", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/data",
 											},

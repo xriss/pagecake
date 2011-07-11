@@ -62,10 +62,9 @@ fetch.countzero()
 	local lookup=opts.map
 	local cmd
 	local f
-	local flavour
 	
 	srv.url_slash_idx=4 -- let the caller know which part of the path called them
-	srv.flavour=nil -- sub modules can use this flavour to seperate themselves depending when called
+	srv.flavour=lookup[ "#flavour" ] -- sub modules can use this flavour to seperate themselves depending when called
 	
 	srv.domainport=srv.url_slash[3]
 	if srv.domainport then srv.domain=str_split(":",srv.domainport)[1] end -- lose any port part

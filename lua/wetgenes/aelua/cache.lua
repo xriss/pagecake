@@ -28,6 +28,13 @@ local function apie(...)
 end
 
 
+function clear(srv)
+	apis()
+	return apie(core.clear())
+
+end
+
+
 function del(srv,id)
 	if srv then srv.cache[id]=nil end
 	apis()
