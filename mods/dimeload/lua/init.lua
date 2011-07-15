@@ -22,7 +22,7 @@ local d_sess =require("dumid.sess")
 local d_users=require("dumid.users")
 
 -- require all the module sub parts
-local html=require("profile.html")
+local html=require("dimeload.html")
 
 local waka=require("waka")
 local note=require("note")

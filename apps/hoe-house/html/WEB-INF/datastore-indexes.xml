@@ -1,0 +1,72 @@
+<!-- Indices written at Fri, 8 Jul 2011 15:39:55 UTC -->
+
+<datastore-indexes autoGenerate="true">
+
+    <!-- Used 4 times in query history -->
+    <datastore-index kind="hoe.blog.pages" ancestor="false" source="auto">
+        <property name="layer" direction="asc"/>
+        <property name="pubdate" direction="desc"/>
+    </datastore-index>
+
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="hoe.blog.pages" ancestor="false" source="auto">
+        <property name="pubname" direction="asc"/>
+        <property name="layer" direction="asc"/>
+    </datastore-index>
+
+    <!-- Used 8 times in query history -->
+    <datastore-index kind="hoe.round" ancestor="false" source="auto">
+        <property name="state" direction="asc"/>
+        <property name="updated" direction="desc"/>
+    </datastore-index>
+
+    <!-- Used 8 times in query history -->
+    <datastore-index kind="hoe.act" ancestor="false" source="auto">
+        <property name="dupe" direction="asc"/>
+        <property name="private" direction="asc"/>
+        <property name="round_id" direction="asc"/>
+        <property name="created" direction="desc"/>
+    </datastore-index>
+
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="note.comments" ancestor="false" source="auto">
+        <property name="type" direction="asc"/>
+        <property name="created" direction="desc"/>
+    </datastore-index>
+
+    <!-- Used 6 times in query history -->
+    <datastore-index kind="hoe.player" ancestor="false" source="auto">
+        <property name="email" direction="asc"/>
+        <property name="round_id" direction="asc"/>
+        <property name="created" direction="asc"/>
+    </datastore-index>
+
+    <!-- Used 8 times in query history -->
+    <datastore-index kind="hoe.trade" ancestor="false" source="auto">
+        <property name="buyer" direction="asc"/>
+        <property name="offer" direction="asc"/>
+        <property name="round_id" direction="asc"/>
+        <property name="seek" direction="asc"/>
+        <property name="cost" direction="asc"/>
+        <property name="count" direction="desc"/>
+        <property name="created" direction="desc"/>
+    </datastore-index>
+
+    <!-- Used 6 times in query history -->
+    <datastore-index kind="hoe.trade" ancestor="false" source="auto">
+        <property name="buyer" direction="asc"/>
+        <property name="offer" direction="asc"/>
+        <property name="round_id" direction="asc"/>
+        <property name="seek" direction="asc"/>
+        <property name="cost" direction="desc"/>
+        <property name="count" direction="desc"/>
+        <property name="created" direction="desc"/>
+    </datastore-index>
+
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="hoe.player" ancestor="false" source="auto">
+        <property name="round_id" direction="asc"/>
+        <property name="score" direction="desc"/>
+    </datastore-index>
+
+</datastore-indexes>
