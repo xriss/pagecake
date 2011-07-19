@@ -55,7 +55,7 @@ if($fpc)
 	fwrite($fpc,"<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
 	  <application>$name</application>
 	  <version>1</version>
-      <threadsafe>true</threadsafe>
+      <threadsafe>false</threadsafe>
 	</appengine-web-app>
 	");
 	fclose($fpc);
