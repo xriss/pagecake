@@ -6,6 +6,9 @@ require("socket.http")
 
 local sxml=require("wetgenes.simpxml")
 local json=require("wetgenes.json")
+local wetstring=require("wetgenes.string")
+
+local ssplit=wetstring.str_split
 
 local body, headers, code = socket.http.request("http://4lfa.com/archive.php")
 put("Received "..#body.." bytes\n")
@@ -86,10 +89,23 @@ putcache()
 			putcache()
 		end
 
+		if t.img then
+			local a=ssplit("/",t.img)
+			t.icon=t.img.."_"
+			t.name=a[#a-0]
+			t.group=a[#a-1]
+		end
+		if t.href then
+			local a=ssplit("/",t.href)
+			t.name=a[#a-0]
+		end
+
+		put("GROUP: " .. (t.group or "" ).. "\n" )
+		put("NAME:  " .. (t.name or "" ).. "\n" )
 		put("TIME:  " .. (t.time or "" ).. "\n" )
 		put("IMAGE: " .. (t.img or "" ).. "\n" )
 		put("TITLE: " .. (t.title or "" ).. "\n" )
-		put("TEXT:  " .. (t.text or "" ).. "\n" )
+		put("TEXT:  " .. #(t.text or "" ).. "\n" )
 		put("\n" )
 
 --break
