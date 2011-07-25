@@ -74,6 +74,19 @@ local function make_get_put(srv)
 	return get,put
 end
 
+-----------------------------------------------------------------------------
+--
+-- get an id from a string, returns 0 if none
+--
+-----------------------------------------------------------------------------
+function sanitize_id(s)
+	local num=math.floor( tonumber( s or 0 ) or 0 )
+	if num==0 then
+		num=string.gsub(s or "", "[^0-9a-zA-Z%-_%.]+", "" ) -- only allow some chars
+		if num=="" then num=0 end
+	end
+	return num
+end
 
 -----------------------------------------------------------------------------
 --
@@ -91,8 +104,8 @@ local get,put=make_get_put(srv)
 --	put(tostring(user and user.cache),{H=H})
 
 
-	local num=math.floor( tonumber( srv.url_slash[srv.url_slash_idx+0] or 0 ) or 0 )
-	
+	local num=sanitize_id(srv.url_slash[srv.url_slash_idx+0])
+		
 	if num~=0 and tostring(num)==srv.url_slash[srv.url_slash_idx+0] then --got us an id
 	
 		local em=meta.get(srv,num)
@@ -207,7 +220,7 @@ local get,put=make_get_put(srv)
 			if posts[v] then posts[v]=trim(posts[v]) end
 		end
 		for i,v in pairs({"dataid"}) do
-			if posts[v] then posts[v]=tonumber(posts[v]) end
+			if posts[v] then posts[v]=sanitize_id(posts[v]) end
 		end
 	
 --		put(tostring(posts).."<br/>",{H=H})
@@ -237,7 +250,7 @@ local get,put=make_get_put(srv)
 		local d={H=H}
 		if srv.url_slash[srv.url_slash_idx+0]=="" then --//commanands
 			if srv.url_slash[srv.url_slash_idx+1]=="edit" then
-				d.id=tonumber( srv.url_slash[srv.url_slash_idx+2] or 0) or 0
+				d.id=sanitize_id( srv.url_slash[srv.url_slash_idx+2] )
 
 				local em=meta.get(srv,d.id)
 				
@@ -291,7 +304,7 @@ end
 -----------------------------------------------------------------------------
 function read(srv,id)
 
-	local num=tonumber(id)
+	local num=sanitize_id(id)
 
 	local em=meta.get(srv,num)
 	
@@ -362,8 +375,12 @@ local emc
 	else -- editing an old file
 	
 		em=meta.get(srv,dat.id)
-		if not em then return end -- failed to get an entity to update
-		
+		if not em then -- failed to get an entity to update so make a new one with custom id
+			em=meta.create(srv)
+			emc=em.cache		
+			em.key.id=dat.id
+			emc.id=em.key.id
+		end
 		emc=em.cache
 
 	end
@@ -385,7 +402,7 @@ local emc
 		emc.size=dat.size
 		emc.owner=dat.owner
 							
-		if not emc.id or emc.id==0 then
+		if not emc.id or emc.id==0 or emc.id=="" then
 			meta.put(srv,em)  -- write once to get an id for the meta
 			emc=em.cache
 			dat.id=emc.id -- new id
