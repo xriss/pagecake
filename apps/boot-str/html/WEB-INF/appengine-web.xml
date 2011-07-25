@@ -2,5 +2,5 @@
   <!-- Replace this with your application id from http://appengine.google.com -->
   <application>boot-str</application>
   <version>1</version>
-  <threadsafe>true</threadsafe>
+  <threadsafe>false</threadsafe>
 </appengine-web-app>
