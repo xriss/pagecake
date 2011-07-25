@@ -112,6 +112,51 @@ putcache()
 	end
 
 
+	for n,t in pairs(comics) do
+
+		if t.group and t.name then
+
+			local fname="cache/waka/"..t.group.."/"..t.name
+
+			put("UPDATE: "..fname.."\n" )
+
+			create_dir_for_file(fname)
+
+			local s=""
+
+			s=s.."#group trim=ends\n"
+			s=s..t.group.."\n"
+			s=s.."#name trim=ends\n"
+			s=s..t.name.."\n"
+			s=s.."#title trim=ends\n"
+			s=s..t.title.."\n"
+			s=s.."#text\n"
+			s=s..t.text.."\n"
+
+			writefile(fname..".txt",s)
+
+
+			local fname="cache/data/"..t.group.."."..t.name..".png"
+			if not file_exists(fname) then
+put("downloading "..fname.."\n")
+				local body, headers, code = socket.http.request(t.img..".png")		
+				if body then
+					create_dir_for_file(fname)
+					writefile(fname,body)
+				end
+			end
+
+			local fname="cache/data/"..t.group.."."..t.name..".icon.png"
+			if not file_exists(fname) then
+put("downloading "..fname.."\n")
+				local body, headers, code = socket.http.request(t.img.."_.png")			
+				if body then
+					create_dir_for_file(fname)
+					writefile(fname,body)
+				end
+			end
+		end
+	end
 
 else
 	put("no pages found\n")

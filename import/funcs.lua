@@ -1,5 +1,6 @@
 
 local json=require("wetgenes.json")
+local lfs=require("lfs")
 
 -----------------------------------------------------------------------------
 --
@@ -108,5 +109,20 @@ end
 exec=function(cmdline)
 	print(cmdline)
 	os.execute(cmdline)
+end
+
+--
+-- given a filename make sure that its containing directory exists
+--
+create_dir_for_file=function(n)
+	local t={}
+	for w in string.gmatch(n, "[^/]+") do t[#t+1]=w end
+	local s=""
+	t[#t]=nil -- remove the filename
+	for i,v in ipairs(t) do
+		s=s..v
+		lfs.mkdir(s)
+		s=s.."/"
+	end
 end
 

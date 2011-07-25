@@ -4,6 +4,7 @@ local os=os
 local dat=require("wetgenes.aelua.data")
 local cache=require("wetgenes.aelua.cache")
 local fetch=require("wetgenes.aelua.fetch")
+local users=require("wetgenes.aelua.users")
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
@@ -49,15 +50,32 @@ dat.countzero()
 cache.countzero()
 fetch.countzero()
 
-	local allow,tab=iplog.ratelimit(srv.ip)
-	srv.iplog=tab -- iplog info
-	if not allow then srv.put("RATELIMITED") return end -- drop request
-
 	srv.clock=os.clock() -- a relative time we started at
 	srv.time=os.time() -- the absolute time we started
 
 	srv.url_slash=str_split("/",srv.url) -- break the input url
 	srv.crumbs={} -- for crumbs based navigation 
+
+--[[
+		if srv.url_slash[4]=="admin" and srv.url_slash[5]=="clearmemcache" then
+			srv.put("MEMCACHE CLEARED")
+			cache.clear(srv)
+			return
+		end
+]]
+
+	local guser=users.get_google_user() -- google handles its own login
+	if guser and guser.admin then -- trigger any special preadmin codes?
+
+
+	else -- only non admins get rate limited
+
+		local allow,tab=iplog.ratelimit(srv.ip)
+		srv.iplog=tab -- iplog info
+		if not allow then srv.put("RATELIMITED") return end -- drop request
+
+	end
+
 	
 	local lookup=opts.map
 	local cmd
