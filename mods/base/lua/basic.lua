@@ -46,6 +46,8 @@ end
 -----------------------------------------------------------------------------
 function serv(srv)
 
+	srv.check_referer=check_referer
+
 dat.countzero()
 cache.countzero()
 fetch.countzero()
@@ -195,5 +197,29 @@ fetch.countzero()
 	f(srv) -- handle this base url
 	
 end
+
+
+
+--is it safe to accept data for this url from this referer?
+function check_referer(referer,url)
+
+	-- for unknown reasons the port bit goes missing sometimes on debug servers so remove it...
+	function remove_port(a)
+		local a1=str_split("/",a or "")
+		local a2=str_split(":",a1[3] or "")
+		a1[3]=a2[1]
+		return table.concat(a1,"/")
+	end
+
+	referer=remove_port(referer)
+	url=remove_port(url)
+	
+--log(referer.."=="..url )
+
+	if referer==url then return true end
+
+	return false
+end
+
 
 

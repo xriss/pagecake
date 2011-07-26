@@ -83,7 +83,7 @@ function sanitize_id(s)
 	local num=math.floor( tonumber( s or 0 ) or 0 )
 	if num==0 then
 		num=string.gsub(s or "", "[^0-9a-zA-Z%-_%.]+", "" ) -- only allow some chars
-		if num=="" then num=0 end
+		if num=="" or num=="0" then num=0 end
 	end
 	return num
 end
@@ -103,6 +103,8 @@ local get,put=make_get_put(srv)
 
 --	put(tostring(user and user.cache),{H=H})
 
+--log("srv.postgot\n"..tostring(srv.posts))
+--log("admin:"..tostring(user and user.cache and user.cache.admin))
 
 	local num=sanitize_id(srv.url_slash[srv.url_slash_idx+0])
 		
@@ -204,18 +206,19 @@ local get,put=make_get_put(srv)
 		H={sess=sess,user=user},
 		})
 	
+
 --	put(tostring(user and user.cache),{H=H})
 	if user and user.cache and user.cache.admin then -- admin
 	
 		local posts={} -- remove any gunk from the posts input
-		if srv.method=="POST" and srv.headers.Referer and srv.headers.Referer==srv.url then
+		if srv.method=="POST" and srv.check_referer(srv.headers.Referer,srv.url) then
 			for i,v in pairs(srv.posts) do
 				posts[i]=v
 			end
 		end
 		
 		posts["filedata"]=srv.uploads["filedata"] -- uploaded file
-				
+
 		for i,v in pairs({"filename","mimetype","submit"}) do
 			if posts[v] then posts[v]=trim(posts[v]) end
 		end
@@ -225,6 +228,7 @@ local get,put=make_get_put(srv)
 	
 --		put(tostring(posts).."<br/>",{H=H})
 		
+--log("postgot\n"..tostring(posts))
 		
 		if posts.submit=="Upload" then
 		
