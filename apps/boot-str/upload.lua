@@ -5,7 +5,7 @@ local s=[[<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <!-- Replace this with your application id from http://appengine.google.com -->
   <application>]]..name..[[</application>
   <version>1</version>
-  <threadsafe>false</threadsafe>
+  <threadsafe>true</threadsafe>
 </appengine-web-app>]]
 	local fp=assert(io.open("html/WEB-INF/appengine-web.xml","w"))
 	fp:write(s)
@@ -15,6 +15,7 @@ end
 
 -- allways end on boot-str
 for i,v in ipairs{
+"comicbang",
 "cake-or-games",
 "boot-str"} do
 
