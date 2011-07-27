@@ -160,7 +160,7 @@ local ext
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this *SITE* before allowing post params
 	-- this is less of a check than normal since we are now lax with wiki edit urls
-	if srv.method=="POST" and srv.headers.Referer and string.sub(srv.headers.Referer,1,string.len(srv.url_base))==srv.url_base then
+	if srv.method=="POST" and srv.check_referer(srv.headers.Referer,srv.url) then
 		for i,v in pairs(srv.posts) do
 			posts[i]=v
 --			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please

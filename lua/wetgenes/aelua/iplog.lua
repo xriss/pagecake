@@ -111,9 +111,23 @@ function ratelimit(ip)
 	local it=manifest(ip)
 	inc(it)
 	put(it) -- we do not care about overwrites, numbers are fuzzy
+	if it.admin then return true,it end -- admin flag means it is always ok
 	if it.mhd[1][1] > 100   then return false,it end -- max requests per minute
 	if it.mhd[1][2] > 1000  then return false,it end -- max requests per hour
 	if it.mhd[1][3] > 10000 then return false,it end -- max requests per day
 	return true,it
 end
 
+
+--------------------------------------------------------------------------------
+--
+-- mark this ip as admin so it is never rate limited
+--
+--------------------------------------------------------------------------------
+function mark_as_admin(ip)
+	local it=manifest(ip)
+	if not it.admin then -- switch on flag
+		it.admin=true
+		put(it) -- we do not care about overwrites, numbers are fuzzy
+	end
+end

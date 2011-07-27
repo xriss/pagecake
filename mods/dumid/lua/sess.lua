@@ -9,6 +9,7 @@ local log=require("wetgenes.aelua.log").log -- grab the func from the package
 local fetch=require("wetgenes.aelua.fetch")
 local sys=require("wetgenes.aelua.sys")
 
+local iplog=require("wetgenes.aelua.iplog")
 
 local os=os
 local string=string
@@ -156,6 +157,10 @@ function get_viewer_session(srv)
 	local snag=d_nags.render(srv,sess)
 	if snag then srv.alerts_html=(srv.alerts_html or "")..snag end
 	
+	if srv.user and srv.user.cache and srv.user.cache.admin then -- do not ratelimit admins ips
+		iplog.mark_as_admin(srv.ip)
+	end
+
 	return srv.sess,srv.user -- return sess , user
 	
 end

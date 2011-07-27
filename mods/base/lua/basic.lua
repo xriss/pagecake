@@ -13,6 +13,7 @@ local serialize=wet_string.serialize
 local iplog=require("wetgenes.aelua.iplog")
 
 local table=table
+local string=string
 local type=type
 local require=require
 local ipairs=ipairs
@@ -216,7 +217,7 @@ function check_referer(referer,url)
 	
 --log(referer.."=="..url )
 
-	if referer==url then return true end
+	if string.sub(referer,1,string.len(url))==url then return true end
 
 	return false
 end

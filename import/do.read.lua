@@ -116,24 +116,7 @@ putcache()
 
 		if t.group and t.name then
 
-			local fname="cache/waka/"..t.group.."/"..t.name
 
-			put("UPDATE: "..fname.."\n" )
-
-			create_dir_for_file(fname)
-
-			local s=""
-
-			s=s.."#group trim=ends\n"
-			s=s..t.group.."\n"
-			s=s.."#name trim=ends\n"
-			s=s..t.name.."\n"
-			s=s.."#title trim=ends\n"
-			s=s..t.title.."\n"
-			s=s.."#text\n"
-			s=s..t.text.."\n"
-
-			writefile(fname..".txt",s)
 
 
 			local fname="cache/data/"..t.group.."."..t.name..".png"
@@ -155,6 +138,39 @@ put("downloading "..fname.."\n")
 					writefile(fname,body)
 				end
 			end
+
+
+			local fname="cache/waka/"..t.group.."/"..t.name
+
+			put("UPDATE: "..fname.."\n" )
+
+			create_dir_for_file(fname)
+			
+			local width=100
+			local height=100
+
+			local s=""
+
+			s=s.."#group trim=ends\n\n"
+			s=s..t.group.."\n\n"
+			s=s.."#name trim=ends\n\n"
+			s=s..t.name.."\n\n"
+			s=s.."#title trim=ends\n\n"
+			s=s..t.title.."\n\n"
+			s=s.."#width trim=ends\n\n"
+			s=s..width.."\n\n"
+			s=s.."#height trim=ends\n\n"
+			s=s..height.."\n\n"
+			s=s.."#image trim=ends\n\n"
+			s=s.."/data/"..t.group.."."..t.name..".png\n\n"
+			s=s.."#icon trim=ends\n\n"
+			s=s.."/data/"..t.group.."."..t.name..".icon.png\n\n"
+			s=s.."#body\n"
+			s=s..t.text.."\n"
+
+			writefile(fname..".txt",s)
+			
+			
 		end
 	end
 
