@@ -146,62 +146,65 @@ end
 
 
 
-function dirdata()
+	function dirdata()
 
-	local d="cache/data"
-	for id in lfs.dir(d) do
-		local fname=d.."/"..id
-		
-		local id1=tostring(id)
-		local id2=id1
-		
-		local ids=ssplit(".",id1,false)
-		
-		if #ids>1 then -- use extension as filename
-			id2="."..ids[#ids]
-			ids[#ids]=nil
-			id1=table.concat(ids,".")
-		end
-		
-		
-		
-		local a=lfs.attributes(fname)
-		
-		if a.mode=="file" then
-		
-			local dat=readfile(fname)
-
-	put("Uploading /data/"..id.."\n")
-
-			upload_data({
-				submit={data="Upload"},
-				dataid={data=id1},
-				filename={data=id2},
-				mimetype={data=""},
-				filedata={mimetype="application/octet-stream;charset=utf-8",encoding="binary",data=dat,filename=id2},
-				})
-
-		
-		elseif a.mode=="directory" then -- subdir
-
---[[	
-			for vv in lfs.dir(fname) do
+		local d="cache/data"
+		for id in lfs.dir(d) do
+			local fname=d.."/"..id
 			
-				local fname=d.."/"..id
-				
-				local a=lfs.attributes(fname)
-				
-				if a.mode=="file" then -- only one file
-
-					break
-				end
+			local id1=tostring(id)
+			local id2=id1
 			
+			local ids=ssplit(".",id1,false)
+			
+			if #ids>1 then -- use extension as filename
+				id2="."..ids[#ids]
+				ids[#ids]=nil
+				id1=table.concat(ids,".")
 			end
-]]
+			
+			
+			
+			local a=lfs.attributes(fname)
+			
+			if a.mode=="file" then
+			
+				local dat=readfile(fname)
+
+put("Uploading /data/"..id.."\n")
+
+				upload_data({
+					submit={data="Upload"},
+					dataid={data=id1},
+					filename={data=id2},
+					mimetype={data=""},
+					filedata={mimetype="application/octet-stream;charset=utf-8",encoding="binary",data=dat,filename=id2},
+					})
+
+			
+			elseif a.mode=="directory" then -- a subdir upload
+
+				if id~="." and id~=".." then -- ignore these
+
+	--[[	
+				for vv in lfs.dir(fname) do
+				
+					local fname=d.."/"..id
+					
+					local a=lfs.attributes(fname)
+					
+					if a.mode=="file" then -- only one file
+
+						break
+					end
+				
+				end
+	]]
+				end
+			end
 		end
 	end
-end
---	dirdata(d)
+	dirdata(d)
 
 
 	local based="cache/waka"

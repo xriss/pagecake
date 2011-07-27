@@ -4,6 +4,8 @@ exec("mkdir cache")
 require("socket")
 require("socket.http")
 
+local grd=require("grd")
+
 local sxml=require("wetgenes.simpxml")
 local json=require("wetgenes.json")
 local wetstring=require("wetgenes.string")
@@ -111,6 +113,7 @@ putcache()
 --break
 	end
 
+	local groups={}
 
 	for n,t in pairs(comics) do
 
@@ -142,12 +145,19 @@ put("downloading "..fname.."\n")
 
 			local fname="cache/waka/"..t.group.."/"..t.name
 
-			put("UPDATE: "..fname.."\n" )
 
 			create_dir_for_file(fname)
 			
 			local width=100
 			local height=100
+			
+			local ba_fname="cache/data/"..t.group.."."..t.name..".png"
+			local ba=grd.create("GRD_FMT_U8_BGRA",ba_fname)
+
+			width=ba.width
+			height=ba.height
+
+			put("UPDATE: "..fname.." "..width.."x"..height.."\n" )
 
 			local s=""
 
@@ -157,6 +167,8 @@ put("downloading "..fname.."\n")
 			s=s..t.name.."\n\n"
 			s=s.."#title trim=ends\n\n"
 			s=s..t.title.."\n\n"
+			s=s.."#time trim=ends\n\n"
+			s=s..t.time.."\n\n"
 			s=s.."#width trim=ends\n\n"
 			s=s..width.."\n\n"
 			s=s.."#height trim=ends\n\n"
@@ -165,13 +177,47 @@ put("downloading "..fname.."\n")
 			s=s.."/data/"..t.group.."."..t.name..".png\n\n"
 			s=s.."#icon trim=ends\n\n"
 			s=s.."/data/"..t.group.."."..t.name..".icon.png\n\n"
+			s=s.."#tags\n\n"
+			s=s.."published\n\n"
 			s=s.."#body\n"
 			s=s..t.text.."\n"
 
 			writefile(fname..".txt",s)
 			
-			
+
+-- add to groups list
+			groups[t.group]=groups[t.group] or {}
+			groups[t.group][ #(groups[t.group])+1 ]=t
 		end
+	end
+
+-- step through each group and sort by time
+
+	for n,group in pairs(groups) do
+	
+		put("preparing group: "..n.."\n" )
+	
+		table.sort(group,function(a,b) return a.time>b.time end)
+		
+			local fname="cache/waka/"..n
+
+			local s=""
+		
+			s=s.."#width trim=ends\n\n"
+			s=s..(0).."\n\n"
+			s=s.."#height trim=ends\n\n"
+			s=s..(0).."\n\n"
+
+			s=s.."#body\n\n"
+			
+			for i,v in ipairs(group) do
+			
+				s=s.."/"..v.group.."/"..v.name.."\n\n"
+				
+			end
+			
+			writefile(fname..".txt",s)
+	
 	end
 
 else
