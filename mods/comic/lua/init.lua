@@ -186,9 +186,10 @@ refined["comic_inlist"]=refined["comic_inlist"] or [[
 -- <div style="position:absolute;width:100px;height:100px;right:-100px;bottom:0px;background-image:url(http://4lfa.com/css/img/diag_shad.png)"></div>
 
 refined["comic_inpage"]=refined["comic_inpage"] or [[
-<h1 style="text-align:center;height:100px;">{it.title}</h1>
+<h3 style="text-align:center;height:100px;">{it.title}</h3>
 <div style="margin:20px auto;width:{it.width}px;" >
 <span title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img data-href="{it.image}"/>
+<div style="position:absolute;width:100px;height:100px;right:-100px;bottom:0px;background-image:url(http://4lfa.com/css/img/diag_shad.png)"></div>
 </span>
 <div style="text-align:center;height:100px;" >
 <a href="/comic/{cprev.name}" style="width:100px;height:100px;opacity:0.25;" ><img src="{cprev.icon}" width="100" height="100" /></a>

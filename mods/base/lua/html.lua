@@ -321,7 +321,7 @@ home_bar=function(d)
 	d.crumbs=s or "<a href=\"/\">Home</a>" -- default
 		
 	local p=get_plate("home_bar",[[
-<div class="aelua_bar">
+<div class="aelua_bar"><div class="aelua_bar2">
 <div class="aelua_home_bar">
 {crumbs}
 </div>
@@ -374,7 +374,7 @@ return false;
 </div>
 
 <div class="aelua_clear"> </div>
-</div>
+</div></div>
 {adminbar}
 {alerts_html}
 ]])
