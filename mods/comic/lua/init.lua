@@ -97,6 +97,15 @@ local get,put=make_get_put(srv)
 	local group=nil--"pms"
 	local comicname=nil--"pms"
 
+	local pageopts={
+		flame="on",
+	}
+	srv.pageopts=pageopts -- keep the page options here
+	
+	local crumbs={ {url="/",text="Home"} , {url="/comic",text="comic"} }
+	srv.crumbs=crumbs
+
+	
 	comicname=srv.url_slash[srv.url_slash_idx+0]
 
 	local list={}
@@ -105,6 +114,7 @@ local get,put=make_get_put(srv)
 	local plate_comic="comic_inlist"
 	local cnext=nil
 	local cprev=nil
+	local url_local="/comic"
 	
 	if #list==0 and comicname then
 
@@ -118,8 +128,13 @@ local get,put=make_get_put(srv)
 			cprev=comics.list(srv,{limit=1,sort="-pubdate",["<pubdate"]=pubdate})[1]
 			cnext=comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=pubdate})[1]
 			
+			url_local="/comic/"..comicname
+			
+			crumbs[#crumbs+1]={url=url_local,text=comicname}
+
 		else
 			comicname=nil
+			return srv.redirect(srv.url_base:sub(1,-2))
 		end
 		
 	end
@@ -140,6 +155,8 @@ local get,put=make_get_put(srv)
 		title="comics"
 		plate_comic="comic_inlist"
 		list=comics.list(srv,{group=group,limit=50,sort="pubdate"})
+		
+		pageopts.flame="off"
 	
 	end
 
@@ -220,6 +237,12 @@ function(){
 	});
 });
 </script>]])
+
+	if pageopts.flame=="on" then -- add comments to this page
+		comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
+	elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
+		comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user,anon="default"})
+	end
 
 	put("footer")
 	
