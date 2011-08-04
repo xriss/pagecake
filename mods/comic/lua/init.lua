@@ -115,6 +115,7 @@ local get,put=make_get_put(srv)
 	local cnext=nil
 	local cprev=nil
 	local url_local="/comic"
+	local url_waka="comic"
 	
 	if #list==0 and comicname then
 
@@ -129,11 +130,11 @@ local get,put=make_get_put(srv)
 			cnext=comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=pubdate})[1]
 			
 			url_local="/comic/"..comicname
+			url_waka=group.."/"..comicname
 			
 			crumbs[#crumbs+1]={url=url_local,text=comicname}
 
 		else
-			comicname=nil
 			return srv.redirect(srv.url_base:sub(1,-2))
 		end
 		
@@ -157,6 +158,8 @@ local get,put=make_get_put(srv)
 		list=comics.list(srv,{group=group,limit=50,sort="pubdate"})
 		
 		pageopts.flame="off"
+		
+		url_waka="comic/"..group
 	
 	end
 
@@ -164,10 +167,8 @@ local get,put=make_get_put(srv)
 	local refined	
 	
 	if group then 
-		editpage="comic/"..group
 		refined=wakapages.load(srv,"/"..editpage)[0]
 	else
-		editpage="comic"
 		refined=wakapages.load(srv,"/"..editpage)[0]
 	end
 
@@ -208,7 +209,7 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
 	put("header",{title=title,css=css})
-	put("comic_bar",{page=editpage})
+	put("comic_bar",{page=url_waka})
 
 	local ss={}
 	for i,v in ipairs(list) do
