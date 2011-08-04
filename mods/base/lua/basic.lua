@@ -17,6 +17,8 @@ local string=string
 local type=type
 local require=require
 local ipairs=ipairs
+local pairs=pairs
+local pcall=pcall
 
 module("base.basic")
 
@@ -221,6 +223,35 @@ function check_referer(referer,url)
 
 	return false
 end
+
+
+require_all_done=false
+-- step through all modules used in opts and make sure they have been required
+function require_all()
+
+
+	if require_all_done then return end
+	require_all_done=true
+
+log("require all mods")
+
+	for i=1,1 do -- live startup can be a bit squify this repeat may help the files get found?
+	
+		for n,v in pairs(opts.mods) do
+			if type(n)=="string" then
+				local m,err=pcall(require,n)
+if not m then
+	log("require "..i.." failed on mod "..n.."\n"..(err or ""))
+end
+			end
+		end
+		
+	end
+	
+end
+
+
+require_all()
 
 
 

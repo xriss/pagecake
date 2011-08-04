@@ -72,6 +72,15 @@ map={ -- base lookup table
 											},
 					},
 
+["comic"]		=	{			-- a comic module
+						["#default"]	=	"comic", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
+						["#opts"]		=	{
+												url="/comic",
+												title="comic",
+												groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"},
+											},
+					},
 
 ["admin"]		=	{			-- all admin stuff
 						["#default"]	=	"admin",
@@ -171,19 +180,6 @@ local _=require("todo") -- need to initialize waka hooks
 
 mods={}
 
-for i,v in pairs(map) do
-	if type(v)=="table" then
-		local name=v["#default"]
-		if name then
-			local t=mods[name] or {}
-			mods[name]=t
-			for i,v in pairs( v["#opts"] or {} ) do
-				t[i]=v -- copy opts into default for each mod
-			end
-		end
-	end
-end
-
 mods.init={}
 
 mods.console=mods.console or {}
@@ -200,3 +196,18 @@ if lua then
 		pcall( f )
 	end
 end
+
+-- find each mod
+for i,v in pairs(map) do
+	if type(v)=="table" then
+		local name=v["#default"]
+		if name then
+			local t=mods[name] or {}
+			mods[name]=t
+			for i,v in pairs( v["#opts"] or {} ) do
+				t[i]=v -- copy opts into default for each mod
+			end
+		end
+	end
+end
+

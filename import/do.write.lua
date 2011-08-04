@@ -97,7 +97,7 @@ function upload_data(data)
 		source = ltn12.source.string(req_body),
 		sink = ltn12.sink.table(res_body),
 	}
-	put("Received "..suc.." "..headers.." "..#code.."\n")
+	put("Received "..suc.." "..headers.." "..(#(code or "")).."\n")
 --	table.foreach(res_body,print)
 
 end
@@ -171,7 +171,7 @@ end
 			
 				local dat=readfile(fname)
 
-put("Uploading /data/"..id.."\n")
+put("Uploading /data/"..id1.."/"..id2.."\n")
 
 				upload_data({
 					submit={data="Upload"},

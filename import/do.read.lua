@@ -174,9 +174,9 @@ put("downloading "..fname.."\n")
 			s=s.."#height trim=ends\n\n"
 			s=s..height.."\n\n"
 			s=s.."#image trim=ends\n\n"
-			s=s.."/data/"..t.group.."."..t.name..".png\n\n"
+			s=s.."/data/"..t.group.."."..t.name.."/.png\n\n"
 			s=s.."#icon trim=ends\n\n"
-			s=s.."/data/"..t.group.."."..t.name..".icon.png\n\n"
+			s=s.."/data/"..t.group.."."..t.name..".icon/.png\n\n"
 			s=s.."#tags\n\n"
 			s=s.."published\n\n"
 			s=s.."#body\n"
@@ -203,6 +203,8 @@ put("downloading "..fname.."\n")
 
 			local s=""
 		
+			s=s.."#width trim=ends\n\n"
+			s=s..(n).."\n\n"
 			s=s.."#width trim=ends\n\n"
 			s=s..(0).."\n\n"
 			s=s.."#height trim=ends\n\n"

@@ -103,7 +103,7 @@ map={ -- base lookup table
 
 ["data"]		=	{			-- a data module
 						["#default"]	=	"data", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	app_name, 			-- use this flavour when serving
+						["#flavour"]	=	nil, 			-- use this flavour when serving
 						["#opts"]		=	{
 												url="/data",
 											},

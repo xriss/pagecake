@@ -196,9 +196,11 @@ local ext
 							note=(chunks.note and chunks.note.text) or "",
 							tags=wet_waka.text_to_tags(chunks.tags and chunks.tags.text),
 						})
+					local ep
 					for f,p in pairs(hooks.changed) do -- update hooks?
 						if string.find(pagename,p) then
-							f(srv,e)
+							if not ep then ep=pages.get(srv,pagename) end
+							f(srv,ep)
 						end
 					end
 				end
