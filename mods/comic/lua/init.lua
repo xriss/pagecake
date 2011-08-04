@@ -159,7 +159,7 @@ local get,put=make_get_put(srv)
 		
 		pageopts.flame="off"
 		
-		url_waka="comic/"..group
+		url_waka="comic"
 	
 	end
 
