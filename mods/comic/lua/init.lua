@@ -118,7 +118,7 @@ local get,put=make_get_put(srv)
 	
 	if #list==0 and comicname then
 
-		list=comics.list(srv,{name=comicname,limit=1,sort="pubdate"})
+		list=comics.list(srv,{name=comicname,limit=1})
 		
 		if list[1] then
 			group=list[1].cache.group
