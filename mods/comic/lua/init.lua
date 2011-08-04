@@ -167,9 +167,9 @@ local get,put=make_get_put(srv)
 	local refined	
 	
 	if group then 
-		refined=wakapages.load(srv,"/"..editpage)[0]
+		refined=wakapages.load(srv,"/comic/"..group)[0]
 	else
-		refined=wakapages.load(srv,"/"..editpage)[0]
+		refined=wakapages.load(srv,"/comic")[0]
 	end
 
 
