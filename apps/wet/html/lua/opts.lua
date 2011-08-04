@@ -180,6 +180,21 @@ local _=require("todo") -- need to initialize waka hooks
 
 mods={}
 
+
+-- find each mod
+for i,v in pairs(map) do
+	if type(v)=="table" then
+		local name=v["#default"]
+		if name then
+			local t=mods[name] or {}
+			mods[name]=t
+			for i,v in pairs( v["#opts"] or {} ) do
+				t[i]=v -- copy opts into default for each mod
+			end
+		end
+	end
+end
+
 mods.init={}
 
 mods.console=mods.console or {}
@@ -196,18 +211,3 @@ if lua then
 		pcall( f )
 	end
 end
-
--- find each mod
-for i,v in pairs(map) do
-	if type(v)=="table" then
-		local name=v["#default"]
-		if name then
-			local t=mods[name] or {}
-			mods[name]=t
-			for i,v in pairs( v["#opts"] or {} ) do
-				t[i]=v -- copy opts into default for each mod
-			end
-		end
-	end
-end
-

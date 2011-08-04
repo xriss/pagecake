@@ -163,6 +163,18 @@ map={ -- base lookup table
 
 mods={}
 
+for i,v in pairs(map) do
+	if type(v)=="table" then
+		local name=v["#default"]
+		if name then
+			local t=mods[name] or {}
+			mods[name]=t
+			for i,v in pairs( v["#opts"] or {} ) do
+				t[i]=v -- copy opts into default for each mod
+			end
+		end
+	end
+end
 
 mods.init={}
 
@@ -182,16 +194,4 @@ if lua then
 end
 
 
-for i,v in pairs(map) do
-	if type(v)=="table" then
-		local name=v["#default"]
-		if name then
-			local t=mods[name] or {}
-			mods[name]=t
-			for i,v in pairs( v["#opts"] or {} ) do
-				t[i]=v -- copy opts into default for each mod
-			end
-		end
-	end
-end
 
