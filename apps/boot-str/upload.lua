@@ -1,5 +1,7 @@
 #!/usr/bin/lua
 
+local args={...}
+
 function buildxml(name)
 local s=[[<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <!-- Replace this with your application id from http://appengine.google.com -->
@@ -12,12 +14,17 @@ local s=[[<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
 	fp:close();
 end
 
-
--- allways end on boot-str
-for i,v in ipairs{
+sites={
 "comicbang",
 "cake-or-games",
-"boot-str"} do
+"boot-str"}
+
+if args[1] then sites=args end
+
+
+for i,v in ipairs(sites) do
+
+	print("\n***UPLOADING*** "..v.."\n\n")
 
 	buildxml(v)
 	

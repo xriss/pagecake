@@ -208,20 +208,24 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 		refined.cnext=refined.cnext or list[1].cache
 	end
 	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title=title,css=css})
-	put("comic_bar",{page=url_waka})
 
 	local ss={}
 	for i,v in ipairs(list) do
 	
 		refined.it=v.cache
 
-		local text=get(macro_replace(refined[plate_comic] ,refined))
+		local text=get(get(refined[plate_comic] ,refined))
 
 		ss[#ss+1]=text
 	end
 	
+	local htmlhead
+	if refined.htmlhead then htmlhead=get(refined.htmlhead,refined) end
+	
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put("header",{title=title,css=css,extra=htmlhead})
+	put("comic_bar",{page=url_waka})
+
 	if refined then
 
 		refined.body=table.concat(ss)

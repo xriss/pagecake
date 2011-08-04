@@ -306,7 +306,9 @@ local ext
 		local css
 		if refined.css then css=macro_replace(refined.css,refined) end
 		
-		put("header",{title=refined.title,css=css--[[,css=url..".css"]],crumbs=crumbs})
+		local htmlhead
+		if refined.htmlhead then htmlhead=macro_replace(refined.htmlhead,refined) end
+		put("header",{title=refined.title,css=css--[[,css=url..".css"]],crumbs=crumbs,extra=htmlhead})
 		
 		put("waka_bar",{page=pagename})
 		
