@@ -235,7 +235,15 @@ function edit(srv,id,by)
 		d.from=e.props.updated -- old time stamp
 		d.time=e.cache.updated -- new time stamp
 		
-		d.diff=wet_diff.diff(c.text, text) -- what was changed		
+--[[
+		if c.text==text then
+			d.diff={0}
+		else
+			d.diff={0,text} -- dumb change
+		end		
+]]		
+-- this is too slow for app engine?
+		d.diff=wet_diff.diff(c.text, text,"\n") -- what was changed		
 		
 		if #d.diff==1 then return false end-- no changes, no need to write, so return a fail to stop it
 		

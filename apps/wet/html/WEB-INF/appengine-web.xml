@@ -3,5 +3,5 @@
   <application>wet</application>
 
   <version>1</version>
-  <threadsafe>false</threadsafe>
+  <threadsafe>true</threadsafe>
 </appengine-web-app>
