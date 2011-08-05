@@ -127,8 +127,11 @@
 	</for> 
 
 	<zip destfile="${war.dir}/WEB-INF/lua.zip"
-	   basedir="${war.dir}/WEB-INF/lua"
+	   basedir="${war.dir}/WEB-INF"
+	   includes="lua/**"
 	/>
+	
+	<delete dir="${war.dir}/WEB-INF/lua"/>
 
     </target>
 
