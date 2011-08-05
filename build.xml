@@ -59,19 +59,26 @@
   <target name="war" depends="compile" description="Assemble the application directory">
     <mkdir dir="${war.dir}/WEB-INF"/>
     <copy todir="${war.dir}" includeEmptyDirs="false" >
-      <fileset dir="html"> </fileset>
+      <fileset dir="html">
+        <exclude name="lua/*"/>
+      </fileset>
     </copy>
     <copy todir="${war.dir}" includeEmptyDirs="false" overwrite="true">
       <fileset dir="html">
-        <include name="lua/*"/>
         <include name="WEB-INF/*"/>
       </fileset>
+    </copy>
+    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
+      <fileset dir="html/lua"> </fileset>
     </copy>
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
       <fileset dir="../../../aelua/bin/lua"> </fileset>
     </copy>
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
       <fileset dir="../../../aelua/lua">  </fileset>
+    </copy>
+    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
+      <fileset dir="html/lua">  </fileset>
     </copy>
     <copy todir="${war.dir}/WEB-INF/lib" flatten="true" includeEmptyDirs="false">
       <fileset dir="${appengine.sdk}/lib/user"> <include name="**/*.jar"/> </fileset>
@@ -92,22 +99,38 @@
 				<path> 
 					<dirset dir="../../../aelua/mods/${basename}">
 						<include name="*" /> 
+						<exclude name="localbuild" /> 
 					</dirset>
 				</path> 
 				<sequential> 
 					<var name="dirname" unset="true"/> 
-					<basename file="@{file2}" property="dirname"/> 
-					<copy todir="${war.dir}/${dirname}/${basename}" includeEmptyDirs="false">
-					  <fileset dir="../../../aelua/mods/${basename}/${dirname}">
-					  </fileset>
-					</copy>
+					<basename file="@{file2}" property="dirname"/>
+					<if>
+					 <equals arg1="${dirname}" arg2="lua" />
+					 <then>
+						<copy todir="${war.dir}/WEB-INF/lua/${basename}" includeEmptyDirs="false">
+						  <fileset dir="../../../aelua/mods/${basename}/${dirname}">
+						  </fileset>
+						</copy>
+					 </then>
+					 <else>
+						<copy todir="${war.dir}/${dirname}/${basename}" includeEmptyDirs="false">
+						  <fileset dir="../../../aelua/mods/${basename}/${dirname}">
+						  </fileset>
+						</copy>
+					 </else>
+					</if>					
 				</sequential>
 			</for>
 			
 		</sequential> 
 	</for> 
 
-  </target>
+	<zip destfile="${war.dir}/WEB-INF/lua.zip"
+	   basedir="${war.dir}/WEB-INF/lua"
+	/>
+
+    </target>
 
   
   <target name="compile"
