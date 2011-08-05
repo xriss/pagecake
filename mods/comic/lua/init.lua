@@ -134,24 +134,47 @@ local get,put=make_get_put(srv)
 			
 			crumbs[#crumbs+1]={url=url_local,text=comicname}
 
-		else
-			return srv.redirect(srv.url_base:sub(1,-2))
 		end
 		
 	end
 	
---[[
-	if #list==0 and group then
 
-		title="comic "..(group or "")
-		plate_comic="comic_inlist"
-		list=comics.list(srv,{group=group,limit=50,sort="pubdate"})
-	
+	if #list==0 and comicname then -- try for groups
+
+		local groups=str_split("+",comicname,true)
+		
+		if groups[1]~="" then
+			
+			group=groups[1] 
+			 
+			if groups[2] then 
+				list=comics.list(srv,{group=groups,limit=50,sort="pubdate"}) -- this is an in query
+			else
+				list=comics.list(srv,{group=group,limit=50,sort="pubdate"})
+			end
+			
+			if list[1] then
+
+				title="comic "..(group or "")
+				plate_comic="comic_inlist"
+				pageopts.flame="off"
+				
+				url_waka="comic/"..(group or "")
+
+				for i,v in ipairs(groups) do
+					url_local="/comic/"..v
+					crumbs[#crumbs+1]={url=url_local,text=v}
+				end
+			end
+			
+		end
+
 	end
-]]
 	
 	if #list==0 then
 	
+		if comicname then return srv.redirect(srv.url_base:sub(1,-2)) end -- redirect to all comics
+
 		group=nil
 		title="comics"
 		plate_comic="comic_inlist"
@@ -180,7 +203,7 @@ local get,put=make_get_put(srv)
 -- you can override these in the wiki
 
 refined["comic_inlist"]=refined["comic_inlist"] or [[
-<a href="/comic/{it.name}" title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img data-href="{it.image}"/></a>
+<a href="/comic/{it.name}" title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img src="{it.image}"/></a>
 ]]
 -- an easy shadow, if you put it in the a tag
 -- <div style="position:absolute;width:100px;height:100px;right:-100px;bottom:0px;background-image:url(http://4lfa.com/css/img/diag_shad.png)"></div>
@@ -188,7 +211,7 @@ refined["comic_inlist"]=refined["comic_inlist"] or [[
 refined["comic_inpage"]=refined["comic_inpage"] or [[
 <h3 style="text-align:center;height:100px;">{it.title}</h3>
 <div style="margin:20px auto;width:{it.width}px;" >
-<span title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img data-href="{it.image}"/>
+<span title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img src="{it.image}"/>
 <div style="position:absolute;width:100px;height:100px;right:-100px;bottom:0px;background-image:url(http://4lfa.com/css/img/diag_shad.png)"></div>
 </span>
 <div style="text-align:center;height:100px;" >
@@ -233,16 +256,18 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 		put(macro_replace(refined.plate or "{body}",refined))
 
 	end
-	
-	put([[<script> 
+
+--[[
+	put(<script> 
 head.js(head.fs.jquery_js,
 head.fs.jquery_asynch_image_loader_js,
 function(){
 	$(function(){
-		$('img').jail({effect:"fadeIn"});
+		$('img').jail({effect:"fadeIn",offset:300});
 	});
 });
-</script>]])
+</script>)
+]]
 
 	if pageopts.flame=="on" then -- add comments to this page
 		comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})

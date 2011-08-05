@@ -101,6 +101,10 @@ function list(srv,opts,t)
 				else
 					q[#q+1]={"filter",v,"==",opts[v]}
 				end
+			else
+				if t=="table" then
+					q[#q+1]={"filter",v,"in",opts[v]}
+				end
 			end
 		end
 	end
