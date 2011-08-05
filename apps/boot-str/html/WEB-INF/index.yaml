@@ -1,5 +1,12 @@
 indexes:
 
+- kind: comic.comics
+  properties:
+  - name: group
+  - name: pubdate
+    direction: desc
+
+
 - kind: blog.pages
   properties:
   - name: group
