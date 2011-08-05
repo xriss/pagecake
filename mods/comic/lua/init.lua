@@ -219,11 +219,11 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 		ss[#ss+1]=text
 	end
 	
-	local htmlhead
-	if refined.htmlhead then htmlhead=get(refined.htmlhead,refined) end
+	local html_head
+	if refined.html_head then html_head=get(refined.html_head,refined) end
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title=title,css=css,extra=htmlhead})
+	put("header",{title=title,css=css,extra=html_head})
 	put("comic_bar",{page=url_waka})
 
 	if refined then
