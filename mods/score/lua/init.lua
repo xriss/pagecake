@@ -109,16 +109,17 @@ local get,put=make_get_put(srv)
 	
 	if cmd=="submit" then -- a special place
 	
-		if not user then-- must be logged in so go login and come back here later
-			return srv.redirect("/dumid/login/?continue="..url_esc(d.srv.url))
-		end
 
 -- we are logged in, do simple score check and then either update a score or make a new one (you only get one score)
 
 		local day=math.floor(srv.time/(60*60*24))
 		local score=math.floor( tonumber(srv.gets.score or 0) or 0)
 		local dumb=math.floor( tonumber(srv.gets.dumb or 0) or 0)
-		local game=srv.gets.game
+		local game=tostring(srv.gets.game) or ""
+
+		if not user then-- must be logged in so go login and come back here later
+			return srv.redirect("/dumid/login/?continue="..wet_html.url_esc(srv.url.."?game="..(game).."&score="..score.."&dumb="..dumb))
+		end
 		
 		for i,v in ipairs(opts_mods_score.games or {}) do
 		
