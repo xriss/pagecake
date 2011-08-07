@@ -193,7 +193,7 @@ local get,put=make_get_put(srv)
 	
 	if gamename then
 	
-		list=scores.list(srv,{game=gamename,limit=100,sort=updated})
+		list=scores.list(srv,{game=gamename,limit=32,sort="score"})
 		
 	end
 	
@@ -225,6 +225,7 @@ local get,put=make_get_put(srv)
 		for i,v in ipairs(list) do
 			local s={}
 			local c=v.cache
+			c.rank=i
 			scores[#scores+1]=c
 		end
 		

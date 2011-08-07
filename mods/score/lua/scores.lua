@@ -104,6 +104,7 @@ function list(srv,opts,t)
 	end
 	
 	if opts.sort=="updated"  then q[#q+1]={"sort","updated","DESC"} -- newest updated
+	elseif opts.sort=="score"  then q[#q+1]={"sort","score","DESC"} -- newest updated
 	end
 	
 	local r=t.query(q)
