@@ -286,6 +286,8 @@ local put=make_put(srv)
 		local data=oauth.decode(got.body or "")
 		
 		if data.screen_name then -- we got a user
+
+--log(tostring(data))
 		
 			name=data.screen_name
 			email=data.user_id.."@id.twitter.com"

@@ -294,6 +294,8 @@ function list(srv,opts,t)
 			local t=type(opts[v])
 			if t=="string" or t=="number" then
 				q[#q+1]={"filter",v,"==",opts[v]}
+			elseif t=="table" then
+				q[#q+1]={"filter",v,"in",opts[v]}
 			end
 		end
 	end

@@ -82,6 +82,15 @@ map={ -- base lookup table
 											},
 					},
 
+["score"]		=	{			-- a score module
+						["#default"]	=	"score", 		-- no badlinks, we own everything under here
+						["#flavour"]	=	app_name, 			-- use this flavour when serving
+						["#opts"]		=	{
+												url="/score",
+												title="score",
+											},
+					},
+
 ["admin"]		=	{			-- all admin stuff
 						["#default"]	=	"admin",
 						["console"]		=	{			-- a console module
