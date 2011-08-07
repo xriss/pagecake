@@ -199,12 +199,12 @@ local get,put=make_get_put(srv)
 	
 
 	local refined	
-	local url_local="/game/"
+	local url_local="/score"
 	if gamename then 
-		url_local="/game/"..gamename
-		refined=wakapages.load(srv,"/game/"..gamename)[0]
+		url_local="/score/"..gamename
+		refined=wakapages.load(srv,"/score/"..gamename)[0]
 	else
-		refined=wakapages.load(srv,"/game")[0]
+		refined=wakapages.load(srv,"/score")[0]
 	end
 
 
@@ -218,7 +218,18 @@ local get,put=make_get_put(srv)
 	put("header",{title=title,css=css,extra=html_head})
 
 	if refined then
-
+		
+		local scores={}
+		refined.scores=scores
+		
+		for i,v in ipairs(list) do
+			local s={}
+			local c=v.cache
+			scores[#scores+1]=c
+		end
+		
+		scores.plate="plate_score"
+		
 		put(macro_replace(refined.plate or "{body}",refined))
 
 	end
