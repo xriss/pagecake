@@ -282,6 +282,42 @@ end
 
 -----------------------------------------------------------------------------
 --
+-- get a html string which is a handful of commics,
+--
+-----------------------------------------------------------------------------
+function chunk_import(srv,opts)
+opts=opts or {}
+
+local get,put=make_get_put(srv)
+
+	local t={}
+	local css=""
+	local list=comics.list(srv,opts)
+
+	local ret={}
+	for i,v in pairs(opts) do ret[i]=v end -- copy opts into the return
+	
+	for i,v in ipairs(list) do
+	
+		local c=v.cache
+		
+		c.date=os.date("%Y-%m-%d %H:%M:%S",c.published)
+		c.link="/comic/"..c.name
+	
+		if type(opts.hook) == "function" then -- fix up each item?
+			opts.hook(v,{class="comic"})
+		end
+		
+		ret[#ret+1]=c
+	end
+	
+	return ret
+		
+end
+
+
+-----------------------------------------------------------------------------
+--
 -- hook into waka page updates, any page under will come in here
 -- that way we canuse the waka to update our basic data
 --
