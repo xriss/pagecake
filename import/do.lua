@@ -8,15 +8,22 @@ dofile("funcs.lua")
 config.args={...}
 
 local cmd=config.args[1]
+local form=config.args[2]
 
 if cmd=="read" then
 
-	dofile("do.read.lua")
-
+	if form=="4lfa" then
+		dofile("do.read.4lfa.lua")
+	elseif form=="fud" then
+		dofile("do.read.fud.lua")
+	end
+	
 elseif cmd=="write" then
 
-	dofile("do.write.lua")
-
+	if form=="comic" then
+		dofile("do.write.comic.lua")
+	end
+	
 elseif cmd=="clear" then
 
 	exec("rm cache -Rf")

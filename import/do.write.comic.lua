@@ -1,6 +1,6 @@
 
-local dest=config.args[2]
-local sess=config.args[3]
+local dest=config.args[3]
+local sess=config.args[4]
 
 if not dest or not sess then
 
