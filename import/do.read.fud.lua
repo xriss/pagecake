@@ -61,8 +61,48 @@ local groups={
 		id=26,
 	},
 	{
+		name="Hoe-House",
+		id=29,
+	},
+	{
+		name="Shadow-News",
+		id=15,
+	},
+	{
+		name="Shadow-Active",
+		id=16,
+	},
+	{
+		name="Shadow-Archive",
+		id=19,
+	},
+	{
+		name="Wet-Bugs",
+		id=13,
+	},
+	{
+		name="Wet-Bugs-Done",
+		id=18,
+	},
+	{
+		name="Wet-Requests-Done",
+		id=21,
+	},
+	{
+		name="Wet-Test",
+		id=2,
+	},
+	{
 		name="Wet-Flash",
 		id=8,
+	},
+	{
+		name="Wet-Wank",
+		id=22,
+	},
+	{
+		name="Trash",
+		id=30,
 	},
 }
 
@@ -147,9 +187,10 @@ for _,group in pairs(groups) do
 		putcache()
 	end
 	
-	for i,v in pairs(msgs) do
+for i,v in pairs(msgs) do
 --		print(i)
-		local ts=v.date
+	if v and v.date and v.body then
+		local ts=v.date or "2000-01-01T00:00:00"
 		local ti=0
 		local td={}
 		
@@ -181,19 +222,14 @@ body = <br />
 		td.isdst=false
 		
 		ti=os.time(td)
+		
+		if v.author=="" then v.author="Anon" end
 
 		v.time=ti -- sensible time value
-		v.uid="/forum/"..group.name..":"..tostring(v.author):lower() ..":".. v.time -- this should be a unique ID
+--		v.uid="/forum/"..group.name..":"..tostring(v.author):lower() ..":".. v.time -- this should be a unique ID
 		
-		local upsearch
-		upsearch=function(id)
-			if id==0 then return nil end
-			local t=msgs[id]
-			if t.reply_to_id>0 then return upsearch(t.reply_to_id) end
-			return t
-		end
+		v.uid=tostring(v.author):lower() ..":".. v.time -- this should be a unique ID
 		
-		v.master=upsearch( v.reply_to_id )
 				
 --		print(v.message_id .." -> ".. tostring( (v.master and v.master.message_id) or 0) )
 --		print(v.reply_to_id)
@@ -221,11 +257,36 @@ body = <br />
 
 --print(v.text)
 
+		
 	end	
+end
+	
+	local upsearch
+	upsearch=function(id)
+		if id==0 then return nil end
+		local t=msgs[id]
+		if t.reply_to_id>0 then return upsearch(t.reply_to_id) end
+		return t
+	end
+	
+	local upsearch2
+	upsearch2=function(id,tt)
+		if id==0 then return nil end
+		local t=msgs[id]
+		if t.reply_to_id>0 then return upsearch2(t.reply_to_id,t) end
+		return tt --we want the penaultiment
+	end
 
 	local notes={}
 	for i,v in pairs(msgs) do
-		notes[#notes+1]=v
+		if v.text then -- valid stuff only
+			notes[#notes+1]=v
+			v.master=upsearch( v.reply_to_id )
+			v.parent=upsearch2( v.reply_to_id , v)
+			
+			v.master=v.master and v.master.uid
+			v.parent=v.parent and v.parent.uid
+		end
 	end
 	
 	table.sort(notes,function(a,b)
@@ -233,6 +294,9 @@ body = <br />
 		if a.master and not b.master then return false end
 		if b.master and not a.master then return true end
 		
+		if a.parent and not b.parent then return false end
+		if b.parent and not a.parent then return true end
+
 		return a.time<b.time
 		
 	end)
@@ -240,11 +304,17 @@ body = <br />
 	local tonote=function(t)
 		return {
 			uid=t.uid,
+			url="/forum/"..group.name,
 			text=t.text,
-			time=t.time,
+			updated=t.time,
+			created=t.time,
 			name=t.author,
-			author=tostring(t.author):lower().."@id.wetgenes.com",
-			master=t.master and t.master.uid
+			author=t.author_id.."@id.wetgenes.com",
+			master=t.master and t.master.uid,
+
+-- nobody replys properly in fud...
+--			parent=t.parent and t.parent.uid,
+
 		}
 	end
 	
@@ -262,7 +332,7 @@ body = <br />
 
 		else
 
-			local thread=threads[v.master.uid]
+			local thread=threads[v.master]
 			
 			thread[#thread+1]=tonote(v)
 		
@@ -274,7 +344,7 @@ body = <br />
 
 	for n,t in pairs(threads) do
 		local v=t[1]
-		print(v.time.." : "..v.uid .." -> ".. tostring( #t )  )
+		print(v.created.." : "..v.uid .." -> ".. tostring( #t )  )
 	end
 
 	local fname="cache/note/forum/"..group.name..".json"

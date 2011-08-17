@@ -47,8 +47,8 @@ function multiparts(data)
 						math.random(1000,9999)
 		needbound=false
 		for k,v in pairs(data) do
-			if type(v.data)=="string" then
-				if v.data:find(boundary,1,true) then -- clash
+			if type(v)=="string" then
+				if v:find(boundary,1,true) then -- clash
 					needbound=true
 				end
 			end
@@ -70,7 +70,7 @@ function multiparts(data)
 		msg[#msg+1] = "Content-Type: "..(v.mimetype or "text/plain;charset=utf-8").."\r\n"
 		msg[#msg+1] = "Content-Transfer-Encoding: "..(v.encoding or "quoted-printable").."\r\n"
 		msg[#msg+1] = "\r\n"
-		msg[#msg+1] = tostring(v.data)
+		msg[#msg+1] = tostring(v)
 		msg[#msg+1] = "\r\n"
 	end
 	
@@ -80,12 +80,12 @@ function multiparts(data)
 end
 
 
-function upload_note(notename,data)
+function upload_note(data)
 
 	local req_body,boundary=multiparts(data)
 --put(req_body)
 	local res_body={}
-	local url="http://"..dest.."/note/api?cmd=edit&thread="..notename
+	local url="http://"..dest.."/note/api"
 	local suc, headers, code = socket.http.request{
 		url=url,
 		method="POST",
@@ -98,7 +98,7 @@ function upload_note(notename,data)
 		source = ltn12.source.string(req_body),
 		sink = ltn12.sink.table(res_body),
 	}
-	put("Received "..suc.." "..headers.." "..#code.."\n")
+	put("Received "..(suc or "").." "..(headers or "").." "..#(code or "").."\n")
 --	table.foreach(res_body,print)
 
 end
@@ -138,23 +138,24 @@ put("Parsing "..threadname.." this may take a little while...\n")
 	
 					local threads=json.decode(dat).threads
 					
+					local ts={}
 					for i,v in pairs(threads) do
+						ts[#ts+1]=v
+					end
 					
-put("Sending thread "..tostring(v[1].uid).."\n")
+					for i,v in pairs(ts) do
+					
+put("Sending thread "..tostring(v[1].uid).." "..i.."/"..(#ts).."\n")
 
-						for i,c in ipairs(v) do
+						local d={}
+						
+						d.json=json.encode({thread=v})
+						d.cmd="thread"
 
-
-						end
+						upload_note(d)
 						
 					end
-
---[[
-					upload_waka(wakaname,{
-						submit={data="Save"},
-						text={data=dat},
-						})
-]]						
+	
 				end
 				
 			elseif a.mode=="directory" then -- subdir

@@ -8,7 +8,7 @@ local html=require("html")
 
 local setmetatable=setmetatable
 
-module("chan.html")
+module("forum.html")
 
 setmetatable(_M,{__index=html}) -- use a meta table to also return html base 
 

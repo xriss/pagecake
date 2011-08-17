@@ -79,6 +79,8 @@ function create(srv)
 	p.created=srv.time
 	p.updated=srv.time
 	
+	p.uid=""    -- a unique id string
+		
 	p.author="" -- the userid of who wrote this comment (can be used to lookup user)
 	p.url=""    -- the site url for which this is a comment on, site comments relative to root begin with "/"
 	p.group=0   -- the id of our parent or 0 if this is a master comment on a url, -1 if it is a meta cache
@@ -133,7 +135,7 @@ end
 -- most data is kept in its ent.cache.cache table
 --
 --------------------------------------------------------------------------------
-function manifest(srv,url,t)
+function manifest_meta(srv,url,t)
 
 	local ent
 	
@@ -195,7 +197,7 @@ end
 function get(srv,id,t)
 
 	if type(id)=="string" then -- auto manifest by url
-		return manifest(srv,id,t)
+		return manifest_meta(srv,id,t)
 	end
 	
 	local ent=id
@@ -214,10 +216,52 @@ end
 
 --------------------------------------------------------------------------------
 --
+-- get/manifest - update - put
+--
+-- this uses a UID which is a unique soft ID string
+--
+-- f must be a function that changes the entity and returns true on success
+--
+--------------------------------------------------------------------------------
+function manifest_uid(srv,uid,f)
+
+	local q={
+		kind=kind(srv),
+		limit=1,
+		offset=0,
+		{"filter","uid","==",uid}
+	}
+	local r=dat.query(q)
+--log(tostring(r))
+	local e=r and r.list and r.list[1]
+	if e then dat.build_cache(e) end
+
+-- we now update or create and save, there is a possible update hole here so use this function carefully
+
+	if e then
+--log("update "..uid)
+		return update(srv,e,f)
+	else
+--log("create "..uid)
+		e=create(srv)
+		if f(srv,e) then
+			put(srv,e)
+			return e
+		end
+	end
+
+	return nil
+end
+
+
+--------------------------------------------------------------------------------
+--
 -- get - update - put
 --
 -- f must be a function that changes the entity and returns true on success
 -- id can be an id or an entity from which we will get the id
+--
+-- returns the update entity only if succesful
 --
 --------------------------------------------------------------------------------
 function update(srv,id,f)
@@ -244,6 +288,7 @@ function update(srv,id,f)
 		t.rollback() -- undo everything ready to try again
 	end
 	
+	return false
 end
 
 
@@ -319,6 +364,32 @@ end
 
 --------------------------------------------------------------------------------
 --
+-- update any replies
+--
+--------------------------------------------------------------------------------
+function update_reply_cache(srv,url,id)
+
+	local rs=list(srv,{sortdate="ASC",url=url,group=id}) -- get all replies
+	local replies={}
+	for i,v in ipairs(rs) do -- and build reply cache
+		replies[i]=v.cache
+	end
+	
+-- the reply cache may lose one if multiple people reply at the same time
+-- an older cache may get saved, very unlikley but possible
+
+	update(srv,id,function(srv,e)
+		e.cache.replies=replies -- save new reply cache
+		e.cache.count=#replies -- a number to sort by
+		e.cache.reply_updated=srv.time
+		return true
+	end)
+	
+	return replies
+end
+				
+--------------------------------------------------------------------------------
+--
 -- update and return the meta cache
 --
 --------------------------------------------------------------------------------
@@ -327,9 +398,13 @@ function update_meta_cache(srv,url)
 	local count=0
 
 -- build meta cache			
-	local cs=list(srv,{sortdate="DESC",url=url,group=0}) -- get all comments
+	local cs=list(srv,{sortdate="DESC",url=url,group=0}) -- get all top comments
 	local comments={}
+	local newtime=0
 	for i,v in ipairs(cs) do -- and build comment cache
+	
+		if v.cache.created>newtime then newtime=v.cache.created end
+		
 		comments[i]=v.cache
 		count=count+1+v.cache.count
 	end
@@ -341,8 +416,14 @@ function update_meta_cache(srv,url)
 
 	local meta=update(srv,url,function(srv,e)
 	
+		if(newtime>0) then
+			e.cache.updated=newtime -- most recent comment
+		end
+		
 		e.cache.comments=comments -- save new comment cache
 		e.cache.count=count -- a number to sort by
+		
+		e.cache.meta_updated=srv.time
 		
 		return true
 	end)
@@ -362,18 +443,19 @@ function build_get_comment(srv,tab,c)
 		media=[[<a href="/data/]]..c.media..[["><img src="]]..srv.url_domain..[[/thumbcache/crop/460/345/data/]]..c.media..[[" class="wetnote_comment_img" /></a>]]
 	end
 	
-	local plink,purl=d_users.get_profile_link(c.cache.user.id)
+	local plink,purl=d_users.get_profile_link(c.author)
+	local name=(c.cache and c.cache.user and c.cache.user.name) or c.name
 
 	local vars={
 	media=media,
 	text=wet_waka.waka_to_html(c.text,{base_url=tab.url,escape_html=true}),
-	author=c.cache.user.id,
-	name=c.cache.user.name,
+	author=c.author,
+	name=name,
 	plink=plink,
-	purl=purl or "http://google.com/search?q="..c.cache.user.name,
+	purl=purl or "http://google.com/search?q="..name,
 	time=os.date("%Y-%m-%d %H:%M:%S",c.created),
 	id=c.id,
-	icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.cache.user) ),
+	icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.author) ),
 	}
 	
 	if c.type=="anon" then -- anonymiser
@@ -384,13 +466,14 @@ function build_get_comment(srv,tab,c)
 	end
 	
 	vars.title=tab.get([[#{id} posted by {name} on {time}]],vars)
-	
+	vars.div_reply=tab.div_reply or ""
 	return tab.get([[
 <div class="wetnote_comment_div" id="wetnote{id}" >
 <div class="wetnote_comment_icon" ><a href="{purl}"><img src="{icon}" width="100" height="100" /></a></div>
 <div class="wetnote_comment_head" > #{id} posted by <a href="{purl}">{name}</a> on {time} </div>
 <div class="wetnote_comment_text" >{media}{text}</div>
 <div class="wetnote_comment_tail" ></div>
+{div_reply}
 </div>
 ]],vars),vars
 end
@@ -522,6 +605,8 @@ function post(srv,tab)
 			
 			if id~=0 then -- this is a comment so apply to master
 			
+				update_reply_cache(srv,tab.url,id)
+--[[
 				local rs=list(srv,{sortdate="ASC",url=tab.url,group=id}) -- get all replies
 				local replies={}
 				for i,v in ipairs(rs) do -- and build reply cache
@@ -536,7 +621,7 @@ function post(srv,tab)
 					e.cache.count=#replies -- a number to sort by
 					return true
 				end)
-				
+]]				
 			else -- this is a master comment
 			
 				if tab.save_post=="status" then -- we want to save this as user posted status
@@ -595,7 +680,8 @@ function post(srv,tab)
 
 -- and send an email to admins if enabled?
 				if opts_mail_from then
-					mail.send{from=opts_mail_from,to="admin",subject="New comment on "..long_url,text=long_url.."\n\n"..c.text}
+					mail.send{from=opts_mail_from,to="admin",subject="New comment by "..posted.cache.cache.user.name.." on "..long_url,text=long_url.."\n\n"..c.text}
+log(posted.cache.cache.user.name)
 				end
 				
 				return
@@ -746,9 +832,14 @@ local function dput(s) put("<div>"..tostring(s).."</div>") end
 		})
 	end
 		
--- the meta will contain the cache of everything, we may already have it due to updates	
+-- the meta will contain the cache of everything, we may already have it due to previous updates	
 	if not tab.meta then
-		tab.meta=manifest(srv,tab.url)
+		tab.meta=manifest_meta(srv,tab.url)
+		if tab.meta and tab.meta.cache and tab.meta.cache.meta_updated --[[ and tab.meta.cache.meta_updated > srv.time-(60*60*24*1) ]] then
+			-- cache is probably ok
+		else
+			tab.meta=update_meta_cache(srv,tab.url)
+		end
 	end
 
 	tab.put([[<div class="wetnote_main">]])
@@ -779,7 +870,28 @@ end
 --	local cs=list(srv,{sortdate="DESC",url=tab.url,group=0})
 	local cs=tab.meta.cache.comments or {}
 	
-	if tab.toponly then -- just display a top comment field
+	if tab.headonly then -- just display the forum heads
+	
+		for i,c in ipairs(cs) do
+
+			local url=srv.url_domain..tab.url.."/"..c.id
+			local action="Reply."
+			if c.pagecount > 1 then			
+				action="("..c.pagecount..") Reply."
+			end
+
+			tab.put(build_get_comment(srv,tab,c)) -- main comment
+			tab.put([[
+<div class="wetnote_reply_div">
+<a href="]]..url..[["><span>]]..action..[[</span></a>
+</div>
+]]			
+,c)
+
+		end
+
+
+	elseif tab.toponly then -- just display a top comment field
 	
 		for i,c in ipairs(cs) do
 --			if i>=1 then break end -- 5 only?
@@ -835,6 +947,14 @@ end
 <div class="wetnote_reply_div">
 ]])
 
+			
+			if c.replies and c.reply_updated --[[and c.reply_update<srv.time+(60*60*24*1)]] then
+				-- replies probably ok
+			else
+				if c.id>0 then -- ok lets bump it
+					c.replies=update_reply_cache(srv,c.url,c.id)
+				end
+			end
 			local rs=c.replies or {} -- list(srv,{sortdate="ASC",url=tab.url,group=c.id}) -- replies
 			
 			local hide=#rs-5
@@ -878,7 +998,7 @@ end
 	tab.put([[</div>]])
 	
 	
-	if tab.toponly or tab.linkonly then
+	if tab.toponly or tab.linkonly or tab.headonly then
 		r={}
 	else
 		local r=get_recent(srv,50)
@@ -985,18 +1105,20 @@ function recent_to_html(srv,tab)
 		end
 		if link:sub(1,1)=="/" then link=srv.url_domain..link end -- and make it absolute
 		
-		local plink,purl=d_users.get_profile_link(c.cache.user.id)
+		local plink,purl=d_users.get_profile_link(c.author)
 
+		local name=(c.cache and c.cache.user and c.cache.user.name) or c.name
+		
 		put([[
 <div class="wetnote_tick">
 {time} ago <a href="{purl}">{name}</a> commented on <br/> <a href="{link}">{title}</a>
 </div>
 ]],{
-		name=c.cache.user.name,
+		name=name ,
 		time=rough_english_duration(os.time()-c.created),
 		title=c.title or c.url,
 		link=link,
-		purl=srv.url_domain..purl or "http://google.com/search?q="..c.cache.user.name,
+		purl=srv.url_domain..purl or "http://google.com/search?q="..name,
 	})
 		
 	end

@@ -15,6 +15,7 @@ local img=require("wetgenes.aelua.img")
 
 local log=require("wetgenes.aelua.log").log -- grab the func from the package
 
+
 local wet_string=require("wetgenes.string")
 local trim=wet_string.trim
 local str_split=wet_string.str_split
@@ -44,40 +45,35 @@ local tonumber=tonumber
 local type=type
 local pcall=pcall
 local loadstring=loadstring
-
+local require=require
 
 -- opts
 local opts_mods_note=(opts and opts.mods and opts.mods.note) or {}
 
 module("note")
 
-local function make_put(srv)
-	return function(a,b)
-		b=b or {}
-		b.srv=srv
-		srv.put(wet_html.get(html,a,b))
-	end
-end
-local function make_get(srv)
-	return function(a,b)
+local forum=require("forum")
+
+local function make_get_put(srv)
+	local get=function(a,b)
 		b=b or {}
 		b.srv=srv
 		return wet_html.get(html,a,b)
 	end
+	return  get , function(a,b) srv.put(get(a,b)) end
 end
-local function make_get_put(srv)
-	return make_get(srv),make_put(srv)
-end
+
 local function make_url(srv)
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	return url
 end
+
 local function make_posts(srv)
 	local url=make_url(srv)
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing any post params
-	if srv.method=="POST" and srv.headers.Referer and string.sub(srv.headers.Referer,1,string.len(url))==url then
+	if srv.method=="POST" and srv.headers.Referer and srv.check_referer(srv.headers.Referer,url) then
 		for i,v in pairs(srv.posts) do
 			posts[i]=v
 		end
@@ -113,11 +109,13 @@ function serv(srv)
 	local cmd=srv.url_slash[srv.url_slash_idx+0]
 	if cmd=="import" then
 		return serv_import(srv)
+	elseif cmd=="api" then
+		return serv_api(srv)
 	end
 
-local sess,user=d_Sess.get_viewer_session(srv)
-local put=make_put(srv)
-local get=make_get(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+local get,put=make_get_put(srv)
+
 local posts=make_posts(srv)
 
 	
@@ -151,8 +149,7 @@ end
 function serv_import(srv)
 
 local sess,user=d_sess.get_viewer_session(srv)
-local put=make_put(srv)
-local get=make_get(srv)
+local get,put=make_get_put(srv)
 local posts=make_posts(srv)
 
 	local ext
@@ -354,4 +351,108 @@ local get,put=make_get_put(srv)
 	
 	return ret
 		
+end
+
+
+
+-----------------------------------------------------------------------------
+--
+-- a json admin api for posting and reading
+--
+-----------------------------------------------------------------------------
+function serv_api(srv)
+
+local sess,user=d_sess.get_viewer_session(srv)
+local get,put=make_get_put(srv)
+local posts=make_posts(srv)
+
+	if not( user and user.cache and user.cache.admin ) then -- adminfail
+		return false
+	end
+
+--log("note api start")
+--log(tostring(posts))
+
+	posts.cmd=trim(posts.cmd)
+	posts.json=json.decode(posts.json)
+	
+--log("note api cmd="..posts.cmd)
+	if posts.cmd=="thread" then -- posting an entire forum thread
+	
+		local thread=posts.json.thread
+		
+	
+		local head=thread[1]
+--log("note api start thread")
+--log(tostring(head))
+
+-- head is the master comment
+
+		local master=comments.manifest_uid(srv , head.uid , function(srv,e)
+			local c=e.cache
+			c.created=head.created
+			c.updated=head.updated
+			c.url=head.url
+			c.uid=head.uid
+			c.text=head.text
+			c.author=head.author
+			c.name=head.name
+			c.group=0
+--c.url="/forum/spam"
+			return true
+		end)
+
+-- and these are applied to that master
+
+		local idlookup={}
+		local replyids={}
+		
+		for i=2,#thread do local v=thread[i]
+		
+			local group=0
+			if v.parent then group=idlookup[v.parent] or 0 end
+			
+			replyids[group]=true
+			
+			local com=comments.manifest_uid(srv , v.uid , function(srv,e)
+				local c=e.cache
+				c.created=v.created
+				c.updated=v.updated
+				c.url=head.url.."/"..master.key.id
+				c.uid=v.uid
+				c.text=v.text
+				c.author=v.author
+				c.name=v.name
+				c.group=group
+				c.reply_updated=srv.time -- fake this flag as we force rebuild later
+--c.url="/forum/spam/"..master.key.id
+				return true
+			end)
+			
+			idlookup[com.cache.uid]=com.key.id
+		end
+		
+-- we should come back and fix these cache values later, these should be minimal
+
+		for id,b in pairs(replyids) do -- fix any reply caches
+			if id>0 then
+print( head.url.."/"..master.key.id .." "..id )
+				comments.update_reply_cache(srv, head.url.."/"..master.key.id , id)
+			end
+		end
+
+--[[
+		
+		comments.update_meta_cache(srv,head.url.."/"..master.key.id)
+		
+		forum.rebuild_cache( srv , head.url,master.key.id , #thread-1 )
+		
+		comments.update_meta_cache(srv,head.url)
+]]	
+	
+	end
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+--	put("Testing 123")
+
 end
