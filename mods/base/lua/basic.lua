@@ -61,13 +61,16 @@ fetch.countzero()
 	srv.url_slash=str_split("/",srv.url) -- break the input url
 	srv.crumbs={} -- for crumbs based navigation 
 
---[[
-		if srv.url_slash[4]=="admin" and srv.url_slash[5]=="clearmemcache" then
+
+-- low level hacks, requires google admin  to hit these urls
+	if srv.url_slash[4]=="admin" and srv.url_slash[5]=="cmd" then
+		if srv.url_slash[6]=="clearmemcache" then
 			srv.put("MEMCACHE CLEARED")
 			cache.clear(srv)
 			return
 		end
-]]
+	end
+
 
 	local guser=users.get_google_user() -- google handles its own login
 	if guser and guser.admin then -- trigger any special preadmin codes?
