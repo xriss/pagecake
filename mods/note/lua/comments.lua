@@ -346,11 +346,20 @@ function list(srv,opts,t)
 	end
 
 -- sort by?
+-- legacy, do not use, will be removed soon
 	if opts.sortdate then
 		q[#q+1]={"sort","updated", opts.sortdate }
 	end
 	if opts.csortdate then
 		q[#q+1]={"sort","created", opts.csortdate }
+	end
+	
+-- use these ones :)	
+	if opts.sort_updated then
+		q[#q+1]={"sort","updated", opts.sort_updated }
+	end
+	if opts.sort_created then
+		q[#q+1]={"sort","created", opts.sort_created }
 	end
 	
 	local r=t.query(q)
