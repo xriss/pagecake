@@ -884,9 +884,9 @@ end
 		for i,c in ipairs(cs) do
 
 			local url=srv.url_domain..tab.url.."/"..c.id
-			local action="Reply."
+			local action="Read and Reply."
 			if c.pagecount > 1 then			
-				action="("..c.pagecount..") Reply."
+				action="("..c.pagecount..") Read and Reply."
 			end
 
 			tab.put(build_get_comment(srv,tab,c)) -- main comment

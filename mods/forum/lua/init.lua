@@ -153,7 +153,9 @@ local forums=srv.opts.forums
 		srv.set_mimetype("text/html; charset=UTF-8")
 		put("header",{title="forum ",css=[[
 		.wetnote_comment_text{
-			max-height:50px;
+			max-height: 80px;
+			overflow-y: auto;
+			width: 480px;
         }
         .wetnote_reply_div{
 			margin-bottom:20px;

@@ -20,8 +20,15 @@ local require=require
 
 module("admin.ipv4")
 
-local tab=require("admin.ipv4_tab").data
-local tab_max=(#tab/2)-1
+local tab
+local tab_max
+
+--[[ disable lookup for faster instance startup?
+
+tab=require("admin.ipv4_tab").data
+tab_max=(#tab/2)-1
+
+]]
 
 -- turn an ip into a 32 bit number, or 0 if not a valid ipv4
 function ipnum(ip)
@@ -49,6 +56,8 @@ end
 -- lookup a country code from an ipv4 which should be turned into an integer
 
 function country(ip)
+
+	if not tab then return "ZZ" end
 
 	ip=ipnum(ip) -- force into a number
 	
