@@ -1191,7 +1191,7 @@ function serv_round_acts(H)
 		tt.type="fight"
 	end
 	local off=math.floor( tonumber(H.srv.gets.off) or 0)
-	if off<0 then off=0 end
+	if off<0 then off=0 end		
 	tt.offset=off
 	local a=acts.list(H,tt)
 	if a then
@@ -1203,7 +1203,15 @@ function serv_round_acts(H)
 	
 	local this_url=url
 	if tt.type then this_url=this_url.."/"..tt.type end
-	put("acts_footer",{url=this_url,prev_off=tt.offset-tt.limit,next_off=tt.offset+tt.limit})
+	
+	local tt_prev=tt.offset-tt.limit
+	local tt_next=tt.offset+tt.limit
+	
+-- clamp offsets to prevent search engines going crazy
+	if tt_prev<0 then tt_prev=0 end -- and prev does not go below 0 either	
+	if (a and #a or 0 ) < tt.limit then tt_next=0 end -- looks last page so set to 0
+	
+	put("acts_footer",{url=this_url,prev_off=tt_prev,next_off=tt_next})
 		
 	put("footer",footer_data)
 
