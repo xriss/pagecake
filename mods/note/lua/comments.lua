@@ -378,7 +378,7 @@ end
 --------------------------------------------------------------------------------
 function update_reply_cache(srv,url,id)
 
-	local rs=list(srv,{sortdate="ASC",url=url,group=id}) -- get all replies
+	local rs=list(srv,{sort_updated="ASC",url=url,group=id}) -- get all replies
 	local replies={}
 	for i,v in ipairs(rs) do -- and build reply cache
 		replies[i]=v.cache
@@ -388,6 +388,7 @@ function update_reply_cache(srv,url,id)
 -- an older cache may get saved, very unlikley but possible
 
 	update(srv,id,function(srv,e)
+		e.cache.updated=nil -- do not change the updated stamp...
 		e.cache.replies=replies -- save new reply cache
 		e.cache.count=#replies -- a number to sort by
 		e.cache.reply_updated=srv.time
@@ -407,7 +408,7 @@ function update_meta_cache(srv,url)
 	local count=0
 
 -- build meta cache			
-	local cs=list(srv,{sortdate="DESC",url=url,group=0}) -- get all top comments
+	local cs=list(srv,{sort_updated="DESC",url=url,group=0}) -- get all top comments
 	local comments={}
 	local newtime=0
 	for i,v in ipairs(cs) do -- and build comment cache
@@ -876,7 +877,7 @@ end
 	
 	
 -- get all top level comments
---	local cs=list(srv,{sortdate="DESC",url=tab.url,group=0})
+--	local cs=list(srv,{sort_updated="DESC",url=tab.url,group=0})
 	local cs=tab.meta.cache.comments or {}
 	
 	if tab.headonly then -- just display the forum heads
@@ -920,7 +921,7 @@ end
 	})
 			end
 
-			local rs=c.pagecomments or {} -- list(srv,{sortdate="ASC",url=tab.url,group=c.id}) -- replies
+			local rs=c.pagecomments or {} -- list(srv,{sort_updated="ASC",url=tab.url,group=c.id}) -- replies
 
 			for i=1,1,-1  do -- put last 5? 1? cached comments on page if we have them
 				local c=rs[i]
@@ -964,7 +965,7 @@ end
 					c.replies=update_reply_cache(srv,c.url,c.id)
 				end
 			end
-			local rs=c.replies or {} -- list(srv,{sortdate="ASC",url=tab.url,group=c.id}) -- replies
+			local rs=c.replies or {} -- list(srv,{sort_updated="ASC",url=tab.url,group=c.id}) -- replies
 			
 			local hide=#rs-5
 			if hide<0 then hide=0 end -- nothing to hide
@@ -1051,7 +1052,7 @@ function get_recent(srv,num)
 		return r
 	end
 
-	local recent=list(srv,{limit=num,type="ok",csortdate="DESC"})
+	local recent=list(srv,{limit=num,type="ok",sort_created="DESC"})
 
 -- the lua array + hash for its tables was the problem
 -- I have disable the array part lets see if it has a performance impact...
