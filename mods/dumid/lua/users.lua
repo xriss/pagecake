@@ -158,7 +158,7 @@ end
 -- so cache its result and do not call this multiple times every page render
 --
 -----------------------------------------------------------------------------
-function get_avatar_url(userid,w,h)
+function get_avatar_url(userid,w,h,srv)
 	local user=nil
 	
 	w=w or 100
@@ -166,11 +166,24 @@ function get_avatar_url(userid,w,h)
 	local url
 	local email=userid
 	
+
+
 	if type(userid)=="table" then
 		user=userid
 		userid=user.id or ""
-		email=user.email or userid
+		email=(user.cache and user.cache.email) or user.email or userid
+	else
+		if srv then
+			local v="@id.google.com"
+			if string.sub(userid,-#v)==v then
+				user=get(srv,userid)
+				userid=user.id or ""
+				email=(user.cache and user.cache.email) or user.email or userid
+			end
+		end
 	end
+	
+	
 	if type(userid)=="string" then userid=userid:lower() end
 	if type(email) =="string" then email = email:lower() end
 	
@@ -204,6 +217,9 @@ function get_avatar_url(userid,w,h)
 
 		end
 	end
+	
+--log(tostring(user))
+--log(email)
 
 	url=url or "/thumbcache/"..w.."/"..h.."/www.gravatar.com/avatar/"..sys.md5(email):lower().."?s=200&d=identicon&r=x"
 	

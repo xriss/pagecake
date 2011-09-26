@@ -464,7 +464,7 @@ function build_get_comment(srv,tab,c)
 	purl=purl or "http://google.com/search?q="..name,
 	time=os.date("%Y-%m-%d %H:%M:%S",c.created),
 	id=c.id,
-	icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.author) ),
+	icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.author,nil,nil,srv) ),
 	}
 	
 	if c.type=="anon" then -- anonymiser
@@ -744,7 +744,7 @@ function get_reply_form(srv,tab,num)
 	local upload=""
 	local anon=""
 	
-	if tab.image then
+	if tab.image or user and user.admin then
 		local com=" Please choose an image! "
 		if tab.image=="force" then com=" You must choose an image! " end
 		upload=[[<div class="wetnote_comment_form_image_div" ><span>]]..com..[[</span><input  class="wetnote_comment_form_image" type="file" name="filedata" /></div>]]

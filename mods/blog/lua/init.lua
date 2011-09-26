@@ -181,7 +181,7 @@ opts=opts or {}
 	
 --[[
 	if not c.author_icon then -- need to update our user icon
-		local author_icon = d_users.get_avatar_url(c.author)
+		local author_icon = d_users.get_avatar_url(c.author,nil,nil,srv)
 		d_users.update(srv,ent,function(srv,e)
 			e.cache.author_icon=author_icon
 			return true

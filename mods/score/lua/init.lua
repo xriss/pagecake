@@ -134,7 +134,7 @@ local get,put=make_get_put(srv)
 --log(score)
 
 			local userid=user.cache.id
-			local icon=d_users.get_avatar_url(user.cache.email,50,50)
+			local icon=d_users.get_avatar_url(user.cache,50,50)
 			local _,link=d_users.get_profile_link(user.cache.id)
 			local name=user.cache.name
 		
