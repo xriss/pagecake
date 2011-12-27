@@ -74,9 +74,11 @@
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
       <fileset dir="../../../aelua/bin/lua"> </fileset>
     </copy>
+<!--
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
       <fileset dir="../../../aelua/lua">  </fileset>
     </copy>
+-->
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
       <fileset dir="html/lua">  </fileset>
     </copy>
