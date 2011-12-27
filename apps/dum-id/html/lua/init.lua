@@ -2,7 +2,7 @@
 require("opts") -- setup global opts table full of options and overides
 
 local os=os
-local dat=require("wetgenes.aelua.data")
+local dat=require("wetgenes.www.any.data")
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split

@@ -2,19 +2,19 @@
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 
 local json=require("wetgenes.json")
-local dat=require("wetgenes.aelua.data")
+local dat=require("wetgenes.www.any.data")
 
-local users=require("wetgenes.aelua.users")
+local users=require("wetgenes.www.any.users")
 
-local fetch=require("wetgenes.aelua.fetch")
-local cache=require("wetgenes.aelua.cache")
+local fetch=require("wetgenes.www.any.fetch")
+local cache=require("wetgenes.www.any.cache")
 
-local img=require("wetgenes.aelua.img")
+local img=require("wetgenes.www.any.img")
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
 local trim=wet_string.trim
@@ -95,7 +95,7 @@ local get=make_get(srv)
 	if posts.submit then posts.submit=trim(posts.submit) end
 	
 --[[
-local oauth=require("wetgenes.aelua.oauth")
+local oauth=require("wetgenes.www.any.oauth")
 
 	local v={}
 	v.oauth_timestamp , v.oauth_nonce = oauth.time_nonce("sekrit")

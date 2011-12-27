@@ -1,6 +1,6 @@
 
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 
 local math=math

@@ -1,19 +1,19 @@
 
 --local wet_html=require("wetgenes.html")
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 
---local dat=require("wetgenes.aelua.data")
+--local dat=require("wetgenes.www.any.data")
 
---local user=require("wetgenes.aelua.user")
+--local user=require("wetgenes.www.any.user")
 
-local img=require("wetgenes.aelua.img")
+local img=require("wetgenes.www.any.img")
 
-local fetch=require("wetgenes.aelua.fetch")
+local fetch=require("wetgenes.www.any.fetch")
 
-local cache=require("wetgenes.aelua.cache")
+local cache=require("wetgenes.www.any.cache")
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 --local wet_string=require("wetgenes.string")
 --local str_split=wet_string.str_split

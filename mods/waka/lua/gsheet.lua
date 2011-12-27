@@ -1,16 +1,16 @@
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 local url_esc=wet_html.url_esc
 
 local html=require("html")
 
-local fetch=require("wetgenes.aelua.fetch")
+local fetch=require("wetgenes.www.any.fetch")
 
-local cache=require("wetgenes.aelua.cache")
+local cache=require("wetgenes.www.any.cache")
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local json=require("wetgenes.json")
 

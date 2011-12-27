@@ -3,19 +3,19 @@
 
 local wet_html=require("wetgenes.html")
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 
 local json=require("wetgenes.json")
-local dat=require("wetgenes.aelua.data")
+local dat=require("wetgenes.www.any.data")
 
-local users=require("wetgenes.aelua.users")
+local users=require("wetgenes.www.any.users")
 
-local fetch=require("wetgenes.aelua.fetch")
-local cache=require("wetgenes.aelua.cache")
+local fetch=require("wetgenes.www.any.fetch")
+local cache=require("wetgenes.www.any.cache")
 
-local img=require("wetgenes.aelua.img")
+local img=require("wetgenes.www.any.img")
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 
 local wet_string=require("wetgenes.string")
@@ -38,7 +38,7 @@ local d_acts =require("dumid.acts")
 local d_nags =require("dumid.nags")
 
 
-local oauth=require("wetgenes.aelua.oauth")
+local oauth=require("wetgenes.www.any.oauth")
 
 
 

@@ -1,8 +1,8 @@
 
 local os=os
-local ae_opts=require("wetgenes.aelua.opts")
-local dat=require("wetgenes.aelua.data")
-local cache=require("wetgenes.aelua.cache")
+local ae_opts=require("wetgenes.www.any.opts")
+local dat=require("wetgenes.www.any.data")
+local cache=require("wetgenes.www.any.cache")
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split

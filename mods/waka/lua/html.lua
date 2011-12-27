@@ -1,5 +1,5 @@
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 local url_esc=wet_html.url_esc

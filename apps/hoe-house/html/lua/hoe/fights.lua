@@ -3,14 +3,14 @@ local json=require("wetgenes.json")
 
 local wet_html=require("wetgenes.html")
 
-local dat=require("wetgenes.aelua.data")
-local cache=require("wetgenes.aelua.cache")
+local dat=require("wetgenes.www.any.data")
+local cache=require("wetgenes.www.any.cache")
 
-local users=require("wetgenes.aelua.users")
+local users=require("wetgenes.www.any.users")
 
-local img=require("wetgenes.aelua.img")
+local img=require("wetgenes.www.any.img")
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split

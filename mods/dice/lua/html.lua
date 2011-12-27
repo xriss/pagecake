@@ -1,6 +1,6 @@
 
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 
 local wet_html=require("wetgenes.html")
 

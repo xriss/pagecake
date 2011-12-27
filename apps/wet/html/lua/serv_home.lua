@@ -4,11 +4,11 @@
 local html=require("html")
 local wet_html=require("wetgenes.html")
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 
-local dat=require("wetgenes.aelua.data")
+local dat=require("wetgenes.www.any.data")
 
-local users=require("wetgenes.aelua.users")
+local users=require("wetgenes.www.any.users")
 
 
 local wet_string=require("wetgenes.string")

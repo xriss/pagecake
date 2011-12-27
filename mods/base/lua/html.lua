@@ -1,10 +1,10 @@
 
 
-local log=require("wetgenes.aelua.log").log
+local log=require("wetgenes.www.any.log").log
 
-local sys=require("wetgenes.aelua.sys")
+local sys=require("wetgenes.www.any.sys")
 local waka=require("wetgenes.waka")
-local users=require("wetgenes.aelua.users")
+local users=require("wetgenes.www.any.users")
 
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
@@ -219,9 +219,9 @@ end
 -----------------------------------------------------------------------------
 footer=function(d)
 
-	local cache=require("wetgenes.aelua.cache")
-	local data=require("wetgenes.aelua.data")
-	local fetch=require("wetgenes.aelua.fetch")
+	local cache=require("wetgenes.www.any.cache")
+	local data=require("wetgenes.www.any.data")
+	local fetch=require("wetgenes.www.any.fetch")
 
 	d.bar=""
 	if opts_html.bar=="foot" then

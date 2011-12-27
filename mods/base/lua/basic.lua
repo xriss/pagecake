@@ -1,16 +1,16 @@
 local opts=require("opts") -- setup global opts table full of options and overides
 
 local os=os
-local dat=require("wetgenes.aelua.data")
-local cache=require("wetgenes.aelua.cache")
-local fetch=require("wetgenes.aelua.fetch")
-local users=require("wetgenes.aelua.users")
+local dat=require("wetgenes.www.any.data")
+local cache=require("wetgenes.www.any.cache")
+local fetch=require("wetgenes.www.any.fetch")
+local users=require("wetgenes.www.any.users")
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-local iplog=require("wetgenes.aelua.iplog")
+local iplog=require("wetgenes.www.any.iplog")
 
 local table=table
 local string=string
@@ -22,7 +22,7 @@ local pcall=pcall
 
 module("base.basic")
 
-local log=require("wetgenes.aelua.log").log -- grab the func from the package
+local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 -----------------------------------------------------------------------------
 --
