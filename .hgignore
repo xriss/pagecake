@@ -1,3 +1,4 @@
+syntax: glob
 .war
 .ngx
 php/log.txt

@@ -20,6 +20,8 @@ local ipairs=ipairs
 local pairs=pairs
 local pcall=pcall
 
+local ngx=ngx
+
 module("base.basic")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
@@ -228,7 +230,6 @@ function check_referer(referer,url)
 end
 
 
-require_all_done=false
 -- step through all modules used in opts and make sure they have been required
 function require_all()
 
@@ -253,8 +254,9 @@ end
 	
 end
 
-
-require_all()
-
+if not ngx then
+	require_all_done=false
+	require_all()
+end
 
 
