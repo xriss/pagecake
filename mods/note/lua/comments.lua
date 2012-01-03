@@ -153,7 +153,7 @@ end
 --
 --------------------------------------------------------------------------------
 function manifest_meta(srv,url,t)
-
+log("manifest_meta")
 	local ent
 	
 	local fill=false
@@ -445,9 +445,8 @@ function update_meta_cache(srv,url)
 
 -- the comment cache may lose one if multiple people reply at the same time
 -- an older cache may get saved, very unlikley but possible
--- url is a string so this manifests if it does not exist
 
-	local meta=update(srv,url,function(srv,e)
+	local meta=manifest(srv,url,function(srv,e)
 	
 		if(newtime>0) then
 			e.cache.updated=newtime -- most recent comment
@@ -460,6 +459,7 @@ function update_meta_cache(srv,url)
 		
 		return true
 	end)
+
 	return meta
 end
 

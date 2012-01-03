@@ -26,6 +26,8 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 -----------------------------------------------------------------------------
 function serv_fail(srv)
 
+	srv.exit(404)
+
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put([[
 	
@@ -75,7 +77,7 @@ fetch.countzero()
 
 		local allow,tab=iplog.ratelimit(srv.ip)
 		srv.iplog=tab -- iplog info
-		if not allow then srv.put("RATELIMITED") return end -- drop request
+		if not allow then srv.exit(503) srv.put("RATELIMITED") return end -- drop request
 
 	end
 
