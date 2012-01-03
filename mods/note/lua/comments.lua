@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 local url_esc=wet_html.url_esc
@@ -30,34 +32,47 @@ local replace  =wet_string.replace
 local serialize=wet_string.serialize
 
 
-
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local pcall=pcall
-local loadstring=loadstring
-local require=require
-
 -- opts
 local opts_mods_note=(opts and opts.mods and opts.mods.note) or {}
 local opts_mail_from=(opts and opts.mail and opts.mail.from)
 
 module("note.comments")
+local _M=require(...)
 local wetdata=require("data")
 
---------------------------------------------------------------------------------
---
--- serving flavour can be used to create a subgame of a different flavour
--- make sure we incorporate flavour into the name of our stored data types
---
---------------------------------------------------------------------------------
+
+default_props=
+{
+	uid="",    -- a unique id string
+		
+	author="", -- the userid of who wrote this comment (can be used to lookup user)
+	url="",    -- the site url for which this is a comment on, site comments relative to root begin with "/"
+	group=0,   -- the id of our parent or 0 if this is a master comment on a url, -1 if it is a meta cache
+	type="ok", -- a type string to filter on
+				-- ok    - this is a valid comment, display it
+				-- spam  - this is pure spam, hidden but not forgotten
+				-- meta  - use on fake comments that only contain cached info of other comments
+				-- anon  -- anonymous, should not show up in user searches
+
+	count=0,       -- number of replies to this comment (could be good to sort by)
+	pagecount=0,   -- number of pagecomments to this comment (this comment is treated as its own page)
+
+-- track some simple vote numbers, to be enabled later?
+
+	good=0, -- number of good content "votes"
+	spam=0, -- number of spam "votes"
+	
+	media=0, -- an associated data.meta id link, 0 if no media,
+				-- so each post can have eg an image associated with it ala 4chan
+}
+
+default_cache=
+{
+	text="", -- this string is the main text of this comment
+	cache={}, -- some cached info of other comments/users etc, 
+}
+
+
 function kind(srv)
 	return "note.comments" -- this note module is site wide, which means so is the comment table
 end
@@ -67,6 +82,7 @@ end
 -- Create a new local entity filled with initial data
 --
 --------------------------------------------------------------------------------
+--[[
 function create(srv)
 
 	local ent={}
@@ -111,6 +127,7 @@ function create(srv)
 
 	return check(srv,ent)
 end
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -169,6 +186,7 @@ end
 -- build_props is called so code should always be updating the cache values
 --
 --------------------------------------------------------------------------------
+--[[
 function put(srv,ent,t)
 
 	t=t or dat -- use transaction?
@@ -186,7 +204,7 @@ function put(srv,ent,t)
 
 	return ks -- return the keystring which is an absolute name
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -194,6 +212,7 @@ end
 -- the props will be copied into the cache
 --
 --------------------------------------------------------------------------------
+--[[
 function get(srv,id,t)
 
 	if type(id)=="string" then -- auto manifest by url
@@ -213,7 +232,7 @@ function get(srv,id,t)
 	
 	return check(srv,ent)
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- get/manifest - update - put
@@ -264,6 +283,7 @@ end
 -- returns the update entity only if succesful
 --
 --------------------------------------------------------------------------------
+--[[
 function update(srv,id,f)
 
 	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
@@ -290,7 +310,7 @@ function update(srv,id,f)
 	
 	return false
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -298,12 +318,14 @@ end
 -- this list is a name->bool lookup
 --
 --------------------------------------------------------------------------------
+--[[
 function what_memcache(srv,ent,mc)
 	local mc=mc or {} -- can supply your own result table for merges	
 	local c=ent.cache
 	
 	return mc
 end
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -311,12 +333,13 @@ end
 -- probably best just to delete them so they will automatically get rebuilt
 --
 --------------------------------------------------------------------------------
+--[[
 function fix_memcache(srv,mc)
 	for n,b in pairs(mc) do
 		cache.del(srv,n)
 	end
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -1136,5 +1159,10 @@ function recent_to_html(srv,tab)
 	
 	return table.concat(t)
 end
+
+
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready
 
 

@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 
@@ -24,20 +26,6 @@ local html=require("waka.html")
 
 
 
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local pcall=pcall
-local loadstring=loadstring
-
-
 --
 -- Which can be overiden in the global table opts
 --
@@ -45,13 +33,22 @@ local opts_mods_waka={}
 if opts and opts.mods and opts.mods.waka then opts_mods_waka=opts.mods.waka end
 
 module("waka.edits")
+local _M=require(...)
 
---------------------------------------------------------------------------------
---
--- serving flavour can be used to create a subgame of a different flavour
--- make sure we incorporate flavour into the name of our stored data types
---
---------------------------------------------------------------------------------
+default_props=
+{
+	author="",
+	page="",
+	group="",
+	from=0,
+	time=0,
+	layer=0,
+}
+
+default_cache=
+{
+}
+
 function kind(srv)
 	if not srv.flavour or srv.flavour=="waka" then return "waka.edits" end
 	return srv.flavour..".waka.edits"
@@ -62,6 +59,7 @@ end
 -- Create a new local entity filled with initial data
 --
 --------------------------------------------------------------------------------
+--[[
 function create(srv)
 
 	local ent={}
@@ -89,7 +87,7 @@ function create(srv)
 
 	return check(srv,ent)
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- check that entity has initial data and set any missing defaults
@@ -101,6 +99,9 @@ function check(srv,ent)
 	local ok=true
 
 	local c=ent.cache
+	
+	if c.from==0 then c.from=srv.time end
+	if c.time==0 then c.time=srv.time end
 		
 	return ent,ok
 end
@@ -112,6 +113,7 @@ end
 -- build_props is called so code should always be updating the cache values
 --
 --------------------------------------------------------------------------------
+--[[
 function put(srv,ent,t)
 
 	t=t or dat -- use transaction?
@@ -129,7 +131,7 @@ function put(srv,ent,t)
 
 	return ks -- return the keystring which is an absolute name
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -137,6 +139,7 @@ end
 -- the props will be copied into the cache
 --
 --------------------------------------------------------------------------------
+--[[
 function get(srv,id,t)
 
 	local ent=id
@@ -153,7 +156,7 @@ function get(srv,id,t)
 	
 	return check(srv,ent)
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- Load from database, pass in page name and two time stamps to identify the one you are looking for
@@ -206,6 +209,7 @@ end
 -- id can be an id or an entity from which we will get the id
 --
 --------------------------------------------------------------------------------
+--[[
 function update(srv,id,f)
 
 	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
@@ -231,7 +235,7 @@ function update(srv,id,f)
 	end
 	
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -239,25 +243,27 @@ end
 -- this list is a name->bool lookup
 --
 --------------------------------------------------------------------------------
+--[[
 function what_memcache(srv,ent,mc)
 	local mc=mc or {} -- can supply your own result table for merges	
 	local c=ent.cache
 	
 	return mc
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- fix the memcache items previously produced by what_memcache
 -- probably best just to delete them so they will automatically get rebuilt
 --
 --------------------------------------------------------------------------------
+--[[
 function fix_memcache(srv,mc)
 	for n,b in pairs(mc) do
 		cache.del(srv,n)
 	end
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- list edits
@@ -282,3 +288,8 @@ function list(srv,opts,t)
 
 	return r.list
 end
+
+
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready

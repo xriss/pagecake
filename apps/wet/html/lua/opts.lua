@@ -1,5 +1,6 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
-local os=os
 local ae_opts=require("wetgenes.www.any.opts")
 local dat=require("wetgenes.www.any.data")
 local cache=require("wetgenes.www.any.cache")
@@ -8,13 +9,6 @@ local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-local loadstring=loadstring
-local setfenv=setfenv
-local pcall=pcall
-local pairs=pairs
-local ipairs=ipairs
-local type=type
-local require=require
 
 module("opts")
 

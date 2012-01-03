@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local sys=require("wetgenes.www.any.sys")
 local wet_html=require("wetgenes.html")
@@ -13,15 +15,6 @@ local cache=require("wetgenes.www.any.cache")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local json=require("wetgenes.json")
-
-local setmetatable=setmetatable
-local type=type
-local tostring=tostring
-local ipairs=ipairs
-local pairs=pairs
-local pcall=pcall
-
-local table=table
 
 module("waka.gsheet")
 

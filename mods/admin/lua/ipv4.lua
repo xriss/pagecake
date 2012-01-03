@@ -1,22 +1,10 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local pcall=pcall
-local loadstring=loadstring
-
-local require=require
 
 module("admin.ipv4")
 

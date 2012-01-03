@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
@@ -29,20 +31,6 @@ local html=require("shoop.html")
 local wakapages=require("waka.pages")
 local comments=require("note.comments")
 
-
-
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local pcall=pcall
-local loadstring=loadstring
 
 
 -- opts

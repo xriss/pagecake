@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local json=require("wetgenes.json")
 
@@ -11,14 +13,6 @@ local sys=require("wetgenes.www.any.sys")
 
 local iplog=require("wetgenes.www.any.iplog")
 
-local os=os
-local string=string
-local math=math
-
-local tostring=tostring
-local type=type
-local ipairs=ipairs
-local require=require
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
@@ -37,10 +31,11 @@ local serialize=wet_string.serialize
 --------------------------------------------------------------------------------
 
 module("dumid.sess")
+local _M=require(...)
+
 local d_users=require("dumid.users")
 local d_nags=require("dumid.nags")
 
-dat.set_defs(_M) -- create basic data handling funcs
 
 default_props=
 {
@@ -164,3 +159,10 @@ function get_viewer_session(srv)
 	return srv.sess,srv.user -- return sess , user
 	
 end
+
+
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready
+
+

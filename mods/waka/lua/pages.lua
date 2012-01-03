@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 
 local wet_html=require("wetgenes.html")
@@ -30,19 +32,6 @@ local edits=require("waka.edits")
 
 
 
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local pcall=pcall
-local loadstring=loadstring
-
 
 --
 -- Which can be overeiden in the global table opts
@@ -51,13 +40,21 @@ local opts_mods_waka={}
 if opts and opts.mods and opts.mods.waka then opts_mods_waka=opts.mods.waka end
 
 module("waka.pages")
+local _M=require(...)
 
---------------------------------------------------------------------------------
---
--- serving flavour can be used to create a subgame of a different flavour
--- make sure we incorporate flavour into the name of our stored data types
---
---------------------------------------------------------------------------------
+default_props=
+{
+	layer=0,
+	group="",
+}
+
+default_cache=
+{
+	tags={},
+	text="",
+}
+
+
 function kind(srv)
 	if not srv.flavour or srv.flavour=="waka" then return "waka.pages" end
 	return srv.flavour..".waka.pages"
@@ -68,18 +65,21 @@ end
 -- what key name should we use to cache an entity?
 --
 --------------------------------------------------------------------------------
+--[[
 function cache_key(id)
 	if type(id)=="table" then -- convert ent to id
 		id=id.key.id
 	end
 	return "type=ent&waka="..id
 end
+]]
 
 --------------------------------------------------------------------------------
 --
 -- Create a new local entity filled with initial data
 --
 --------------------------------------------------------------------------------
+--[[
 function create(srv)
 
 	local ent={}
@@ -109,6 +109,7 @@ function create(srv)
 
 	return check(srv,ent)
 end
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -141,6 +142,7 @@ end
 -- build_props is called so code should always be updating the cache values
 --
 --------------------------------------------------------------------------------
+--[[
 function put(srv,ent,tt)
 
 --	ent.cache.tags={["a"]=true,["bb"]=true,["ccc"]=true}
@@ -162,7 +164,7 @@ function put(srv,ent,tt)
 
 	return ks -- return the keystring which is an absolute name
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -170,6 +172,7 @@ end
 -- the props will be copied into the cache
 --
 --------------------------------------------------------------------------------
+--[[
 function get(srv,id,t)
 
 	local ent=id
@@ -190,12 +193,14 @@ function get(srv,id,t)
 	
 	return check(srv,ent)
 end
+]]
 
 --------------------------------------------------------------------------------
 --
 -- get or create a blank page
 --
 --------------------------------------------------------------------------------
+--[[
 function manifest(srv,id,t)
 
 	local ent=get(srv,id,t)
@@ -211,7 +216,7 @@ function manifest(srv,id,t)
 	
 	return check(srv,ent)
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- change the text of this page, creating it if necesary
@@ -309,6 +314,7 @@ end
 -- id can be an id or an entity from which we will get the id
 --
 --------------------------------------------------------------------------------
+--[[
 function update(srv,id,f)
 
 	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
@@ -338,7 +344,7 @@ function update(srv,id,f)
 	end
 	
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -346,6 +352,7 @@ end
 -- this list is a name->bool lookup
 --
 --------------------------------------------------------------------------------
+--[[
 function what_memcache(srv,ent,mc)
 	local mc=mc or {} -- can supply your own result table for merges	
 	local c=ent.cache
@@ -354,18 +361,20 @@ function what_memcache(srv,ent,mc)
 	
 	return mc
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- fix the memcache items previously produced by what_memcache
 -- probably best just to delete them so they will automatically get rebuilt
 --
 --------------------------------------------------------------------------------
+--[[
 function fix_memcache(srv,mc)
 	for n,b in pairs(mc) do
 		cache.del(srv,n)
 	end
 end
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -451,3 +460,8 @@ function load(srv,id,opts)
 	
 	return chunks
 end
+
+
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready

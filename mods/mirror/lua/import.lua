@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 local url_esc=wet_html.url_esc
@@ -25,26 +27,11 @@ local replace  =wet_string.replace
 local serialize=wet_string.serialize
 
 
-
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local pcall=pcall
-local loadstring=loadstring
-local require=require
-
 -- opts
 local opts_mods_note=(opts and opts.mods and opts.mods.note) or {}
 
 module("mirror.import")
-
+--[[
 --------------------------------------------------------------------------------
 --
 -- serving flavour can be used to create a subgame of a different flavour
@@ -215,4 +202,4 @@ function fix_memcache(srv,mc)
 		cache.del(srv,n)
 	end
 end
-
+]]
