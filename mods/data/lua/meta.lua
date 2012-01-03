@@ -64,7 +64,7 @@ default_cache=
 }
 
 function kind(srv)
-	if not srv.flavour or srv.flavour=="data" then return "data.meta" end
+	if not srv or not srv.flavour or srv.flavour=="data" then return "data.meta" end
 	return srv.flavour..".data.meta"
 end
 

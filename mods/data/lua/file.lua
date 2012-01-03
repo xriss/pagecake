@@ -52,7 +52,7 @@ default_cache=
 {
 }
 function kind(srv)
-	if not srv.flavour or srv.flavour=="data" then return "data.file" end
+	if not srv or not srv.flavour or srv.flavour=="data" then return "data.file" end
 	return srv.flavour..".data.file"
 end
 

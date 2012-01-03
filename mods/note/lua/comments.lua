@@ -176,7 +176,7 @@ function manifest_meta(srv,url,t)
 		ent.cache.type="meta"
 	end
 	
-	return (check(serv,ent)) -- wrap in () to just return the ent
+	return (check(srv,ent)) -- wrap in () to just return the ent
 end
 
 --------------------------------------------------------------------------------

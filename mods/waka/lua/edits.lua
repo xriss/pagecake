@@ -50,7 +50,7 @@ default_cache=
 }
 
 function kind(srv)
-	if not srv.flavour or srv.flavour=="waka" then return "waka.edits" end
+	if not srv or not srv.flavour or srv.flavour=="waka" then return "waka.edits" end
 	return srv.flavour..".waka.edits"
 end
 

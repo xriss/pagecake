@@ -56,7 +56,7 @@ default_cache=
 
 
 function kind(srv)
-	if not srv.flavour or srv.flavour=="waka" then return "waka.pages" end
+	if not srv or not srv.flavour or srv.flavour=="waka" then return "waka.pages" end
 	return srv.flavour..".waka.pages"
 end
 
@@ -217,6 +217,13 @@ function manifest(srv,id,t)
 	return check(srv,ent)
 end
 ]]
+
+function default_manifest(srv,ent)
+	ent.cache.text=""--"#title\n"..string.gsub(id,"/"," ").."\n#body\n".."MISSING CONTENT\n"
+	ent.key.notsaved=true -- flag as not saved yet
+	return true
+end
+
 --------------------------------------------------------------------------------
 --
 -- change the text of this page, creating it if necesary
