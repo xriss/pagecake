@@ -19,8 +19,8 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 

@@ -15,6 +15,8 @@ local cache=require("wetgenes.www.any.cache")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
+local ngx=ngx
+
 --local wet_string=require("wetgenes.string")
 --local str_split=wet_string.str_split
 --local serialize=wet_string.serialize
@@ -46,6 +48,8 @@ module("thumbcache")
 --
 -----------------------------------------------------------------------------
 function serv(srv)
+
+if ngx then srv.exit(400) return end
 
 	local usecache=true
 
