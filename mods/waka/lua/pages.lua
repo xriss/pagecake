@@ -273,9 +273,7 @@ function edit(srv,id,by)
 		return true
 	end		
 	local ret=update(srv,id,f)
-log("DIFF?")
 	if ret then
-log("SAVING DIFF")
 		add_edit_log(srv,ret) -- also adjust edits history
 	end
 	return ret
