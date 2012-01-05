@@ -351,7 +351,7 @@ end
 --------------------------------------------------------------------------------
 function cache_find_by_pubname(srv,pubname)
 
-	local key=cache_key(pubname)
+	local key=cache_key(srv,pubname)
 	
 	if srv.cache[key] then return srv.cache[key] end
 	

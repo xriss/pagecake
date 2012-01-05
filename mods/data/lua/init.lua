@@ -154,7 +154,7 @@ local get,put=make_get_put(srv)
 				
 			else
 		
-				local ef=file.get(srv,em.cache.filekey)
+				local ef=file.cache_get_data(srv,em.cache.filekey)
 				
 				srv.set_mimetype( (srv.vars.mime or em.cache.mimetype).."; charset=UTF-8")				
 				srv.set_header("Cache-Control","public") -- allow caching of page
@@ -165,7 +165,7 @@ local get,put=make_get_put(srv)
 				
 					if ef then
 					
-						srv.put(ef.cache.data)
+						srv.put(ef.cache.data or "ERROR:"..wstr.serialize(ef))
 						
 						if ef.cache.nextkey==0 then return end -- last chunk
 						

@@ -27,6 +27,7 @@ local wet_diff=require("wetgenes.diff")
 -- require all the module sub parts
 local html=require("blog.html")
 
+local ngx=ngx
 
 --
 -- Which can be overidden in the global table opts
@@ -246,16 +247,22 @@ end
 -- like find but with as much cache as we can use so ( no transactions available )
 --
 --------------------------------------------------------------------------------
-function cache_get(srv,id)
+function cache_get_data(srv,id)
 
---	local key=cache_key(pubname)	
---	if srv.cache[key] then return srv.cache[key] end
+	local ck="type=ent.data&data.file="..id
+	local ret=cache.get(srv,ck)
 	
-	ent=get(srv,id)
-	
---	srv.cache[key]=ent
-	
-	return ent
+	if ret then -- got cach
+		return ret
+	else
+		ent=get(srv,id)
+		if ent.cache.nextkey==0 then -- we can cache this as it is small
+			ret={cache={data=ent.cache.data,mimetype=ent.cache.mimetype,nextkey=0}}
+			cache.put(srv,ck,ret,60*60)
+			return ret
+		end
+		return ent
+	end
 end
 
 
@@ -286,5 +293,11 @@ end
 
 
 dat.set_defs(_M) -- create basic data handling funcs
+
+if not ngx then
+	function cache_key(srv,id) -- disable cache, we have gae binary problems...
+		return nil
+	end
+end
 
 dat.setup_db(_M) -- make sure DB exists and is ready
