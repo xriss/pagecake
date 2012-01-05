@@ -131,6 +131,10 @@ function check(srv,ent)
 		if aa[1] and aa[2] then group=table.concat(aa,"/") end
 		c.group=group
 	end
+	
+	if c.text=="" then -- change default value only
+		c.text="#title\n"..string.gsub(c.id or "","/"," ").."\n#body\n".."MISSING CONTENT\n"
+	end
 		
 	return ent,ok
 end
@@ -220,8 +224,8 @@ end
 
 function default_manifest(srv,ent)
 	ent.cache.text=""--"#title\n"..string.gsub(id,"/"," ").."\n#body\n".."MISSING CONTENT\n"
-	ent.key.notsaved=true -- flag as not saved yet
-	return true
+	ent.key.notsaved=true -- flag as not saved yet, will get cleared on put
+	return check(srv,ent)
 end
 
 --------------------------------------------------------------------------------
@@ -255,7 +259,7 @@ function edit(srv,id,by)
 		end		
 ]]		
 -- this is too slow for app engine?
-		d.diff=wet_diff.diff(c.text, text,"\n") -- what was changed		
+		d.diff=wet_diff.diff(c.text, text,"\n") -- what was changed in last edit
 		
 		if #d.diff==1 then return false end-- no changes, no need to write, so return a fail to stop it
 		
@@ -268,7 +272,13 @@ function edit(srv,id,by)
 		
 		return true
 	end		
-	return update(srv,id,f)
+	local ret=update(srv,id,f)
+log("DIFF?")
+	if ret then
+log("SAVING DIFF")
+		add_edit_log(srv,ret) -- also adjust edits history
+	end
+	return ret
 end
 
 --------------------------------------------------------------------------------

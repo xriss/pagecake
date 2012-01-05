@@ -153,7 +153,7 @@ end
 --
 --------------------------------------------------------------------------------
 function manifest_meta(srv,url,t)
-log("manifest_meta")
+--log("manifest_meta")
 	local ent
 	
 	local fill=false

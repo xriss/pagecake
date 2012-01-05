@@ -306,10 +306,8 @@ local ext
 			if ext=="dbg" then repopts.dbg_html_comments=true end
 			
 			put(macro_replace(refined.plate or [[
-			<h1>{title}</h1>
-			{body}
-			]],refined,repopts))
-			
+<h1>{title}</h1>
+{body}]],refined,repopts))
 			if pageopts.flame=="on" then -- add comments to this page
 				comments.build(srv,{title=refined.title or pagename,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 			elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
