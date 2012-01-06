@@ -155,27 +155,20 @@ end
 function manifest_meta(srv,url,t)
 --log("manifest_meta")
 	local ent
-	
-	local fill=false
-	
+
+-- get?
+	ent=create(srv)
+	ent.key.id=url
+	ent=get(srv,ent,t) -- prevent manifest recursion by passing in ent
+
 	if not ent then
 		ent=create(srv)
-		ent.key.id=url
-		ent=get(srv,ent,t) -- prevent manifest recursion by passing in ent
-	end
-	
-	if not ent then
-		ent=create(srv)
-		fill=true
-	end
-	
-	if fill then
 		ent.key.id=url -- force id which is page name string
 		ent.cache.group=-1 -- no group
 		ent.cache.id=url -- copy here
 		ent.cache.type="meta"
 	end
-	
+
 	return (check(srv,ent)) -- wrap in () to just return the ent
 end
 
@@ -446,7 +439,7 @@ function update_meta_cache(srv,url)
 -- the comment cache may lose one if multiple people reply at the same time
 -- an older cache may get saved, very unlikley but possible
 
-	local meta=manifest(srv,url,function(srv,e)
+	local f=function(srv,e)
 	
 		if(newtime>0) then
 			e.cache.updated=newtime -- most recent comment
@@ -458,7 +451,9 @@ function update_meta_cache(srv,url)
 		e.cache.meta_updated=srv.time
 		
 		return true
-	end)
+	end
+	
+	local meta=update(srv,url,f) or manifest(srv,url,f)
 
 	return meta
 end
