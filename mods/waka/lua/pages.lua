@@ -223,9 +223,9 @@ end
 ]]
 
 function default_manifest(srv,ent)
-	ent.cache.text=""--"#title\n"..string.gsub(id,"/"," ").."\n#body\n".."MISSING CONTENT\n"
+--	ent.cache.text=""--"#title\n"..string.gsub(id,"/"," ").."\n#body\n".."MISSING CONTENT\n"
 	ent.key.notsaved=true -- flag as not saved yet, will get cleared on put
-	return check(srv,ent)
+	return false -- no actual change so dont bother saving
 end
 
 --------------------------------------------------------------------------------
@@ -272,9 +272,11 @@ function edit(srv,id,by)
 		
 		return true
 	end		
-	local ret=update(srv,id,f)
+	local ret=manifest(srv,id,f) -- create/get and also update
 	if ret then
 		add_edit_log(srv,ret) -- also adjust edits history
+	else
+		log("WAKA PAGE EDIT FAIL:"..id)
 	end
 	return ret
 end
