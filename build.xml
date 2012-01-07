@@ -1,10 +1,10 @@
-<project name="aelua" default="war">
+<project name="anlua" default="war">
 
 <taskdef resource="net/sf/antcontrib/antlib.xml" >
-  <classpath> <pathelement location="../../../aelua/class/ant-contrib.jar"/> </classpath>
+  <classpath> <pathelement location="../../../anlua/class/ant-contrib.jar"/> </classpath>
 </taskdef>
 
-  <property name="appengine.sdk" location="../../../aelua/appengine-java-sdk"/>
+  <property name="appengine.sdk" location="../../../anlua/appengine-java-sdk"/>
 
   <!-- Check that the SDK value is set and seems sane, so we can give a nicer error if not.  -->
   <fail message="Please define the appengine.sdk property to point to your SDK directory" >
@@ -15,24 +15,24 @@
       </and> </not>
     </condition>
   </fail>
-  <fail message="this project requires aelua in the ../.. directory" >
+  <fail message="this project requires anlua in the ../.. directory" >
     <condition>
       <not> <and>
-          <available file="../../../aelua/build.xml"/>
+          <available file="../../../anlua/build.xml"/>
       </and> </not>
     </condition>
   </fail>
-  <fail message="this project requires a bin checkout from http://hg.4lfa.com/bin in the ../../../aelua/bin directory" >
+  <fail message="this project requires a bin checkout from http://hg.4lfa.com/bin in the ../../../anlua/bin directory" >
     <condition>
       <not> <and>
-          <available file="../../../aelua/bin/.hgignore"/>
+          <available file="../../../anlua/bin/.hgignore"/>
       </and> </not>
     </condition>
   </fail>
-  <fail message="this project requires a jill checkout from https://krissd-aelua-jillcode.googlecode.com/hg/ in the ../../../aelua/jill directory" >
+  <fail message="this project requires a jill checkout from https://krissd-anlua-jillcode.googlecode.com/hg/ in the ../../../anlua/jill directory" >
     <condition>
       <not> <and>
-          <available file="../../../aelua/jill/readme.txt"/>
+          <available file="../../../anlua/jill/readme.txt"/>
       </and> </not>
     </condition>
   </fail>
@@ -72,11 +72,11 @@
       <fileset dir="html/lua"> </fileset>
     </copy>
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
-      <fileset dir="../../../aelua/bin/lua"> </fileset>
+      <fileset dir="../../../anlua/bin/lua"> </fileset>
     </copy>
 <!--
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
-      <fileset dir="../../../aelua/lua">  </fileset>
+      <fileset dir="../../../anlua/lua">  </fileset>
     </copy>
 -->
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
@@ -84,12 +84,12 @@
     </copy>
     <copy todir="${war.dir}/WEB-INF/lib" flatten="true" includeEmptyDirs="false">
       <fileset dir="${appengine.sdk}/lib/user"> <include name="**/*.jar"/> </fileset>
-      <fileset dir="../../../aelua/class">            <include name="**/*.jar"/> </fileset>
+      <fileset dir="../../../anlua/class">            <include name="**/*.jar"/> </fileset>
     </copy>
 
 	<for param="file"> 
 		<path> 
-			<dirset dir="../../../aelua/mods">
+			<dirset dir="../../../anlua/mods">
 				<include name="*" /> 
 			</dirset>
 		</path> 
@@ -99,7 +99,7 @@
 			
 			<for param="file2"> 
 				<path> 
-					<dirset dir="../../../aelua/mods/${basename}">
+					<dirset dir="../../../anlua/mods/${basename}">
 						<include name="*" /> 
 						<exclude name="localbuild" /> 
 					</dirset>
@@ -111,13 +111,13 @@
 					 <equals arg1="${dirname}" arg2="lua" />
 					 <then>
 						<copy todir="${war.dir}/WEB-INF/lua/${basename}" includeEmptyDirs="false">
-						  <fileset dir="../../../aelua/mods/${basename}/${dirname}">
+						  <fileset dir="../../../anlua/mods/${basename}/${dirname}">
 						  </fileset>
 						</copy>
 					 </then>
 					 <else>
 						<copy todir="${war.dir}/${dirname}/${basename}" includeEmptyDirs="false">
-						  <fileset dir="../../../aelua/mods/${basename}/${dirname}">
+						  <fileset dir="../../../anlua/mods/${basename}/${dirname}">
 						  </fileset>
 						</copy>
 					 </else>
@@ -143,9 +143,9 @@
     <mkdir dir="${war.dir}/WEB-INF/classes"/>
     <mkdir dir="${war.dir}/WEB-INF/lib"/>
 
-    <javac srcdir="../../../aelua/java:../../../aelua/jill/code" destdir="${war.dir}/WEB-INF/classes" includeantruntime="false" debug="on">
+    <javac srcdir="../../../anlua/java:../../../anlua/jill/code" destdir="${war.dir}/WEB-INF/classes" includeantruntime="false" debug="on">
       <classpath>
-		<fileset dir="../../../aelua/class">
+		<fileset dir="../../../anlua/class">
 		  <include name="**/*.jar" />
 		</fileset>
 		<fileset dir="${war.dir}/WEB-INF/lib">
