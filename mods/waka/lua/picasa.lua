@@ -110,3 +110,37 @@ function get(srv,opts)
 		
 	return data,err
 end
+
+
+--[[
+
+#test form=import
+
+import="picasa"
+
+user="krissd"
+album="test"
+--authkey="Gv1sRgCO7k06fj3t6U0QE"
+
+plate="testplate"
+
+hook=function(t)
+	local r={}
+	for i,v in ipairs(t) do
+		r[#r+1]=v
+		local h=200 -- ask for this height
+		v.url=v.src
+		v.src=v.src:gsub("/s0/","/h"..h.."/")
+		v.width=math.floor(h*v.width/v.height)
+		v.height=h
+	end
+	for i=1,#t do t[i]=nil end -- clear all
+	for i,v in ipairs(r) do t[#t+1]=v end -- insert the ones we remembered
+end
+
+#testplate
+
+<a href="{it.url}"><img src="{it.src}" width="{it.width}" height="{it.height}" title="{it.title}" /></a>
+
+
+]]
