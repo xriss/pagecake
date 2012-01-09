@@ -141,7 +141,7 @@ function check(srv,ent)
 
 	local c=ent.cache
 			
-	return ent,ok
+	return ent
 end
 
 

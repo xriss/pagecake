@@ -94,7 +94,7 @@ function check(H,ent)
 	local r=H.round.cache
 	local c=ent.cache
 		
-	return ent,ok
+	return ent
 end
 
 --------------------------------------------------------------------------------

@@ -122,7 +122,7 @@ function check(H,ent)
 	if c.count<=0 then ok=false end
 	if c.cost <=0 then ok=false end
 	
-	return ent,ok
+	return ok and ent
 end
 
 --------------------------------------------------------------------------------

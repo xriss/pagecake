@@ -70,7 +70,7 @@ function check(srv,ent)
 
 	c.nags=c.nags or {} -- make sure we always have a nag array
 
-	return ent,ok
+	return ent
 end
 
 -----------------------------------------------------------------------------

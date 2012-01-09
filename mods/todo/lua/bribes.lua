@@ -56,7 +56,7 @@ function check(srv,ent)
 	local ok=true
 	local c=ent.cache
 		
-	return ent,ok
+	return ent
 end
 
 

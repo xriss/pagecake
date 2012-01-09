@@ -103,7 +103,7 @@ function check(srv,ent)
 	if c.from==0 then c.from=srv.time end
 	if c.time==0 then c.time=srv.time end
 		
-	return ent,ok
+	return ent
 end
 
 --------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ local html=require("html")
 local fetch=require("wetgenes.www.any.fetch")
 
 local cache=require("wetgenes.www.any.cache")
+local stash=require("wetgenes.www.any.stash")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
@@ -59,34 +60,38 @@ function get(srv,opts)
 
 	if opts.authkey then url=url.."&authkey="..opts.authkey end
 
-	local cachename="waka_picassa&"..url_esc(url)
+	local cachename="waka_picasa&"..url_esc(url)
 	local datastr
 	local err
 	
-	local data=cache.get(srv,cachename) -- check cache
+	local data,entity=stash.get(srv,cachename) -- check cache
+	if entity then
+		if entity.cache.updated+(60*60*24) < srv.time then -- refresh every 24 hours
+			data=nil
+		end
+	end
+	
 --log(tostring(data))
 	if data then return data end
 	
-	if not datastr then -- we didnt got it from the cache?
-		datastr,err=fetch.get(url) -- get from internets
+	datastr,err=fetch.get(url) -- get from internets
 --log(url)
-		if err then
-			log(err)
-		end
-		if datastr then datastr=datastr.body end -- check
+	if err then
+		log(err)
+	end
+	if datastr then datastr=datastr.body end -- check
 --log(tostring(datastr))
-		if type(datastr)=="string" then -- trim some junk get string within the outermost {}
-			local d=datastr:match("^[^{]*(.-)[^}]*$")
-			if not d then
-				return datastr,err
-			end
-			datastr=d
+	if type(datastr)=="string" then -- trim some junk get string within the outermost {}
+		local d=datastr:match("^[^{]*(.-)[^}]*$")
+		if not d then
+			return nil,err
 		end
+		datastr=d
 	end
 	
 --	local origsize=0
 	
-	if datastr then
+	if datastr then -- got some data
 	
 --		origsize=datastr:len() or 0
 		local suc,dat
@@ -104,7 +109,8 @@ function get(srv,opts)
 				d.photo=v["gphoto$id"]["$t"]
 				data[#data+1]=d
 			end
-			cache.put(srv,cachename,data,60*60)
+--			cache.put(srv,cachename,data,60*60)
+			stash.put(srv,cachename,data)
 		end -- cache for an hour
 	end
 		

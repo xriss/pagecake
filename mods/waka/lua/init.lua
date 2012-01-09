@@ -200,7 +200,6 @@ local ext
 	local p=page
 	ps[1]=p
 	while p.cache.group ~= p.cache.id do -- grab each parent page going upwards
-log(p.cache.group)
 		p=pages.manifest(srv,p.cache.group)
 		ps[#ps+1]=p
 	end

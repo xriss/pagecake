@@ -136,7 +136,7 @@ function check(srv,ent)
 		c.text="#title\n"..string.gsub(c.id or "","/"," ").."\n#body\n".."MISSING CONTENT\n"
 	end
 		
-	return ent,ok
+	return ent
 end
 
 --------------------------------------------------------------------------------

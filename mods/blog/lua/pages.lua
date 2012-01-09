@@ -127,7 +127,7 @@ function check(srv,ent)
 	
 	if c.pubdate==0 then c.pubdate=srv.time end
 			
-	return ent,ok
+	return ent
 end
 
 --------------------------------------------------------------------------------
