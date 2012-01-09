@@ -402,12 +402,12 @@ function update_reply_cache(srv,url,id)
 -- the reply cache may lose one if multiple people reply at the same time
 -- an older cache may get saved, very unlikley but possible
 
-	update(srv,id,function(srv,e)
+	set(srv,id,function(srv,e)
 		e.cache.updated=nil -- do not change the updated stamp...
 		e.cache.replies=replies -- save new reply cache
 		e.cache.count=#replies -- a number to sort by
 		e.cache.reply_updated=srv.time
-		return true
+		return e
 	end)
 	
 	return replies
@@ -449,10 +449,10 @@ function update_meta_cache(srv,url)
 		
 		e.cache.meta_updated=srv.time
 		
-		return true
+		return e
 	end
 	
-	local meta=update(srv,url,f) or manifest(srv,url,f)
+	local meta=set(srv,url,f)
 
 	return meta
 end

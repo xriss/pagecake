@@ -66,7 +66,7 @@ function get(srv,opts)
 	
 	local data,entity=stash.get(srv,cachename) -- check cache
 	if entity then
-		if entity.cache.updated+(60*60*24) < srv.time then -- refresh every 24 hours
+		if entity.cache.updated+(60*60*24) < srv.time then -- cache for 24 hours
 			data=nil
 		end
 	end
