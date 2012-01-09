@@ -132,7 +132,7 @@ function check(srv,ent)
 		c.group=group
 	end
 	
-	if c.text=="" then -- change default value only
+	if c.text=="" then -- change empty value only
 		c.text="#title\n"..string.gsub(c.id or "","/"," ").."\n#body\n".."MISSING CONTENT\n"
 	end
 		
@@ -272,7 +272,7 @@ function edit(srv,id,by)
 		
 		return true
 	end		
-	local ret=manifest(srv,id,f) -- create/get and also update
+	local ret=set(srv,id,f) -- create/get and also update
 	if ret then
 		add_edit_log(srv,ret) -- also adjust edits history
 	else
