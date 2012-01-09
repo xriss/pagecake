@@ -237,6 +237,8 @@ end
 --------------------------------------------------------------------------------
 function manifest_uid(srv,uid,f)
 
+-- TODO: remove this function and replaced with a stash system
+
 	local q={
 		kind=kind(srv),
 		limit=1,
@@ -246,20 +248,17 @@ function manifest_uid(srv,uid,f)
 	local r=dat.query(q)
 --log(tostring(r))
 	local e=r and r.list and r.list[1]
-	if e then dat.build_cache(e) end
+	if e then
+		dat.build_cache(e)
+		return update(srv,e,f)
+	end
 
 -- we now update or create and save, there is a possible update hole here so use this function carefully
 
-	if e then
---log("update "..uid)
-		return update(srv,e,f)
-	else
---log("create "..uid)
-		e=create(srv)
-		if f(srv,e) then
-			put(srv,e)
-			return e
-		end
+	local e=create(srv)
+	if f(srv,e) then
+		put(srv,e)
+		return e
 	end
 
 	return nil

@@ -169,11 +169,10 @@ function waka_changed(srv,page)
 	log(tostring(title))
 	
 	if id and title then 
-		local f=function(srv,e) -- create or update
+		local it=things.set(srv,id,function(srv,e) -- create or update
 			e.cache.title=title -- update title
 			return true
-		end
-		local it=things.manifest(srv,id,f,f)
+		end)
 	end
 	
 end

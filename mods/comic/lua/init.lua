@@ -353,7 +353,7 @@ function waka_changed(srv,page)
 	if id and title then 
 	
 
-		local it=comics.manifest(srv,id,function(srv,e) -- create or update
+		local it=comics.set(srv,id,function(srv,e) -- create or update
 			e.cache.group=group -- update group
 			e.cache.name=name -- update name
 			

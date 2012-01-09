@@ -155,10 +155,6 @@ local ext
 	if posts.submit then posts.submit=trim(posts.submit) end
 	
 	local page=pages.manifest(srv,pagename)
-	if page.cache.text=="" then -- set default page text
-		page.cache.text="#title\n"..string.gsub(pagename,"/"," ").."\n#body\n".."MISSING CONTENT\n"
-	end
-
 
 	if posts.text or posts.submit or (srv.vars.cmd and srv.vars.cmd=="edit") then
 	
