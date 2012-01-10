@@ -434,10 +434,11 @@ end
 -- display comment code
 function build_get_comment(srv,tab,c)
 
+--[[
 	if tab.ret and tab.ret.count then -- counter hax
 		tab.ret.count=tab.ret.count+1
 	end
-	
+]]	
 	local media=""
 	if c.media~=0 then
 		media=[[<a href="/data/]]..c.media..[["><img src="]]..srv.url_domain..[[/thumbcache/crop/460/345/data/]]..c.media..[[" class="wetnote_comment_img" /></a>]]

@@ -207,7 +207,7 @@ function rebuild_cache(srv,baseurl,num,total)
 		pagecomments[i]=v.cache
 	end
 	
-	local meta=comments.update(srv,num,function(srv,e)
+	comments.update(srv,num,function(srv,e)
 	
 		if(newtime>0) then
 			e.cache.updated=newtime -- most recent comment
