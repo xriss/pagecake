@@ -9,6 +9,7 @@ local sys=require("wetgenes.www.any.sys")
 local json=require("wetgenes.json")
 local dat=require("wetgenes.www.any.data")
 local cache=require("wetgenes.www.any.cache")
+local stash=require("wetgenes.www.any.stash")
 
 local users=require("wetgenes.www.any.users")
 
@@ -26,10 +27,11 @@ local d_users=require("dumid.users")
 local d_nags=require("dumid.nags")
 local goo=require("port.goo")
 
-local wet_string=require("wetgenes.string")
-local str_split=wet_string.str_split
-local replace  =wet_string.replace
-local serialize=wet_string.serialize
+
+local wstr=require("wetgenes.string")
+local str_split=wstr.str_split
+local replace  =wstr.replace
+local serialize=wstr.serialize
 
 
 -- opts
@@ -147,29 +149,43 @@ end
 
 --------------------------------------------------------------------------------
 --
--- manifest a meta comment cache, there is only one of these per url
--- so we can use that as its key
--- most data is kept in its ent.cache.cache table
+-- manifest a meta comment cache for the given url, one will be built if we must
 --
 --------------------------------------------------------------------------------
-function manifest_meta(srv,url,t)
---log("manifest_meta")
-	local ent
-
--- get?
-	ent=create(srv)
-	ent.key.id=url
-	ent=get(srv,ent,t) -- prevent manifest recursion by passing in ent
-
-	if not ent then
-		ent=create(srv)
-		ent.key.id=url -- force id which is page name string
-		ent.cache.group=-1 -- no group
-		ent.cache.id=url -- copy here
-		ent.cache.type="meta"
+function manifest_meta(srv,url)
+	local r,e=stash.get(srv,"note.comments.meta&"..url)
+	if e and e.cache.updated+(60*60*24*1) < srv.time then r=nil end -- check age is less than one day
+	if not r then
+		r=update_meta_cache(srv,url)
 	end
+	return r
+end
 
-	return (check(srv,ent)) -- wrap in () to just return the ent
+--------------------------------------------------------------------------------
+--
+-- update and return the meta cache
+--
+--------------------------------------------------------------------------------
+function update_meta_cache(srv,url)
+
+	local count=0
+
+-- build meta cache			
+	local cs=list(srv,{sort_updated="DESC",url=url,group=0}) -- get all top comments
+	local comments={}
+	local newtime=0
+	for i,v in ipairs(cs) do -- and build comment cache
+	
+		if v.cache.created>newtime then newtime=v.cache.created end
+		
+		comments[i]=v.cache
+		count=count+1+v.cache.count
+	end
+	if newtime==0 then newtime=srv.time end
+	local meta={comments=comments,count=count,updated=newtime}
+	stash.put(srv,"note.comments.meta&"..url,meta)
+
+	return meta
 end
 
 --------------------------------------------------------------------------------
@@ -413,49 +429,6 @@ function update_reply_cache(srv,url,id)
 	return replies
 end
 				
---------------------------------------------------------------------------------
---
--- update and return the meta cache
---
---------------------------------------------------------------------------------
-function update_meta_cache(srv,url)
-
-	local count=0
-
--- build meta cache			
-	local cs=list(srv,{sort_updated="DESC",url=url,group=0}) -- get all top comments
-	local comments={}
-	local newtime=0
-	for i,v in ipairs(cs) do -- and build comment cache
-	
-		if v.cache.created>newtime then newtime=v.cache.created end
-		
-		comments[i]=v.cache
-		count=count+1+v.cache.count
-	end
-
-
--- the comment cache may lose one if multiple people reply at the same time
--- an older cache may get saved, very unlikley but possible
-
-	local f=function(srv,e)
-	
-		if(newtime>0) then
-			e.cache.updated=newtime -- most recent comment
-		end
-		
-		e.cache.comments=comments -- save new comment cache
-		e.cache.count=count -- a number to sort by
-		
-		e.cache.meta_updated=srv.time
-		
-		return e
-	end
-	
-	local meta=set(srv,url,f)
-
-	return meta
-end
 
 
 -- display comment code
@@ -621,7 +594,7 @@ function post(srv,tab)
 			end
 			
 			if tab.anon and tab.posts.anon then -- may be anonymous
-				if wet_string.trim(tab.posts.anon)=="anon" then -- it is
+				if wstr.trim(tab.posts.anon)=="anon" then -- it is
 					c.type="anon"
 				end
 			end
@@ -661,7 +634,7 @@ function post(srv,tab)
 			end
 
 			tab.meta=update_meta_cache(srv,tab.url)
-			if tab.ret then tab.ret.count=tab.meta.cache.count end
+			if tab.ret then tab.ret.count=tab.meta.count end
 
 			if posted and posted.cache then -- redirect to our new post
 			
@@ -692,12 +665,12 @@ function post(srv,tab)
 				local xlen=(140-2)-#short_url -- this is one more than we really want
 				local s=c.text
 				s=string.gsub(s,"%s+"," ") -- replace any range of whitespace with a single space
-				s=wet_string.trim(s)
+				s=wstr.trim(s)
 				s=s:sub(1,xlen) -- reduce to less chars, we may chop a word
-				s=wet_string.trim(s) -- remove spaces
+				s=wstr.trim(s) -- remove spaces
 				if #s==xlen then -- we need to lose the last word, this makes sure we do not split a word
 					s=s:gsub("([^%s]*)$","")
-					s=wet_string.trim(s)
+					s=wstr.trim(s)
 				end
 				
 				nag.c140_base=s -- some base text without the url
@@ -862,11 +835,6 @@ local function dput(s) put("<div>"..tostring(s).."</div>") end
 -- the meta will contain the cache of everything, we may already have it due to previous updates	
 	if not tab.meta then
 		tab.meta=manifest_meta(srv,tab.url)
-		if tab.meta and tab.meta.cache and tab.meta.cache.meta_updated --[[ and tab.meta.cache.meta_updated > srv.time-(60*60*24*1) ]] then
-			-- cache is probably ok
-		else
-			tab.meta=update_meta_cache(srv,tab.url)
-		end
 	end
 
 	tab.put([[<div class="wetnote_main">]])
@@ -895,7 +863,7 @@ end
 	
 -- get all top level comments
 --	local cs=list(srv,{sort_updated="DESC",url=tab.url,group=0})
-	local cs=tab.meta.cache.comments or {}
+	local cs=tab.meta.comments or {}
 	
 	if tab.headonly then -- just display the forum heads
 	
