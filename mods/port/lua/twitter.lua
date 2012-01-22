@@ -26,13 +26,13 @@ local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
 local wet_waka=require("wetgenes.waka")
-local wet_util=require("wetgenes.util")
+local wutil=require("wetgenes")
 
 -- require all the module sub parts
 local html=require("port.html")
 
 
-local lookup=wet_util.lookup
+local lookup=wutil.lookup
 
 
 -- opts

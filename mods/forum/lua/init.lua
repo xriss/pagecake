@@ -18,6 +18,7 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
+local wstr=wet_string
 local trim=wet_string.trim
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
@@ -122,9 +123,9 @@ local forums=srv.opts.forums
 					
 					comments.build(srv,tab)
 					
-					if tab.modified then -- need to rebuild cache
+					if tab.modified then -- sub comment so need to rebuild our special forum cache stuff
 					
-						rebuild_cache(srv,baseurl,num,tab.ret.count)
+						rebuild_cache(srv,baseurl,num,tab.meta) -- can use the cached meta
 						comments.update_meta_cache(srv,baseurl)
 						
 					end
@@ -195,7 +196,7 @@ end
 
 
 
-function rebuild_cache(srv,baseurl,num,total)
+function rebuild_cache(srv,baseurl,num,meta)
 
 -- build pagecomments meta cache			
 
@@ -206,7 +207,33 @@ function rebuild_cache(srv,baseurl,num,total)
 		if v.cache.created>newtime then newtime=v.cache.created end
 		pagecomments[i]=v.cache
 	end
+
+	local hash={}
+	local names={}
 	
+	local do_comment=function(v)
+		local c=v.cache -- a cache within a cache...
+		if c.user and c.user.name then
+			if not hash[c.user.name] then
+				hash[c.user.name]=true
+				names[#names+1]=c.user.name
+			end
+		end
+	end
+
+	for i,v in ipairs(meta.comments) do
+		do_comment(v)
+		for i,v in ipairs(v.replies) do
+			do_comment(v)
+		end
+	end
+	
+	local pagesynopsis=""
+	
+	pagesynopsis=table.concat(names," , ")
+
+--log(pagesynopsis)
+
 	comments.update(srv,num,function(srv,e)
 	
 		if(newtime>0) then
@@ -215,8 +242,9 @@ function rebuild_cache(srv,baseurl,num,total)
 			e.cache.updated=e.cache.created -- no update
 		end
 		
+		e.cache.pagesynopsis=pagesynopsis -- save new comment cache
 		e.cache.pagecomments=pagecomments -- save new comment cache
-		e.cache.pagecount=total or #pagecomments -- tab.ret.count -- a number to sort by?
+		e.cache.pagecount=meta.count or #pagecomments -- tab.ret.count -- a number to sort by?
 		
 		return true
 	end)

@@ -54,7 +54,7 @@ function get(srv,opts)
 	local tq=(opts.query or "select *").." limit "..opts.limit.." offset "..opts.offset
 	local url
 
-	url="https://picasaweb.google.com/data/feed/api/user/"..opts.user.."/album/"..opts.album.."?kind=photo&alt=json"
+	url="https://picasaweb.google.com/data/feed/api/user/"..opts.user.."/album/"..opts.album.."?kind=photo&alt=json"..(opts.cachebreak or "")
 --	if opts.offset then url=url.."&start-index="..opts.offset end
 --	if opts.limit then url=url.."&max-results="..opts.limit end
 
@@ -108,6 +108,9 @@ function get(srv,opts)
 				d.album=v["gphoto$albumid"]["$t"]
 				d.photo=v["gphoto$id"]["$t"]
 				data[#data+1]=d
+				
+				d.title=d.title:gsub("\n","<br/>")
+				d.title=d.title:gsub("\"","'")
 			end
 --			cache.put(srv,cachename,data,60*60)
 			stash.put(srv,cachename,data)

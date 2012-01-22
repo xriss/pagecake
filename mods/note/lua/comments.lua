@@ -190,70 +190,18 @@ end
 
 --------------------------------------------------------------------------------
 --
--- Save to database
--- this calls check before putting and does not put if check says it is invalid
--- build_props is called so code should always be updating the cache values
---
---------------------------------------------------------------------------------
---[[
-function put(srv,ent,t)
-
-	t=t or dat -- use transaction?
-
-	local _,ok=check(srv,ent) -- check that this is valid to put
-	if not ok then return nil end
-
-	dat.build_props(ent)
-	local ks=t.put(ent)
-	
-	if ks then
-		ent.key=dat.keyinfo( ks ) -- update key with new id
-		dat.build_cache(ent)
-	end
-
-	return ks -- return the keystring which is an absolute name
-end
-]]
-
---------------------------------------------------------------------------------
---
--- Load from database, pass in id or entity
--- the props will be copied into the cache
---
---------------------------------------------------------------------------------
---[[
-function get(srv,id,t)
-
-	if type(id)=="string" then -- auto manifest by url
-		return manifest_meta(srv,id,t)
-	end
-	
-	local ent=id
-	if type(ent)~="table" then -- get by id
-		ent=create(srv)
-		ent.key.id=id
-	end
-	
-	t=t or dat -- use transaction?
-	
-	if not t.get(ent) then return nil end	
-	dat.build_cache(ent)
-	
-	return check(srv,ent)
-end
-]]
---------------------------------------------------------------------------------
---
 -- get/manifest - update - put
 --
 -- this uses a UID which is a unique soft ID string
 --
 -- f must be a function that changes the entity and returns true on success
 --
+-- this function is used to insert without replication of forign UIDs
+-- and is used by the API when slurping a forum
+--
 --------------------------------------------------------------------------------
 function manifest_uid(srv,uid,f)
 
--- TODO: remove this function and replaced with a stash system
 
 	local q={
 		kind=kind(srv),
@@ -280,74 +228,6 @@ function manifest_uid(srv,uid,f)
 	return nil
 end
 
-
---------------------------------------------------------------------------------
---
--- get - update - put
---
--- f must be a function that changes the entity and returns true on success
--- id can be an id or an entity from which we will get the id
---
--- returns the update entity only if succesful
---
---------------------------------------------------------------------------------
---[[
-function update(srv,id,f)
-
-	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
-		
-	for retry=1,10 do
-		local mc={}
-		local t=dat.begin()
-		local e=get(srv,id,t)
-		if e then
-			what_memcache(srv,e,mc) -- the original values
-			e.cache.updated=srv.time -- the function can change this change if it wishes
-			if not f(srv,e) then t.rollback() return false end -- hard fail
-			check(srv,e) -- keep consistant
-			if put(srv,e,t) then -- entity put ok
-				if t.commit() then -- success
-					what_memcache(srv,e,mc) -- the new values
-					fix_memcache(srv,mc) -- change any memcached values we just adjusted
-					return e -- return the adjusted entity
-				end
-			end
-		end
-		t.rollback() -- undo everything ready to try again
-	end
-	
-	return false
-end
-]]
-
---------------------------------------------------------------------------------
---
--- given an entity return or update a list of memcache keys we should recalculate
--- this list is a name->bool lookup
---
---------------------------------------------------------------------------------
---[[
-function what_memcache(srv,ent,mc)
-	local mc=mc or {} -- can supply your own result table for merges	
-	local c=ent.cache
-	
-	return mc
-end
-]]
-
---------------------------------------------------------------------------------
---
--- fix the memcache items previously produced by what_memcache
--- probably best just to delete them so they will automatically get rebuilt
---
---------------------------------------------------------------------------------
---[[
-function fix_memcache(srv,mc)
-	for n,b in pairs(mc) do
-		cache.del(srv,n)
-	end
-end
-]]
 
 --------------------------------------------------------------------------------
 --
@@ -635,7 +515,6 @@ function post(srv,tab)
 			end
 
 			tab.meta=update_meta_cache(srv,tab.url)
-			if tab.ret then tab.ret.count=tab.meta.count end
 
 			if posted and posted.cache then -- redirect to our new post
 			
@@ -872,13 +751,17 @@ end
 
 			local url=srv.url_domain..tab.url.."/"..c.id
 			local action="Read and Reply."
-			if c.pagecount > 1 then			
-				action="("..c.pagecount..") Read and Reply."
+			if c.pagecount==1 then			
+				action="Read 1 comment and Reply."
+			elseif c.pagecount > 1 then
+				action="Read "..c.pagecount.." comments and Reply."
 			end
+			local synopsis=c.pagesynopsis or ""
 
 			tab.put(build_get_comment(srv,tab,c)) -- main comment
 			tab.put([[
 <div class="wetnote_reply_div">
+<div class="wetnote_synopsis_div">]]..synopsis..[[</div>
 <a href="]]..url..[["><span>]]..action..[[</span></a>
 </div>
 ]]			
