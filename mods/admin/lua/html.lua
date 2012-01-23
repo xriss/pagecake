@@ -47,8 +47,9 @@ admin_edit=function(d)
 <p>
 <a href="/admin/console" class="button" >console</a>
 <a href="/data" class="button" >data</a>
-<a href="/blog//admin" class="button" >blog</a>
-<a href="/blog//note" class="button" >note</a>
+<a href="/!/admin" class="button" >waka</a>
+<a href="/blog/!/admin" class="button" >blog</a>
+<a href="/note/!/admin" class="button" >note</a>
 </p>
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">
 	<textarea name="text" cols="120" rows="24" class="field" >{text}</textarea>

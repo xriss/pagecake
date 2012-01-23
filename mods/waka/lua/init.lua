@@ -350,7 +350,7 @@ local get=make_get(srv)
 				page_name=v.cache.id,
 				url_base=srv.url_base:sub(1,-2),
 				time=os.date("%Y/%m/%d %H:%M:%S",v.cache.updated),
-				author=(v.cache.edit.author or "")
+				author=( (v.cache.edit and v.cache.edit.author) or "")
 				}
 			put([[
 <a style="position:relative;display:block;width:960px" href="{url_base}{page_name}">

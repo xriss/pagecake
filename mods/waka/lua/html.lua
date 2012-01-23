@@ -41,9 +41,11 @@ waka_bar=function(d)
 	d.admin=""
 	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
 		d.admin=replace([[
-	<div class="aelua_admin_bar">
+	<div class="aelua_admin_bar" style="font-size:13px">
 		<form action="" method="POST" enctype="multipart/form-data">
 			<button type="submit" name="submit" value="edit" class="button" >Edit</button>
+			<a href="?cmd=edit" class="button" >SafeEdit</a>
+			<a href="/!/admin" class="button" >Admin</a>
 		</form>
 	</div>
 ]],d)

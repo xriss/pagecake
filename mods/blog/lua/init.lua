@@ -269,7 +269,7 @@ end
 --
 -----------------------------------------------------------------------------
 function serv(srv)
-	if srv.url_slash[srv.url_slash_idx+0]=="" and srv.url_slash[srv.url_slash_idx+1]=="admin" then
+	if srv.url_slash[srv.url_slash_idx+0]=="!" and srv.url_slash[srv.url_slash_idx+1]=="admin" then
 		return serv_admin(srv)
 	end
 local opts={}
