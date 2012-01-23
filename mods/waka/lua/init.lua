@@ -383,8 +383,13 @@ local get=make_get(srv)
 	else
 	
 			put([[
+			<br/>
+			<a href="{srv.url_base}?cmd=edit"> Edit root of all pages </a><br/>
+			<br/>
 			<a href="{srv.url_base}!/admin/pages"> view all pages </a><br/>
+			<br/>
 			<a href="{srv.url_base}!/admin/edits"> view all edits </a><br/>
+			<br/>
 ]],{})
 
 	end
