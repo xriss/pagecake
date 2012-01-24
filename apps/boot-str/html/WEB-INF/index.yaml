@@ -52,3 +52,16 @@ indexes:
   - name: updated
     direction: desc
 
+
+- kind: waka.pages
+  properties:
+  - name: layer
+  - name: updated
+    direction: desc
+
+
+- kind: waka.edits
+  properties:
+  - name: layer
+  - name: time
+    direction: desc
