@@ -185,6 +185,12 @@ header=function(d)
 
 <script type="text/javascript" src="{head_js}"></script>
 <script type="text/javascript"> /* head.js filename sugestions */
+
+if(navigator.appVersion.indexOf("MSIE") != -1){
+head.js("http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js",
+function(){CFInstall.check({});});
+}
+
 head.fs={};
 
 head.fs.jquery_js="{jquery_js}";
@@ -201,12 +207,6 @@ head.fs.ace_mode_css_js="/js/base/ace/mode-css.js";
 head.fs.ace_mode_javascript_js="/js/base/ace/mode-javascript.js";
 
 head.fs.swfobject_js="{swfobject_js}";
-
-ie_disable=function(){
-	head.js("{gcf_js}",function(){
-		CFInstall.check({});
-	});
-};
 
 </script>
 
