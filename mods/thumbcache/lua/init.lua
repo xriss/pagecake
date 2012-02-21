@@ -49,7 +49,12 @@ module("thumbcache")
 -----------------------------------------------------------------------------
 function serv(srv)
 
-if ngx then srv.exit(400) return end
+if ngx then -- special ngx codes?
+
+	srv.exit(400)
+
+	return
+end
 
 	local usecache=true
 
