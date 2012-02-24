@@ -66,7 +66,7 @@ function serv(srv)
 	end
 	
 	if ngx then -- special ngx codes?
-		usecache=false
+--		usecache=false
 	end
 	
 	for i=1,100 do
