@@ -153,6 +153,7 @@ log("web")
 				
 			end
 
+			cache.del(srv,cachename) -- do this here to help clear later errors
 				
 			if data then -- we got data to serve
 			
