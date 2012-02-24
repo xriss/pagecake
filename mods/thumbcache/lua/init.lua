@@ -49,14 +49,9 @@ module("thumbcache")
 -----------------------------------------------------------------------------
 function serv(srv)
 
-if ngx then -- special ngx codes?
-
-	srv.exit(400)
-
-	return
-end
 
 	local usecache=true
+
 
 	local cachename="thumbcache&"..srv.url
 	if srv.query and #srv.query>0 then
@@ -70,6 +65,9 @@ end
 		usecache=false
 	end
 	
+	if ngx then -- special ngx codes?
+		usecache=false
+	end
 	
 	for i=1,100 do
 	
@@ -78,21 +76,21 @@ end
 		end
 	
 		if type(data)=="string" and data=="*" then -- another thread is fetching the image we should wait for them
---			log("sleeping")
+log("sleeping")
 		
 			sys.sleep(1)
 		
 		elseif data then -- we got an image
---			log("cache")
+log("cache")
 		
 			srv.set_mimetype( data.mimetype )
 			srv.set_header("Cache-Control","public") -- allow caching of page
 			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
-			srv.put(data.data)
+			srv.put(data.body)
 			return
 			
 		elseif not data then -- we will go get it
---			log("web")
+log("web")
 		
 			local s1=srv.url_slash[ srv.url_slash_idx ]
 			
@@ -124,30 +122,37 @@ end
 
 			if srv.uploads["filedata"] then -- special upload and return only
 
-				data=srv.uploads.filedata.data
+				data={ body=srv.uploads.filedata.data }
 
 			elseif usecache then
 
 				if cache.put(srv,cachename,"*",10,"ADD_ONLY_IF_NOT_PRESENT") then -- get a 10sec lock
 
 					if t[1]=="data" then -- grab local data
-						data=require("data").read(srv,t[2]) -- grab our data
-						if data then data=data.data end -- check
-					else -- grab from internets
-						
-						if t[1] then
-							local url="http://"..table.concat(t,"/") -- build the remote request string
-							if srv.query and #srv.query>0 then
-								url=url.."?"..srv.query
-							end
-							data=fetch.get(url) -- get from internets
-							if data then data=data.body end -- check
-						else
-							return --fail
-						end
+					
+						data=require("data").read(srv,t[2]) -- grab our data						
+						if data then data.body=data.body or data.data end
+--						if data then data=data.data end -- check
+
 					end
 				end
 			end
+
+			if not data then -- grab from internets
+				
+				if t[1] then
+					local url="http://"..table.concat(t,"/") -- build the remote request string
+					if srv.query and #srv.query>0 then
+						url=url.."?"..srv.query
+					end
+					data=fetch.get(url) -- get from internets
+--							if data then data=data.body end -- check
+				else
+					return --fail
+				end
+				
+			end
+
 				
 			if data then -- we got data to serve
 			
@@ -160,7 +165,7 @@ end
 				if height<1 then height=1 end
 				if height>1024 then height=1024 end
 
-				image=img.get(data) -- convert to image
+				image=img.get( data.body , data.mimetype ) -- convert to image
 					
 
 -- crop it to desired aspect ratio and or size?
@@ -210,10 +215,13 @@ end
 --					image=img.resize(image,width,height,"JPEG") -- resize image and force to jpeg
 --				end
 
-					
+				if img.memsave then
+					img.memsave(image,"jpeg")
+				end
+				
 				if usecache then
 					cache.put(srv,cachename,{
-						data=image.data ,
+						body=image.body ,
 						size=image.size ,
 						width=image.width ,
 						height=image.height ,
@@ -227,12 +235,12 @@ end
 					srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache	
 				end
 
-				if usecache then
+--				if usecache then
 					srv.set_mimetype( "image/"..string.lower(image.format) )
-				else
-					srv.set_mimetype( "application/octet-stream" )
-				end
-				srv.put(image.data)
+--				else
+--					srv.set_mimetype( "application/octet-stream" )
+--				end
+				srv.put(image.body)
 			
 				return
 			end

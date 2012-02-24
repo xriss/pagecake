@@ -1,0 +1,3 @@
+cd .ngx
+../../../bin/dbg/nginx -s quit -p .
+valgrind --trace-children=yes ../../../bin/dbg/nginx -p .
