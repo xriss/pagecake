@@ -68,7 +68,7 @@ end
 -- what key name should we use to cache an entity?
 --
 --------------------------------------------------------------------------------
-function cache_key(pubname)
+function cache_key(srv,pubname)
 	return "type=ent&blog="..pubname
 end
 
@@ -329,8 +329,8 @@ end
 --
 --------------------------------------------------------------------------------
 function cache_find_by_pubname(srv,pubname)
-
-	local key=cache_key(pubname)
+	
+	local key=cache_key(srv,pubname)
 	local ent=cache.get(srv,key)
 
 	if type(ent)=="boolean" then return nil end -- not found

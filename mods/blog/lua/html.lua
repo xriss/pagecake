@@ -68,15 +68,15 @@ blog_admin_links=function(d)
 	if not ( d and d.user and d.user.cache and d.user.cache.admin ) then return "" end
 	
 	if d.it then
-		d.edit_post=replace([[<a href="{srv.url_base}/admin/edit/$hash/{it.id}" class="button" > Edit Post </a>]],d)
+		d.edit_post=replace([[<a href="{srv.url_base}!/admin/edit/$hash/{it.id}" class="button" > Edit Post </a>]],d)
 	else
 		d.edit_post=""
 	end
 	return replace([[
 	<div class="aelua_admin_bar">
 		<a href="{srv.url_base}" class="button" > View Blog </a> 
-		<a href="{srv.url_base}/admin/pages" class="button" > List </a> 
-		<a href="{srv.url_base}/admin/edit/$newpage" class="button" > New Post </a>
+		<a href="{srv.url_base}!/admin/pages" class="button" > List </a> 
+		<a href="{srv.url_base}!/admin/edit/$newpage" class="button" > New Post </a>
 		{edit_post}
 	</div>
 ]],d)
@@ -105,7 +105,7 @@ blog_admin_item=function(d)
 	return replace([[
 <div>
 <input type="checkbox" name="{it.pubname}" value="Check"></input>
-<a href="{srv.url_base}/admin/edit/$hash/{it.id}">
+<a href="{srv.url_base}!/admin/edit/$hash/{it.id}">
 <span style="width:20px;display:inline-block;">{it.layer}</span>
 <span style="width:200px;display:inline-block;">{it.pubname}</span>
 <span style="width:400px;display:inline-block;">{chunks.title.text}</span>

@@ -535,7 +535,7 @@ This is the #body of your post and can contain any html you wish.
 				pages.put(srv,ent) 
 				ent.cache.pubname=group..ent.key.id
 				pages.put(srv,ent)
-				return srv.redirect(srv.url_base.."/admin/edit/$hash/"..ent.key.id)
+				return srv.redirect(srv.url_base.."!/admin/edit/$hash/"..ent.key.id)
 			end
 			
 		end
