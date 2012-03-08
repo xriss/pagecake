@@ -124,6 +124,7 @@ function check(srv,ent)
 	local ok=true
 
 	local p=ent.props
+	local c=ent.cache
 	
 	if c.pubdate==0 then c.pubdate=srv.time end
 			
