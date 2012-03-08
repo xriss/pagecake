@@ -76,12 +76,12 @@ function serv(srv)
 		end
 	
 		if type(data)=="string" and data=="*" then -- another thread is fetching the image we should wait for them
-log("sleeping")
+--log("sleeping")
 		
 			sys.sleep(1)
 		
 		elseif data then -- we got an image
-log("cache")
+--log("cache")
 		
 			srv.set_mimetype( data.mimetype )
 			srv.set_header("Cache-Control","public") -- allow caching of page
@@ -89,12 +89,12 @@ log("cache")
 			srv.put(data.body)
 			return
 			
-		elseif not data then -- we will go get it
-log("web")
+		elseif not data then -- we will go get it-
+--log("web")
 		
 			local s1=srv.url_slash[ srv.url_slash_idx ]
 			
-			local lastarg=1
+			local lastarg=0
 			local mode="fit" -- fit into a size, may produce an image of different aspect
 			local hx=100
 			local hy=100
@@ -104,18 +104,19 @@ log("web")
 				mode="crop" -- we force crop to keep aspect ratio
 				hx=tonumber( srv.url_slash[ srv.url_slash_idx+1 ] or 100) or 100
 				hy=tonumber( srv.url_slash[ srv.url_slash_idx+2 ] or 100) or 100
-				lastarg=2
+				lastarg=3
 				
-			else
+			elseif tonumber(s1) then 
 			
 				hx=tonumber( srv.url_slash[ srv.url_slash_idx+0 ] or 100) or 100
 				hy=tonumber( srv.url_slash[ srv.url_slash_idx+1 ] or 100) or 100
-				lastarg=1
+				lastarg=2
+				
 			end
 		
 			local t={}
 			for i=1,#srv.url_slash do local v=srv.url_slash[i]
-				if i>srv.url_slash_idx+lastarg then
+				if i>=srv.url_slash_idx+lastarg then
 					t[#t+1]=v
 				end
 			end
@@ -145,6 +146,7 @@ log("web")
 					if srv.query and #srv.query>0 then
 						url=url.."?"..srv.query
 					end
+--log("Fetching : "..url)
 					data=fetch.get(url) -- get from internets
 --							if data then data=data.body end -- check
 				else
@@ -218,6 +220,8 @@ log("web")
 
 				if img.memsave then
 					img.memsave(image,"jpeg")
+				else
+					image.body=image.data -- rename raw file from data to body
 				end
 				
 				if usecache then
