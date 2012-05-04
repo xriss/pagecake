@@ -47,6 +47,12 @@ local tostring=tostring
 local tonumber=tonumber
 local type=type
 
+local function cleanfloor(n)
+	n = math.floor(tonumber(n or 0) or 0)
+	if n~=n then n=0 end -- check for nan
+	return n
+end
+
 local footer_data={
 	app_name="hoe-house",
 	app_link="http://code.google.com/p/aelua/wiki/AppHoeHouse",
@@ -411,7 +417,7 @@ local put=H.put
 	local xwork=1
 	
 	if H.player and posts.payout then
-		payout=math.floor(tonumber(posts.payout) or 0)
+		payout=cleanfloor(posts.payout)
 		if payout<0 then payout=0 end
 		if payout>100 then payout=100 end
 		
@@ -427,8 +433,8 @@ local put=H.put
 		
 		local rep=1
 		if posts.x then
-			rep=tonumber(posts.x)
-			rep=math.floor(rep)
+			rep=cleanfloor(posts.x)
+			rep=cleanfloor(rep)
 		end
 		if rep>p.energy then rep=p.energy end -- do not try and work too many times
 		if rep<1 then rep=1 end
@@ -529,11 +535,11 @@ function serv_round_shop(H)
 		if H.player and posts.houses then	-- attempt to buy
 		
 			local by={}
-			by.houses=tonumber(posts.houses)
-			by.bros=tonumber(posts.bros)
-			by.gloves=tonumber(posts.gloves)
-			by.sticks=tonumber(posts.sticks)
-			by.manure=tonumber(posts.manure)
+			by.houses=cleanfloor(posts.houses)
+			by.bros=cleanfloor(posts.bros)
+			by.gloves=cleanfloor(posts.gloves)
+			by.sticks=cleanfloor(posts.sticks)
+			by.manure=cleanfloor(posts.manure)
 			for i,v in pairs(by) do
 				v=math.floor(v)
 				if v<0 then v=0 end
@@ -722,7 +728,7 @@ function serv_round_fight(H)
 	
 	local result
 	if posts.victim and victim then
-		if tonumber(posts.victim)~=victim.key.id then victim=nil end
+		if cleanfloor(posts.victim)~=victim.key.id then victim=nil end
 		if victim and player then 
 		
 			local shout=""
@@ -980,9 +986,9 @@ local valid_trades={
 
 		if trade then -- a valid trade, lets give it a go
 		
-			local key=math.floor(tonumber(posts.key or 0) or 0)
-			local count=math.floor(tonumber(posts.count or 0) or 0)
-			local cost=math.floor(tonumber(posts.cost or 0) or 0)
+			local key=cleanfloor(posts.key)
+			local count=cleanfloor(posts.count)
+			local cost=cleanfloor(posts.cost)
 			local price=0
 			
 			if count<0 then count=0 end

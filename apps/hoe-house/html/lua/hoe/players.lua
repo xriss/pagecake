@@ -118,8 +118,10 @@ function check(H,ent)
 	if c.energy > r.max_energy then c.energy = r.max_energy end -- cap energy to maximum
 
 -- score can be rebuilt from all other values
+
+	if c.bux ~= c.bux then c.bux=0 end -- catch nan and remove it?
 	
-	c.score= ( c.houses * 50000 ) + ( c.hoes * 1000 ) + ( c.bros * 100 ) + ( c.bux ) + ( c.manure )
+	c.score= ( c.houses * 50000 ) + ( c.hoes * 1000 ) + ( c.bros * 100 ) + ( c.bux ) -- + ( c.manure )
 
 	return ent
 end

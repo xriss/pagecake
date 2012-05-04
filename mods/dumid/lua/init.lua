@@ -193,7 +193,7 @@ local put=make_put(srv)
 			local s="http://lua.wetgenes."..tld.."/dumid.lua?continue="..wet_html.url_esc(callback)
 			
 			local got=fetch.get(s.."&hash="..hash) -- ask for confirmation from server
-			if type(got.body=="string") then
+			if got and type(got.body=="string") then
 				got=json.decode(got.body)
 				if got.id then -- we now know who they are
 					name=got.name
