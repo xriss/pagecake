@@ -1,4 +1,4 @@
-#!/usr/bin/lua
+#!../../bin/exe/lua
 
 local args={...}
 
