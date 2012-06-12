@@ -335,6 +335,7 @@ local get=make_get(srv)
 	local cmd= srv.url_slash[ srv.url_slash_idx+2]
 	
 	
+	srv.set_mimetype("text/html; charset=UTF-8")
 	put("header",{title="waka : admin"})
 
 	put("waka_bar",{})

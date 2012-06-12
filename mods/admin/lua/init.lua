@@ -57,6 +57,7 @@ local put=make_put(srv)
 
 	local url=srv.url_base:sub(1,-2) -- lose the trailing /
 
+	srv.set_mimetype("text/html; charset=UTF-8")
 	put("header",{})
 	
 	local posts={} -- remove any gunk from the posts input

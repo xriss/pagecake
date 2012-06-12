@@ -26,6 +26,7 @@ head.extra_js={} -- more js links
 
 users={}
 users.admin={ -- users with admin rights for this app
+["2@id.wetgenes.com"]=true,
 --	["notshi@gmail.com"]=true,
 --	["krissd@gmail.com"]=true,
 }

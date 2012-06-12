@@ -135,6 +135,10 @@ local get,put=make_get_put(srv)
 				
 -- by default we just try and list the contents
 				
+-- upload / list for admin
+
+				srv.set_mimetype("text/html; charset=UTF-8")
+	
 				local t=sys.zip_list(zip)
 				
 				srv.set_mimetype("text/html".."; charset=UTF-8")
@@ -187,13 +191,6 @@ local get,put=make_get_put(srv)
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
--- upload / list for admin
-
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title="data : ",
-		H={sess=sess,user=user},
-		})
-	
 
 --	put(tostring(user and user.cache),{H=H})
 	if user and user.cache and user.cache.admin then -- admin
@@ -254,6 +251,13 @@ local get,put=make_get_put(srv)
 			end
 		end
 		
+-- upload / list for admin
+
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("header",{title="data : ",
+			H={sess=sess,user=user},
+			})
+	
 		put("data_upload_form",d)
 		
 		local t=meta.list(srv,{sort="usedate"})
@@ -264,9 +268,10 @@ local get,put=make_get_put(srv)
 		
 		end
 		
+		put("footer")
+		
 	end
 	
-	put("footer")
 	
 end
 

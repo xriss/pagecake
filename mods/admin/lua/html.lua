@@ -10,7 +10,7 @@ local wet_string=require("wetgenes.string")
 
 local html=require("html")
 
-local opts=opts
+local opts=require("opts")
 
 module("admin.html")
 
@@ -35,6 +35,7 @@ end
 -----------------------------------------------------------------------------
 admin_edit=function(d)
 	
+print("OPTS",tostring(opts))
 	d=d or {}
 	d.bootstrapp="<a href=\"http://boot-str.appspot.com/\">bootstrapp</a>"	
 	d.version=opts.bootstrapp_version or 0
