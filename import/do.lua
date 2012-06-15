@@ -16,6 +16,12 @@ if cmd=="read" then
 		dofile("do.read.4lfa.lua")
 	elseif form=="fud" then
 		dofile("do.read.fud.lua")
+	elseif form=="waka" then
+		dofile("do.read.waka.lua")
+	elseif form=="data" then
+		dofile("do.read.data.lua")
+	elseif form=="note" then
+		dofile("do.read.note.lua")
 	end
 	
 elseif cmd=="write" then

@@ -13,10 +13,10 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
-local str_split=wet_string.str_split
-local serialize=wet_string.serialize
-local macro_replace=wet_string.macro_replace
+local wstr=require("wetgenes.string")
+local str_split=wstr.str_split
+local serialize=wstr.serialize
+local macro_replace=wstr.macro_replace
 
 
 -- require all the module sub parts
@@ -69,7 +69,7 @@ end
 
 	if slash and slash~="" then -- requested format, eg 2d6
 	
-		local ds=wet_string.str_split("d",slash)
+		local ds=wstr.str_split("d",slash)
 		count=math.floor( tonumber(ds[1] or count) or count )
 		side=math.floor( tonumber(ds[2] or side) or side )
 		
@@ -177,7 +177,7 @@ function image(srv)
 	end
 					
 
-	local code=wet_string.str_split(".",slash)
+	local code=wstr.str_split(".",slash)
 	local nums={}
 	for i=1,#code do
 		local n=tonumber(code[i])
@@ -195,6 +195,8 @@ function image(srv)
 	local t2=img.composite(comp)
 	
 	srv.set_mimetype( "image/"..string.lower(t2.format) )
-	srv.put(t2.data)
+--print(wstr.dump(t2))
+	img.memsave(t2,string.lower(t2.format))
+	srv.put( t2.body )
 		
 end

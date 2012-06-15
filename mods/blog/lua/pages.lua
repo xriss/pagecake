@@ -59,7 +59,7 @@ default_cache=
 
 
 function kind(srv)
-	if not srv.flavour or srv.flavour=="blog" then return "blog.pages" end
+	if not srv or not srv.flavour or srv.flavour=="blog" then return "blog.pages" end
 	return srv.flavour..".blog.pages"
 end
 

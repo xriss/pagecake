@@ -40,7 +40,7 @@ print("OPTS",tostring(opts))
 	d.bootstrapp="<a href=\"http://boot-str.appspot.com/\">bootstrapp</a>"	
 	d.version=opts.bootstrapp_version or 0
 	d.oldopts=wet_string.serialize(opts,{pretty=true,no_duplicates=true})
-
+	
 	return replace([[
 <div>
 <p>This install is running {bootstrapp} version {version}</p>
@@ -57,9 +57,12 @@ print("OPTS",tostring(opts))
 	<textarea name="text" cols="120" rows="24" class="field" >{text}</textarea>
 	<br/>
 	<input type="submit" name="submit" value="Save" class="button" />
-	<br/>	
-	<br/>	
+	<br/>
+	<br/>
 </form>
+<br/>
+<p>Your current active Admin Session for remote access is {sess.id} </p>
+<br/>
 <p>These are your current opts, anything typed in above will modify or replace them.</p>
 <pre>{oldopts}</pre>
 </div>

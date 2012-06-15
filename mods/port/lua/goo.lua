@@ -51,7 +51,7 @@ function shorten(url)
 
 	local ret=json.decode(got.body)
 
-	return ret.id or url
+	return (ret and ret.id) or url
 end
 
 

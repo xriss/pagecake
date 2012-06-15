@@ -2,4 +2,4 @@ syntax: glob
 .war
 .ngx
 php/log.txt
-import/cache
+import/cache*

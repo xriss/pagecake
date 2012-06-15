@@ -17,9 +17,9 @@ local cache=require("wetgenes.www.any.cache")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
-local str_split=wet_string.str_split
-local serialize=wet_string.serialize
+local wstr=require("wetgenes.string")
+local str_split=wstr.str_split
+local serialize=wstr.serialize
 
 local ae_opts=require("wetgenes.www.any.opts")
 
@@ -54,6 +54,12 @@ local put=make_put(srv)
 	if not( user and user.cache and user.cache.admin ) then -- adminfail
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
+	
+print(srv.url_slash[ srv.url_slash_idx ])
+	
+	if srv.url_slash[ srv.url_slash_idx ]=="api" then
+		return serv_api(srv)
+	end
 
 	local url=srv.url_base:sub(1,-2) -- lose the trailing /
 
@@ -75,8 +81,49 @@ local put=make_put(srv)
 
 	
 	local lua=ae_opts.get_dat("lua") or ""
-	put("admin_edit",{text=lua})
+	put("admin_edit",{text=lua,sess=sess.cache})
 	
 	put("footer",{})
+end
+
+
+-----------------------------------------------------------------------------
+--
+-- simple json api interface to help get data in and out
+--
+-----------------------------------------------------------------------------
+function serv_api(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+local put=make_put(srv)
+
+	if not( user and user.cache and user.cache.admin ) then -- adminfail
+		return srv.redirect("/dumid?continue="..srv.url)
+	end
+	
+	if      srv.vars.cmd=="read" then
+	
+		local limit=tonumber(srv.vars.limit or 100 )
+		local offset=tonumber(srv.vars.offset or 0 )
+		local kind=tostring(srv.vars.kind or "waka.pages" )
+		
+	
+		local r=dat.query({
+			kind=kind,
+			limit=limit,
+			offset=offset,
+--				{"sort","id","ASC"},
+			})
+	
+		srv.set_mimetype("text/plain; charset=UTF-8")
+		put(json.encode({list=r.list,result="OK"}))
+		
+	elseif srv.vars.cmd=="write" then
+		put(json.encode({result="not implemented"}))
+	elseif srv.vars.cmd=="delete" then
+		put(json.encode({result="not implemented"}))
+	else
+		put(json.encode({result="not implemented"}))
+	end
+
 end
 
