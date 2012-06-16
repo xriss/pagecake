@@ -32,6 +32,8 @@ elseif cmd=="write" then
 		dofile("do.write.note.lua")
 	elseif form=="waka" then
 		dofile("do.write.waka.lua")
+	elseif form=="data" then
+		dofile("do.write.data.lua")
 	end
 	
 elseif cmd=="clear" then

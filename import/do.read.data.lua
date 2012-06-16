@@ -28,7 +28,7 @@ while docont do
 			local fp=io.open(fname..".lua","w")
 			fp:write(wstr.serialize(v))
 			fp:close()
-			local fd=geturl(dest.."data/"..v.key.id,{})
+			local fd=geturl(config.dest.."data"..v.props.pubname,{})
 			if fd.body then
 				local fp=io.open(fname..".data","wb")
 				fp:write(fd.body)

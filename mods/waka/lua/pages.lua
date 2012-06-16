@@ -261,7 +261,7 @@ function edit(srv,id,by)
 -- this is too slow for app engine?
 		d.diff=wet_diff.diff(c.text, text,"\n") -- what was changed in last edit
 		
-		if #d.diff==1 then return false end-- no changes, no need to write, so return a fail to stop it
+		if #d.diff==1 then return false end-- no changes, no need to write, so return a fail to stop the update
 		
 		d.author=author
 		d.note=note
