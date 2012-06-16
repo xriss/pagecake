@@ -27,7 +27,7 @@ default_props=
 	pubdate=0, -- the time of publishing
 	width=0, -- the width of image
 	height=0, -- the height of image
-	tags={}, -- our tags
+--	tags={}, -- our tags
 }
 
 

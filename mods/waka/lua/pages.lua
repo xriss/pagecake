@@ -50,7 +50,7 @@ default_props=
 
 default_cache=
 {
-	tags={},
+--	tags={},
 	text="",
 }
 
@@ -268,7 +268,7 @@ function edit(srv,id,by)
 		
 		c.text=text -- change the actual text
 		
-		c.tags=by.tags or c.tags -- remember updated tags in an index
+--		c.tags=by.tags or c.tags -- remember updated tags in an index
 		
 		return true
 	end		

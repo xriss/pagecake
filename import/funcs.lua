@@ -119,8 +119,8 @@ function upload_waka(wakaname,data)
 		source = ltn12.source.string(req_body),
 		sink = ltn12.sink.table(res_body),
 	})
-	put("Received "..suc.." "..code.." "..wstr.serialize(headers).."\n")
-	table.foreach(res_body,print)
+	put("Received "..suc.." "..code.."\n") -- wstr.serialize(headers)
+--	table.foreach(res_body,print)
 
 end
 -----------------------------------------------------------------------------
