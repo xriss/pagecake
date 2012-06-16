@@ -30,6 +30,8 @@ elseif cmd=="write" then
 		dofile("do.write.comic.lua")
 	elseif form=="note" then
 		dofile("do.write.note.lua")
+	elseif form=="waka" then
+		dofile("do.write.waka.lua")
 	end
 	
 elseif cmd=="clear" then

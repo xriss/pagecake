@@ -204,7 +204,9 @@ end
 
 
 --is it safe to accept data for this url from this referer?
-function check_referer(referer,url)
+function check_referer(srv,url,referer)
+
+	local referer=referer or srv.headers.referer -- use header
 
 	-- for unknown reasons the port bit goes missing sometimes on debug servers so remove it...
 	function remove_port(a)

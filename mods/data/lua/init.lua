@@ -196,7 +196,7 @@ local get,put=make_get_put(srv)
 	if user and user.cache and user.cache.admin then -- admin
 	
 		local posts={} -- remove any gunk from the posts input
-		if srv.method=="POST" and srv.check_referer(srv.headers.Referer,srv.url) then
+		if srv.method=="POST" and srv:check_referer(url) then
 			for i,v in pairs(srv.posts) do
 				posts[i]=v
 			end

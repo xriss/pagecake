@@ -299,7 +299,7 @@ local put=H.put
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if srv.method=="POST" and srv.headers.Referer and string.sub(srv.headers.Referer,1,string.len(url))==url then
+	if srv.method=="POST" and srv:check_referer(url) then
 		for i,v in pairs(srv.posts) do
 			posts[i]=v
 		end
@@ -405,7 +405,7 @@ local put=H.put
 	
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if H.srv.method=="POST" and H.srv.headers.Referer and string.sub(H.srv.headers.Referer,1,string.len(url))==url then
+	if H.srv.method=="POST" and H.srv:check_referer(url) then
 		for i,v in pairs(H.srv.posts) do
 			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
 		end
@@ -511,7 +511,7 @@ function serv_round_shop(H)
 		
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if H.srv.method=="POST" and H.srv.headers.Referer and string.sub(H.srv.headers.Referer,1,string.len(url))==url then
+	if H.srv.method=="POST" and H.srv:check_referer(url) then
 		for i,v in pairs(H.srv.posts) do
 			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
 		end
@@ -601,7 +601,7 @@ function serv_round_profile(H)
 	
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if H.srv.method=="POST" and H.srv.headers.Referer and string.sub(H.srv.headers.Referer,1,string.len(url))==url then
+	if H.srv.method=="POST" and H.srv:check_referer(url) then
 		for i,v in pairs(H.srv.posts) do
 			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
 		end
@@ -708,7 +708,7 @@ function serv_round_fight(H)
 
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if H.srv.method=="POST" and H.srv.headers.Referer and string.sub(H.srv.headers.Referer,1,string.len(url))==url then
+	if H.srv.method=="POST" and H.srv:check_referer(url) then
 		for i,v in pairs(H.srv.posts) do
 			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
 		end
@@ -949,7 +949,7 @@ local valid_trades={
 	
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if H.srv.method=="POST" and H.srv.headers.Referer and string.sub(H.srv.headers.Referer,1,string.len(url))==url then
+	if H.srv.method=="POST" and H.srv:check_referer(url) then
 		for i,v in pairs(H.srv.posts) do
 			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
 		end
@@ -1174,7 +1174,7 @@ function serv_round_acts(H)
 
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if H.srv.method=="POST" and H.srv.headers.Referer and string.sub(H.srv.headers.Referer,1,string.len(url))==url then
+	if H.srv.method=="POST" and H.srv:check_referer(url) then
 		for i,v in pairs(H.srv.posts) do
 			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
 		end

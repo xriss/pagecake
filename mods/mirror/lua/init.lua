@@ -69,7 +69,7 @@ local get=make_get(srv)
 	
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if srv.method=="POST" and srv.headers.Referer and string.sub(srv.headers.Referer,1,string.len(url))==url then
+	if srv.method=="POST" and srv:check_referer(url) then
 		for i,v in pairs(srv.posts) do
 			posts[i]=v
 		end

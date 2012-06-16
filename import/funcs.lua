@@ -1,7 +1,128 @@
 
+local socket=require("socket")
+local http=require("socket.http")
+
 local json=require("wetgenes.json")
 local lfs=require("lfs")
+local wstr=require("wetgenes.string")
 
+function require_config_dest_sess()
+	config.dest=config.args[3]
+	config.sess=config.args[4]
+
+	if not config.dest or not config.sess then
+
+		put([[
+	Must specify a site domain eg host.local:8080 and a wet_session with admin permission to access from your current ip like so
+
+	./do.lua read waka http://host.local:8080/ 0123456789abcdef0123456789abcdef
+
+	]])
+		return
+
+	end
+end
+
+function geturl(url,args)
+
+	local sarg={}
+	for i,v in pairs(args) do
+		sarg[#sarg+1]=tostring(i).."="..tostring(v)
+	end
+	if sarg[1] then
+		sarg="?"..table.concat(sarg,"&")
+	else
+		sarg=""
+	end
+	local res_body={}
+	local req_body=""
+	local suc, headers, code = socket.http.request{
+		url=url..sarg,
+		method="GET",
+		headers={
+					["Content-Length"] = #req_body,
+					["Cookie"]="wet_session="..config.sess,
+					["Referer"]=url,
+				},
+		source = ltn12.source.string(req_body),
+		sink = ltn12.sink.table(res_body),
+	}
+
+	return {headers=headers,code=code,body=table.concat(res_body)}
+end
+
+-- make some multiparts data
+function multiparts(data)
+
+	local boundary
+	local needbound=true
+	
+	while needbound do -- find a magic string
+		boundary = 		math.random(1000,9999) .. 
+						math.random(1000,9999) ..
+						math.random(1000,9999) ..
+						math.random(1000,9999) ..
+						math.random(1000,9999) ..
+						math.random(1000,9999) ..
+						math.random(1000,9999) ..
+						math.random(1000,9999)
+		needbound=false
+		for k,v in pairs(data) do
+			if type(v.data)=="string" then
+				if v.data:find(boundary,1,true) then -- clash
+					needbound=true
+				end
+			end
+		end
+	end
+
+	local msg = {}
+
+--	msg[#msg+1] = "Content-Type: multipart/form-data; boundary="..boundary.."\r\n"
+--	msg[#msg+1] = "\r\n"
+	
+	for k,v in pairs(data) do
+		msg[#msg+1] = "--"..boundary.."\r\n"
+		if v.filename then
+			msg[#msg+1] = "Content-Disposition: form-data; name=\""..k.."\"; filename=\""..v.filename.."\"\r\n"
+		else
+			msg[#msg+1] = "Content-Disposition: form-data; name=\""..k.."\"\r\n"
+		end
+		msg[#msg+1] = "Content-Type: "..(v.mimetype or "text/plain;charset=utf-8").."\r\n"
+		msg[#msg+1] = "Content-Transfer-Encoding: "..(v.encoding or "quoted-printable").."\r\n"
+		msg[#msg+1] = "\r\n"
+		msg[#msg+1] = tostring(v.data)
+		msg[#msg+1] = "\r\n"
+	end
+	
+	msg[#msg+1] = "--"..boundary.."--\r\n"
+
+	return table.concat(msg), boundary
+end
+
+
+function upload_waka(wakaname,data)
+
+	local req_body,boundary=multiparts(data)
+--put(req_body)
+	local res_body={}
+	local url=config.dest.."?cmd=edit&page="..wakaname
+	local suc, code , headers = assert(socket.http.request{
+		url=url,
+		method="POST",
+		headers={
+					["Content-Type"]="multipart/form-data; boundary="..boundary,
+					["Content-Length"] = #req_body,
+					["Cookie"]="wet_session="..config.sess,
+					["Referer"]=url,
+				},
+		source = ltn12.source.string(req_body),
+		sink = ltn12.sink.table(res_body),
+	})
+	put("Received "..suc.." "..code.." "..wstr.serialize(headers).."\n")
+	table.foreach(res_body,print)
+
+end
 -----------------------------------------------------------------------------
 --
 -- replace {tags} in the string with data provided

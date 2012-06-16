@@ -329,7 +329,7 @@ local get,put=make_get_put(srv)
 
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
-	if srv.method=="POST" and srv.headers.Referer and string.sub(srv.headers.Referer,1,string.len(srv.url))==srv.url then
+	if srv.method=="POST" and srv:check_referer(srv.url) then
 		for i,v in pairs(srv.posts) do
 			posts[i]=v
 --			posts[i]=string.gsub(v,"[^%w%p ]","") -- sensible characters only please
@@ -476,7 +476,7 @@ local output_que={} -- delayed page content
 	
 	
 	local posts={} -- remove any gunk from the posts input
-	if srv.method=="POST" and srv.headers.Referer and srv.headers.Referer==srv.url then
+	if srv.method=="POST" and srv:check_referer(url) then
 		for i,v in pairs(srv.posts) do
 			posts[i]=v
 		end
