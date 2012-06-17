@@ -25,9 +25,9 @@ while docont do
 		if v.props.group then
 			if tonumber(v.props.group)>=0 then -- ignore meta
 			
-				ids[(v.key.id)]=v.props.author.."/"..v.props.created
+				ids[(v.key.id)]=v.props.author.."*"..string.format("%.3f",v.props.created)
 			
-				local fname="cache/note/"..v.props.author.."/"..v.props.created
+				local fname="cache/note/"..v.props.author.."/"..string.format("%.3f",v.props.created)
 				print( fname )
 				
 				create_dir_for_file(fname..".lua")

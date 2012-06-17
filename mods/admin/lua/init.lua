@@ -127,10 +127,26 @@ local put=make_put(srv)
 			local call_hooks_changed
 			local d
 			if j.key.kind=="waka.pages" then
+			
 				d=require("waka.pages")
 				call_hooks_changed=require("waka").call_hooks_changed
 				
 				pcall(function() require("comic") end) -- make sure we have hooks?
+				
+			elseif j.key.kind=="note.comments" then
+			
+				d=require("note.comments")
+				
+				call_hooks_changed=function(srv,id,e)
+					if tostring(e.props.group=="0") then
+						d.update_reply_cache(srv,e.props.url,e.key.id) -- find and fix any replies to us
+					else
+						d.update_reply_cache(srv,e.props.url,e.props.group) -- find and fix master we are a reply to
+					end
+					
+					d.update_meta_cache(srv,e.props.url)
+				end
+				
 			end
 			if d then
 				local f=function(srv,e)
@@ -143,7 +159,7 @@ local put=make_put(srv)
 					return true
 				end
 				d.set(srv,j.key.id,f)
-				if call_hooks_changed then call_hooks_changed(srv,j.key.id) end
+				if call_hooks_changed then call_hooks_changed(srv,j.key.id,j) end
 				srv.set_mimetype("text/plain; charset=UTF-8")
 				put(json.encode({result="OK"}))
 				return
