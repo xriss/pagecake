@@ -118,10 +118,46 @@ local put=make_put(srv)
 		put(json.encode({list=r.list,result="OK"}))
 		
 	elseif srv.vars.cmd=="write" then
+	
+		local j=json.decode(srv.posts.json)
+
+		
+		if j then
+			local jj=json.decode(j.props.json)
+			local call_hooks_changed
+			local d
+			if j.key.kind=="waka.pages" then
+				d=require("waka.pages")
+				call_hooks_changed=require("waka").call_hooks_changed
+				
+				pcall(function() require("comic") end) -- make sure we have hooks?
+			end
+			if d then
+				local f=function(srv,e)
+					for i,v in pairs(jj) do -- set
+						e.cache[i]=v
+					end
+					for i,v in pairs(j.props) do -- set
+						e.cache[i]=v
+					end
+					return true
+				end
+				d.set(srv,j.key.id,f)
+				if call_hooks_changed then call_hooks_changed(srv,j.key.id) end
+				srv.set_mimetype("text/plain; charset=UTF-8")
+				put(json.encode({result="OK"}))
+				return
+			end
+		end
+	
+		srv.set_mimetype("text/plain; charset=UTF-8")
 		put(json.encode({result="not implemented"}))
+		
 	elseif srv.vars.cmd=="delete" then
+		srv.set_mimetype("text/plain; charset=UTF-8")
 		put(json.encode({result="not implemented"}))
 	else
+		srv.set_mimetype("text/plain; charset=UTF-8")
 		put(json.encode({result="not implemented"}))
 	end
 

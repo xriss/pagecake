@@ -4,6 +4,7 @@ local http=require("socket.http")
 
 local json=require("wetgenes.json")
 local wstr=require("wetgenes.string")
+local wsand=require("wetgenes.sandbox")
 
 local lfs=require("lfs")
 
@@ -32,19 +33,20 @@ require_config_dest_sess()
 			
 			if a.mode=="file" then
 			
-				if id2==".txt" then
+				if id2==".lua" then
 				
-					local dat=readfile(fname)
-					
-					local wakaname=(d.."/"..id1):sub(#("cache/waka")+2)
-					
-	put("Editing "..wakaname.."\n")
+					local wakaname=(d.."/"..id1):sub(#("cache/waka")+2)	
+put("Editing "..wakaname.."\n")
 
-					upload_waka(wakaname,{
-						submit={data="Save"},
-						text={data=dat},
+					local met=readfile(d.."/"..id1..".lua")
+					local m=wsand.lson(met)
+					m.props.tags=nil
+					local j=json.decode(m.props.json)
+					
+					local js=json.encode(m)
+					upload_entity({
+						json={data=js},
 						})
-
 				end
 				
 			elseif a.mode=="directory" then -- subdir

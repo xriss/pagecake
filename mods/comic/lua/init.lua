@@ -343,7 +343,7 @@ function waka_changed(srv,page)
 	local width=math.floor(tonumber(refined.width or 0) or 0)
 	local height=math.floor(tonumber(refined.height or 0) or 0)
 
-	local pubdate=math.floor(tonumber(refined.time or 0) or 0) -- force a published date?
+	local pubdate=math.floor(tonumber(refined.time or page.props.created) or page.props.created) -- force a published date?
 
 	local image=refined.image or ""
 	local icon=refined.icon or ""
@@ -366,15 +366,7 @@ function waka_changed(srv,page)
 			e.cache.image=image -- update image
 			e.cache.icon=icon -- update icon
 
-			if pubdate==0 then -- update with the now
-			
-				if (not e.cache.pubdate) or (e.cache.pubdate==0) then -- force a publish time only if not set
-					e.cache.pubdate=srv.time
-				end
-				
-			else -- force
-				e.cache.pubdate=pubdate -- update published time
-			end
+			e.cache.pubdate=pubdate -- update published time
 
 			return true
 		end)

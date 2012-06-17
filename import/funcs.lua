@@ -146,6 +146,28 @@ function upload_data(data)
 
 end
 
+function upload_entity(data)
+
+	local req_body,boundary=multiparts(data)
+--put(req_body)
+	local res_body={}
+	local suc, code , headers = socket.http.request{
+		url=config.dest.."admin/api?cmd=write",
+		method="POST",
+		headers={
+					["Content-type"]="multipart/form-data; boundary="..boundary,
+					["Content-Length"] = #req_body,
+					["Cookie"]="wet_session="..config.sess,
+					["Referer"]=config.dest.."admin/api?cmd=write",
+				},
+		source = ltn12.source.string(req_body),
+		sink = ltn12.sink.table(res_body),
+	}
+	put("Received "..suc.." "..code.."\n") -- wstr.serialize(headers)
+--	table.foreach(res_body,print)
+
+end
+
 -----------------------------------------------------------------------------
 --
 -- replace {tags} in the string with data provided
