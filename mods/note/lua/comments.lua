@@ -49,7 +49,7 @@ default_props=
 		
 	author="", -- the userid of who wrote this comment (can be used to lookup user)
 	url="",    -- the site url for which this is a comment on, site comments relative to root begin with "/"
-	group=0,   -- the id of our parent or 0 if this is a master comment on a url, -1 if it is a meta cache
+	group="0",   -- the id of our parent or 0 if this is a master comment on a url, -1 if it is a meta cache
 	type="ok", -- a type string to filter on
 				-- ok    - this is a valid comment, display it
 				-- spam  - this is pure spam, hidden but not forgotten
@@ -171,7 +171,7 @@ function update_meta_cache(srv,url)
 	local count=0
 
 -- build meta cache			
-	local cs=list(srv,{sort_updated="DESC",url=url,group=0}) -- get all top comments
+	local cs=list(srv,{sort_updated="DESC",url=url,group="0"}) -- get all top comments
 	local comments={}
 	local newtime=0
 	for i,v in ipairs(cs) do -- and build comment cache
@@ -335,7 +335,7 @@ function build_get_comment(srv,tab,c)
 	plink=plink,
 	purl=purl or "http://google.com/search?q="..name,
 	time=os.date("%Y-%m-%d %H:%M:%S",c.created),
-	id=c.id,
+	id=wstr.alpha_munge(c.id),
 	icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.author,nil,nil,srv) ),
 	}
 	
@@ -346,12 +346,12 @@ function build_get_comment(srv,tab,c)
 		vars.icon=srv.url_domain.."/art/note/anon.jpg"
 	end
 	
-	vars.title=tab.get([[#{id} posted by {name} on {time}]],vars)
+	vars.title=tab.get([[posted by {name} on {time}]],vars)
 	vars.div_reply=tab.div_reply or ""
 	return tab.get([[
 <div class="wetnote_comment_div" id="wetnote{id}" >
 <div class="wetnote_comment_icon" ><a href="{purl}"><img src="{icon}" width="100" height="100" /></a></div>
-<div class="wetnote_comment_head" > #{id} posted by <a href="{purl}">{name}</a> on {time} </div>
+<div class="wetnote_comment_head" > posted by <a href="{purl}">{name}</a> on {time} </div>
 <div class="wetnote_comment_text" >{media}{text}</div>
 <div class="wetnote_comment_tail" ></div>
 {div_reply}
@@ -424,7 +424,7 @@ function post(srv,tab)
 				end
 			end
 			
-			local id=math.floor(tonumber(tab.posts.wetnote_comment_id))
+			local id=wstr.trim(tab.posts.wetnote_comment_id)
 			local e=create(srv)
 			local c=e.cache
 			
@@ -480,11 +480,12 @@ function post(srv,tab)
 				end
 			end
 			
+			e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
 			put(srv,e)
 			posted=e
 			tab.modified=true -- flag that caller should update cache
 			
-			if id~=0 then -- this is a comment so apply to master
+			if tostring(id)~="0" then -- this is a comment so apply to master
 			
 				update_reply_cache(srv,tab.url,id)
 --[[
@@ -521,8 +522,8 @@ function post(srv,tab)
 				cache.del(srv,"kind="..kind(H).."&find=recent&limit="..(50)) -- reset normal recent cache
 
 				local wetnoteid=id
-				if id==0 then wetnoteid=posted.cache.id end
-				sys.redirect(srv,tab.url.."?wetnote="..wetnoteid.."#wetnote"..wetnoteid)
+				if tostring(id)=="0" then wetnoteid=posted.cache.id end
+--				sys.redirect(srv,tab.url.."?wetnote="..wetnoteid.."#wetnote"..wetnoteid)
 
 				
 -- try and get a short url from goo.gl and save it into the comment for later use
@@ -582,9 +583,9 @@ end
 -- also set tab.url to the url
 --
 --------------------------------------------------------------------------------
-function get_reply_form(srv,tab,num)
+function get_reply_form(srv,tab,id)
 
-	num=num or 0
+	id=tostring(id or "0")
 
 	local user=(tab.user and tab.user.cache)
 
@@ -594,7 +595,7 @@ function get_reply_form(srv,tab,num)
 <a href="{url}" ">Reply</a>
 </div>]],{
 		url=srv.url_domain..tab.url,
-		id=num,
+		id=wstr.alpha_munge(id),
 	})
 	end
 	
@@ -606,9 +607,9 @@ function get_reply_form(srv,tab,num)
 </div>
 </div>]],{
 		url="/dumid/login/?continue="..url_esc(tab.url),
-		actioncss=(num==0) and "display:none" or "display:block",
-		formcss=(num==0) and "display:block" or "display:none",
-		id=num,
+		actioncss=(id=="0") and "display:none" or "display:block",
+		formcss=(id=="0") and "display:block" or "display:none",
+		id=wstr.alpha_munge(id),
 	})
 	end
 	
@@ -630,7 +631,7 @@ function get_reply_form(srv,tab,num)
 	
 	local reply_text="Reply"
 	
-	if num==0 then
+	if id=="0" then
 		if tab.post_text then post_text=tab.post_text end
 	else
 		if tab.reply_text then reply_text=tab.reply_text end
@@ -647,20 +648,21 @@ function get_reply_form(srv,tab,num)
 {upload}
 {anon}
 <textarea class="wetnote_comment_form_text" name="wetnote_comment_text"></textarea>
-<input name="wetnote_comment_id" type="hidden" value="{id}"></input>
+<input name="wetnote_comment_id" type="hidden" value="{realid}"></input>
 <input class="wetnote_comment_post" name="wetnote_comment_submit" type="submit" value="{post_text}"></input>
 </div>
 </form>
 </div>
 ]],{
-	actioncss=(num==0) and "display:none" or "display:block",
-	formcss=(num==0) and "display:block" or "display:none",
+	actioncss=(id=="0") and "display:none" or "display:block",
+	formcss=(id=="0") and "display:block" or "display:none",
 	author=user.id or "",
 	name=user.name or "",
 	plink=plink,
 	purl=purl or "http://google.com/search?q="..(user.name or ""),
 	time=os.date("%Y-%m-%d %H:%M:%S"),
-	id=num,
+	id=wstr.alpha_munge(id),
+	realid=id,
 	icon=srv.url_domain .. ( d_users.get_avatar_url(user or "") ),
 	upload=upload,
 	anon=anon,
@@ -830,7 +832,7 @@ end
 			if c.replies and c.reply_updated --[[and c.reply_update<srv.time+(60*60*24*1)]] then
 				-- replies probably ok
 			else
-				if c.id>0 then -- ok lets bump it
+				if c.id~="0" then -- ok lets bump it
 					c.replies=update_reply_cache(srv,c.url,c.id)
 				end
 			end
@@ -850,7 +852,7 @@ end
 <a href="#" onclick="if($){$(this).hide(400);$('#wetnote_comment_hide_{id}').show(400);} return false;">Show {hide} hidden comments</a>
 <div id="wetnote_comment_hide_{id}" style="display:none">
 ]],{
-		id=c.id,
+		id=wstr.alpha_munge(c.id),
 		hide=hide,
 		})
 					end
@@ -977,7 +979,7 @@ function recent_to_html(srv,tab)
 		local c=v.cache
 		
 		local link=c.url.."#wetnote"
-		if c.group==0 then
+		if tostring(c.group)=="0" then
 			link=link..c.id -- link to main comment
 		else
 			link=link..c.group -- link to what we are commenting on

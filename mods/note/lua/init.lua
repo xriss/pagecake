@@ -178,7 +178,7 @@ local posts=make_posts(srv)
 				end)
 		end
 
-			local list=comments.list(srv,{csortdate="DESC",url=note_url,group=0}) -- get all comments
+			local list=comments.list(srv,{csortdate="DESC",url=note_url,group="0"}) -- get all comments
 			
 			local updated=0
 			local author_name=""
@@ -224,7 +224,7 @@ local posts=make_posts(srv)
 		end
 		local replyonly
 		if srv.gets.wetnote then
-			replyonly=tonumber(srv.gets.wetnote)
+			replyonly=(srv.gets.wetnote)
 		end
 		comments.build(srv,{url=note_url,posts={},get=get,put=newput,sess=sess,user=user,linkonly=true,replyonly=replyonly})
 		local s=table.concat(out) -- this is the html string we wish to insert
@@ -237,7 +237,7 @@ end
 		local surl=srv.url
 		local replyonly
 		if srv.gets.wetnote then
-			replyonly=tonumber(srv.gets.wetnote)
+			replyonly=(srv.gets.wetnote)
 		end
 		if replyonly then surl=surl.."?wetnote="..replyonly end
 		
@@ -384,7 +384,7 @@ local posts=make_posts(srv)
 			c.text=head.text
 			c.author=head.author
 			c.name=head.name
-			c.group=0
+			c.group="0"
 --c.url="/forum/spam"
 			return true
 		end)
@@ -396,8 +396,8 @@ local posts=make_posts(srv)
 		
 		for i=2,#thread do local v=thread[i]
 		
-			local group=0
-			if v.parent then group=idlookup[v.parent] or 0 end
+			local group="0"
+			if v.parent then group=idlookup[v.parent] or "0" end
 			
 			replyids[group]=true
 			

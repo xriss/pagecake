@@ -61,6 +61,24 @@ end
 
 -----------------------------------------------------------------------------
 --
+-- Make sure this userid exists (with limited info)
+--
+-----------------------------------------------------------------------------
+function manifest_userid(srv,userid)
+
+	set(srv,userid,function(srv,e)
+	
+		if not e.key.notsaved then return false end -- already exists so we do nothing
+		
+		fill(srv,e,{userid=userid}) -- setup some rather dumb defaults
+		
+		return true
+	end)
+	
+end
+
+-----------------------------------------------------------------------------
+--
 -- Make a new local user data, ready to be put
 --
 -----------------------------------------------------------------------------

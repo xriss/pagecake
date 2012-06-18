@@ -144,6 +144,8 @@ local put=make_put(srv)
 						d.update_reply_cache(srv,e.props.url,e.props.group) -- find and fix master we are a reply to
 					end
 					
+					require("dumid.users").manifest_userid(srv,e.props.author)
+					
 					d.update_meta_cache(srv,e.props.url)
 				end
 				
