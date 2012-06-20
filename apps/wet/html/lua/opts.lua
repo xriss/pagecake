@@ -1,6 +1,21 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
+
+
+module("opts")
+
+vhosts_map={
+	{"host%.local","local"},
+	{"4lfa%.local","4lfa"},
+	{"127%.0%.0%.1","127"},
+}
+vhosts={}
+for i,v in ipairs(vhosts_map) do
+	vhosts[ v[2] ]={}
+end
+
+
 local ae_opts=require("wetgenes.www.any.opts")
 local dat=require("wetgenes.www.any.data")
 local cache=require("wetgenes.www.any.cache")
@@ -9,8 +24,6 @@ local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-
-module("opts")
 
 bootstrapp_version=20110121 -- hand bump to todays date on release
 
@@ -207,7 +220,7 @@ mods.console.input=
 print("test")
 ]]
 
-lua = ae_opts.get_dat("lua")
+lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
 if lua then
 	local f=loadstring(lua)
 	if f then
