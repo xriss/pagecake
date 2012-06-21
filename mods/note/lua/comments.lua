@@ -33,6 +33,7 @@ local str_split=wstr.str_split
 local replace  =wstr.replace
 local serialize=wstr.serialize
 
+local ngx=ngx
 
 -- opts
 local opts_mods_note=(opts and opts.mods and opts.mods.note) or {}
@@ -67,6 +68,10 @@ default_props=
 	media=0, -- an associated data.meta id link, 0 if no media,
 				-- so each post can have eg an image associated with it ala 4chan
 }
+
+if not ngx then
+	default_props.group=0
+end
 
 default_cache=
 {
@@ -142,6 +147,10 @@ function check(srv,ent)
 	local ok=true
 
 	local c=ent.cache
+
+	if not ngx then -- appengine backhax, for now
+		c.group=tonumber(c.group)
+	end
 			
 	return ent
 end
@@ -247,11 +256,15 @@ function list(srv,opts,t)
 -- add filters?
 	for i,v in ipairs{"author","url","group","type"} do
 		if opts[v] then
-			local t=type(opts[v])
+			vv=opts[v]
+if not ngx then
+			if v=="group" then vv=tonumber(vv) end -- hax to work with old and new commwnt ids?
+end
+			local t=type(vv)
 			if t=="string" or t=="number" then
-				q[#q+1]={"filter",v,"==",opts[v]}
+				q[#q+1]={"filter",v,"==",vv}
 			elseif t=="table" then
-				q[#q+1]={"filter",v,"in",opts[v]}
+				q[#q+1]={"filter",v,"in",vv}
 			end
 		end
 	end
@@ -288,6 +301,10 @@ end
 --
 --------------------------------------------------------------------------------
 function update_reply_cache(srv,url,id)
+
+if not ngx then
+	id=tonumber(id)
+end
 
 	local rs=list(srv,{sort_updated="ASC",url=url,group=id}) -- get all replies
 	local replies={}
@@ -450,6 +467,11 @@ function post(srv,tab)
 			c.author=tab.user.cache.id
 			c.url=tab.url
 			c.group=id
+if not ngx then
+	if tostring(tonumber(id) or 0) == tostring(id) then
+		c.group=tonumber(id)
+	end
+end
 			c.text=tab.posts.wetnote_comment_text
 			c.title=title
 			if tab.posts.filedata and tab.posts.filedata.size>0 then -- got a file
@@ -480,11 +502,13 @@ function post(srv,tab)
 				end
 			end
 			
-			e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
+			if ngx then -- appengine backhax
+				e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
+			end
 			put(srv,e)
 			posted=e
 			tab.modified=true -- flag that caller should update cache
-			
+log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.group)			
 			if tostring(id)~="0" then -- this is a comment so apply to master
 			
 				update_reply_cache(srv,tab.url,id)

@@ -384,7 +384,11 @@ local posts=make_posts(srv)
 			c.text=head.text
 			c.author=head.author
 			c.name=head.name
+if ngx then
 			c.group="0"
+else
+			c.group=0
+end
 --c.url="/forum/spam"
 			return true
 		end)
@@ -400,7 +404,9 @@ local posts=make_posts(srv)
 			if v.parent then group=idlookup[v.parent] or "0" end
 			
 			replyids[group]=true
-			
+if not ngx then
+	if group=="0" then group=0 end
+end			
 			local com=comments.manifest_uid(srv , v.uid , function(srv,e)
 				local c=e.cache
 				c.created=v.created
