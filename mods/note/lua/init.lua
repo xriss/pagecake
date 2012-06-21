@@ -17,6 +17,7 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
+local ngx=ngx
 
 local wet_string=require("wetgenes.string")
 local trim=wet_string.trim

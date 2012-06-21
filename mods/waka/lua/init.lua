@@ -19,6 +19,7 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 local wet_sandbox=require("wetgenes.sandbox")
 
 local wet_string=require("wetgenes.string")
+local wstr=wet_string
 local replace=wet_string.replace
 local macro_replace=wet_string.macro_replace
 local trim=wet_string.trim
@@ -309,6 +310,7 @@ local ext
 			put(macro_replace(refined.plate or [[
 <h1>{title}</h1>
 {body}]],refined,repopts))
+
 			if pageopts.flame=="on" then -- add comments to this page
 				comments.build(srv,{title=refined.title or pagename,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 			elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
@@ -316,7 +318,7 @@ local ext
 			end
 			
 		end
-		
+
 		put("footer")
 	end
 end
