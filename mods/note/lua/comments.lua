@@ -259,6 +259,8 @@ function list(srv,opts,t)
 			vv=opts[v]
 if not ngx then
 			if v=="group" then vv=tonumber(vv) end -- hax to work with old and new commwnt ids?
+else
+			if v=="group" then vv=tostring(vv) end -- hax to work with old and new commwnt ids?
 end
 			local t=type(vv)
 			if t=="string" or t=="number" then
@@ -285,7 +287,7 @@ end
 	if opts.sort_created then
 		q[#q+1]={"sort","created", opts.sort_created }
 	end
-	
+
 	local r=t.query(q)
 
 	for i=1,#r.list do local v=r.list[i]

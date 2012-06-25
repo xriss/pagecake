@@ -46,11 +46,16 @@ Please choose one of the following to perform
 
 clear -- clear all data in the local cache do this at the start unless you want to merge sites
 read -- read data from a site into the local cache
+read waka -- read waka data
+read note -- read note data
+read data -- read data data
 read 4lfa -- my comic data (obsolete)
-read fud -- my forum data, uses a fud forum xml feed
+read fud -- my forum data, uses a fud forum xml feed (old)
 write -- write data to a site from the local cache
 write comic -- upload some comics
 write note -- upload notes/comments
+write data -- upload data
+write waka -- upload waka
 ]])
 
 end

@@ -6,9 +6,20 @@ apps.setpaths(nil,{apps.find_bin()})
 
 local bake_ngx=require("wetgenes.bake.ngx")
 
-local tab={}
+
+
+local tab={"release"}
 tab.arg={...}
-tab.ngx_listen="127.0.0.1:8888"
+
+tab.cd_out="../../../www/ngx"
+
+tab.ngx_user="wet"
+--tab.ngx_user="kriss"
+
+tab.ngx_listen="80"
+
+tab.ngx_debug=""
+--tab.ngx_debug="debug"
 
 bake_ngx.build(tab)
 

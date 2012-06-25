@@ -424,7 +424,10 @@ function import(tab)
 
 	tab.plates=tab.plates or {}
 
-	local text=sys.bytes_to_string(sys.file_read("lua/plates.html"))
+	local text=""
+	if sys.file_exists("lua/plates.html") then
+		sys.bytes_to_string(sys.file_read("lua/plates.html"))
+	end
 	local chunks=waka.text_to_chunks(text)
 	
 	for i=1,#chunks do local v=chunks[i] -- copy into plates lookup

@@ -6,9 +6,8 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 module("opts")
 
 vhosts_map={
-	{"host%.local","local"},
-	{"4lfa%.local","4lfa"},
-	{"127%.0%.0%.1","127"},
+	{"4lfa%.com","local"},
+--	{"4lfa%.com","4lfa"},
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
@@ -37,12 +36,24 @@ head.favicon="/favicon.ico" -- the favicon
 head.extra_css={} -- more css links
 head.extra_js={} -- more js links
 
-users={}
-users.admin={ -- users with admin rights for this app
-["2@id.wetgenes.com"]=true,
---	["notshi@gmail.com"]=true,
---	["krissd@gmail.com"]=true,
+twitter={
+key="F9pwnTWA5WEwJwzwkcbw",
+secret="zegUtLKtSDtqzIRxG2i5zcCMpltGOzmwLtWcC3i1M",
 }
+
+facebook={
+id="5335065877",
+key="5335065877",
+secret="8f214437e701e7203e0ddfb081ac4936",
+}
+
+users={admin={
+["2@id.wetgenes.com"]=true,
+["14@id.wetgenes.com"]=true,
+["notshi@gmail.com"]=true,
+["krissd@gmail.com"]=true,
+}}
+
 
 local app_name=nil -- best not to use an appname, unless we run multiple apps on one site 
 
@@ -213,6 +224,8 @@ for i,v in pairs(map) do
 end
 
 mods.init={}
+
+mods.comic.groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"}
 
 mods.console=mods.console or {}
 mods.console.input=
