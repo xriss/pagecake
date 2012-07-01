@@ -19,6 +19,9 @@ local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 local macro_replace=wet_string.macro_replace
 
+local stash=require("wetgenes.www.any.stash")
+
+
 local wet_waka=require("wetgenes.waka")
 local d_sess =require("dumid.sess")
 local d_users=require("dumid.users")
@@ -101,8 +104,7 @@ local get,put=make_get_put(srv)
 
 	local title="comic"
 	local plate_comic="comic_inlist"
-	local cnext=nil
-	local cprev=nil
+	local cstash={}
 	local url_local="/comic"
 	local url_waka="comic"
 	
@@ -115,8 +117,24 @@ local get,put=make_get_put(srv)
 			title=list[1].cache.title
 			plate_comic="comic_inpage"
 			local pubdate=list[1].cache.pubdate
-			cprev=comics.list(srv,{limit=1,sort="-pubdate",["<pubdate"]=pubdate})[1]
-			cnext=comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=pubdate})[1]
+			local rand=list[1].cache.random
+			local sname="comic="..list[1].cache.id.."&type=links&v1"
+			
+			cstash=stash.get(srv,sname)
+			if not cstash then
+				cstash={}
+				local function gcache(v) return v and v.cache end
+
+				cstash.cfirst=gcache(comics.list(srv,{limit=1,sort="+pubdate"})[1])
+				cstash.clast=gcache(comics.list(srv,{limit=1,sort="-pubdate"})[1])
+
+				cstash.cprev=gcache(comics.list(srv,{limit=1,sort="-pubdate",["<pubdate"]=pubdate})[1])
+				cstash.cnext=gcache(comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=pubdate})[1])
+				
+				cstash.crandom=gcache(comics.list(srv,{limit=1,offset=math.random(1,100),sort="-pubdate"})[1])
+
+				stash.put(srv,sname,cstash)
+			end
 			
 			url_local="/comic/"..comicname
 			url_waka=group.."/"..comicname
@@ -212,8 +230,11 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 </div>
 ]]
 
-	if cprev then refined.cprev=cprev.cache end
-	if cnext then refined.cnext=cnext.cache end
+	refined.cfirst=cstash.cfirst
+	refined.clast=cstash.clast
+	refined.crandom=cstash.crandom
+	refined.cprev=cstash.cprev
+	refined.cnext=cstash.cnext
 	
 	if list[1] then
 		refined.cprev=refined.cprev or list[1].cache
@@ -348,6 +369,8 @@ function waka_changed(srv,page)
 	local image=refined.image or ""
 	local icon=refined.icon or ""
 	
+	local rand=math.random()
+	
 --	local tags=refined.tags or {}
 	
 	if id and title then 
@@ -367,6 +390,8 @@ function waka_changed(srv,page)
 			e.cache.icon=icon -- update icon
 
 			e.cache.pubdate=pubdate -- update published time
+
+			e.cache.random=rand -- sort by this random number
 
 			return true
 		end)

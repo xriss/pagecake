@@ -27,6 +27,7 @@ default_props=
 	pubdate=0, -- the time of publishing
 	width=0, -- the width of image
 	height=0, -- the height of image
+	random=0, -- random number to sort by
 --	tags={}, -- our tags
 }
 
@@ -60,6 +61,8 @@ function check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
+	
+	if not c.random then c.random=math.random() end
 		
 	return ent
 end
@@ -83,7 +86,7 @@ function list(srv,opts,t)
 	}
 	
 -- add filters?
-	for i,v in ipairs{"name","group","<pubdate",">pubdate"} do
+	for i,v in ipairs{"name","group","<pubdate",">pubdate","<random",">random"} do
 		if opts[v] then
 			local t=type(opts[v])
 			if t=="string" or t=="number" then
@@ -104,9 +107,12 @@ function list(srv,opts,t)
 	end
 	
 	if     opts.sort=="pubdate"  then q[#q+1]={"sort","pubdate","DESC"} -- newest published
+	elseif opts.sort=="updated"  then q[#q+1]={"sort","updated","DESC"} -- newest updated
+
 	elseif opts.sort=="-pubdate" then q[#q+1]={"sort","pubdate","DESC"} -- newest published
 	elseif opts.sort=="+pubdate" then q[#q+1]={"sort","pubdate","ASC"}  -- oldest published
-	elseif opts.sort=="updated"  then q[#q+1]={"sort","updated","DESC"} -- newest updated
+	elseif opts.sort=="-random" then q[#q+1]={"sort","random","DESC"} -- random order
+	elseif opts.sort=="+random" then q[#q+1]={"sort","random","ASC"}  -- random order
 	end
 	
 	local r=t.query(q)
