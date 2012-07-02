@@ -57,7 +57,10 @@ function get_comic_stash(srv,v)
 	local sname="comic="..v.id.."&type=links&v1"
 
 	local cstash=stash.get(srv,sname)
-	if not cstash then
+	if  	( not cstash ) or 
+			( not cstash.cachetime ) or
+			( cstash.cachetime<os.time() ) then
+			
 		cstash={}
 		local function gcache(v) return v and v.cache end
 
@@ -68,6 +71,8 @@ function get_comic_stash(srv,v)
 		cstash.cnext=gcache(comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=v.pubdate})[1])
 		
 		cstash.crandom=gcache(comics.list(srv,{limit=1,offset=math.random(1,100),sort="-pubdate"})[1])
+		
+		cstash.cachetime=os.time()+(60*60) -- just one hour TTL
 
 		stash.put(srv,sname,cstash)
 	end
