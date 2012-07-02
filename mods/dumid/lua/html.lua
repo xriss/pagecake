@@ -8,6 +8,7 @@ local url_esc=wet_html.url_esc
 
 local html=require("html")
 
+local ngx=ngx
 
 module("dumid.html")
 
@@ -82,6 +83,15 @@ dumid_choose=function(d)
 
 	local more="" -- more logins that may not be available
 	
+	
+	if not ngx then -- no google login yet
+more=more..[[
+<div class="cont">
+	<a class="button" href="{srv.url_base}login/google/?continue={continue}">Google</a>
+</div>
+]]
+	end
+	
 	if d.twitter then
 more=more..[[
 <div class="cont">
@@ -106,9 +116,6 @@ more=more..[[
 </div>
 <div class="cont">
 	<a class="button" href="{srv.url_base}login/wetgenes/?continue={continue}">WetGenes</a>
-</div>
-<div class="cont">
-	<a class="button" href="{srv.url_base}login/google/?continue={continue}">Google</a>
 </div>
 ]]..more
 ,d)
