@@ -32,8 +32,8 @@ local ngx=ngx
 --
 -- Which can be overidden in the global table opts
 --
-local opts_mods_data={}
-if opts and opts.mods and opts.mods.data then opts_mods_data=opts.mods.data end
+
+
 
 module("data.file")
 local _M=require(...)

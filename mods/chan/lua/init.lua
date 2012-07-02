@@ -30,7 +30,7 @@ local html=require("chan.html")
 local comments=require("note.comments")
 
 -- opts
-local opts_mods_chan=(opts and opts.mods and opts.mods.chan) or {}
+
 
 module("chan")
 

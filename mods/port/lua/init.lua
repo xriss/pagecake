@@ -34,9 +34,6 @@ local goo=require("port.goo")
 
 
 
--- opts
-local opts_twitter=( opts and opts.twitter ) or {}
-local opts_mods_port=(opts and opts.mods and opts.mods.port) or {}
 
 module("port")
 

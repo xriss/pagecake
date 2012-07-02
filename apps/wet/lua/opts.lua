@@ -1,17 +1,19 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
-
+local ngx=ngx
 
 module("opts")
+local opts=require("opts")
 
 vhosts_map={
-	{"4lfa%.com","local"},
---	{"4lfa%.com","4lfa"},
+	{"4lfa%.com","4lfa"},
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
-	vhosts[ v[2] ]={}
+	local t={}
+	setmetatable(t,{__index=opts})
+	vhosts[ v[2] ]=t
 end
 
 
@@ -36,17 +38,7 @@ head.favicon="/favicon.ico" -- the favicon
 head.extra_css={} -- more css links
 head.extra_js={} -- more js links
 
-twitter={
-key="F9pwnTWA5WEwJwzwkcbw",
-secret="zegUtLKtSDtqzIRxG2i5zcCMpltGOzmwLtWcC3i1M",
-}
-
-facebook={
-id="5335065877",
-key="5335065877",
-secret="8f214437e701e7203e0ddfb081ac4936",
-}
-
+-- need some admin users or we will get nowhere
 users={admin={
 ["2@id.wetgenes.com"]=true,
 ["14@id.wetgenes.com"]=true,
@@ -57,8 +49,79 @@ users={admin={
 
 local app_name=nil -- best not to use an appname, unless we run multiple apps on one site 
 
+-- look through the mods and save the #opts of each mod used for easy lookup
+local function find_mods(map)
+	local mods={}
+	-- find each mod
+	for i,v in pairs(map) do
+		if type(v)=="table" then
+			local name=v["#default"]
+			if name then
+				mods[name]=v["#opts"] or {}
+			end
+		end
+	end
+	return mods
+end
 
-forums={
+-- add a mapping to the map table
+local function add_map(map,name,tab)
+
+	if not tab then -- just default mod settings
+	
+		local baseurl=map["#opts"].url
+		if baseurl~="/" then baseurl=baseurl.."/" end
+		tab={
+			["#default"]	=	name, 		-- no badlinks, we own everything under here
+			["#opts"]		=	{
+									url=baseurl..name,
+									title=name,
+								},
+		}
+	end
+	map[name]=tab	
+	return tab
+end
+
+local function default_map()
+	local map={ -- base lookup table 
+	["#index"]		=	"welcome", 
+	["#default"]	=	"waka", 		-- no badlinks, everything defaults to a wikipage
+	["#opts"]		=	{
+							url="/",
+						},
+											
+	["wiki"]		=	{			-- redirect
+							["#redirect"]	=	"/", 		-- remap this old url
+						},
+
+	}
+	add_map(map,"admin")
+	add_map(map.admin,"console")["#opts"].input=
+[[
+print("test")
+]]
+
+	add_map(map,"dumid")
+	add_map(map,"data")
+	add_map(map,"note")
+	add_map(map,"profile")
+	add_map(map,"blog")
+	add_map(map,"thumbcache")
+
+	return map
+end
+
+map=default_map()
+
+--add_map("dice")
+--add_map("mirror")
+--add_map("port")
+--add_map("todo")
+--add_map("chan")
+--add_map("shoop")
+
+local forums={
 	{
 		id="spam",
 		title="General off topic posts.",
@@ -67,177 +130,53 @@ forums={
 for i,v in ipairs(forums) do -- create id lookups as well
 	forums[v.id]=v
 end
+add_map(map,"forum")["#opts"].forums=forums
 
 
-map={ -- base lookup table 
+--add_map(map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"}
 
-["#index"]		=	"welcome", 
-["#default"]	=	"waka", 		-- no badlinks, everything defaults to a wikipage
-["#flavour"]	=	app_name, 			-- use this flavour when serving
-["#opts"]		=	{
-						url="/",
-					},
-										
-["wiki"]		=	{			-- redirect
-						["#redirect"]	=	"/", 		-- remap this url and below
-					},
-					
-["blog"]		=	{			-- a blog module
-						["#default"]	=	"blog", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	app_name, 			-- use this flavour when serving
-						["#opts"]		=	{
-												url="/blog",
-												title="blog",
-											},
-					},
+mods=find_mods(map) -- build mods pointers from the map for default app
 
-["comic"]		=	{			-- a comic module
-						["#default"]	=	"comic", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	app_name, 			-- use this flavour when serving
-						["#opts"]		=	{
-												url="/comic",
-												title="comic",
-												groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"},
-											},
-					},
+if ngx then
+	local srv=ngx.ctx
+	
+	local old_vhost=srv.vhost
 
-["score"]		=	{			-- a score module
-						["#default"]	=	"score", 		-- no badlinks, we own everything under here
-						["#flavour"]	=	app_name, 			-- use this flavour when serving
-						["#opts"]		=	{
-												url="/score",
-												title="score",
-											},
-					},
+	for n,v in pairs(vhosts) do --we need to load up each vhost for initial setup
+	
+		srv.vhost=n
 
-["admin"]		=	{			-- all admin stuff
-						["#default"]	=	"admin",
-						["console"]		=	{			-- a console module
-											["#default"]	=	"console",
-											["#flavour"]	=	app_name,
-											["#opts"]		=	{
-																	url="/admin/console/",
-																},
-											},
-					},
-					
-["dumid"]		=	{			-- a dumid module
-						["#default"]	=	"dumid", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/dumid",
-											},
-					},
-					
-					
-["data"]		=	{			-- a data module
-						["#default"]	=	"data", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/data",
-											},
-					},
+		v.map=default_map()
 
-["note"]		=	{			-- a sitewide comment module
-						["#default"]	=	"note", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/note",
-											},
-					},
+		if n=="4lfa" then -- extra site setup, no more admin settings?
+		
+			add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"}
+			
+		end
 
-["chan"]		=	{			-- an imageboard module
-						["#default"]	=	"chan", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/chan",
-											},
-					},
-
-["shoop"]		=	{			-- an image module
-						["#default"]	=	"shoop", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/shoop",
-											},
-					},
-
-["forum"]		=	{			-- a forum module
-						["#default"]	=	"forum", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/forum",
-												forums=forums,
-											},
-					},
-
-["profile"]		=	{			-- a profile module
-						["#default"]	=	"profile", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/profile",
-											},
-					},
-
-["dice"]		=	{			-- roll some dice
-						["#default"]	=	"dice", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/dice",
-											},
-					},
-
-["thumbcache"]		=	{			-- cache some images
-						["#default"]	=	"thumbcache", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/thumbcache",
-											},
-					},
-["mirror"]		=	{			-- talk to talk
-						["#default"]	=	"mirror", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/mirror",
-											},
-					},
-["port"]		=	{			-- port to port
-						["#default"]	=	"port", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/port",
-											},
-					},
-["todo"]		=	{			-- bribes
-						["#default"]	=	"todo", 		-- no badlinks, we own everything under here
-						["#opts"]		=	{
-												url="/todo",
-											},
-					},
-}
-local _=require("todo") -- need to initialize waka hooks
-
-mods={}
-
-
--- find each mod
-for i,v in pairs(map) do
-	if type(v)=="table" then
-		local name=v["#default"]
-		if name then
-			local t=mods[name] or {}
-			mods[name]=t
-			for i,v in pairs( v["#opts"] or {} ) do
-				t[i]=v -- copy opts into default for each mod
+		v.lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
+		if v.lua then
+			local f=loadstring(v.lua)
+			if f then
+				setfenv(f,opts)
+				pcall( f )
 			end
 		end
+
+		v.mods=find_mods(v.map) -- build mods pointers from the map
+
 	end
-end
 
-mods.init={}
+	srv.vhost=old_vhost
+else
 
-mods.comic.groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"}
-
-mods.console=mods.console or {}
-mods.console.input=
-[[
-print("test")
-]]
-
-lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
-if lua then
-	local f=loadstring(lua)
-	if f then
-		setfenv(f,_M)
-		pcall( f )
+	lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
+	if lua then
+		local f=loadstring(lua)
+		if f then
+			setfenv(f,opts)
+			pcall( f )
+		end
 	end
+
 end

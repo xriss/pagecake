@@ -32,7 +32,7 @@ local import=require("mirror.import")
 
 
 -- opts
-local opts_mods_mirror=(opts and opts.mods and opts.mods.mirror) or {}
+
 
 module("mirror")
 

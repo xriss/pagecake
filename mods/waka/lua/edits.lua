@@ -29,8 +29,8 @@ local html=require("waka.html")
 --
 -- Which can be overiden in the global table opts
 --
-local opts_mods_waka={}
-if opts and opts.mods and opts.mods.waka then opts_mods_waka=opts.mods.waka end
+
+
 
 module("waka.edits")
 local _M=require(...)

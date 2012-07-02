@@ -36,8 +36,8 @@ local edits=require("waka.edits")
 --
 -- Which can be overeiden in the global table opts
 --
-local opts_mods_waka={}
-if opts and opts.mods and opts.mods.waka then opts_mods_waka=opts.mods.waka end
+
+
 
 module("waka.pages")
 local _M=require(...)

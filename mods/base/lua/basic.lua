@@ -82,7 +82,7 @@ fetch.countzero()
 	end
 
 	
-	local lookup=opts.map
+	local lookup=srv.opts("map")
 	local cmd
 	local f
 	
@@ -97,22 +97,20 @@ fetch.countzero()
 	srv.slash="/"
 	local loop=true
 	
-	if opts.basedomains then
-		for i,v in ipairs(opts.basedomains) do
+	for i,v in ipairs( srv.opts("basedomains") or {} ) do
 --			log(srv.url.."=="..srv.url_domain)
-			v="."..v.."/"
-			if srv.url:sub(-#v)==v then -- bare domain request?
-				local aa=srv.url:sub(1,-(#v+1))
-				aa=str_split("/",aa)
-				aa=aa[#aa] -- remove http:// bit
-				aa=str_split(".",aa)
-				local ab={}
-				for i=#aa,1,-1 do ab[#ab+1]=aa[i] end --reverse
-				local ac=table.concat(ab,"/") or ""
-				if not (ac=="" or ac=="www") then -- perform a redirect of base address only
-					srv.redirect("http://www"..v..ac) -- to the www version
-					return
-				end
+		v="."..v.."/"
+		if srv.url:sub(-#v)==v then -- bare domain request?
+			local aa=srv.url:sub(1,-(#v+1))
+			aa=str_split("/",aa)
+			aa=aa[#aa] -- remove http:// bit
+			aa=str_split(".",aa)
+			local ab={}
+			for i=#aa,1,-1 do ab[#ab+1]=aa[i] end --reverse
+			local ac=table.concat(ab,"/") or ""
+			if not (ac=="" or ac=="www") then -- perform a redirect of base address only
+				srv.redirect("http://www"..v..ac) -- to the www version
+				return
 			end
 		end
 	end
@@ -185,7 +183,7 @@ fetch.countzero()
 			
 		end
 		
-		srv.opts=lookup[ "#opts" ] or {}
+		srv.hashopts=lookup[ "#opts" ] or {}
 			
 		if lookup[ "#redirect" ] then -- redirect only
 			srv.redirect( lookup[ "#redirect" ] .. build_tail( srv.url_slash_idx ) )
@@ -227,31 +225,34 @@ function check_referer(srv,url,referer)
 end
 
 
+
+if not ngx then
+
 -- step through all modules used in opts and make sure they have been required
-function require_all()
+
+	function require_all()
 
 
-	if require_all_done then return end
-	require_all_done=true
+		if require_all_done then return end
+		require_all_done=true
 
-log("require all mods")
+	log("require all mods")
 
-	for i=1,1 do -- live startup can be a bit squify this repeat may help the files get found?
-	
-		for n,v in pairs(opts.mods) do
-			if type(n)=="string" then
-				local m,err=pcall(require,n)
-if not m then
-	log("require "..i.." failed on mod "..n.."\n"..(err or ""))
-end
+		for i=1,1 do -- live startup can be a bit squify this repeat may help the files get found?
+		
+			for n,v in pairs(opts.mods) do
+				if type(n)=="string" then
+					local m,err=pcall(require,n)
+	if not m then
+		log("require "..i.." failed on mod "..n.."\n"..(err or ""))
+	end
+				end
 			end
+			
 		end
 		
 	end
-	
-end
 
-if not ngx then
 	require_all_done=false
 	require_all()
 end

@@ -36,7 +36,7 @@ local comments=require("note.comments")
 
 
 -- opts
-local opts_mods_score=(opts and opts.mods and opts.mods.score) or {}
+
 
 module("score")
 
@@ -110,7 +110,7 @@ local get,put=make_get_put(srv)
 			return srv.redirect("/dumid/login/?continue="..wet_html.url_esc(srv.url.."?game="..(game).."&score="..score.."&dumb="..dumb))
 		end
 		
-		for i,v in ipairs(opts_mods_score.games or {}) do
+		for i,v in ipairs(srv.opts("mods","score","games") or {}) do
 		
 			if v==game then -- a valid name
 
@@ -170,7 +170,7 @@ local get,put=make_get_put(srv)
 	end
 	
 	
-	for i,v in ipairs(opts_mods_score.games or {}) do
+	for i,v in ipairs(srv.opts("mods","score","games") or {}) do
 	
 		if v==cmd then -- a valid name
 

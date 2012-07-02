@@ -36,8 +36,8 @@ local serialize=wstr.serialize
 local ngx=ngx
 
 -- opts
-local opts_mods_note=(opts and opts.mods and opts.mods.note) or {}
-local opts_mail_from=(opts and opts.mail and opts.mail.from)
+
+
 
 module("note.comments")
 local _M=require(...)
@@ -586,8 +586,8 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 				d_nags.save(srv,srv.sess,nag)
 
 -- and send an email to admins if enabled?
-				if opts_mail_from then
-					mail.send{from=opts_mail_from,to="admin",subject="New comment by "..posted.cache.cache.user.name.." on "..long_url,text=long_url.."\n\n"..c.text}
+				if srv.opts("mail","from") then
+					mail.send{from=srv.opts("mail","from"),to="admin",subject="New comment by "..posted.cache.cache.user.name.." on "..long_url,text=long_url.."\n\n"..c.text}
 log(posted.cache.cache.user.name)
 				end
 				

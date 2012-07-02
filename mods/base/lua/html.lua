@@ -14,9 +14,8 @@ local url_esc=wet_html.url_esc
 
 
 local opts=opts
-local opts_html={}
-if opts and opts.html then opts_html=opts.html end
-opts_html.bar=opts_html.bar or "head"
+
+local ngx=ngx
 
 module("base.html")
 
@@ -76,11 +75,13 @@ end
 --
 -----------------------------------------------------------------------------
 header=function(d)
+
+	local srv=srv or ngx.ctx or {}
 	
-	if opts_html.bar=="head" then
+	if (srv.opts("html","bar") or "head") =="head" then
 		d.bar=get_html("aelua_bar",d)
 	end
-	if opts_html.bar=="top" then
+	if srv.opts("html","bar")=="top" then
 		d.bartop=get_html("aelua_bar",d)
 	end
 	
@@ -94,7 +95,7 @@ header=function(d)
 	d.blogurl="/blog/.atom"
 
 
-	for _,v in ipairs{d.srv or {},d,opts.head or {} } do
+	for _,v in ipairs{d.srv or {},d,srv.opts("head") or {} } do
 		
 		if type(v.extra_css)=="table" then
 			for i,v in ipairs(v.extra_css) do
@@ -225,12 +226,14 @@ end
 -----------------------------------------------------------------------------
 footer=function(d)
 
+	local srv=srv or ngx.ctx or {} -- hax so we have a srv
+
 	local cache=require("wetgenes.www.any.cache")
 	local data=require("wetgenes.www.any.data")
 	local fetch=require("wetgenes.www.any.fetch")
 
 	d.bar=""
-	if opts_html.bar=="foot" then
+	if srv.opts("html","bar")=="foot" then
 		d.bar=get_html("aelua_bar",d)
 	end
 	

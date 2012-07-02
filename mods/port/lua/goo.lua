@@ -32,8 +32,8 @@ local html=require("port.html")
 
 
 
--- opts
-local opts_mods_port=(opts and opts.mods and opts.mods.port) or {}
+
+
 
 module("port.goo")
 

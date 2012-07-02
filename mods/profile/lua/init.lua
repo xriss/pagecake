@@ -34,7 +34,7 @@ local ipv4=require("admin.ipv4")
 
 
 -- opts
-local opts_mods_profile=(opts and opts.mods and opts.mods.profile) or {}
+
 
 module("profile")
 

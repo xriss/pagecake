@@ -35,9 +35,6 @@ local comments=require("note.comments")
 local things=require("todo.things")
 
 
--- opts
-local opts_mods_profile=(opts and opts.mods and opts.mods.profile) or {}
-
 module("todo")
 
 local function make_get_put(srv)

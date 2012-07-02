@@ -35,8 +35,6 @@ local html=require("port.html")
 local lookup=wutil.lookup
 
 
--- opts
-local opts_mods_port=(opts and opts.mods and opts.mods.port) or {}
 
 module("port.twitter")
 
@@ -47,7 +45,7 @@ module("port.twitter")
 -- it.text -- 140 characters
 --
 
-function post(it)
+function post(srv,it) --TODO--NOW--
 local it=it or {}
 
 -- check it is a twitter user before going further
@@ -55,7 +53,7 @@ local it=it or {}
 
 	local v={}
 	v.oauth_timestamp , v.oauth_nonce = oauth.time_nonce("sekrit")
-	v.oauth_consumer_key = opts_twitter.key
+	v.oauth_consumer_key = srv.opts("twitter","key")
 	v.oauth_signature_method="HMAC-SHA1"
 	v.oauth_version="1.0"
 		
@@ -66,7 +64,7 @@ local it=it or {}
 	o.post="POST"
 	o.url="http://api.twitter.com/1/statuses/update.json"
 	v.tok_secret=lookup(it,"user","cache","authentication","twitter","secret")
-	o.api_secret=opts_twitter.secret
+	o.api_secret=srv.opts("twitter","secret")
 	
 	local k,q = oauth.build(v,o)
 	local b={}

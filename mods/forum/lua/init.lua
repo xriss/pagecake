@@ -35,7 +35,7 @@ local wakapages=require("waka.pages")
 
 
 -- opts
-local opts_mods_chan=(opts and opts.mods and opts.mods.chan) or {}
+
 
 module("forum")
 
@@ -62,7 +62,7 @@ function serv(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 local put=make_put(srv)
 local get=make_get(srv)
-local forums=srv.opts.forums
+local forums=srv.opts("forums")
 
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /

@@ -34,7 +34,7 @@ local comments=require("note.comments")
 
 
 -- opts
-local opts_mods_shoop=(opts and opts.mods and opts.mods.shoop) or {}
+
 
 module("shoop")
 

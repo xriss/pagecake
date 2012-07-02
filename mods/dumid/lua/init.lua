@@ -26,9 +26,9 @@ local serialize=wet_string.serialize
 
 
 local opts=require("opts")
-local opts_users_admin=( opts and opts.users and opts.users.admin ) or {}
-local opts_twitter=( opts and opts.twitter ) or {}
-local opts_facebook=( opts and opts.facebook ) or {}
+
+
+
 
 
 -- require all the module sub parts
@@ -47,8 +47,8 @@ local oauth=require("wetgenes.www.any.oauth")
 --
 -- Which can be overeiden in the global table opts
 --
-local opts_mods_dumid={}
-if opts and opts.mods and opts.mods.dumid then opts_mods_dumid=opts.mods.dumid end
+
+
 
 module("dumid")
 local function make_put(srv)
@@ -112,7 +112,8 @@ local put=make_put(srv)
 	elseif dat=="facebook" then
 	
 		local callback=srv.url_base.."callback/facebook/"..wet_html.url_esc(continue)
-		return srv.redirect("https://www.facebook.com/dialog/oauth?client_id="..opts_facebook.id.."&scope=email,publish_stream,offline_access&redirect_uri="..wet_html.url_esc(callback))
+		return srv.redirect("https://www.facebook.com/dialog/oauth?client_id="..
+			(srv.opts("facebook","id")or"").."&scope=email,publish_stream,offline_access&redirect_uri="..wet_html.url_esc(callback))
 		
 	elseif dat=="google" then
 	
@@ -126,12 +127,12 @@ local put=make_put(srv)
 
 		local vars={}
 		vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
-		vars.oauth_consumer_key = opts_twitter.key
+		vars.oauth_consumer_key = srv.opts("twitter","key")
 		vars.oauth_signature_method="HMAC-SHA1"
 		vars.oauth_version="1.0"
 		vars.oauth_callback=callback
 	
-		local k,q = oauth.build(vars,{post="GET",url=baseurl,api_secret=opts_twitter.secret})
+		local k,q = oauth.build(vars,{post="GET",url=baseurl,api_secret=srv.opts("twitter","secret")})
 		
 		local got=fetch.get(baseurl.."?"..q) -- get from internets		
 		local gots=oauth.decode(got.body)
@@ -144,7 +145,7 @@ local put=make_put(srv)
 
 	srv.set_mimetype("text/html; charset=UTF-8")
 	put("dumid_header",{})
-	put("dumid_choose",{continue=continue,twitter=opts_twitter.key,facebook=opts_facebook.key})
+	put("dumid_choose",{continue=continue,twitter=srv.opts("twitter","key"),facebook=srv.opts("facebook","key")})
 	put("dumid_footer",{})
 	
 end
@@ -210,7 +211,9 @@ local put=make_put(srv)
 		assert(fb_code,"need facebook code")
 
 -- use the code to get a token	
-		local got=fetch.get("https://graph.facebook.com/oauth/access_token?client_id="..(opts_facebook.id).."&redirect_uri="..oauth.esc(srv.url).."&client_secret="..(opts_facebook.secret).."&code="..oauth.esc(fb_code))
+		local got=fetch.get("https://graph.facebook.com/oauth/access_token?client_id="..
+			(srv.opts("facebook","id")or"").."&redirect_uri="..oauth.esc(srv.url).."&client_secret="..
+			(srv.opts("facebook","secret")or"").."&code="..oauth.esc(fb_code))
 		
 		local fbtoken=oauth.decode(got.body)
 		local token=fbtoken.access_token
@@ -261,14 +264,14 @@ local put=make_put(srv)
 		
 		local vars={}
 		vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
-		vars.oauth_consumer_key = opts_twitter.key
+		vars.oauth_consumer_key = srv.opts("twitter","key")
 		vars.oauth_signature_method="HMAC-SHA1"
 		vars.oauth_version="1.0"
 		vars.oauth_token=gots.oauth_token
 		vars.oauth_verifier=srv.gets.oauth_verifier
 	
 		local k,q = oauth.build(vars,{post="GET",url=baseurl,
-			api_secret=opts_twitter.secret,tok_secret=gots.oauth_token_secret})
+			api_secret=osrv.opts("twitter","secret"),tok_secret=gots.oauth_token_secret})
 		
 		local got=fetch.get(baseurl.."?"..q) -- simple get from internets		
 		local data=oauth.decode(got.body or "")
@@ -292,7 +295,8 @@ local put=make_put(srv)
 	end
 	
 	if email then -- try and load or create a new user by email
-		if opts_users_admin[email] then admin=true end -- set admin flag to true for these users
+
+		if srv.opts("users","admin",email) then admin=true end -- set admin flag to true for these users
 
 		for retry=1,10 do -- get or create user in database
 			

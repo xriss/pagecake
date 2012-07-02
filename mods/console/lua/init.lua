@@ -27,8 +27,8 @@ local html=require("console.html")
 --
 -- Which can be overeiden in the global table opts
 --
-local opts_mods_console={}
-if opts and opts.mods and opts.mods.console then opts_mods_console=opts.mods.console end
+
+
 
 module("console")
 
@@ -70,7 +70,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	srv.set_mimetype("text/html")
 	put("header",{user=user})
 	
-	put("console_form",{output=srv.posts.output or "",input=srv.posts.input or opts_mods_console.input or ""})
+	put("console_form",{output=srv.posts.output or "",input=srv.posts.input or srv.opts("mods","console","input") or ""})
 	
 	put("footer",{})
 	

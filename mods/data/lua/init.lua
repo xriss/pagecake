@@ -35,7 +35,7 @@ local file=require("data.file")
 
 
 -- our options
-local opts_mods_blog={} or ( opts and opts.mods and opts.mods.blog )
+
 
 
 local LAYER_PUBLISHED = 0

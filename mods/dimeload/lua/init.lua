@@ -33,9 +33,6 @@ local wakapages=require("waka.pages")
 local comments=require("note.comments")
 
 
--- opts
-local opts_mods_profile=(opts and opts.mods and opts.mods.profile) or {}
-
 module("dimeload")
 
 local function make_get_put(srv)

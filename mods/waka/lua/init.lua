@@ -39,8 +39,8 @@ local comments=require("note.comments")
 --
 -- Which can be overeiden in the global table opts
 --
-local opts_mods_waka={}
-if opts and opts.mods and opts.mods.waka then opts_mods_waka=opts.mods.waka end
+
+
 
 module("waka")
 local function make_put(srv)

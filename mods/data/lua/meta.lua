@@ -31,8 +31,8 @@ local html=require("blog.html")
 --
 -- Which can be overidden in the global table opts
 --
-local opts_mods_data={}
-if opts and opts.mods and opts.mods.data then opts_mods_data=opts.mods.data end
+
+
 
 module("data.meta")
 local _M=require(...)

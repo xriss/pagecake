@@ -28,7 +28,7 @@ local serialize=wet_string.serialize
 
 
 -- opts
-local opts_mods_note=(opts and opts.mods and opts.mods.note) or {}
+
 
 module("mirror.import")
 --[[

@@ -39,7 +39,7 @@ local comments=require("note.comments")
 
 
 -- opts
-local opts_mods_comic=(opts and opts.mods and opts.mods.comic) or {}
+
 
 module("comic")
 
@@ -341,7 +341,7 @@ function waka_changed(srv,page)
 	local id=tostring(page.key.id)
 
 	local doit=false
-	for i,n in ipairs(opts_mods_comic.groups or {}) do
+	for i,n in ipairs(srv.opts("mods","comic","groups") or {}) do
 	
 		local check="/"..n.."/"
 		
