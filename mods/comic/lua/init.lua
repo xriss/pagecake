@@ -52,6 +52,27 @@ local function make_get_put(srv)
 	return  get , function(a,b) srv.put(get(a,b)) end
 end
 
+function get_comic_stash(srv,v)
+
+	local sname="comic="..v.id.."&type=links&v1"
+
+	local cstash=stash.get(srv,sname)
+	if not cstash then
+		cstash={}
+		local function gcache(v) return v and v.cache end
+
+		cstash.cfirst=gcache(comics.list(srv,{limit=1,sort="+pubdate"})[1])
+		cstash.clast=gcache(comics.list(srv,{limit=1,sort="-pubdate"})[1])
+
+		cstash.cprev=gcache(comics.list(srv,{limit=1,sort="-pubdate",["<pubdate"]=v.pubdate})[1])
+		cstash.cnext=gcache(comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=v.pubdate})[1])
+		
+		cstash.crandom=gcache(comics.list(srv,{limit=1,offset=math.random(1,100),sort="-pubdate"})[1])
+
+		stash.put(srv,sname,cstash)
+	end
+	return cstash
+end
 -----------------------------------------------------------------------------
 --
 -- the serv function, where the action happens.
@@ -116,25 +137,8 @@ local get,put=make_get_put(srv)
 			group=list[1].cache.group
 			title=list[1].cache.title
 			plate_comic="comic_inpage"
-			local pubdate=list[1].cache.pubdate
-			local rand=list[1].cache.random
-			local sname="comic="..list[1].cache.id.."&type=links&v1"
 			
-			cstash=stash.get(srv,sname)
-			if not cstash then
-				cstash={}
-				local function gcache(v) return v and v.cache end
-
-				cstash.cfirst=gcache(comics.list(srv,{limit=1,sort="+pubdate"})[1])
-				cstash.clast=gcache(comics.list(srv,{limit=1,sort="-pubdate"})[1])
-
-				cstash.cprev=gcache(comics.list(srv,{limit=1,sort="-pubdate",["<pubdate"]=pubdate})[1])
-				cstash.cnext=gcache(comics.list(srv,{limit=1,sort="+pubdate",[">pubdate"]=pubdate})[1])
-				
-				cstash.crandom=gcache(comics.list(srv,{limit=1,offset=math.random(1,100),sort="-pubdate"})[1])
-
-				stash.put(srv,sname,cstash)
-			end
+			cstash=get_comic_stash(srv,list[1].cache)
 			
 			url_local="/comic/"..comicname
 			url_waka=group.."/"..comicname
@@ -314,12 +318,23 @@ local get,put=make_get_put(srv)
 		c.date=os.date("%Y-%m-%d %H:%M:%S",c.published)
 		c.link="/comic/"..c.name
 	
+		if #list==1 then -- special extras for single comic
+			
+			local cstash=get_comic_stash(srv,c)
+			for n,d in pairs(cstash) do
+				c[n]=d
+			end
+			c.cprev=c.cprev or c
+			c.cnext=c.cnext or c
+		end
+
 		if type(opts.hook) == "function" then -- fix up each item?
 			opts.hook(v,{class="comic"})
 		end
 		
 		ret[#ret+1]=c
 	end
+	
 	
 	return ret
 		
