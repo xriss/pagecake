@@ -96,7 +96,7 @@ header=function(d)
 
 
 	for _,v in ipairs{d.srv or {},d,srv.opts("head") or {} } do
-		
+				
 		if type(v.extra_css)=="table" then
 			for i,v in ipairs(v.extra_css) do
 				d.extra=d.extra..[[<link rel="stylesheet" type="text/css" href="]]..v..[[" />
@@ -122,6 +122,13 @@ header=function(d)
 		if v.blogurl then --blogurl
 			d.blogurl=v.blogurl
 		end
+		
+		if type(v.extra)=="table" then -- any old random extra junk can go here
+			for i,v in ipairs(v.extra) do
+				d.extra=d.extra..v
+			end
+		end
+
 	end
 	
 	d.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"
