@@ -18,7 +18,8 @@ local opts=opts
 local ngx=ngx
 
 module("base.html")
-
+local _M=require("base.html")
+local _M=require("base.html")
 
 -----------------------------------------------------------------------------
 --
@@ -474,6 +475,7 @@ function import(tab)
 	for _,n in ipairs{
 						"get_plate_orig",
 						"get_plate",
+						"get_html",
 						"rough_english_duration",
 						"num_to_thousands",
 						"header",
@@ -491,5 +493,5 @@ function import(tab)
 
 end
 
-
+import(_M)
 

@@ -6,7 +6,7 @@ local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 local url_esc=wet_html.url_esc
 
-local html=require("html")
+local html=require("base.html")
 
 
 module("port.html")

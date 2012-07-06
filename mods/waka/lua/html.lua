@@ -7,7 +7,7 @@ local replace=wet_html.replace
 local url_esc=wet_html.url_esc
 local html_esc=wet_html.esc
 
-local html=require("html")
+local html=require("base.html")
 
 module("waka.html")
 

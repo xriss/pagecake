@@ -8,7 +8,7 @@ local url_esc=wet_html.url_esc
 
 local wet_string=require("wetgenes.string")
 
-local html=require("html")
+local html=require("base.html")
 
 local opts=require("opts")
 

@@ -7,7 +7,7 @@ local sys=require("wetgenes.www.any.sys")
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 
-local html=require("html")
+local html=require("base.html")
 
 module("dimeload.html")
 

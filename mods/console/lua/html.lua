@@ -6,7 +6,7 @@ local sys=require("wetgenes.www.any.sys")
 
 local wet_html=require("wetgenes.html")
 
-local html=require("html")
+local html=require("base.html")
 
 
 module("console.html")
