@@ -444,7 +444,8 @@ function import(tab)
 	for i=1,#chunks do local v=chunks[i] -- copy into plates lookup
 		tab.plates[v.name]=v.text
 	end
-	
+
+-- these are shoved into the global, well module, name space
 	function get_html(n,d)
 		return ( tab[n](d) )
 	end
