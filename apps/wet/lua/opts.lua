@@ -7,7 +7,11 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"4lfa%.com","4lfa"},
+	{"cake","cake"},			-- any domain with cake in it
+	{"catch","catch"},			-- any domain with catch in it
+
+	{"lo4d","lo4d"},			-- any domain with lo4d in it
+	{"4lfa","4lfa"},			-- any domain with 4lfa in it (the last vhost is also the default)
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
@@ -26,10 +30,10 @@ local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
 
-bootstrapp_version=20110121 -- hand bump to todays date on release
+bootstrapp_version=20120706 -- hand bump to todays date on release
 
 mail={}
-mail.from="spam@wet.appspotmail.com"
+mail.from="spam@wetgenes.com"
 
 urls={}
 
@@ -47,9 +51,8 @@ users={admin={
 }}
 
 
-local app_name=nil -- best not to use an appname, unless we run multiple apps on one site 
-
--- look through the mods and save the #opts of each mod used for easy lookup
+-- look through the mods and save the #opts of each mod used, this is for easy lookup in mod code
+-- add assumes you are only using each mod *once* per site
 local function find_mods(map)
 	local mods={}
 	-- find each mod
@@ -91,9 +94,11 @@ local function default_map()
 							url="/",
 						},
 											
+--[[
 	["wiki"]		=	{			-- redirect
-							["#redirect"]	=	"/", 		-- remap this old url
+							["#redirect"]	=	"/", 		-- remap this *old* wiki url to the root
 						},
+]]
 
 	}
 	add_map(map,"admin")
@@ -121,19 +126,20 @@ map=default_map()
 --add_map("chan")
 --add_map("shoop")
 
-local forums={
-	{
-		id="spam",
-		title="General off topic posts.",
-	},
-}
-for i,v in ipairs(forums) do -- create id lookups as well
-	forums[v.id]=v
-end
-add_map(map,"forum")["#opts"].forums=forums
+
+-- disable forum code for now...
+	local forums={
+		{
+			id="spam",
+			title="General off topic posts.",
+		},
+	}
+	for i,v in ipairs(forums) do -- create id lookups as well
+		forums[v.id]=v
+	end
+--add_map(map,"forum")["#opts"].forums=forums
 
 
---add_map(map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"}
 
 mods=find_mods(map) -- build mods pointers from the map for default app
 
@@ -148,10 +154,12 @@ if ngx then
 
 		v.map=default_map()
 
-		if n=="4lfa" then -- extra site setup, no more admin settings?
+		if n=="4lfa" then -- extra site setup
 		
-			add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","tshit","wetcoma","teh"}
+			add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma","teh"}
 			
+		elseif n=="gamecake" then -- extra site setup
+		
 		end
 
 		v.lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...

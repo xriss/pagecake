@@ -124,8 +124,8 @@ local ext
 				ext="html"
 			elseif ap[#ap]=="data" then -- just this pages raw page data as text
 				ext="data"
-			elseif ap[#ap]=="frame" then -- special version of this page intended to be embeded in an iframe
-				ext="frame"
+			elseif ap[#ap]=="frame" or ap[#ap]=="xml" then -- special version of this page intended to be embeded in an iframe
+				ext="xml"
 			elseif ap[#ap]=="dbg" then -- a debug json dump of data(inherited)
 				ext="dbg"
 			end
@@ -269,9 +269,9 @@ local ext
 		srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 		srv.put(refined.css or "")
 		
-	elseif ext=="frame" then -- special iframe render mode
+	elseif ext=="xml" then -- special full control frameless render mode
 	
-		srv.set_mimetype("text/html; charset=UTF-8")
+		srv.set_mimetype((pageopts.mimetype or "text/html").."; charset=UTF-8")
 		put(macro_replace(refined.frame or [[
 		<h1>{title}</h1>
 		{body}
