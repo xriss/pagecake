@@ -156,13 +156,13 @@ if ngx then
 
 		if n=="4lfa" then -- extra site setup
 		
-			add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma","teh"}
+			add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
 			
 		elseif n=="gamecake" then -- extra site setup
 		
 		end
 
-		v.lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
+		v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost
 		if v.lua then
 			local f=loadstring(v.lua)
 			if f then

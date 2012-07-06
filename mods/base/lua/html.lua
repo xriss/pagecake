@@ -92,8 +92,6 @@ header=function(d)
 	d.extra=(d.srv and d.srv.extra or "") .. ( d.extra or "" )
 	
 	d.favicon="/favicon.ico"
-	d.blogtitle="blog"
-	d.blogurl="/blog/.atom"
 
 
 	for _,v in ipairs{d.srv or {},d,srv.opts("head") or {} } do
@@ -117,12 +115,7 @@ header=function(d)
 		if v.favicon then --favicon link
 			d.favicon=v.favicon
 		end
-		if v.blogtitle then --blogtitle
-			d.blogtitle=v.blogtitle
-		end
-		if v.blogurl then --blogurl
-			d.blogurl=v.blogurl
-		end
+
 		
 		if type(v.extra)=="table" then -- any old random extra junk can go here
 			for i,v in ipairs(v.extra) do
@@ -174,6 +167,10 @@ header=function(d)
 	if d.srv and d.srv.pageopts and d.srv.pageopts.body=="clean" then
 		body_junk=""
 	end
+
+-- use the extra headers to replace this 
+--<link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
+
 	
 	local p=get_plate_orig("header",[[
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -184,8 +181,6 @@ header=function(d)
 <title>{title}</title>
 
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
-
-<link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
 
 <link rel="shortcut icon" href="{favicon}" />
 
