@@ -7,11 +7,13 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"cake","cake"},			-- any domain with cake in it
-	{"catch","catch"},			-- any domain with catch in it
+	{"cake",	"cake"},			-- any domain with cake in it
+	{"catch",	"catch"},			-- any domain with catch in it
 
-	{"lo4d","lo4d"},			-- any domain with lo4d in it
-	{"4lfa","4lfa"},			-- any domain with 4lfa in it (the last vhost is also the default)
+	{"xixs",	"xixs"},			-- any domain with xixs in it
+	{"esyou",	"esyou"},			-- any domain with esyou in it
+	{"lo4d",	"lo4d"},			-- any domain with lo4d in it
+	{"4lfa",	"4lfa"},			-- any domain with 4lfa in it (the last vhost is also the default)
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
