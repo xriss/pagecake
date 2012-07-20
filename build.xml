@@ -57,34 +57,19 @@
   <property name="war.dir" location=".war"/>
 
   <target name="war" depends="compile" description="Assemble the application directory">
-    <mkdir dir="${war.dir}/WEB-INF"/>
     <copy todir="${war.dir}" includeEmptyDirs="false" >
-      <fileset dir="html">
-        <exclude name="lua/*"/>
-      </fileset>
+      <fileset dir="public"> </fileset>
     </copy>
-    <copy todir="${war.dir}" includeEmptyDirs="false" overwrite="true">
-      <fileset dir="html">
-        <include name="WEB-INF/*"/>
-      </fileset>
+    <copy todir="${war.dir}/WEB-INF" includeEmptyDirs="false" overwrite="true" >
+      <fileset dir="private/WEB-INF"> </fileset>
     </copy>
-    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
-      <fileset dir="html/lua"> </fileset>
-    </copy>
-    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
+    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" overwrite="true" >
       <fileset dir="../../../anlua/bin/lua"> </fileset>
-    </copy>
-<!--
-    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
-      <fileset dir="../../../anlua/lua">  </fileset>
-    </copy>
--->
-    <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" >
-      <fileset dir="html/lua">  </fileset>
+      <fileset dir="lua">  </fileset>
     </copy>
     <copy todir="${war.dir}/WEB-INF/lib" flatten="true" includeEmptyDirs="false">
       <fileset dir="${appengine.sdk}/lib/user"> <include name="**/*.jar"/> </fileset>
-      <fileset dir="../../../anlua/class">            <include name="**/*.jar"/> </fileset>
+      <fileset dir="../../../anlua/class">      <include name="**/*.jar"/> </fileset>
     </copy>
 
 	<for param="file"> 

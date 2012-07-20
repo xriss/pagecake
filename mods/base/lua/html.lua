@@ -77,7 +77,7 @@ end
 -----------------------------------------------------------------------------
 header=function(d)
 
-	local srv=srv or ngx.ctx or {}
+	local srv=d.srv or (ngx and ngx.ctx) or {}
 	
 	if (srv.opts("html","bar") or "head") =="head" then
 		d.bar=get_html("aelua_bar",d)
@@ -229,7 +229,7 @@ end
 -----------------------------------------------------------------------------
 footer=function(d)
 
-	local srv=srv or ngx.ctx or {} -- hax so we have a srv
+	local srv=d.srv or (ngx and ngx.ctx) or {} -- hax so we have a srv
 
 	local cache=require("wetgenes.www.any.cache")
 	local data=require("wetgenes.www.any.data")

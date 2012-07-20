@@ -46,6 +46,18 @@ end
 -----------------------------------------------------------------------------
 function serv(srv)
 
+	if not ngx then -- gae hax tbh
+	
+		srv.opts=function(...)
+			local t=opts
+			for i,v in ipairs({...}) do
+				t=t and t[v]
+			end
+			return t
+		end
+		
+	end
+
 	srv.check_referer=check_referer
 
 dat.countzero()
