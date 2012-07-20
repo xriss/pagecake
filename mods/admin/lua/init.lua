@@ -133,6 +133,10 @@ local put=make_put(srv)
 				
 				pcall(function() require("comic") end) -- make sure we have hooks?
 				
+			elseif j.key.kind=="blog.pages" then
+			
+				d=require("blog.pages")
+
 			elseif j.key.kind=="note.comments" then
 			
 				d=require("note.comments")

@@ -13,7 +13,8 @@ require_config_dest_sess()
 
 
 
-	function dirdata(d)
+	function dirblog(d)
+	
 		for id in lfs.dir(d) do
 			local fname=d.."/"..id
 			
@@ -32,35 +33,29 @@ require_config_dest_sess()
 			
 			if a.mode=="file" then
 			
-				if id2==".data" then
+				if id2==".lua" then
 				
-					local dat=readfile(fname)
-					local met=readfile(d.."/"..id1..".lua")
-					
-					local filename=(d.."/"..id1):sub(#("cache/data")+2)
-					
-	put("Data "..filename.." "..#dat.."\n")
-	
-					local m=wsand.lson(met)
-					local j=json.decode(m.props.json)
---put(wstr.serialize(m))
+put("Editing "..id1.."\n")
 
-				upload_data({
-					submit={data="Upload"},
-					dataid={data=filename},
-					filename={data=j.filename},
-					mimetype={data=m.props.mimetype},
-					filedata={mimetype="application/octet-stream;charset=utf-8",encoding="binary",data=dat,filename=j.filename},
-					})
+					local met=readfile(d.."/"..id1..".lua")
+					local m=wsand.lson(met)
+					m.props.tags=nil
+					local j=json.decode(m.props.json)
 					
+					local js=json.encode(m)
+					upload_entity({
+						json={data=js},
+						})
 				end
 				
+--[[
 			elseif a.mode=="directory" then -- subdir
 				if id~="." and id~=".." then -- ignore these
---					dirdata(fname)
+					dirblog(fname)
 				end
+]]
 			end
 		end
 	end
-	dirdata("cache/data") -- recurse downwards
+	dirblog("cache/blog") -- recurse downwards
 

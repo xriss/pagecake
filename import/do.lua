@@ -16,6 +16,8 @@ if cmd=="read" then
 		dofile("do.read.4lfa.lua")
 	elseif form=="fud" then
 		dofile("do.read.fud.lua")
+	elseif form=="blog" then
+		dofile("do.read.blog.lua")
 	elseif form=="waka" then
 		dofile("do.read.waka.lua")
 	elseif form=="data" then
@@ -32,6 +34,8 @@ elseif cmd=="write" then
 		dofile("do.write.note.lua")
 	elseif form=="waka" then
 		dofile("do.write.waka.lua")
+	elseif form=="blog" then
+		dofile("do.write.blog.lua")
 	elseif form=="data" then
 		dofile("do.write.data.lua")
 	end
@@ -46,6 +50,7 @@ Please choose one of the following to perform
 
 clear -- clear all data in the local cache do this at the start unless you want to merge sites
 read -- read data from a site into the local cache
+read blog -- read blog data
 read waka -- read waka data
 read note -- read note data
 read data -- read data data
@@ -56,6 +61,7 @@ write comic -- upload some comics
 write note -- upload notes/comments
 write data -- upload data
 write waka -- upload waka
+write blog -- upload blog
 ]])
 
 end

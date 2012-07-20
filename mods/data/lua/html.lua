@@ -79,7 +79,7 @@ data_list_item=function(d)
 	end
 	return replace([[
 <div>
-<a href="/data//edit/{it.cache.id}" >edit</a> {example} <a href="/data{it.cache.pubname}">{it.cache.pubname}</a>
+<a href="/data//edit/{it.cache.id}" >edit</a> {example} {it.cache.size} <a href="/data{it.cache.pubname}">{it.cache.pubname}</a>
 </div>
 ]],d)
 

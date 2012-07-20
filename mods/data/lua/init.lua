@@ -17,6 +17,7 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
+local wstr=wet_string
 local replace=wet_string.replace
 local macro_replace=wet_string.macro_replace
 local trim=wet_string.trim
@@ -202,7 +203,7 @@ local get,put=make_get_put(srv)
 			end
 		end
 		
-		posts["filedata"]=srv.uploads["filedata"] -- uploaded file
+		posts["filedata"]=srv.uploads["filedata"] or srv.posts["filedata"] -- uploaded file
 
 		for i,v in pairs({"filename","mimetype","submit"}) do
 			if posts[v] then posts[v]=trim(posts[v]) end
@@ -220,9 +221,11 @@ local get,put=make_get_put(srv)
 			local dat={}
 			dat.id=( (posts.dataid~="") and posts.dataid ) or 0
 			
-			dat.data=posts.filedata and posts.filedata.data
-			dat.size=posts.filedata and posts.filedata.size
-			dat.name=posts.filedata and posts.filedata.name
+			local fd=posts.filedata
+		
+			dat.data=(fd and fd.data) or fd
+			dat.size=(fd and fd.size) or (fd and #fd)
+			dat.name=(fd and fd.name) or posts.filename
 			dat.owner=user.cache.email
 			
 			if posts.mimetype and posts.mimetype~="" then dat.mimetype=posts.mimetype end

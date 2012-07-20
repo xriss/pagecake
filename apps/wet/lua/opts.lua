@@ -10,6 +10,8 @@ vhosts_map={
 	{"cake",	"cake"},			-- any domain with cake in it
 	{"catch",	"catch"},			-- any domain with catch in it
 
+	{"cog",		"cog"},				-- any domain with cog in it
+
 	{"xixs",	"xixs"},			-- any domain with xixs in it
 	{"esyou",	"esyou"},			-- any domain with esyou in it
 	{"lo4d",	"lo4d"},			-- any domain with lo4d in it

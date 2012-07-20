@@ -256,7 +256,7 @@ function cache_get_data(srv,id)
 		return ret
 	else
 		ent=get(srv,id)
-		if ent.cache.nextkey==0 then -- we can cache this as it is small
+		if ent and ent.cache.nextkey==0 then -- we can cache this as it is small
 			ret={cache={data=ent.cache.data,mimetype=ent.cache.mimetype,nextkey=0}}
 			cache.put(srv,ck,ret,60*60)
 			return ret
