@@ -21,7 +21,7 @@ while docont do
 	b=geturl(config.dest.."admin/api",{cmd="read",limit=limit,offset=offset,kind="note.comments"})
 	t=json.decode(b.body)
 	
-	for i,v in ipairs(t.list) do
+	for i,v in ipairs(t.list or {}) do
 		if v.props.group then
 			if tonumber(v.props.group)>=0 then -- ignore meta
 			
