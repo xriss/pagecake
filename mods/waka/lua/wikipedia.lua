@@ -15,6 +15,7 @@ local cache=require("wetgenes.www.any.cache")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local json=require("wetgenes.json")
+local wstr=require("wetgenes.string")
 
 local simpxml=require("wetgenes.simpxml")
 
@@ -144,12 +145,17 @@ function getwaka(srv,opts)
 
 -- find name
 				local name=simpxml.descendent(infobox,"tr")
-				if name then name=simpxml.descendent(name,"i") end
-				if name then info.name=name[1] end
+				while name[1] do
+					name=name[1]
+				end
+				if type(name)=="string" then info.name=name end
+--log(wstr.dump(name))
 				
 			end
 			
 			if not info.name then info.name=opts.name:gsub("_"," ") end
+			
+--			info.name=opts.name:gsub("_"," ")
 
 -- debug
 --[[
