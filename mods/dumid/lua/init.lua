@@ -123,7 +123,7 @@ local put=make_put(srv)
 	elseif dat=="twitter" then
 	
 		local callback=srv.url_base.."callback/twitter/?continue="..wet_html.url_esc(continue)
-		local baseurl="https://twitter.com/oauth/request_token"
+		local baseurl="http://twitter.com/oauth/request_token"
 
 		local vars={}
 		vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
@@ -260,7 +260,7 @@ local put=make_put(srv)
 		
 -- ok now we get to ask twitter for an actual username using this junk we have collected so far
 
-		local baseurl="https://twitter.com/oauth/access_token"
+		local baseurl="http://twitter.com/oauth/access_token"
 		
 		local vars={}
 		vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
@@ -271,7 +271,7 @@ local put=make_put(srv)
 		vars.oauth_verifier=srv.gets.oauth_verifier
 	
 		local k,q = oauth.build(vars,{post="GET",url=baseurl,
-			api_secret=osrv.opts("twitter","secret"),tok_secret=gots.oauth_token_secret})
+			api_secret=srv.opts("twitter","secret"),tok_secret=gots.oauth_token_secret})
 		
 		local got=fetch.get(baseurl.."?"..q) -- simple get from internets		
 		local data=oauth.decode(got.body or "")
