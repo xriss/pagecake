@@ -84,6 +84,7 @@ function get(srv,opts)
 			log(err)
 		end
 		if datastr then datastr=datastr.body end -- check
+log("DATASTR : ",datastr)	
 		if type(datastr)=="string" then -- trim some junk get string within the outermost {}
 			datastr=datastr:match("^[^{]*(.-)[^}]*$")
 		end
@@ -93,7 +94,8 @@ function get(srv,opts)
 --	local origsize=0
 	
 	if datastr then
-	
+
+log("DATASTR : ",datastr)	
 --		origsize=datastr:len() or 0
 		local suc
 		suc,data=pcall(function() return json.decode(datastr) end) -- convert from json, hopefully

@@ -93,6 +93,17 @@ fetch.countzero()
 
 	end
 
+-- check for sitedown fail whale
+	local cmd=srv.url_slash[4]
+	if cmd~="admin" and cmd~="dumid" then -- admin and dumbid need to *always* work so we can login.
+		local sitedown=srv.opts("sitedown")
+		if sitedown then
+			srv.set_mimetype("text/html; charset=UTF-8")
+			srv.put(sitedown)
+			return
+		end
+	end
+
 	
 	local lookup=srv.opts("map")
 	local cmd
