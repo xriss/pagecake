@@ -118,22 +118,10 @@ local ext
 	if aa[#aa] then
 		local ap=str_split(".",aa[#aa])
 		if #ap>1 and ap[#ap] then
-			if ap[#ap]=="css" then -- css
-				ext="css"
-			elseif ap[#ap]=="html" then -- just the pages html 
-				ext="html"
-			elseif ap[#ap]=="data" then -- just this pages raw page data as text
-				ext="data"
-			elseif ap[#ap]=="frame" or ap[#ap]=="xml" then -- special version of this page intended to be embeded in an iframe
-				ext="xml"
-			elseif ap[#ap]=="dbg" then -- a debug json dump of data(inherited)
-				ext="dbg"
-			end
-			if ext then
-				ap[#ap]=nil
-				aa[#aa]=table.concat(ap,".")
-				if aa[#aa]=="" then aa[#aa]=nil end-- kill any trailing slash we may have just created
-			end
+			ext=ap[#ap]
+			ap[#ap]=nil
+			aa[#aa]=table.concat(ap,".")
+			if aa[#aa]=="" then aa[#aa]=nil end-- kill any trailing slash we may have just created
 		end
 	end
 	
@@ -286,7 +274,12 @@ local ext
 
 		srv.set_mimetype("text/plain; charset=UTF-8")
 		put( json.encode(chunks) )
-			
+	
+	elseif ext and chunks[ext] then -- generic extension dump using named chunk
+	
+		srv.set_mimetype(chunks[ext].opts.mimetype or "text/plain; charset=UTF-8")
+		put(macro_replace(refined[ext],refined))
+		
 	else
 	
 		srv.set_mimetype("text/html; charset=UTF-8")

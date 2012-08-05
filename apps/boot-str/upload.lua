@@ -9,7 +9,7 @@ local s=[[<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
   <version>1</version>
   <threadsafe>true</threadsafe>
 </appengine-web-app>]]
-	local fp=assert(io.open("html/WEB-INF/appengine-web.xml","w"))
+	local fp=assert(io.open("private/WEB-INF/appengine-web.xml","w"))
 	fp:write(s)
 	fp:close();
 end
