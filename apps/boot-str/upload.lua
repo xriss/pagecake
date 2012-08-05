@@ -15,8 +15,11 @@ local s=[[<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
 end
 
 sites={
+"wet",
+"esyou",
 "comicbang",
 "cake-or-games",
+"leeds-hack",
 "boot-str"}
 
 if args[1] then sites=args end
