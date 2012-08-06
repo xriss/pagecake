@@ -110,12 +110,7 @@ header=function(d)
 		end
 		if v.css then --embed some raw css
 			d.extra=d.extra.."<style type=\"text/css\">"..v.css.."</style>"
-		end
-		
-		if v.favicon then --favicon link
-			d.favicon=v.favicon
-		end
-
+		end		
 		
 		if type(v.extra)=="table" then -- any old random extra junk can go here
 			for i,v in ipairs(v.extra) do
@@ -123,6 +118,10 @@ header=function(d)
 			end
 		end
 
+	end
+
+	if srv.opts("head","favicon") then
+		d.favicon=srv.opts("head","favicon")
 	end
 	
 	d.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"

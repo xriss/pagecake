@@ -19,6 +19,7 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local ngx=ngx
 
+local wstr=require("wetgenes.string")
 local wet_string=require("wetgenes.string")
 local trim=wet_string.trim
 local str_split=wet_string.str_split
@@ -211,7 +212,7 @@ local posts=make_posts(srv)
 					it=v.cache,
 					text=atom_escape(vars.media..vars.text..vars.script),
 					title=atom_escape(s),
-					link=srv.url_domain..note_url.."#wetnote"..v.cache.id,
+					link=srv.url_domain..note_url.."#wetnote"..wstr.alpha_munge(v.cache.id),
 					})
 			end
 			put("note_atom_foot",{})
@@ -319,7 +320,7 @@ local get,put=make_get_put(srv)
 			c.title=""
 			c.body=wet_waka.waka_to_html(c.text,{base_url="/",escape_html=true})
 			
-			c.link=c.url.."?wetnote="..c.id.."#wetnote"..c.id
+			c.link=c.url.."?wetnote="..c.id.."#wetnote"..wstr.alpha_munge(c.id)
 			
 			c.author_name=c.cache.user.name
 			c.author_icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.cache.user) )		

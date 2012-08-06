@@ -585,8 +585,9 @@ This is the #body of your post and can contain any html you wish.
 -- get or reuse a short url from goo.gl
 
 				local long_url=srv.url_base..ent.cache.pubname:sub(2)
-				local short_url
+				local short_url=long_url
 				
+--[[
 				if ent.cache.short_url then
 					short_url=ent.cache.short_url
 				else
@@ -596,6 +597,7 @@ This is the #body of your post and can contain any html you wish.
 							return true
 						end)
 				end
+]]
 
 -- finally add a nag to pester us to twat it
 				local nag={}
@@ -608,7 +610,7 @@ This is the #body of your post and can contain any html you wish.
 				s=s:gsub("(%b<>)","") -- kill any html tags
 				s=s:gsub("%s+"," ") -- replace any range of whitespace with a single space
 				s=wet_string.trim(s)
-				s=s:sub(1,(140-1)-#short_url) -- reduce to 140ish chars, dont care if we chop a word
+				s=s:sub(1,(140-1)-20) -- reduce to 140ish chars, dont care if we chop a word
 				s=wet_string.trim(s)
 				
 				nag.c140_base=s -- some base text without the url

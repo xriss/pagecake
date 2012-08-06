@@ -553,23 +553,24 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 
 				
 -- try and get a short url from goo.gl and save it into the comment for later use
+-- nah twatter will shorten stuff itself it needs 20chars
 
-				local long_url=srv.url_domain..tab.url.."#wetnote"..wetnoteid
-				local short_url=goo.shorten(long_url)
+				local long_url=srv.url_domain..tab.url.."#wetnote"..wstr.alpha_munge(wetnoteid)
+--				local short_url=goo.shorten(long_url)
 				
-				update(srv,posted,function(srv,ent)
-						ent.cache.short_url=short_url
-						return true
-					end)
+--				update(srv,posted,function(srv,ent)
+--						ent.cache.short_url=short_url
+--						return true
+--					end)
 
 -- finally add a nag to pester us to twat it
 				local nag={}
 				
 				nag.id="note"
 				nag.url=long_url
-				nag.short_url=short_url
+				nag.short_url=long_url
 				
-				local xlen=(140-2)-#short_url -- this is one more than we really want
+				local xlen=(140-2)-20 -- this is one more than we really want
 				local s=c.text
 				s=string.gsub(s,"%s+"," ") -- replace any range of whitespace with a single space
 				s=wstr.trim(s)
@@ -581,7 +582,7 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 				end
 				
 				nag.c140_base=s -- some base text without the url
-				nag.c140=s.." : "..short_url -- add a link on the end to the real content
+				nag.c140=s.." : "..long_url -- add a link on the end to the real content
 				
 				d_nags.save(srv,srv.sess,nag)
 
