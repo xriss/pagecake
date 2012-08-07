@@ -8,6 +8,7 @@ local sys=require("wetgenes.www.any.sys")
 local waka=require("wetgenes.waka")
 local users=require("wetgenes.www.any.users")
 
+local wstr=require("wetgenes.string")
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 local url_esc=wet_html.url_esc
@@ -431,7 +432,8 @@ function import(tab)
 
 	local text=""
 	if sys.file_exists("lua/plates.html") then
-		sys.bytes_to_string(sys.file_read("lua/plates.html"))
+--log("loading plates")
+		text=sys.bytes_to_string(sys.file_read("lua/plates.html")) or ""
 	end
 	local chunks=waka.text_to_chunks(text)
 	

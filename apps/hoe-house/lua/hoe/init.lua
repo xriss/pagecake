@@ -188,7 +188,7 @@ local put=H.put
 	
 	H.cmd_request=nil
 
-	H.user_data_name=H.srv.flavour.."_hoe_"..H.round.key.id -- unique data name for this round
+	H.user_data_name=(H.srv.flavour or "").."_hoe_"..H.round.key.id -- unique data name for this round
 
 	if H.sess and H.user then -- we have a session and user
 	

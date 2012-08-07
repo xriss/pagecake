@@ -67,6 +67,9 @@
       <fileset dir="../../../anlua/bin/lua"> </fileset>
       <fileset dir="lua">  </fileset>
     </copy>
+    <copy todir="${war.dir}/lua" includeEmptyDirs="false" overwrite="true" >
+      <fileset dir="lua">  </fileset>
+    </copy>
     <copy todir="${war.dir}/WEB-INF/lib" flatten="true" includeEmptyDirs="false">
       <fileset dir="${appengine.sdk}/lib/user"> <include name="**/*.jar"/> </fileset>
       <fileset dir="../../../anlua/class">      <include name="**/*.jar"/> </fileset>
