@@ -247,9 +247,9 @@
 						var now_time=(new Date()).getTime();
 						var t=(now_time-start_time)/upd; // grows over time
 						t=(t+frac+num);
-						if(t>300) // max
+						if(t>500) // max
 						{
-							t=300;
+							t=500;
 							clearInterval(tid);
 						}
 						$(nam).text(t.toFixed(2));

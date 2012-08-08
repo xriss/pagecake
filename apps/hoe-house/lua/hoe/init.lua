@@ -368,12 +368,12 @@ local put=H.put
 			if i==1 then
 				topscore=v.cache.score
 				if topscore<1 then topscore=1 end -- sane
-				c=10
+				c=5
 			else
-				c=math.floor(10*v.cache.score/topscore)
+				c=math.floor(5*v.cache.score/topscore)
 			end
-			if c>10 then c=10 end -- sane
-			if c<0  then c=0  end -- sane
+			if c>5 then c=5 end -- sane
+			if c<0 then c=0 end -- sane
 			if c>0 then
 				if string.sub(v.cache.email,-endlen)==ending then
 					crowns="+"..c
@@ -426,6 +426,7 @@ local put=H.put
 		result.hoes=0
 		result.bros=0
 		result.bux=0
+		result.gloves=0
 		
 		local total=0
 		
@@ -440,11 +441,15 @@ local put=H.put
 		if rep<1 then rep=1 end
 		if rep>20 then rep=20 end
 		xwork=rep
+
+
 		for i=1,rep do -- repeat a few times, yes this makes for bad integration...
 			result.energy=result.energy-1
-					
+
 			local houses=tonumber(p.houses)
-			local hoes=tonumber(p.hoes)
+			local gloves=tonumber(p.gloves)+result.gloves
+			local hoes=tonumber(p.hoes)+result.hoes
+					
 			local crowd=hoes/(houses*50) -- how much space we have for hoes, 0 is empty and 1 is full
 			local pay=payout/100
 			local mypay=1-pay
@@ -453,6 +458,21 @@ local put=H.put
 			if gain<0 then gain=0 end
 			gain = gain * pay * 1.0 -- also adjust by payout 
 			
+			local loss=(crowd) * mypay
+
+			local tbux=math.floor((50 + 450*math.random()) * hoes) -- how much is earned
+			local tgloves=math.floor(tbux/500)
+			if gloves<tgloves then -- too few gloves
+				result.gloves=result.gloves-gloves
+				tbux=tbux*1.25		-- make moe money
+			else -- we have enough gloves
+				result.gloves=result.gloves-tgloves
+				loss=loss*0.8		-- keep moe hoes
+			end
+			local bux=math.floor(tbux * mypay) -- how much we keep
+			result.bux=result.bux+bux
+			total=total+tbux
+
 			if math.random() < gain then -- we gain a new hoe
 				result.hoes=result.hoes+1
 				if math.random() < gain then -- we also gain a new bro
@@ -460,15 +480,10 @@ local put=H.put
 				end
 			end
 			
-			local loss=(crowd) * mypay
 			if math.random() < loss then -- we lose a hoe
 				result.hoes=result.hoes-1
 			end
 			
-			local tbux=math.floor((50 + 450*math.random()) * hoes) -- how much is earned
-			local bux=math.floor(tbux * mypay) -- how much we keep
-			result.bux=result.bux+bux
-			total=total+tbux
 		end
 		
 		local r=players.update_add(H,H.player,result)

@@ -84,7 +84,7 @@ end
 
 local function default_map()
 	local map={ -- base lookup table 
-	["#index"]		=	"welcome", 
+	["#index"]		=	"hoe", 
 	["#default"]	=	"waka", 		-- no badlinks, everything defaults to a wikipage
 	["#opts"]		=	{
 							url="/",
@@ -130,9 +130,13 @@ map=default_map()
 
 
 add_map(map,"hoe")
+
+-- fox the flavour so it works with old data?
+map["#flavour"]="hoe"
 for n,m in pairs(map) do
-	if m["#opts"] then
-		m["#opts"].flavour="hoe"
+	if	m["#default"]=="waka" or
+		m["#default"]=="blog" then
+		m["#flavour"]="hoe"
 	end
 end
 
@@ -153,13 +157,7 @@ if ngx then
 		if n=="hoe" then -- extra site setup
 		
 			add_map(v.map,"hoe")
-			
-			for n,m in pairs(v.map) do
-				if m["#opts"] then
-					m["#opts"].flavour="hoe"
-				end
-			end
-		
+					
 		end
 
 		v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost

@@ -12,6 +12,7 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
+local wstr=require("wetgenes.string")
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
@@ -111,7 +112,7 @@ function check(H,ent)
 	local r=H.round.cache
 	local c=ent.cache
 		
-	return ent
+	return ent,ok
 end
 
 --------------------------------------------------------------------------------
@@ -268,7 +269,7 @@ end
 --
 --------------------------------------------------------------------------------
 function add_shout(H,tab)
-
+--log("SHOUT0: "..wstr.dump(tab))
 	local e=create(H)
 	local c=e.cache
 	
@@ -283,7 +284,9 @@ function add_shout(H,tab)
 		c.data[i]=v
 	end
 	
+--log("SHOUT1: "..wstr.dump(e))
 	put(H,e)
+--log("SHOUT2: "..wstr.dump(e))
 	
 	return e
 end
@@ -590,6 +593,7 @@ function list(H,opts,t)
 	for i=1,#r.list do local v=r.list[i]
 		dat.build_cache(v)
 	end
+--log(wstr.dump(r))
 
 	return r.list
 end

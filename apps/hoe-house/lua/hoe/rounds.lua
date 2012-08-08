@@ -67,7 +67,7 @@ function create(H)
 	p.endtime=H.srv.time+(p.timestep*4032) -- default game end after about a month of standard ticks
 	-- setting the tick to 1 second gets us the same amount of game time in about 1 hour
 	
-	p.max_energy=300	-- maximum amount of energy a player can have at once
+	p.max_energy=500	-- maximum amount of energy a player can have at once
 						-- energy never, under any cirumstances goes over this number
 	
 	p.state="active" -- a new round starts as active
