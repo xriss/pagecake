@@ -118,6 +118,8 @@ print("test")
 	add_map(map,"blog")
 	add_map(map,"thumbcache")
 
+	add_map(map,"hoe")
+
 	return map
 end
 
