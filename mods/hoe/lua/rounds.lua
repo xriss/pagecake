@@ -31,6 +31,18 @@ local _M=require(...)
 
 default_props=
 {
+	timestep=10, -- 60*10 -- a 10 minute tick, gives 144 ticks a day
+	
+	endtime=-1,
+--	p.endtime=H.srv.time+(p.timestep*4032) -- default game end after about a month of standard ticks
+	-- setting the tick to 1 second gets us the same amount of game time in about 1 hour
+	
+	max_energy=500,	-- maximum amount of energy a player can have at once
+						-- energy never, under any cirumstances goes over this number
+	
+	state="active", -- a new round starts as active
+	
+	players=0, -- number of players in this round
 
 }
 
@@ -102,6 +114,10 @@ function check(srv,ent)
 local H=srv.H
 
 	local c=ent.cache
+	
+	if c.endtime == -1 then -- initial patchup
+		c.endtime=c.created+(c.timestep*8640) -- 10days at 100secs per tick
+	end
 	
 	if c.endtime<H.srv.time then -- round has ended
 		if c.state~="over" then

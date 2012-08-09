@@ -128,6 +128,10 @@ local H=srv.H
 	local r=H.round.cache
 	local c=ent.cache
 	
+	if c.round_id==-1 then -- setup
+		c.round_id=H.round.key.id
+	end
+	
 	local ticks=count_ticks( c.updated , H.srv.time , r.timestep ) -- ticks since player was last updated
 	c.updated=H.srv.time
 	
@@ -341,7 +345,8 @@ end
 function update_add(srv,id,by)
 local H=srv.H
 
-	local f=function(srv,p)
+	local f=function(srv,e)
+		local p=e.cache
 		if by.houses and by.houses<0 then
 			if (p.houses+by.houses)<1 then -- must keep one house
 				return false

@@ -107,6 +107,10 @@ function check(srv,ent)
 	local r=H.round.cache
 	local c=ent.cache
 		
+	if c.round_id==-1 then -- setup
+		c.round_id=H.round.key.id
+	end
+
 	return ent
 end
 

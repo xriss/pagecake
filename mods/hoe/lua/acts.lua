@@ -126,13 +126,17 @@ end
 --
 --------------------------------------------------------------------------------
 function check(srv,ent)
-	local H=srv.h
+	local H=srv.H
 	
 	local ok=true
 
 	local r=H.round.cache
 	local c=ent.cache
 		
+	if c.round_id==-1 then -- setup
+		c.round_id=H.round.key.id
+	end
+
 	return ent,ok
 end
 

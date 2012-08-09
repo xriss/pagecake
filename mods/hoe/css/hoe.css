@@ -56,13 +56,13 @@ html, body {
 	clear: both;
 }
 .footer {
-	background-image:url('/art/footer.png');
+	background-image:url('/art/hoe/footer.png');
 }
 
 	
 body{
 	background-color: #f7f7f7;
-	background-image:url('/art/header.png');
+	background-image:url('/art/hoe/header.png');
 	background-repeat:repeat-x;
 }
 a { color: #444; font-weight: normal; }
@@ -106,10 +106,10 @@ div.header{
 	right:0px;
 	width:270px;
 	height:165px;
-	background-image:url('/art/4lfalfa.png')
+	background-image:url('/art/hoe/4lfalfa.png')
 }
 #alfa:hover{
-	background-image:url('/art/4lfalfa1.png')
+	background-image:url('/art/hoe/4lfalfa1.png')
 }
 
 #tv_switch{
@@ -270,7 +270,7 @@ div.leave {
 
 /* Game Start illustration container */
 div.illgame1 {
-	background-image:url('/art/illgame1.png');
+	background-image:url('/art/hoe/illgame1.png');
 	-moz-border-radius: 8px;
 	-webkit-border-radius: 8px;
 	border-radius: 8px 8px;
@@ -298,59 +298,59 @@ div.illbrobux, div.illhoebro, div.wookiback, div.illacts1 {
 	height: 100px;
 }
 div.illbro1 {
-	background-image:url('/art/illbro1.png');
+	background-image:url('/art/hoe/illbro1.png');
 	height: 80px;
 }
 div.illbro2 {
-	background-image:url('/art/illbro2.png');
+	background-image:url('/art/hoe/illbro2.png');
 	height: 80px;
 }
 div.illbro3 {
-	background-image:url('/art/illbro3.png');
+	background-image:url('/art/hoe/illbro3.png');
 	height: 80px;
 }
 div.illhoe1 {
-	background-image:url('/art/illhoe1.png');
+	background-image:url('/art/hoe/illhoe1.png');
 	height: 80px;
 }
 div.illhoe2 {
-	background-image:url('/art/illhoe2.png');
+	background-image:url('/art/hoe/illhoe2.png');
 	height: 80px;
 }
 div.illhoe3 {
-	background-image:url('/art/illhoe3.png');
+	background-image:url('/art/hoe/illhoe3.png');
 	height: 80px;
 }
 div.illwork1 {
-	background-image:url('/art/illwork1.png');
+	background-image:url('/art/hoe/illwork1.png');
 	height: 70px;
 }
 div.illwork2 {
-	background-image:url('/art/illwork2.png');
+	background-image:url('/art/hoe/illwork2.png');
 	height: 70px;
 }
 div.illwork3 {
-	background-image:url('/art/illwork3.png');
+	background-image:url('/art/hoe/illwork3.png');
 	height: 70px;
 }
 div.illleave1 {
-	background-image:url('/art/illleave1.png');
+	background-image:url('/art/hoe/illleave1.png');
 	height: 80px;
 }
 div.illleave2 {
-	background-image:url('/art/illleave2.png');
+	background-image:url('/art/hoe/illleave2.png');
 	height: 80px;
 }
 div.illleave3 {
-	background-image:url('/art/illleave3.png');
+	background-image:url('/art/hoe/illleave3.png');
 	height: 80px;
 }
 div.illbrobux {
-	background-image:url('/art/illbrobux.png');
+	background-image:url('/art/hoe/illbrobux.png');
 	height: 70px;
 }
 div.illhoebro {
-	background-image:url('/art/illhoebro.png');
+	background-image:url('/art/hoe/illhoebro.png');
 	height: 70px;
 }
 
@@ -368,37 +368,37 @@ div.wookiback, div.illacts1  {
 	height: 80px;
 }
 div.illlist1 {
-	background-image:url('/art/illlist1.png');
+	background-image:url('/art/hoe/illlist1.png');
 }
 div.illlist2 {
-	background-image:url('/art/illlist2.png');
+	background-image:url('/art/hoe/illlist2.png');
 }
 div.illlist3 {
-	background-image:url('/art/illlist3.png');
+	background-image:url('/art/hoe/illlist3.png');
 }
 div.illshop1 {
-	background-image:url('/art/illshop1.png');
+	background-image:url('/art/hoe/illshop1.png');
 }
 div.illtrade1 {
-	background-image:url('/art/illtrade1.png');
+	background-image:url('/art/hoe/illtrade1.png');
 }
 div.illpro1 {
-	background-image:url('/art/illpro1.png');
+	background-image:url('/art/hoe/illpro1.png');
 }
 div.illpro2 {
-	background-image:url('/art/illpro2.png');
+	background-image:url('/art/hoe/illpro2.png');
 }
 div.illfight1 {
-	background-image:url('/art/illfight1.png');
+	background-image:url('/art/hoe/illfight1.png');
 }
 div.illfight2 {
-	background-image:url('/art/illfight2.png');
+	background-image:url('/art/hoe/illfight2.png');
 }
 div.illfight3 {
-	background-image:url('/art/illfight3.png');
+	background-image:url('/art/hoe/illfight3.png');
 }
 div.illchoose, div.illchoose1 {
-	/*background-image:url('/art/illchoose.png');*/
+	/*background-image:url('/art/hoe/illchoose.png');*/
 	background-color: #888;
 	font-family: Lucida Sans Unicode, sans-serif;
 	color: #fff;
@@ -421,11 +421,11 @@ div.illchoose {
 	width: 956px;
 }
 div.wookiback {
-	background-image:url('/art/wookiback.png');
+	background-image:url('/art/hoe/wookiback.png');
 	height: 160px;
 }
 div.illacts1 {
-	background-image:url('/art/illacts1.png');
+	background-image:url('/art/hoe/illacts1.png');
 }
 
 /* div big bold fonts */
@@ -447,7 +447,7 @@ div.chunk, div.intro, div.intro1 {
 
 /* INTRO shout thingy */
 div.introshout {
-	background-image:url('/art/introshout.png');
+	background-image:url('/art/hoe/introshout.png');
 	background-repeat: no-repeat;
 	margin: 0px 0px 0px 100px;
 	width: 100px;
@@ -457,7 +457,7 @@ div.introshout {
 
 /* INTRO about container */
 div.intro {
-	background-image:url('/art/introchar.png');
+	background-image:url('/art/hoe/introchar.png');
 	background-repeat: no-repeat;
 	width: 960px;
 	height: 200px;
@@ -593,7 +593,7 @@ div.chunk6c{
 
 div.hoe_alert_list{
 	background-color: #ECEAEA;
-/*	background-image:url('/art/not.png');
+/*	background-image:url('/art/hoe/not.png');
 	background-repeat:repeat-y;
 	border:1px dotted #ccc; */
 	width: 950px;
@@ -720,43 +720,43 @@ div.player9, div.player10, div.player11, div.player12 {
 	float: left;
 }
 div.player1 {
-	background-image:url('/art/player1.png');
+	background-image:url('/art/hoe/player1.png');
 }
 div.player2 {
-	background-image:url('/art/player2.png');
+	background-image:url('/art/hoe/player2.png');
 }
 div.player3 {
-	background-image:url('/art/player3.png');
+	background-image:url('/art/hoe/player3.png');
 }
 div.player4 {
-	background-image:url('/art/player4.png');
+	background-image:url('/art/hoe/player4.png');
 }
 div.player5 {
-	background-image:url('/art/player5.png');
+	background-image:url('/art/hoe/player5.png');
 }
 div.player6 {
-	background-image:url('/art/player6.png');
+	background-image:url('/art/hoe/player6.png');
 }
 div.player7 {
-	background-image:url('/art/player7.png');
+	background-image:url('/art/hoe/player7.png');
 }
 div.player8 {
-	background-image:url('/art/player8.png');
+	background-image:url('/art/hoe/player8.png');
 }
 div.player9 {
-	background-image:url('/art/player9.png');
+	background-image:url('/art/hoe/player9.png');
 }
 div.player10 {
-	background-image:url('/art/player10.png');
+	background-image:url('/art/hoe/player10.png');
 }
 div.player11 {
-	background-image:url('/art/player11.png');
+	background-image:url('/art/hoe/player11.png');
 }
 div.player12 {
-	background-image:url('/art/player12.png');
+	background-image:url('/art/hoe/player12.png');
 }
 div.playershout, div.witchshout {
-	background-image:url('/art/playershout.png');
+	background-image:url('/art/hoe/playershout.png');
 	background-repeat:no-repeat;
 	margin: 0;
 	width: 20px;
@@ -764,7 +764,7 @@ div.playershout, div.witchshout {
 	float: left;
 }
 div.witchshout {
-	background-image:url('/art/witchshout.png');
+	background-image:url('/art/hoe/witchshout.png');
 	height: 100px;
 }
 
@@ -786,16 +786,16 @@ div.wooki1 {
 	float: left;
 }
 div.shopwitch1 {
-	background-image:url('/art/shopwitch1.png');
+	background-image:url('/art/hoe/shopwitch1.png');
 }
 div.shopwitch2 {
-	background-image:url('/art/shopwitch2.png');
+	background-image:url('/art/hoe/shopwitch2.png');
 }
 div.shopwitch3 {
-	background-image:url('/art/shopwitch3.png');
+	background-image:url('/art/hoe/shopwitch3.png');
 }
 div.wooki1 {
-	background-image:url('/art/wooki1.png');
+	background-image:url('/art/hoe/wooki1.png');
 }
 
 /* TRADE container */
@@ -954,7 +954,7 @@ div.pro1c1 {
 }
 div.pro1c2 {
 	height: 30px;
-	background-image:url('/art/shout.png');
+	background-image:url('/art/hoe/shout.png');
 	background-repeat:no-repeat;
 }
 /*PROFILE INFO Form container */

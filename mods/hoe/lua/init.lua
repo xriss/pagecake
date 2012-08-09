@@ -110,9 +110,9 @@ function serv(srv)
 	H.srv.crumbs[#H.srv.crumbs+1]={url="/",title="Hoe House",link="Home",}
 	
 	if H.slash=="api" then
-		return serv_api(H)
+		return serv_api(srv)
 	elseif H.slash=="cron" then
-		return serv_cron(H)
+		return serv_cron(srv)
 	end
 		
 	local put=H.put
@@ -128,7 +128,7 @@ function serv(srv)
 		H.energy_frac=H.energy_frac-math.floor(H.energy_frac) -- fractional amount of energy we have
 		H.energy_step=H.round.cache.timestep
 
-		local wart=alerts.alerts_to_html(H,alerts.get_alerts(srv)) -- display some alerts? (no round)
+		local wart=alerts.alerts_to_html(srv,alerts.get_alerts(srv)) -- display some alerts? (no round)
 		if wart then H.srv.alerts_html=(H.srv.alerts_html or "")..wart end
 	
 		return serv_round(srv)
@@ -349,7 +349,7 @@ local put=H.put
 	page.next=page.show+page.size
 	page.prev=page.show-page.size
 	if page.prev<0 then page.prev=0 end -- and prev does not go below 0 either	
-	if #list < lim then page.next=0 end -- looks last page so set to 0
+	if list and (#list < page.size) then page.next=0 end -- looks last page so set to 0
 	
 	local ending="@id.wetgenes.com"
 	local endlen=string.len(ending)
@@ -900,7 +900,7 @@ local H=srv.H
 		page.next=page.show+page.size
 		page.prev=page.show-page.size
 		if page.prev<0 then page.prev=0 end -- and prev does not go below 0 either	
-		if #list < lim then page.next=0 end -- looks last page so set to 0
+		if list and (#list < page.size) then page.next=0 end -- looks last page so set to 0
 		
 		put("player_row_header",{url=H.srv.url,page=page})
 		for i=1,#list do local v=list[i]
@@ -1131,13 +1131,13 @@ local H=srv.H
 	
 		H.srv.put("there are no active rounds\n")
 
-		if d.hour==0 and d.min<30 then -- start a new one only within the first halfhour of the day
+--		if d.hour==0 and d.min<30 then -- start a new one only within the first halfhour of the day
 		
 			local r=rounds.create(srv)
 			rounds.put(srv,r)
 			H.srv.put("created new round "..r.key.id.."\n")
 			
-		end
+--		end
 	end
 	
 --[[
