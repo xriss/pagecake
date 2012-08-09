@@ -301,7 +301,7 @@ end
 function add_shout(srv,tab)
 	local H=srv.H
 --log("SHOUT0: "..wstr.dump(tab))
-	local e=create(H)
+	local e=create(srv)
 	local c=e.cache
 	
 	c.act="shout" -- type of act
@@ -420,7 +420,7 @@ function add_trade(srv,tab)
 		c.data[i]=v
 	end
 	
-	put(H,e)
+	put(srv,e)
 	local id=e.key.id
 	
 -- actor2 also gets the same act saved specially for them unless this is a self trade (buyback)

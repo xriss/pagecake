@@ -1090,7 +1090,7 @@ local H=srv.H
 	H.srv.put("Performing cron "..H.srv.time.."\n")
 	
 	
-	local numof_fastrounds=0
+--	local numof_fastrounds=0
 	
 	local list=rounds.list(srv)
 	
@@ -1114,9 +1114,11 @@ local H=srv.H
 			end
 		end
 		
+--[[
 		if v.cache.timestep < 300 then -- a fast round is any tick less than 5 minutes
 			numof_fastrounds=numof_fastrounds+1
 		end
+]]
 		
 		if v.cache.state=="active" then -- pulse the trades
 			H.round=v -- think about this round
@@ -1131,7 +1133,7 @@ local H=srv.H
 	
 		H.srv.put("there are no active rounds\n")
 
---		if d.hour==0 and d.min<30 then -- start a new one only within the first halfhour of the day
+--		if d.hour==0 and d.min<30 then -- start a new one but only within the first halfhour of the day
 		
 			local r=rounds.create(srv)
 			rounds.put(srv,r)

@@ -130,6 +130,7 @@ local H=srv.H
 	
 	if c.round_id==-1 then -- setup
 		c.round_id=H.round.key.id
+		c.energy=count_ticks( H.round.cache.created , H.srv.time , H.round.cache.timestep )
 	end
 	
 	local ticks=count_ticks( c.updated , H.srv.time , r.timestep ) -- ticks since player was last updated

@@ -11,6 +11,7 @@ vhosts_map={
 	{"catch",	"catch"},			-- any domain with catch in it
 
 	{"cog",		"cog"},				-- any domain with cog in it
+	{"hoe",		"hoe"},				-- any domain with hoe in it
 
 	{"xixs",	"xixs"},			-- any domain with xixs in it
 	{"esyou",	"esyou"},			-- any domain with esyou in it
