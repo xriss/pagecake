@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local json=require("wetgenes.json")
 
@@ -13,7 +15,7 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wstr=require("wetgenes.string")
-local wet_string=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -23,17 +25,6 @@ local html  =require("hoe.html")
 local rounds=require("hoe.rounds")
 
 
-
-local math=math
-local string=string
-local table=table
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local setmetatable=setmetatable
 
 -- lists of important activities
 -- mostly displayed in user profiles
@@ -76,7 +67,8 @@ default_cache=
 --
 --------------------------------------------------------------------------------
 function kind(srv)
-	local H=srv.H
+	local H=srv and srv.H
+	if not H then return "hoe.act" end
 	if not H.srv.flavour or H.srv.flavour=="hoe" then return "hoe.act" end
 	return H.srv.flavour..".hoe.act"
 end
