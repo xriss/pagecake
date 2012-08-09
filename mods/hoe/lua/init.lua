@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 
@@ -10,7 +12,8 @@ local sys=require("wetgenes.www.any.sys")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local trim=wet_string.trim
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
@@ -25,7 +28,7 @@ local d_acts=require("dumid.acts")
 local html=require("hoe.html")
 local players=require("hoe.players")
 local rounds=require("hoe.rounds")
-local trades=require("hoe.trades")
+--local trades=require("hoe.trades")
 local fights=require("hoe.fights")
 local acts=require("hoe.acts")
 local feats=require("hoe.feats")
@@ -36,16 +39,6 @@ local blog=require("blog")
 local comments=require("note.comments")
 local profile=require("profile")
 
-local os=os
-local math=math
-local string=string
-local table=table
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
 
 local function cleanfloor(n)
 	n = math.floor(tonumber(n or 0) or 0)
@@ -125,7 +118,7 @@ function serv(srv)
 	local put=H.put
 	local roundid=tonumber(H.slash or 0) or 0
 	if roundid>0 then -- load a default round from given id
-		H.round=rounds.get(H,roundid)
+		H.round=rounds.get(srv,roundid)
 	end
 	
 	if H.round then -- we have a round, let them handle everything
@@ -135,13 +128,13 @@ function serv(srv)
 		H.energy_frac=H.energy_frac-math.floor(H.energy_frac) -- fractional amount of energy we have
 		H.energy_step=H.round.cache.timestep
 
-		local wart=alerts.alerts_to_html(H,alerts.get_alerts(H)) -- display some alerts? (no round)
+		local wart=alerts.alerts_to_html(H,alerts.get_alerts(srv)) -- display some alerts? (no round)
 		if wart then H.srv.alerts_html=(H.srv.alerts_html or "")..wart end
 	
-		return serv_round(H)
+		return serv_round(srv)
 	end
 	
-	local wart=alerts.alerts_to_html(H,alerts.get_alerts(H)) -- display some alerts? (no round)
+	local wart=alerts.alerts_to_html(srv,alerts.get_alerts(srv)) -- display some alerts? (no round)
 	if wart then H.srv.alerts_html=(H.srv.alerts_html or "")..wart end
 	
 	local blog_html,blog_css=blog.recent_posts(srv,{num=5,over="/frontpage"})
@@ -151,7 +144,7 @@ function serv(srv)
 	
 -- ask which round
 
-	local list=rounds.list(H)
+	local list=rounds.list(srv)
 	put("round_row_header",{})
 	for i=1,#list do local v=list[i]
 		put("round_row",{round=v.cache})		
@@ -162,7 +155,7 @@ function serv(srv)
 	
 	put("about",{})	
 	
-	local list=rounds.list(H,{state="over"})
+	local list=rounds.list(srv,{state="over"})
 	put("old_round_row_header",{})
 	for i=1,#list do local v=list[i]
 		put("old_round_row",{round=v.cache})		
@@ -180,7 +173,8 @@ end
 -- basic serv when we are dealing with an existing round
 --
 -----------------------------------------------------------------------------
-function serv_round(H)
+function serv_round(srv)
+local H=srv.H
 
 local put=H.put
 	
@@ -201,12 +195,12 @@ local put=H.put
 			if c.hoeplayer[H.round.key.id]==0 then -- none
 				H.player=nil
 			else
-				H.player=players.get(H,c.hoeplayer[H.round.key.id])
+				H.player=players.get(srv,c.hoeplayer[H.round.key.id])
 			end
 		
 		else -- session needs fixing to link to player
 					
-			H.player=players.fix_session(H,H.sess,H.round.key.id,H.user.key.id)
+			H.player=players.fix_session(srv,H.sess,H.round.key.id,H.user.key.id)
 		end
 		
 --[[
@@ -245,8 +239,8 @@ local put=H.put
 			
 				if dat.cmd=="join" then -- join this round
 			
-					players.join(H,H.user)
-					players.fix_session(H,H.sess,H.round.key.id,H.user.key.id)
+					players.join(srv,H.user)
+					players.fix_session(srv,H.sess,H.round.key.id,H.user.key.id)
 					H.srv.redirect(H.url_base) -- simplest just to redirect at this point
 					return true
 
@@ -262,11 +256,11 @@ local put=H.put
 		shop=	serv_round_shop,
 		profile=serv_round_profile,
 		fight=	serv_round_fight,
-		trade=	serv_round_trade,
+--		trade=	serv_round_trade,
 		acts=	serv_round_acts,
 	}
 	local f=cmds[ string.lower(cmd or "") ]
-	if f then return f(H) end
+	if f then return f(srv) end
 
 -- or display base menu
 
@@ -282,10 +276,10 @@ local put=H.put
 	
 	put("hoe_menu_items",{})
 	
-	local a=acts.list(H,{ dupe=0 , private=0 , limit=5 , offset=0 })
+	local a=acts.list(srv,{ dupe=0 , private=0 , limit=5 , offset=0 })
 	if a then
 		for i=1,#a do local v=a[i]
-			local s=acts.plate(H,v,"html")
+			local s=acts.plate(srv,v,"html")
 			put("profile_act",{act=v.cache,html=s})
 		end
 	end
@@ -328,7 +322,8 @@ end
 -- list users
 --
 -----------------------------------------------------------------------------
-function serv_round_list(H)
+function serv_round_list(srv)
+local H=srv.H
 
 local put=H.put
 
@@ -349,7 +344,7 @@ local put=H.put
 	end
 	if page.show<0 then page.show=0 end	-- no negative offsets going in
 	
-	local list=players.list(H,{limit=page.size,offset=page.show})
+	local list=players.list(srv,{limit=page.size,offset=page.show})
 	
 	page.next=page.show+page.size
 	page.prev=page.show-page.size
@@ -396,7 +391,8 @@ end
 -- work hoes
 --
 -----------------------------------------------------------------------------
-function serv_round_work(H)
+function serv_round_work(srv)
+local H=srv.H
 
 local put=H.put
 
@@ -486,7 +482,7 @@ local put=H.put
 			
 		end
 		
-		local r=players.update_add(H,H.player,result)
+		local r=players.update_add(srv,H.player,result)
 		if r then
 			H.player=r
 			result.total_bux=total
@@ -518,7 +514,8 @@ end
 -- shop
 --
 -----------------------------------------------------------------------------
-function serv_round_shop(H)
+function serv_round_shop(srv)
+local H=srv.H
 
 	local put=H.put
 	local url=H.url_base.."shop"
@@ -572,7 +569,7 @@ function serv_round_shop(H)
 				result=by
 				result.fail="bux"
 			else
-				local r=players.update_add(H,H.player,by)
+				local r=players.update_add(srv,H.player,by)
 				if r then
 					H.player=r
 					workout_cost()
@@ -608,7 +605,8 @@ end
 -- profile
 --
 -----------------------------------------------------------------------------
-function serv_round_profile(H)
+function serv_round_profile(srv)
+local H=srv.H
 
 	local put=H.put
 	local url=H.url_base.."profile"
@@ -644,17 +642,17 @@ function serv_round_profile(H)
 			end
 		end
 		
-		local r=players.update_add(H,H.player,by)
+		local r=players.update_add(srv,H.player,by)
 		if r then
 			if by.name then -- name change, log it in the actions
-				acts.add_namechange(H,{
+				acts.add_namechange(srv,{
 					actor1 = H.player.key.id ,
 					name1  = H.player.cache.name ,
 					name2  = r.cache.name ,
 					})
 			end
 			if by.shout and by.lastshout then -- shout change, log it in the actions, if not spammy
-				acts.add_shout(H,{
+				acts.add_shout(srv,{
 					actor1 = H.player.key.id ,
 					name1  = H.player.cache.name ,
 					shout  = by.shout ,
@@ -667,7 +665,7 @@ function serv_round_profile(H)
 	local view=tonumber(H.arg(2) or 0) or 0
 	if view<=0 then view=nil end
 	if view then
-		view=players.get(H,view)
+		view=players.get(srv,view)
 		if view then
 			if view.cache.round_id~=H.round.key.id then view=nil end -- check that player belongs to this round
 		end
@@ -681,18 +679,18 @@ function serv_round_profile(H)
 	if view and view.cache then 
 		put("player_profile",{player=view.cache,edit=false,fight=true})
 		put(profile.get_profile_html(H.srv,view.cache.email))
-		a=acts.list(H,{ owner=view.cache.id , private=0 , limit=20 , offset=0 })
+		a=acts.list(srv,{ owner=view.cache.id , private=0 , limit=20 , offset=0 })
 
 	elseif H.player then
 		put("player_profile",{player=H.player.cache,edit=true})
 		put(profile.get_profile_html(H.srv,H.player.cache.email))
-		a=acts.list(H,{ owner=H.player.key.id , limit=20 , offset=0 })
+		a=acts.list(srv,{ owner=H.player.key.id , limit=20 , offset=0 })
 	end
 	
 	if a then
 		put("profile_acts_header")
 		for i=1,#a do local v=a[i]
-			local s=acts.plate(H,v,"html")
+			local s=acts.plate(srv,v,"html")
 			put("profile_act",{act=v.cache,html=s})
 		end
 		put("profile_acts_footer")
@@ -715,7 +713,8 @@ end
 -- fight
 --
 -----------------------------------------------------------------------------
-function serv_round_fight(H)
+function serv_round_fight(srv)
+local H=srv.H
 
 	local put,get=H.put,H.get
 	local url=H.url_base.."fight"
@@ -734,7 +733,7 @@ function serv_round_fight(H)
 	local victim=tonumber(H.arg(2) or 0) or 0
 	if victim<=0 then victim=nil end
 	if victim then
-		victim=players.get(H,victim)
+		victim=players.get(srv,victim)
 		if victim then
 			if victim.cache.round_id~=H.round.key.id then victim=nil end -- check that player belongs to this round
 		end
@@ -755,22 +754,22 @@ function serv_round_fight(H)
 					
 			if posts.attack == "arson" then -- perform a robery
 			
-				local fight=fights.create_arson(H,player,victim) -- prepare fight
+				local fight=fights.create_arson(srv,player,victim) -- prepare fight
 				fight.cache.shout=shout -- include shout in fight data, so it can be saved to db
 				
 				-- apply the results, first remove energy from the player
 				
-				if players.update_add(H,player,{
+				if players.update_add(srv,player,{
 							energy=-fight.cache.energy,
 							houses=fight.cache.sides[1].result.houses}) then -- edit the energy
 						
-					if players.update_add(H,victim,fight.cache.sides[2].result) then -- things went ok
+					if players.update_add(srv,victim,fight.cache.sides[2].result) then -- things went ok
 
-						if players.update_add(H,player,fight.cache.sides[1].result) then -- things went ok
+						if players.update_add(srv,player,fight.cache.sides[1].result) then -- things went ok
 	
-							fights.put(H,fight) -- save this fight to db
+							fights.put(srv,fight) -- save this fight to db
 						
-							local a=acts.add_arson(H,{
+							local a=acts.add_arson(srv,{
 								actor1  = player.key.id ,
 								name1   = player.cache.name ,
 								actor2  = victim.key.id ,
@@ -778,10 +777,10 @@ function serv_round_fight(H)
 								shout   = shout,
 								},fight)
 
-							result=get("fight_result",{html=acts.plate(H,a,"html")})
+							result=get("fight_result",{html=acts.plate(srv,a,"html")})
 							
-							player=players.get(H,player)
-							victim=players.get(H,victim)
+							player=players.get(srv,player)
+							victim=players.get(srv,victim)
 						end
 						
 					end
@@ -790,20 +789,20 @@ function serv_round_fight(H)
 				
 			elseif posts.attack == "rob" then -- perform a robery
 			
-				local fight=fights.create_robbery(H,player,victim) -- prepare fight
+				local fight=fights.create_robbery(srv,player,victim) -- prepare fight
 				fight.cache.shout=shout -- include shout in fight data, so it can be saved to db
 				
 				-- apply the results, first remove energy from the player
 				
-				if players.update_add(H,player,{energy=-fight.cache.energy}) then -- edit the energy
+				if players.update_add(srv,player,{energy=-fight.cache.energy}) then -- edit the energy
 				
-					if players.update_add(H,victim,fight.cache.sides[2].result) then -- things went ok
+					if players.update_add(srv,victim,fight.cache.sides[2].result) then -- things went ok
 
-						if players.update_add(H,player,fight.cache.sides[1].result) then -- things went ok
+						if players.update_add(srv,player,fight.cache.sides[1].result) then -- things went ok
 	
-							fights.put(H,fight) -- save this fight to db
+							fights.put(srv,fight) -- save this fight to db
 						
-							local a=acts.add_rob(H,{
+							local a=acts.add_rob(srv,{
 								actor1  = player.key.id ,
 								name1   = player.cache.name ,
 								actor2  = victim.key.id ,
@@ -811,10 +810,10 @@ function serv_round_fight(H)
 								shout   = shout,
 								},fight)
 
-							result=get("fight_result",{html=acts.plate(H,a,"html")})
+							result=get("fight_result",{html=acts.plate(srv,a,"html")})
 							
-							player=players.get(H,player)
-							victim=players.get(H,victim)
+							player=players.get(srv,player)
+							victim=players.get(srv,victim)
 						end
 						
 					end
@@ -822,20 +821,20 @@ function serv_round_fight(H)
 				
 			elseif posts.attack == "party" then -- perform a party
 			
-				local fight=fights.create_party(H,player,victim) -- prepare fight
+				local fight=fights.create_party(srv,player,victim) -- prepare fight
 				fight.cache.shout=shout -- include shout in fight data, so it can be saved to db
 				
 				-- apply the results, first remove energy from the player
 				
-				if players.update_add(H,player,{energy=-fight.cache.energy}) then -- edit the energy
+				if players.update_add(srv,player,{energy=-fight.cache.energy}) then -- edit the energy
 				
-					if players.update_add(H,victim,fight.cache.sides[2].result) then -- things went ok
+					if players.update_add(srv,victim,fight.cache.sides[2].result) then -- things went ok
 
-						if players.update_add(H,player,fight.cache.sides[1].result) then -- things went ok
+						if players.update_add(srv,player,fight.cache.sides[1].result) then -- things went ok
 	
-							fights.put(H,fight) -- save this fight to db
+							fights.put(srv,fight) -- save this fight to db
 						
-							local a=acts.add_party(H,{
+							local a=acts.add_party(srv,{
 								actor1  = player.key.id ,
 								name1   = player.cache.name ,
 								actor2  = victim.key.id ,
@@ -843,10 +842,10 @@ function serv_round_fight(H)
 								shout   = shout,
 								},fight)
 
-							result=get("fight_result",{html=acts.plate(H,a,"html")})
+							result=get("fight_result",{html=acts.plate(srv,a,"html")})
 							
-							player=players.get(H,player)
-							victim=players.get(H,victim)
+							player=players.get(srv,player)
+							victim=players.get(srv,victim)
 						end
 						
 					end
@@ -869,15 +868,15 @@ function serv_round_fight(H)
 		local tab={ url=url.."/"..victim.key.id , player=player.cache, victim=victim.cache}
 		put("fight_header",tab)
 		
-		local fight=fights.create_robbery(H,player,victim)				
+		local fight=fights.create_robbery(srv,player,victim)				
 		tab.fight=fight.cache
 		put("fight_rob_preview",tab)
 		
-		local fight=fights.create_arson(H,player,victim)
+		local fight=fights.create_arson(srv,player,victim)
 		tab.fight=fight.cache
 		put("fight_arson_preview",tab)
 		
-		local fight=fights.create_party(H,player,victim)
+		local fight=fights.create_party(srv,player,victim)
 		tab.fight=fight.cache
 		put("fight_party_preview",tab)
 		
@@ -896,7 +895,7 @@ function serv_round_fight(H)
 		end
 		if page.show<0 then page.show=0 end	-- no negative offsets going in
 		
-		local list=players.list(H,{limit=page.size,offset=page.show})
+		local list=players.list(srv,{limit=page.size,offset=page.show})
 		
 		page.next=page.show+page.size
 		page.prev=page.show-page.size
@@ -909,13 +908,13 @@ function serv_round_fight(H)
 			v.cache.shout=""
 			if player then
 				local f={}			
-				f[1]=fights.create_robbery(H,player,v).cache
-				f[2]=fights.create_arson(H,player,v).cache
-				f[3]=fights.create_party(H,player,v).cache
+				f[1]=fights.create_robbery(srv,player,v).cache
+				f[2]=fights.create_arson(srv,player,v).cache
+				f[3]=fights.create_party(srv,player,v).cache
 
-				f[4]=fights.create_robbery(H,v,player).cache
-				f[5]=fights.create_arson(H,v,player).cache
-				f[6]=fights.create_party(H,v,player).cache
+				f[4]=fights.create_robbery(srv,v,player).cache
+				f[5]=fights.create_arson(srv,v,player).cache
+				f[6]=fights.create_party(srv,v,player).cache
 
 				local fmt=string.format
 				v.cache.shout=
@@ -944,7 +943,9 @@ end
 -- trade
 --
 -----------------------------------------------------------------------------
-function serv_round_trade(H)
+--[[
+function serv_round_trade(srv)
+local H=srv.H
 
 local valid_trades={
 	{"houses","hoes",min=5,max=50,},
@@ -1021,7 +1022,7 @@ local valid_trades={
 
 			if posts.cmd=="sell" and trade and cost>=trade.min and cost<=trade.max then -- valid?
 							
-				local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
+				local mytrades=trades.find_mine(srv,{player=H.player.cache.id,active=true})
 
 				if mytrades and ( #mytrades > 10 ) then -- only allowed 10 active trades at a time
 
@@ -1031,7 +1032,7 @@ local valid_trades={
 				
 					if reverse then
 					
-						local ent=trades.create(H)
+						local ent=trades.create(srv)
 						ent.cache.player=H.player.cache.id
 						ent.cache.offer=trade[2]
 						ent.cache.seek=trade[1]
@@ -1040,14 +1041,14 @@ local valid_trades={
 						ent.cache.price=price
 						ent.cache.reverse=true
 						
-						trades.check(H,ent)		-- check
-						trades.put(H,ent)		-- create trade in database
+						trades.check(srv,ent)		-- check
+						trades.put(srv,ent)		-- create trade in database
 						
-						trades.fix_memcache(H,trades.what_memcache(H,ent)) -- update cache values
+						trades.fix_memcache(srv,trades.what_memcache(srv,ent)) -- update cache values
 						
 						results=results..get("trade_sell",{trade=ent.cache}) -- we added a trade
 						
-						acts.add_tradeoffer(H,{
+						acts.add_tradeoffer(srv,{
 							actor1 = H.player.key.id ,
 							name1  = H.player.cache.name ,
 							offer  = ent.cache.offer,
@@ -1058,7 +1059,7 @@ local valid_trades={
 							reverse= ent.cache.reverse,
 							})
 					else
-						local ent=trades.create(H)
+						local ent=trades.create(srv)
 						ent.cache.player=H.player.cache.id
 						ent.cache.offer=trade[1]
 						ent.cache.seek=trade[2]
@@ -1067,14 +1068,14 @@ local valid_trades={
 						ent.cache.price=price
 						ent.cache.reverse=false
 						
-						trades.check(H,ent)		-- check								
-						trades.put(H,ent)		-- create trade in database
+						trades.check(srv,ent)		-- check								
+						trades.put(srv,ent)		-- create trade in database
 						
-						trades.fix_memcache(H,trades.what_memcache(H,ent)) -- update cache values
+						trades.fix_memcache(srv,trades.what_memcache(srv,ent)) -- update cache values
 						
 						results=results..get("trade_sell",{trade=ent.cache}) -- we added a trade
 						
-						acts.add_tradeoffer(H,{
+						acts.add_tradeoffer(srv,{
 							actor1 = H.player.key.id ,
 							name1  = H.player.cache.name ,
 							offer  = ent.cache.offer,
@@ -1113,7 +1114,7 @@ local valid_trades={
 		trade.b=v[2]
 		trade.offer=v[1]
 		trade.seek=v[2]
-		trade.best=trades.find_cheapest(H,trade)
+		trade.best=trades.find_cheapest(srv,trade)
 		if trade.best then tradebests[#tradebests+1]={trade=trade,best=trade.best.cache,url=url} end
 		put("trade_row",{trade=trade,best=trade.best and trade.best.cache,url=url,cost=v,count={min=1,max=1000}})
 		
@@ -1122,7 +1123,7 @@ local valid_trades={
 		trade.b=v[2]
 		trade.offer=v[2]
 		trade.seek=v[1]
-		trade.best=trades.find_cheapest(H,trade)
+		trade.best=trades.find_cheapest(srv,trade)
 		if trade.best then tradebests[#tradebests+1]={trade=trade,best=trade.best.cache,url=url} end
 		put("trade_row",{trade=trade,best=trade.best and trade.best.cache,url=url,cost=v,count={min=1*v.min,max=1000*v.max}})
 		
@@ -1138,7 +1139,7 @@ local valid_trades={
 	put("trade_footer",{trades=trades})
 	
 	if H.player then
-		local mytrades=trades.find_mine(H,{player=H.player.cache.id,active=true})
+		local mytrades=trades.find_mine(srv,{player=H.player.cache.id,active=true})
 		for i,v in ipairs(mytrades or {} ) do -- list all my active trades
 			put("trade_row_best",{best=v.cache})
 		end
@@ -1158,14 +1159,15 @@ local valid_trades={
 	put("footer",footer_data)
 
 end
-
+]]
 
 -----------------------------------------------------------------------------
 --
 -- acts
 --
 -----------------------------------------------------------------------------
-function serv_round_disabled(H)
+function serv_round_disabled(srv)
+local H=srv.H
 
 	local put,get=H.put,H.get
 
@@ -1181,7 +1183,8 @@ end
 -- acts
 --
 -----------------------------------------------------------------------------
-function serv_round_acts(H)
+function serv_round_acts(srv)
+local H=srv.H
 
 	local put,get=H.put,H.get
 	local url=H.url_base.."acts"
@@ -1206,18 +1209,18 @@ function serv_round_acts(H)
 	local tail=H.arg(2)
 	if tail=="chat" then
 		tt.type="chat"
-	elseif tail=="trade" then
-		tt.type="trade"
+--	elseif tail=="trade" then
+--		tt.type="trade"
 	elseif tail=="fight" then
 		tt.type="fight"
 	end
 	local off=math.floor( tonumber(H.srv.gets.off) or 0)
 	if off<0 then off=0 end		
 	tt.offset=off
-	local a=acts.list(H,tt)
+	local a=acts.list(srv,tt)
 	if a then
 		for i=1,#a do local v=a[i]
-			local s=acts.plate(H,v,"html")
+			local s=acts.plate(srv,v,"html")
 			put("profile_act",{act=v.cache,html=s})
 		end
 	end
@@ -1245,7 +1248,8 @@ end
 -- base api
 --
 -----------------------------------------------------------------------------
-function serv_api(H)
+function serv_api(srv)
+local H=srv.H
 	local put,get=H.put,H.get
 	
 	local cmd=H.arg(1)
@@ -1256,15 +1260,15 @@ function serv_api(H)
 	
 	if cmd=="tops" then
 	
-		local round=rounds.get_active(H) -- get active round
+		local round=rounds.get_active(srv) -- get active round
 		if round then
-			jret.active=feats.get_top_players(H,round.key.id)
+			jret.active=feats.get_top_players(srv,round.key.id)
 			jret.result="OK"
 		end
 		
-		local round=rounds.get_last(H) -- get last round		
+		local round=rounds.get_last(srv) -- get last round		
 		if round then
-			jret.last=feats.get_top_players(H,round.key.id)
+			jret.last=feats.get_top_players(srv,round.key.id)
 			jret.result="OK"
 		end
 --[[
@@ -1286,7 +1290,8 @@ end
 -- base cron
 --
 -----------------------------------------------------------------------------
-function serv_cron(H)
+function serv_cron(srv)
+local H=srv.H
 	local put,get=H.put,H.get
 	
 	local cmd=H.arg(1)
@@ -1310,17 +1315,17 @@ function serv_cron(H)
 	
 	local numof_fastrounds=0
 	
-	local list=rounds.list(H)
+	local list=rounds.list(srv)
 	
 	for i,v in ipairs(list) do	
 	
-		rounds.check(H,v)
+		rounds.check(srv,v)
 		
 		H.srv.put("checking round "..v.key.id.."\n")
 		
 		if v.cache.state ~= v.props.state then -- we should update		
 			if v.props.state=="active" and v.cache.state=="over" then
-				if rounds.update(H,v,function(H,e)
+				if rounds.update(srv,v,function(srv,e)
 					if e.props.state=="active" then e.cache.state="over" return true end -- change state
 					return false
 				end) then
@@ -1338,7 +1343,7 @@ function serv_cron(H)
 		
 		if v.cache.state=="active" then -- pulse the trades
 			H.round=v -- think about this round
-			trades.pulse(H)
+--			trades.pulse(srv)
 		end
 		
 	end
@@ -1351,8 +1356,8 @@ function serv_cron(H)
 
 		if d.hour==0 and d.min<30 then -- start a new one only within the first halfhour of the day
 		
-			local r=rounds.create(H)
-			rounds.put(H,r)
+			local r=rounds.create(srv)
+			rounds.put(srv,r)
 			H.srv.put("created new round "..r.key.id.."\n")
 			
 		end

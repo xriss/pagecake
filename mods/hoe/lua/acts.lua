@@ -38,7 +38,7 @@ local _M=require(...)
 
 default_props=
 {
-	round_id=0,
+	round_id=-1,
 	
 	act="act",			-- what type of act this is, eg robbery, purchase etc
 	

@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local json=require("wetgenes.json")
 
@@ -12,7 +14,8 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -23,21 +26,26 @@ local rounds=require("hoe.rounds")
 
 
 
-local math=math
-local string=string
-local table=table
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
 
 -- manage fights so contains fight logic, try to break stuff down to % which can then
 -- be displayed to the user before they decide to try.
 -- however the entity manipulated here is more a smart log of interactions than anything else
 
 module("hoe.fights")
+local _M=require(...)
+
+default_props=
+{
+	round_id=-1,
+	
+	act="fight",
+	actor1=0,
+	actor2=0,
+}
+
+default_cache=
+{
+}
 
 --------------------------------------------------------------------------------
 --
@@ -45,7 +53,9 @@ module("hoe.fights")
 -- make sure we incorporate flavour into the name of our stored data types
 --
 --------------------------------------------------------------------------------
-function kind(H)
+function kind(srv)
+	local H=srv and srv.H
+	if not H then return "hoe.fight" end
 	if not H.srv.flavour or H.srv.flavour=="hoe" then return "hoe.fight" end
 	return H.srv.flavour..".hoe.fight"
 end
@@ -55,6 +65,7 @@ end
 -- Create a new local fight in H.round filled with initial data
 --
 --------------------------------------------------------------------------------
+--[[
 function create(H)
 
 	local ent={}
@@ -80,6 +91,7 @@ function create(H)
 
 	return check(H,ent)
 end
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -87,7 +99,8 @@ end
 -- the second return value is false if this is not a valid entity
 --
 --------------------------------------------------------------------------------
-function check(H,ent)
+function check(srv,ent)
+	local H=srv and srv.H
 
 	local ok=true
 
@@ -104,6 +117,7 @@ end
 -- build_props is called so code should always be updating the cache values
 --
 --------------------------------------------------------------------------------
+--[[
 function put(H,ent,t)
 
 	t=t or dat -- use transaction?
@@ -121,7 +135,7 @@ function put(H,ent,t)
 
 	return ks -- return the keystring which is an absolute name
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -129,6 +143,7 @@ end
 -- the props will be copied into the cache
 --
 --------------------------------------------------------------------------------
+--[[
 function get(H,id,t)
 
 	local ent=id
@@ -145,21 +160,23 @@ function get(H,id,t)
 	
 	return check(H,ent)
 end
+]]
 
 --------------------------------------------------------------------------------
 --
 -- change a fight by a table, each value present is set
 --
 --------------------------------------------------------------------------------
-function update_set(H,id,by)
+function update_set(srv,id,by)
+	local H=srv.H
 
-	local f=function(H,p)
+	local f=function(srv,p)
 		for i,v in pairs(by) do
 			p[i]=v
 		end
 		return true
 	end		
-	return update(H,id,f)	
+	return update(srv,id,f)
 end
 
 --------------------------------------------------------------------------------
@@ -170,6 +187,7 @@ end
 -- id can be an id or an entity from which we will get the id
 --
 --------------------------------------------------------------------------------
+--[[
 function update(H,id,f)
 
 	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
@@ -194,7 +212,7 @@ function update(H,id,f)
 	end
 	
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -202,7 +220,7 @@ end
 -- this list is a name->bool lookup
 --
 --------------------------------------------------------------------------------
-function what_memcache(H,ent,mc)
+function what_memcache(srv,ent,mc)
 	local mc=mc or {} -- can supply your own result table for merges	
 	local c=ent.cache
 	
@@ -215,7 +233,7 @@ end
 -- probably best just to delete them so they will automatically get rebuilt
 --
 --------------------------------------------------------------------------------
-function fix_memcache(H,mc)
+function fix_memcache(srv,mc)
 	for n,b in pairs(mc) do
 		cache.del(srv,n)
 	end
@@ -250,9 +268,10 @@ end
 -- a robbery is an attempt to steal money from another player
 --
 --------------------------------------------------------------------------------
-function create_robbery(H,p1,p2)
+function create_robbery(srv,p1,p2)
+	local H=srv.H
 
-	local ent=create(H)
+	local ent=create(srv)
 	local c=ent.cache
 
 	c.energy=math.ceil(p1.cache.bros/1000) -- costs 1 energy per 1000 bros
@@ -329,9 +348,10 @@ end
 -- an arson is an attempt to burn down another players house
 --
 --------------------------------------------------------------------------------
-function create_arson(H,p1,p2)
+function create_arson(srv,p1,p2)
+	local H=srv.H
 
-	local ent=create(H)
+	local ent=create(srv)
 	local c=ent.cache
 
 	c.energy=math.ceil(p1.cache.bros/1000) -- costs 1 energy per 1000 bros
@@ -429,9 +449,10 @@ end
 -- a party is an attempt to steal another players hoes
 --
 --------------------------------------------------------------------------------
-function create_party(H,p1,p2)
+function create_party(srv,p1,p2)
+	local H=srv.H
 
-	local ent=create(H)
+	local ent=create(srv)
 	local c=ent.cache
 
 	c.energy=math.ceil(p1.cache.houses) -- costs 1 energy per house
@@ -495,4 +516,7 @@ function create_party(H,p1,p2)
 	
 end
 
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready
 

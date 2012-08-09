@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 local json=require("wetgenes.json")
@@ -11,7 +13,8 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -20,15 +23,6 @@ local serialize=wet_string.serialize
 local html   =require("hoe.html")
 local players=require("hoe.players")
 
-
-local math=math
-local string=string
-local table=table
-
-local ipairs=ipairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
 
 -- manage rounds
 -- not only may there be many rounds active at once
@@ -43,17 +37,18 @@ module("hoe.feats")
 -- only return wetgenes emails for privacy issues?
 --
 --------------------------------------------------------------------------------
-function get_top_players(H,round_id)
-
+function get_top_players(srv,round_id)
+	local H=srv.H
+	
 	-- a unique keyname for this query
 	local cachekey="feats=get_top_players&round="..round_id
 
-	local r=cache.get(H.srv,cachekey) -- do we already know the answer
+	local r=cache.get(srv,cachekey) -- do we already know the answer
 	if r then return json.decode(r) end
 
 	local ret={}
 	
-	local list=players.list(H,{sort="score",limit=100,order="DESC",round_id=round_id})
+	local list=players.list(srv,{sort="score",limit=100,order="DESC",round_id=round_id})
 	
 	local t={}
 	local topscore=1
@@ -75,7 +70,7 @@ function get_top_players(H,round_id)
 	
 	ret.info=t
 	
-	cache.put(H.srv,cachekey,json.encode(ret),10*60) -- save this new result for 10 mins
+	cache.put(srv,cachekey,json.encode(ret),10*60) -- save this new result for 10 mins
 	return ret
 end
 

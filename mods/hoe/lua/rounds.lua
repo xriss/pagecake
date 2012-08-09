@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local wet_html=require("wetgenes.html")
 local json=require("wetgenes.json")
@@ -10,7 +12,8 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -19,20 +22,21 @@ local serialize=wet_string.serialize
 local html  =require("hoe.html")
 
 
-local math=math
-local string=string
-local table=table
-
-local ipairs=ipairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-
 -- manage rounds
 -- not only may there be many rounds active at once
 -- information may still be requested about rounds that have finished
 
 module("hoe.rounds")
+local _M=require(...)
+
+default_props=
+{
+
+}
+
+default_cache=
+{
+}
 
 --------------------------------------------------------------------------------
 --
@@ -41,6 +45,8 @@ module("hoe.rounds")
 --
 --------------------------------------------------------------------------------
 function kind(H)
+	local H=srv and srv.H
+	if not H then return "hoe.round" end
 	if not H.srv.flavour or H.srv.flavour=="hoe" then return "hoe.round" end
 	return H.srv.flavour..".hoe.round"
 end
@@ -50,6 +56,7 @@ end
 -- Create a new round filled with initial default data
 --
 --------------------------------------------------------------------------------
+--[[
 function create(H)
 
 	local ent={}
@@ -82,7 +89,7 @@ function create(H)
 
 	return check(H,ent)
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- check that a round has initial data and set any missing defaults
@@ -91,7 +98,8 @@ end
 -- but it is better to just look at what data is available rather than version test
 --
 --------------------------------------------------------------------------------
-function check(H,ent)
+function check(srv,ent)
+local H=srv.H
 
 	local c=ent.cache
 	
@@ -114,6 +122,7 @@ end
 -- so consider the props read only, they should all be copied into the cache anyhow
 --
 --------------------------------------------------------------------------------
+--[[
 function put(H,ent,t)
 
 	t=t or dat -- use transaction?
@@ -128,13 +137,14 @@ function put(H,ent,t)
 
 	return ks -- return the keystring which is an absolute name
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
 -- Load a round from database
 --
 --------------------------------------------------------------------------------
+--[[
 function get(H,id,t)
 
 	local ent=id
@@ -151,19 +161,20 @@ function get(H,id,t)
 	
 	return check(H,ent)
 end
-
+]]
 --------------------------------------------------------------------------------
 --
 -- Load a list of rounds from database
 --
 --------------------------------------------------------------------------------
-function list(H,opts)
+function list(srv,opts)
+local H=srv.H
 opts=opts or {}
 
 	local list={}
 	
 	local q={
-		kind=kind(H),
+		kind=kind(srv),
 		limit=opts.limit or 10,
 		offset=0,
 		}
@@ -187,14 +198,14 @@ end
 -- find current active round, the one we really really care about.
 --
 --------------------------------------------------------------------------------
-function get_active(H)
-	return (list(H,{state="active",timestep=300,limit=1})[1])
+function get_active(srv)
+	return (list(srv,{state="active",timestep=300,limit=1})[1])
 end
-function get_last(H)
-	return (list(H,{state="over",timestep=300,limit=1})[1]) -- need to fix this at start of next round
+function get_last(srv)
+	return (list(srv,{state="over",timestep=300,limit=1})[1]) -- need to fix this at start of next round
 end
-function get_speed(H)
-	return (list(H,{state="over",timestep=1,limit=1})[1])
+function get_speed(srv)
+	return (list(srv,{state="over",timestep=1,limit=1})[1])
 end
 
 --------------------------------------------------------------------------------
@@ -203,23 +214,14 @@ end
 -- this may get out pf sync and need to be recalculated
 --
 --------------------------------------------------------------------------------
-function inc_players(H,id)
+function inc_players(srv,id)
+local H=srv.H
 	id=id or H.round.key.id -- use this round?
 	
-	for retry=1,10 do
-		local t=dat.begin()
-		local r=get(H,id,t)
-		if r then
-			r.cache.players=(r.cache.players or 0)+1
-			if put(H,r) then
-				if t.commit() then
-					return true
-				end
-			end
-		end
-	end
-	
-	return false
+	return update(srv,id,function(srv,e)
+		e.cache.players=(e.cache.players or 0)+1
+		return true
+	end)
 end
 
 
@@ -229,23 +231,16 @@ end
 -- this may get out pf sync and need to be recalculated
 --
 --------------------------------------------------------------------------------
-function dec_players(H,id)
+function dec_players(srv,id)
+local H=srv.H
 	id=id or H.round.key.id -- use this round?
 	
-	for retry=1,10 do
-		local t=dat.begin()
-		local r=get(H,id,t)
-		if r then
-			r.cache.players=(r.cache.players or 0)-1
-			if put(H,r) then
-				if t.commit() then
-					return true
-				end
-			end
-		end
-	end
+	return update(srv,id,function(srv,e)
+		e.cache.players=(e.cache.players or 0)-1
+		if e.cache.players<0 then e.cache.players=0 end
+		return true
+	end)
 	
-	return false
 end
 
 --------------------------------------------------------------------------------
@@ -256,6 +251,7 @@ end
 -- id can be an id or an entity table from which we will get the id
 --
 --------------------------------------------------------------------------------
+--[[
 function update(H,id,f)
 	if type(id)=="table" then id=id.key.id end -- can turn an entity into an id
 	for retry=1,10 do
@@ -274,3 +270,15 @@ function update(H,id,f)
 		t.rollback() -- undo everything ready to try again
 	end
 end
+]]
+
+
+
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready
+
+
+
+
+

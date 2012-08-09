@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local json=require("wetgenes.json")
 
@@ -12,7 +14,8 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -22,19 +25,6 @@ local html  =require("hoe.html")
 local rounds=require("hoe.rounds")
 
 
-
-local math=math
-local string=string
-local table=table
-local os=os
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-local setmetatable=setmetatable
-
 -- be alert your country needs more lerts
 
 module("hoe.alerts")
@@ -42,7 +32,8 @@ module("hoe.alerts")
 --
 -- print all alerts in this table
 --
-function alerts_to_html(H,as)
+function alerts_to_html(srv,as)
+	local H=srv.H
 
 	if not as or #as==0 then return end -- no alerts so do nothing
 	
@@ -83,19 +74,21 @@ end
 --
 -- get all global alerts, these can be cached and selectively displayed for each user?
 --
-function get_alerts(H)
+function get_alerts(srv)
+	local H=srv.H
 
 	local as={}
 	function as_add(a) if a then as[#as+1]=a end end
 
 --	as_add(check_speedround(H))
-	as_add(check_thisround(H))
+	as_add(check_thisround(srv))
 
 	return as
 end
 
 -- this can be globally cached for a few minutes and applies to everyone
-function check_speedround(H)
+function check_speedround(srv)
+	local H=srv.H
 
 	local t=os.time()
 	local d=os.date("*t",t)
@@ -119,7 +112,8 @@ end
 
 
 -- some info about the round we are currently viewing
-function check_thisround(H)
+function check_thisround(srv)
+	local H=srv.H
 
 	if not H.round then return nil end -- no round
 	

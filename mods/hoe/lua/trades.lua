@@ -1,4 +1,4 @@
-
+--[[
 local json=require("wetgenes.json")
 
 local wet_html=require("wetgenes.html")
@@ -502,3 +502,6 @@ local valid_trades={
 		end
 	end
 end
+
+]]
+

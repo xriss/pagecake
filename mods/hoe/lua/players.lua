@@ -1,3 +1,5 @@
+-- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
+local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
 local json=require("wetgenes.json")
 
@@ -22,22 +24,36 @@ local html  =require("hoe.html")
 local rounds=require("hoe.rounds")
 
 
-
-local math=math
-local string=string
-local table=table
-
-local ipairs=ipairs
-local pairs=pairs
-local tostring=tostring
-local tonumber=tonumber
-local type=type
-
 -- manage players
 
 
 
 module("hoe.players")
+local _M=require(...)
+
+default_props=
+{
+	round_id=-1,
+	
+	score=0,
+	energy=0,
+	bux=0,
+	houses=1,
+	hoes=0,
+	bros=0,
+	gloves=100,
+	sticks=0,
+	manure=0,
+	oil=0,
+	
+	name="anon",
+	email="",
+}
+
+default_cache=
+{
+	shout="",
+}
 
 --------------------------------------------------------------------------------
 --
@@ -45,7 +61,9 @@ module("hoe.players")
 -- make sure we incorporate flavour into the name of our stored data types
 --
 --------------------------------------------------------------------------------
-function kind(H)
+function kind(arv)
+	local H=srv and srv.H
+	if not H then return "hoe.player" end
 	if not H.srv.flavour or H.srv.flavour=="hoe" then return "hoe.player" end
 	return H.srv.flavour..".hoe.player"
 end
@@ -55,6 +73,7 @@ end
 -- Create a new local player in H.round filled with initial data
 --
 --------------------------------------------------------------------------------
+--[[
 function create(H)
 
 	local ent={}
@@ -96,13 +115,15 @@ function create(H)
 
 	return check(H,ent)
 end
+]]
 
 --------------------------------------------------------------------------------
 --
 -- check that a player has initial data and set any missing defaults
 --
 --------------------------------------------------------------------------------
-function check(H,ent)
+function check(srv,ent)
+local H=srv.H
 
 	local r=H.round.cache
 	local c=ent.cache
@@ -134,6 +155,7 @@ end
 -- update the cache, this will copy it into props
 --
 --------------------------------------------------------------------------------
+--[[
 function put(H,ent,t)
 
 	t=t or dat -- use transaction?
@@ -148,7 +170,7 @@ function put(H,ent,t)
 
 	return ks -- return the keystring which is an absolute name
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
@@ -156,6 +178,7 @@ end
 -- the props will be copied into the cache
 --
 --------------------------------------------------------------------------------
+--[[
 function get(H,id,t)
 
 	local ent=id
@@ -172,19 +195,20 @@ function get(H,id,t)
 	
 	return check(H,ent)
 end
-
+]]
 
 --------------------------------------------------------------------------------
 --
 -- remove any extra players and find our player
 --
 --------------------------------------------------------------------------------
-function find(H,roundid,userid)
+function find(srv,roundid,userid)
+local H=srv.H
 
 -- check that we only have one player
 
 	local q={
-			kind=kind(H),
+			kind=kind(srv),
 			limit=100,
 			offset=0,
 			}
@@ -197,11 +221,11 @@ function find(H,roundid,userid)
 	
 	for i=2,#r.list do local v=r.list[i] -- delete any extra ghosts if they exist
 		dat.del(v.key)
-		rounds.dec_players(H,H.round.key.id) -- adjust round player count -1
+		rounds.dec_players(srv,H.round.key.id) -- adjust round player count -1
 	end
 	
 	if r.list[1] then -- this is who we are
-		return check(H,dat.build_cache(r.list[1]))
+		return check(srv,dat.build_cache(r.list[1]))
 	end
 
 end
@@ -212,12 +236,13 @@ end
 -- find player and fix the session to link to this player id
 --
 --------------------------------------------------------------------------------
-function fix_session(H,sess,roundid,userid)
+function fix_session(srv,sess,roundid,userid)
+local H=srv.H
 
 	local c=sess.cache
 	c.hoeplayer=c.hoeplayer or {}
 	
-	local p=find(H,roundid,userid)
+	local p=find(srv,roundid,userid)
 	
 	if p then
 		c.hoeplayer[roundid]=p.key.id
@@ -243,18 +268,19 @@ end
 -- but it will probably work
 --
 --------------------------------------------------------------------------------
-function join(H,user)
+function join(srv,user)
+local H=srv.H
 	if H.round.cache.state~="active" then return false end -- can only join an active round
 
-	local p=create(H)
+	local p=create(srv)
 	p.cache.email=user.cache.id
 	p.cache.name=user.cache.name
 
-	if put(H,p) then -- new player put ok
+	if put(srv,p) then -- new player put ok
 
-		rounds.inc_players(H,H.round.key.id) -- adjust round player count +1
+		rounds.inc_players(srv,H.round.key.id) -- adjust round player count +1
 		
-		return find(H,H.round.key.id,user.cache.id) -- find this player and remove any bad players
+		return find(srv,H.round.key.id,user.cache.id) -- find this player and remove any bad players
 
 	end
 end
@@ -264,13 +290,14 @@ end
 -- Load a list of players from database
 --
 --------------------------------------------------------------------------------
-function list(H,opts,t)
+function list(srv,opts,t)
+local H=srv.H
 	opts=opts or {} -- stop opts from being nil
 	
 	t=t or dat -- use transaction?
 	
 	local q={
-		kind=kind(H),
+		kind=kind(srv),
 		limit=opts.limit or 100,
 		offset=opts.offset or 0,
 		}
@@ -311,9 +338,10 @@ end
 -- numbers are added to existing values, strings are set
 --
 --------------------------------------------------------------------------------
-function update_add(H,id,by)
+function update_add(srv,id,by)
+local H=srv.H
 
-	local f=function(H,p)
+	local f=function(srv,p)
 		if by.houses and by.houses<0 then
 			if (p.houses+by.houses)<1 then -- must keep one house
 				return false
@@ -339,7 +367,7 @@ function update_add(H,id,by)
 		end
 		return true
 	end
-	return update(H,id,f)	
+	return update(srv,id,f)	
 end
 
 --------------------------------------------------------------------------------
@@ -347,15 +375,16 @@ end
 -- change a player by a table, each value is set
 --
 --------------------------------------------------------------------------------
-function update_set(H,id,by)
+function update_set(srv,id,by)
+local H=srv.H
 
-	local f=function(H,p)
+	local f=function(srv,p)
 		for i,v in pairs(by) do
 			p[i]=v
 		end
 		return true
 	end		
-	return update(H,id,f)	
+	return update(srv,id,f)
 end
 
 --------------------------------------------------------------------------------
@@ -366,17 +395,19 @@ end
 -- id can be an id or a player table from which we will get the id
 --
 --------------------------------------------------------------------------------
-function update(H,id,f)
+--[[
+function update(srv,id,f)
+local H=srv.H
 
 	if type(id)=="table" then id=id.key.id end -- can turn a player into an id
 		
 	for retry=1,10 do
 		local t=dat.begin()
-		local p=get(H,id,t)
+		local p=get(srv,id,t)
 		if p then
-			if not f(H,p.cache) then t.rollback() return false end -- hard fail, possibly due to lack of energy
-			check(H,p) -- also update the score
-			if put(H,p,t) then -- player put ok
+			if not f(srv,p.cache) then t.rollback() return false end -- hard fail, possibly due to lack of energy
+			check(srv,p) -- also update the score
+			if put(srv,p,t) then -- player put ok
 				if t.commit() then -- success
 					return p -- return the adjusted player
 				end
@@ -386,3 +417,12 @@ function update(H,id,f)
 	end
 	
 end
+]]
+
+
+dat.set_defs(_M) -- create basic data handling funcs
+
+dat.setup_db(_M) -- make sure DB exists and is ready
+
+
+
