@@ -426,14 +426,15 @@ end
 --
 -----------------------------------------------------------------------------
 
-function import(tab)
+function import(tab,fname)
 
 	tab.plates=tab.plates or {}
 
+log("checking plates "..(fname or "?") )
 	local text=""
-	if sys.file_exists("lua/plates.html") then
---log("loading plates")
-		text=sys.bytes_to_string(sys.file_read("lua/plates.html")) or ""
+	if sys.file_exists(fname or "lua/plates.html") then
+log("loading plates "..(fname or "?") )
+		text=sys.bytes_to_string(sys.file_read(fname or "lua/plates.html")) or ""
 	end
 	local chunks=waka.text_to_chunks(text)
 	
