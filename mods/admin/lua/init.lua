@@ -126,18 +126,18 @@ local put=make_put(srv)
 			local jj=json.decode(j.props.json)
 			local call_hooks_changed
 			local d
-			if j.key.kind=="waka.pages" then
+			if j.key.kind:sub(-#"blog.pages")=="waka.pages" then
 			
 				d=require("waka.pages")
 				call_hooks_changed=require("waka").call_hooks_changed
 				
 				pcall(function() require("comic") end) -- make sure we have hooks?
 				
-			elseif j.key.kind=="blog.pages" then
+			elseif j.key.kind:sub(-#"blog.pages")=="blog.pages" then
 			
 				d=require("blog.pages")
 
-			elseif j.key.kind=="note.comments" then
+			elseif j.key.kind:sub(-#"note.comments")=="note.comments" then
 			
 				d=require("note.comments")
 				

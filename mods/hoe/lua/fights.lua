@@ -450,7 +450,9 @@ end
 --
 -- create a party, nothing is written to the database it just works out fight data locally
 --
--- a party is an attempt to steal another players hoes
+-- a party is an attempt to steal another players hoes, basically a fight using manure and bros
+-- rather than sticks and bros and also include the number of houses as a limit to how much manure
+-- and bros you can use.
 --
 --------------------------------------------------------------------------------
 function create_party(srv,p1,p2)
@@ -459,8 +461,8 @@ function create_party(srv,p1,p2)
 	local ent=create(srv)
 	local c=ent.cache
 
-	c.energy=math.ceil(p1.cache.houses) -- costs 1 energy per house
-	if c.energy<1  then c.energy=1  end
+--	c.energy=math.ceil(p1.cache.houses) -- costs 1 energy per house
+--	if c.energy<1  then c.energy=1  end
 	
 	c.actor1=p1.key.id
 	c.actor2=p2.key.id
@@ -474,14 +476,20 @@ function create_party(srv,p1,p2)
 	
 	for i=1,#c.sides do local v=c.sides[i]
 		v.result={} -- the change in stats
-		v.party=v.player.houses*1000 -- every house is worth 1000 manure
-		v.manure=v.player.houses*1000 -- every party needs manure
+
+		v.bros=v.player.houses*v.player.hoes -- every party needs bros, this is the maximum amount
+		if v.bros>v.player.bros then v.bros=v.player.bros end -- unless there is not enough bros
 		
+		v.manure=v.bros -- every party can use 1 manure per bro
 		if v.manure>v.player.manure then v.manure=v.player.manure end -- unless there is not enough manure
 		
-		v.power=v.party+v.manure -- total fighting power is manure powered only, hoes are fickle
+		v.power=v.bros+v.manure -- total fighting power is manure and bro powered only, houses just *host* the party
 		
 	end
+
+	c.energy=math.ceil(att.power/1000) -- costs 1 energy per 1000 bros+manure partying
+	if c.energy<1  then c.energy=1  end
+
 		
 	c.percent=winchance(att.power,def.power) -- this is the real chance of attacker winning (maybe randomised?)
 		
@@ -508,7 +516,7 @@ function create_party(srv,p1,p2)
 	
 		c.act="partyfail"
 		
-		att.result.manure=-att.manure -- all manure is lost
+		att.result.manure=-att.manure -- all manure is lost (it was one hell of a party)
 		
 		local manure=def.manure -- stop small niggling
 		if att.manure < def.manure then manure=att.manure end		-- less cost on a small attack

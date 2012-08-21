@@ -9,6 +9,7 @@ local wstr=require("wetgenes.string")
 function require_config_dest_sess()
 	config.dest=config.args[3]
 	config.sess=config.args[4]
+	config.flavour=config.args[5] or ""
 
 	if not config.dest or not config.sess then
 

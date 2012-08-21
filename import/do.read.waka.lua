@@ -14,7 +14,7 @@ local limit=10
 while docont do
 	docont=false
 	local b,t
-	b=geturl(config.dest.."admin/api",{cmd="read",limit=limit,offset=offset,kind="waka.pages"})
+	b=geturl(config.dest.."admin/api",{cmd="read",limit=limit,offset=offset,kind=config.flavour.."waka.pages"})
 	t=json.decode(b.body)
 	
 	for i,v in ipairs(t.list) do

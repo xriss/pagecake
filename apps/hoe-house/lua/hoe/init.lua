@@ -1344,7 +1344,8 @@ function serv_cron(H)
 	end
 	
 	local d=os.date("*t")
-		
+-- no more new rounds		
+--[[
 	if #list==0 then -- when all rounds are over, create a new default active round
 	
 		H.srv.put("there are no active rounds\n")
@@ -1357,6 +1358,7 @@ function serv_cron(H)
 			
 		end
 	end
+]]
 	
 --[[
 	if numof_fastrounds==0 then -- check if we should create a new fastround

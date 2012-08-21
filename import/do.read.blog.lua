@@ -14,9 +14,12 @@ local limit=10
 while docont do
 	docont=false
 	local b,t
-	b=geturl(config.dest.."admin/api",{cmd="read",limit=limit,offset=offset,kind="blog.pages"})
+	b=geturl(config.dest.."admin/api",{cmd="read",limit=limit,offset=offset,kind=config.flavour.."blog.pages"})
 	t=json.decode(b.body)
 	
+	if not (t and t.list) then
+		error(wstr.dump(b))
+	end
 	for i,v in ipairs(t.list) do
 		local fname="cache/blog/"..v.key.id
 		print( fname )
