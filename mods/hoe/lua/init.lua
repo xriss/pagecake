@@ -1133,13 +1133,13 @@ local H=srv.H
 	
 		H.srv.put("there are no active rounds\n")
 
---		if d.hour==0 and d.min<30 then -- start a new one but only within the first halfhour of the day
+		if d.hour==0 then -- start a new one but only within the first hour of the day
 		
 			local r=rounds.create(srv)
 			rounds.put(srv,r)
 			H.srv.put("created new round "..r.key.id.."\n")
 			
---		end
+		end
 	end
 	
 --[[

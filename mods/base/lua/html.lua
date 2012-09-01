@@ -20,14 +20,15 @@ local ngx=ngx
 
 module("base.html")
 local _M=require("base.html")
-local _M=require("base.html")
+
+_M.basefunc={}
 
 -----------------------------------------------------------------------------
 --
 -- turn a number of seconds into a rough duration
 --
 -----------------------------------------------------------------------------
-function rough_english_duration(t)
+function _M.basefunc.rough_english_duration(html,t)
 	t=math.floor(t)
 	if t>=2*365*24*60*60 then
 		return math.floor(t/(365*24*60*60)).." years"
@@ -55,7 +56,7 @@ end
 -- turn an integer number into a string with three digit grouping
 --
 -----------------------------------------------------------------------------
-function num_to_thousands(n)
+function _M.basefunc.num_to_thousands(html,n)
 	local p=math.floor(n) -- remove the fractions
 	if p<0 then p=-p end -- remove the sign
 	local s=string.format("%d",p) -- force format integer part only?
@@ -76,15 +77,15 @@ end
 --
 --
 -----------------------------------------------------------------------------
-header=function(d)
+_M.basefunc.header=function(html,d)
 
 	local srv=d.srv or (ngx and ngx.ctx) or {}
 	
 	if (srv.opts("html","bar") or "head") =="head" then
-		d.bar=get_html("aelua_bar",d)
+		d.bar=html.get_html("aelua_bar",d)
 	end
 	if srv.opts("html","bar")=="top" then
-		d.bartop=get_html("aelua_bar",d)
+		d.bartop=html.get_html("aelua_bar",d)
 	end
 	
 	d.bar=d.bar or ""
@@ -172,7 +173,7 @@ header=function(d)
 --<link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
 
 	
-	local p=get_plate_orig("header",[[
+	local p=html.get_plate_orig("header",[[
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -227,7 +228,7 @@ end
 --
 --
 -----------------------------------------------------------------------------
-footer=function(d)
+_M.basefunc.footer=function(html,d)
 
 	local srv=d.srv or (ngx and ngx.ctx) or {} -- hax so we have a srv
 
@@ -237,7 +238,7 @@ footer=function(d)
 
 	d.bar=""
 	if srv.opts("html","bar")=="foot" then
-		d.bar=get_html("aelua_bar",d)
+		d.bar=html.get_html("aelua_bar",d)
 	end
 	
 	if not d.time then
@@ -281,7 +282,7 @@ footer=function(d)
 	end
 
 
-	local p=get_plate("footer",
+	local p=html.get_plate("footer",
 body_junk..[[
 </body>
 </html>
@@ -294,7 +295,7 @@ end
 --
 --
 -----------------------------------------------------------------------------
-about=function(d)
+_M.basefunc.about=function(html,d)
 
 	d=d or {}
 	d.bootstrapp="<a href=\"http://boot-str.appspot.com/\">bootstrapp</a>"
@@ -306,7 +307,7 @@ about=function(d)
 --	d.lua="<a href=\"http://www.lua.org/\">lua</a>"
 --	d.appengine="<a href=\"http://code.google.com/appengine/\">appengine</a>"
 
-	local p=get_plate("about",[[
+	local p=html.get_plate("about",[[
 	{bootstrapp} is a distribution of {aelua} {mods} developed by {wetgenes}.
 ]])
 	return replace(p,d)
@@ -318,8 +319,8 @@ end
 -- both bars simply joined
 --
 -----------------------------------------------------------------------------
-aelua_bar=function(d)
-	return home_bar(d)..user_bar(d)
+_M.basefunc.aelua_bar=function(html,d)
+	return html.home_bar(d)..html.user_bar(d)
 end
 	
 -----------------------------------------------------------------------------
@@ -327,7 +328,7 @@ end
 -- a home / tabs / next page area
 --
 -----------------------------------------------------------------------------
-home_bar=function(d)
+_M.basefunc.home_bar=function(html,d)
 
 	local crumbs=d.crumbs or d.srv.crumbs
 	local s
@@ -339,7 +340,7 @@ home_bar=function(d)
 	end
 	d.crumbs=s or "<a href=\"/\">Home</a>" -- default
 		
-	local p=get_plate("home_bar",[[
+	local p=html.get_plate("home_bar",[[
 <div class="aelua_bar"><div class="aelua_bar2">
 <div class="aelua_home_bar">
 {crumbs}
@@ -355,7 +356,7 @@ end
 -- a hello / login / logout area
 --
 -----------------------------------------------------------------------------
-user_bar=function(d)
+_M.basefunc.user_bar=function(html,d)
 
 	d.adminbar=d.adminbar or ""
 	d.alerts_html=d.alerts_html or (d.srv and d.srv.alerts_html) or ""
@@ -387,7 +388,7 @@ return false;
 }
 </script>
 ]]
-	local p=get_plate("user_bar",[[
+	local p=html.get_plate("user_bar",[[
 <div class="aelua_user_bar">
 {hello} {action}
 </div>
@@ -406,9 +407,9 @@ end
 -- missing content
 --
 -----------------------------------------------------------------------------
-missing_content=function(d)
+_M.basefunc.missing_content=function(html,d)
 
-	local p=get_plate("missing_content",[[
+	local p=html.get_plate("missing_content",[[
 MISSING CONTENT<br/>
 <br/>
 <a href="/">return to the homepage?</a><br/>
@@ -442,17 +443,21 @@ log("loading plates "..(fname or "?") )
 		tab.plates[v.name]=v.text
 	end
 
--- these are shoved into the global, well module, name space
-	function get_html(n,d)
+-- these are shoved into the global, well module, name space?
+	local function get_html(n,d)
 		return ( tab[n](d) )
 	end
-	function get_plate(name,alt)
+	local function get_plate(name,alt)
 		return ( tab.plates[name] or alt or name )
 	end
-	get_plate_orig=get_plate
-	function get_plate(name,alt) -- some simple debug
+	local get_plate_orig=get_plate
+	local function get_plate(name,alt) -- some simple debug
 		return "\n<!-- #"..name.." -->\n\n"..get_plate_orig(name,alt)
 	end
+	
+	tab.get_html=get_html
+	tab.get_plate=get_plate
+	tab.get_plate_orig=get_plate_orig
 	
 -- build default plates functions for all plates that we found
 	for n,_ in pairs(tab.plates) do
@@ -471,9 +476,6 @@ log("loading plates "..(fname or "?") )
 
 -- copy our functions 
 	for _,n in ipairs{
-						"get_plate_orig",
-						"get_plate",
-						"get_html",
 						"rough_english_duration",
 						"num_to_thousands",
 						"header",
@@ -484,7 +486,7 @@ log("loading plates "..(fname or "?") )
 						"user_bar",
 						"missing_content",
 					} do
-		tab[n]=_M[n]
+		tab[n]=function(...) return _M.basefunc[n](tab,...) end
 	end
 		
 

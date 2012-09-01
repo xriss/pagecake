@@ -215,10 +215,10 @@ end
 --
 --------------------------------------------------------------------------------
 function get_active(srv)
-	return (list(srv,{state="active",timestep=300,limit=1})[1])
+	return (list(srv,{state="active",timestep=100,limit=1})[1])
 end
 function get_last(srv)
-	return (list(srv,{state="over",timestep=300,limit=1})[1]) -- need to fix this at start of next round
+	return (list(srv,{state="over",timestep=100,limit=1})[1]) -- need to fix this at start of next round
 end
 function get_speed(srv)
 	return (list(srv,{state="over",timestep=1,limit=1})[1])

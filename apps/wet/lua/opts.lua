@@ -7,6 +7,8 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
+	{"play",	"play"},			-- any domain with play in it
+
 	{"cake",	"cake"},			-- any domain with cake in it
 	{"catch",	"catch"},			-- any domain with catch in it
 
@@ -119,8 +121,6 @@ print("test")
 	add_map(map,"blog")
 	add_map(map,"thumbcache")
 
-	add_map(map,"hoe")
-
 	return map
 end
 
@@ -150,48 +150,55 @@ map=default_map()
 
 mods=find_mods(map) -- build mods pointers from the map for default app
 
-if ngx then
-	local srv=ngx.ctx
+setup=function()
+	setup=function()end -- can only run once
 	
-	local old_vhost=srv.vhost
-
-	for n,v in pairs(vhosts) do --we need to load up each vhost for initial setup
-	
-		srv.vhost=n
-
-		v.map=default_map()
-
-		if n=="4lfa" then -- extra site setup
+	if ngx then
+		local srv=ngx.ctx
 		
-			add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
+		local old_vhost=srv.vhost
+
+		for n,v in pairs(vhosts) do --we need to load up each vhost for initial setup
+		
+			srv.vhost=n
+
+			v.map=default_map()
+
+			if n=="4lfa" then -- extra site setup
 			
-		elseif n=="gamecake" then -- extra site setup
-		
+				add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
+				
+			elseif n=="hoe" then -- extra site setup
+
+				add_map(v.map,"hoe")
+
+			end
+
+			v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost
+			if v.lua then
+				local f=loadstring(v.lua)
+				if f then
+					setfenv(f,opts)
+					pcall( f )
+				end
+			end
+
+			v.mods=find_mods(v.map) -- build mods pointers from the map
+
 		end
 
-		v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost
-		if v.lua then
-			local f=loadstring(v.lua)
+		srv.vhost=old_vhost
+	else
+
+		lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
+		if lua then
+			local f=loadstring(lua)
 			if f then
 				setfenv(f,opts)
 				pcall( f )
 			end
 		end
 
-		v.mods=find_mods(v.map) -- build mods pointers from the map
-
-	end
-
-	srv.vhost=old_vhost
-else
-
-	lua = ae_opts.get_dat("lua") -- this needs to be per instance, so need to change the way opts works...
-	if lua then
-		local f=loadstring(lua)
-		if f then
-			setfenv(f,opts)
-			pcall( f )
-		end
 	end
 
 end

@@ -15,6 +15,7 @@ local url_esc=wet_html.url_esc
 
 
 module(...)
+local _M=require(...)
 
 local base_html=require("base.html")
 

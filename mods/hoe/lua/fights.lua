@@ -374,17 +374,15 @@ function create_arson(srv,p1,p2)
 	for i=1,#c.sides do local v=c.sides[i]
 		v.result={} -- the change in stats
 		v.bros=v.player.bros -- all bros are involved
-		v.sticks=v.bros -- every bro gets a stick
 		
 		if v==att then -- need 10x the sticks for attacker
-			v.sticks=v.sticks*10
-		end
-		
-		if v.sticks>v.player.sticks then v.sticks=v.player.sticks end -- unless there are not enough sticks
-		v.power=v.bros+v.sticks -- total fighting power
-		
-		if v==att then -- scale attacker power back so it is a fair fight
-			v.power=v.power*(2/11)
+			v.sticks=v.bros*10 -- every bro gets 10 sticks
+			if v.sticks>v.player.sticks then v.sticks=v.player.sticks end -- unless there are not enough sticks
+			v.power=v.bros+math.floor(v.sticks/10) -- total fighting power
+		else
+			v.sticks=v.bros -- every bro gets a stick
+			if v.sticks>v.player.sticks then v.sticks=v.player.sticks end -- unless there are not enough sticks
+			v.power=v.bros+v.sticks -- total fighting power
 		end
 	end
 	
@@ -411,13 +409,11 @@ function create_arson(srv,p1,p2)
 		att.result.houses=0 -- did not lose 1 house
 		def.result.houses=-1 -- destroys 1 house
 		
-		att.result.sticks=-frand(	att.sticks,		90,100,100)		-- att loses 90-100% of (10x) sticks
+		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0-100% of (10x) sticks
 		att.result.bros  =-frand(	att.bros,		0,  5,100)		-- att loses 0%->5% of bros
 		
-		local sticks=def.sticks
-		if att.sticks < def.sticks then sticks=att.sticks end		-- less stick loss on a small attack
-		def.result.sticks=-frand(	sticks,			0,100,100)		-- def loses 0%->100% of min sticks
-		def.result.bros  =-frand(	def.bros,		0,  2,100)		-- def loses 0%->2% of bros
+		def.result.sticks=-frand(	def.sticks,		0,100,100)		-- def loses 0%->100% of sticks
+		def.result.bros  =-frand(	def.bros,		5, 15,100)		-- def loses 5%->15% of bros
 		
 		-- a house burning has a chance of destroying all the victims sticks
 		if math.random(0,99)<23 then
@@ -430,7 +426,7 @@ function create_arson(srv,p1,p2)
 		att.result.houses=0 -- did not lose 1 house
 		def.result.houses=0 -- did not lose 1 house
 		
-		att.result.sticks=-frand(	att.sticks,		90,100,100)		-- att loses 90%->100% of (10x) sticks
+		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0%->100% of (10x) sticks
 		att.result.bros  =-frand(	att.bros,		0,  5,100)		-- att loses 0%->5% of bros
 		
 		local sticks=def.sticks
