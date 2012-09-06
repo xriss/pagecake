@@ -231,7 +231,7 @@ function search(srv,opts)
 	local datastr
 	local err
 	
-	local data=cache.get(srv,cachename) -- check cache
+	local data -- =cache.get(srv,cachename) -- check cache this seems to break something, key is probably too long
 	if data then return data end
 	
 	if not datastr then -- we didnt got it from the cache?

@@ -358,8 +358,6 @@ function create_arson(srv,p1,p2)
 	local ent=create(srv)
 	local c=ent.cache
 
-	c.energy=math.ceil(p1.cache.bros/1000) -- costs 1 energy per 1000 bros
-	if c.energy<1  then c.energy=1  end
 	
 	c.actor1=p1.key.id
 	c.actor2=p2.key.id
@@ -375,16 +373,14 @@ function create_arson(srv,p1,p2)
 		v.result={} -- the change in stats
 		v.bros=v.player.bros -- all bros are involved
 		
-		if v==att then -- need 10x the sticks for attacker
-			v.sticks=v.bros*10 -- every bro gets 10 sticks
-			if v.sticks>v.player.sticks then v.sticks=v.player.sticks end -- unless there are not enough sticks
-			v.power=v.bros+math.floor(v.sticks/10) -- total fighting power
-		else
-			v.sticks=v.bros -- every bro gets a stick
-			if v.sticks>v.player.sticks then v.sticks=v.player.sticks end -- unless there are not enough sticks
-			v.power=v.bros+v.sticks -- total fighting power
-		end
+		v.sticks=v.bros*v.player.houses -- every bro gets houses sticks
+		if v.sticks>v.player.sticks then v.sticks=v.player.sticks end -- unless there are not enough sticks
+		v.power=v.bros+v.sticks -- total fighting power
+
 	end
+
+	c.energy=math.ceil(att.power/2000) -- costs 1 energy per 2000 bros+sticks
+	if c.energy<1  then c.energy=1  end
 	
 	c.percent=winchance(att.power,def.power) -- this is the real chance of attacker winning (maybe randomised?)
 	
@@ -412,7 +408,7 @@ function create_arson(srv,p1,p2)
 		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0-100% of (10x) sticks
 		att.result.bros  =-frand(	att.bros,		0,  5,100)		-- att loses 0%->5% of bros
 		
-		def.result.sticks=-frand(	def.sticks,		0,100,100)		-- def loses 0%->100% of sticks
+		def.result.sticks=-frand(	def.sticks,		0,100,100)		-- def loses 0%->100% of (10x) sticks
 		def.result.bros  =-frand(	def.bros,		5, 15,100)		-- def loses 5%->15% of bros
 		
 		-- a house burning has a chance of destroying all the victims sticks
@@ -476,14 +472,14 @@ function create_party(srv,p1,p2)
 		v.bros=v.player.houses*v.player.hoes -- every party needs bros, this is the maximum amount
 		if v.bros>v.player.bros then v.bros=v.player.bros end -- unless there is not enough bros
 		
-		v.manure=v.bros -- every party can use 1 manure per bro
+		v.manure=v.player.houses*v.player.hoes -- every party can use 1 manure per bro
 		if v.manure>v.player.manure then v.manure=v.player.manure end -- unless there is not enough manure
 		
 		v.power=v.bros+v.manure -- total fighting power is manure and bro powered only, houses just *host* the party
 		
 	end
 
-	c.energy=math.ceil(att.power/1000) -- costs 1 energy per 1000 bros+manure partying
+	c.energy=math.ceil(att.power/2000) -- costs 1 energy per 2000 bros+manure partying
 	if c.energy<1  then c.energy=1  end
 
 		
