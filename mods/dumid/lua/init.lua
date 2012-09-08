@@ -102,7 +102,32 @@ local put=make_put(srv)
 	local continue="/"
 	if srv.gets.continue then continue=srv.gets.continue end -- where we wish to end up
 	
-	if dat=="wetgenes" then
+
+	if dat=="steam" then
+
+		local callback=srv.url_base.."callback/steam/?continue="..wet_html.url_esc(continue)
+		local site="http://"..srv.url_slash[3].."/"
+		local url=
+"https://steamcommunity.com/openid/login?"..
+"openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
+"openid.mode=checkid_setup&"..
+"openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
+"openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
+"openid.ns.sreg=http%3A%2F%2Fopenid.net%2Fextensions%2Fsreg%2F1.1&"..
+"openid.sreg.optional=nickname&"..
+"openid.return_to="..wet_html.url_esc(callback).."&"..
+"openid.realm="..wet_html.url_esc(site)
+
+--[[
+            'openid.return_to'  => $returnUrl,
+            'openid.mode'       => $immediate ? 'checkid_immediate' : 'checkid_setup',
+            'openid.identity'   => $this->identity,
+            'openid.trust_root' => $this->trustRoot,
+]]            
+            
+		return srv.redirect(url)
+
+	elseif dat=="wetgenes" then
 	
 		local callback=srv.url_base.."callback/wetgenes/?continue="..wet_html.url_esc(continue)
 		local tld="com"
@@ -182,7 +207,54 @@ local put=make_put(srv)
 	local authentication={} -- store any values we wish to cache here
 	local info={}
 	
-	if data=="wetgenes" then
+	if data=="steam" then
+
+--[[
+{
+ ["openid.op_endpoint"]="https://steamcommunity.com/openid/login",
+ ["openid.ns"]="http://specs.openid.net/auth/2.0",
+ ["openid.assoc_handle"]="1234567890",
+ ["openid.return_to"]="http://host.local:8888/dumid/callback/steam/?continue=http://host.local:8888/welcome",
+ ["openid.claimed_id"]="http://steamcommunity.com/openid/id/76561197960568486",
+ ["openid.response_nonce"]="2012-09-08T12:57:06ZpjSZnDwEuQjYzeios0/wIszJnTI=",
+ ["openid.signed"]="signed,op_endpoint,claimed_id,identity,return_to,response_nonce,assoc_handle",
+ ["openid.sig"]="iUve+D5/LAtBY9kHogq1KJsl23Q=",
+ ["continue"]="http://host.local:8888/welcome",
+ ["openid.mode"]="id_res",
+ ["openid.identity"]="http://steamcommunity.com/openid/id/76561197960568486",
+}
+]]
+		log(wstr.dump(srv.gets))
+		
+		
+--[[
+openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0 &openid.mode=id_res &openid.op_endpoint=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fud &openid.response_nonce=2010-02-12T14%3A46%3A52Z1PDyxBssEN9p5g &openid.return_to=http%3A%2F%2Flocalhost%3A104%2Fevalgoogle.aspx &openid.assoc_handle=AOQobUfpVnBFYzFO15z92rru88nWjEnw0u8ethVscpjDwkssp8GjVc0u &openid.signed=op_endpoint%2Cclaimed_id%2Cidentity%2Creturn_to %2Cresponse_nonce%2Cassoc_handle &openid.sig=24Hetky5HrNwrY3%2B%2B2vtIGnvmnI%3D &openid.identity=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3D{SOMEID} &openid.claimed_id=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3D{SOMEID}
+]]
+
+		local url=
+"http://steamcommunity.com/openid/login?"..
+"openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
+"openid.mode=id_res&"..
+"openid.op_endpoint="..wet_html.url_esc(srv.gets["openid.op_endpoint"]).."&"..
+"openid.response_nonce="..wet_html.url_esc(srv.gets["openid.response_nonce"]).."&"..
+"openid.assoc_handle="..wet_html.url_esc(srv.gets["openid.assoc_handle"]).."&"..
+"openid.signed="..wet_html.url_esc(srv.gets["openid.signed"]).."&"..
+"openid.sig="..wet_html.url_esc(srv.gets["openid.sig"]).."&"..
+"openid.claimed_id="..wet_html.url_esc(srv.gets["openid.claimed_id"]).."&"..
+"openid.identity="..wet_html.url_esc(srv.gets["openid.identity"]).."&"..
+""
+
+
+			local got=fetch.get(url) -- ask for confirmation from server
+			log(wstr.dump(got))
+--			if got and type(got.body=="string") then
+--			end
+
+
+		
+		return
+
+	elseif data=="wetgenes" then
 	
 		if srv.gets.confirm then
 		

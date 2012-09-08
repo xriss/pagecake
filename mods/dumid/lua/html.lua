@@ -108,6 +108,13 @@ more=more..[[
 ]]
 	end
 
+if false then
+more=more..[[
+<div class="cont">
+	<a class="button" href="{srv.url_base}login/steam/?continue={continue}">Steam</a>
+</div>
+]]
+end
 	
 	d.continue=url_esc(d.continue)
 	return replace([[
