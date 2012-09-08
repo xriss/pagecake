@@ -22,17 +22,17 @@
       </and> </not>
     </condition>
   </fail>
-  <fail message="this project requires a bin checkout from http://hg.4lfa.com/bin in the ../../../anlua/bin directory" >
+  <fail message="this project requires a bin checkout from http://bitbucket.com/xixs/bin in the ../../../bin directory" >
     <condition>
       <not> <and>
-          <available file="../../../anlua/bin/.hgignore"/>
+          <available file="../../../bin/.hgignore"/>
       </and> </not>
     </condition>
   </fail>
-  <fail message="this project requires a jill checkout from https://krissd-anlua-jillcode.googlecode.com/hg/ in the ../../../anlua/jill directory" >
+  <fail message="this project requires a jill checkout from https://bitbucket.com/xixs/jill in the ../../../jill directory" >
     <condition>
       <not> <and>
-          <available file="../../../anlua/jill/readme.txt"/>
+          <available file="../../../jill/readme.txt"/>
       </and> </not>
     </condition>
   </fail>
@@ -64,7 +64,7 @@
       <fileset dir="private/WEB-INF"> </fileset>
     </copy>
     <copy todir="${war.dir}/WEB-INF/lua" includeEmptyDirs="false" overwrite="true" >
-      <fileset dir="../../../anlua/bin/lua"> </fileset>
+      <fileset dir="../../../bin/lua"> </fileset>
       <fileset dir="lua">  </fileset>
     </copy>
     <copy todir="${war.dir}/lua" includeEmptyDirs="false" overwrite="true" >
@@ -131,7 +131,7 @@
     <mkdir dir="${war.dir}/WEB-INF/classes"/>
     <mkdir dir="${war.dir}/WEB-INF/lib"/>
 
-    <javac srcdir="../../../anlua/java:../../../anlua/jill/code" destdir="${war.dir}/WEB-INF/classes" includeantruntime="false" debug="on">
+    <javac srcdir="../../../anlua/java:../../../jill/code" destdir="${war.dir}/WEB-INF/classes" includeantruntime="false" debug="on">
       <classpath>
 		<fileset dir="../../../anlua/class">
 		  <include name="**/*.jar" />
