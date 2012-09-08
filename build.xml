@@ -4,7 +4,7 @@
   <classpath> <pathelement location="../../../anlua/class/ant-contrib.jar"/> </classpath>
 </taskdef>
 
-  <property name="appengine.sdk" location="../../../anlua/appengine-java-sdk"/>
+  <property name="appengine.sdk" location="../../../sdks/appengine-java-sdk"/>
 
   <!-- Check that the SDK value is set and seems sane, so we can give a nicer error if not.  -->
   <fail message="Please define the appengine.sdk property to point to your SDK directory" >
