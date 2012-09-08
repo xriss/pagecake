@@ -435,7 +435,7 @@ local put=H.put
 		end
 		if rep>p.energy then rep=p.energy end -- do not try and work too many times
 		if rep<1 then rep=1 end
-		if rep>20 then rep=20 end
+		if rep>50 then rep=50 end
 		xwork=rep
 
 
