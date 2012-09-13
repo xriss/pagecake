@@ -34,12 +34,17 @@ end
 --
 -----------------------------------------------------------------------------
 admin_edit=function(d)
-	
 --print("OPTS",tostring(opts))
+
 	d=d or {}
+	local srv=d.srv or (ngx and ngx.ctx) or {}
+
 	d.bootstrapp="<a href=\"http://boot-str.appspot.com/\">bootstrapp</a>"	
 	d.version=opts.bootstrapp_version or 0
-	d.oldopts=wet_string.serialize(opts,{pretty=true,no_duplicates=true})
+	d.oldopts=wet_string.serialize(srv.opts(),{pretty=true,no_duplicates=true})
+
+
+
 	
 	return replace([[
 <div>

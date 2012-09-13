@@ -17,6 +17,7 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
+local wstr=wet_string
 local replace=wet_string.replace
 local macro_replace=wet_string.macro_replace
 local trim=wet_string.trim
@@ -101,15 +102,17 @@ end
 -- return the merged and refined chunks
 --
 -----------------------------------------------------------------------------
-function bubble(srv,ent,overload)
+function bubble_chunks(srv,ent,overload)
+
 	local chunks={}	-- merge all pages and their parents into this
 	local ps={}
 	
+-- safe to call with a nil ent and a nil overload just to get base blog chunks
 	ps[#ps+1]=ent
 	
 -- and the wiki pages for style, should fix this to use urls
 
-	local p=wakapages.get(srv,"/blog")
+	local p=wakapages.get(srv,"/blog") -- hardcoded, should fix...
 	ps[#ps+1]=p
 	p=wakapages.get(srv,"/")
 	ps[#ps+1]=p
@@ -121,8 +124,10 @@ function bubble(srv,ent,overload)
 		wet_waka.chunks_merge(chunks,v.chunks) -- merge all pages chunks
 	end
 
+	local cid=""
+	if ent and ent.cache and ent.cache.id then cid=ent.cache.id end
 	local crumbs={ {url="/",text="Home"} , {url="/blog",text="blog"} }
-	crumbs[#crumbs+1]={url="/blog/"..ent.cache.id,text=ent.cache.id}
+	crumbs[#crumbs+1]={url="/blog/"..cid,text=cid}
 	srv.crumbs=crumbs
 	
 	if overload then
@@ -130,6 +135,13 @@ function bubble(srv,ent,overload)
 		wet_waka.chunks_merge(chunks,oc) -- replace given chunks with new chunks
 	end
 
+	return chunks
+end
+
+function bubble(srv,ent,overload)
+
+	local chunks=bubble_chunks(srv,ent,overload)
+	
 	local refined=wet_waka.refine_chunks(srv,chunks,{noblog=true}) -- build processed strings
 	
 	refined.body=refined.body or "" -- must have a body
@@ -373,10 +385,19 @@ local get,put=make_get_put(srv)
 			
 		
 		else
-			local list=pages.list(srv,{group=group,limit=10,layer=LAYER_PUBLISHED,sort="pubdate"})
+			local chunks=bubble_chunks(srv) -- this gets parent entities
+			
+			local limit=10
+print(wstr.dump(chunks.opts))
+			if chunks.opts then
+				limit=chunks.opts.opts.limit or limit
+				limit=tonumber(limit)
+			end
+
+			local list=pages.list(srv,{group=group,limit=limit,layer=LAYER_PUBLISHED,sort="pubdate"})
 			local refined
 			if list[1] then -- get css?
-				refined=chunk_prepare(srv,list[1],opts)
+				refined=bubble(srv)
 			end
 			local css=refined and refined.css
 			srv.set_mimetype("text/html; charset=UTF-8")
