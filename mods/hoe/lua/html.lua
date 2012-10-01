@@ -63,7 +63,7 @@ end
 function num_to_thousands(n)
 	local p=math.floor(n) -- remove the fractions
 	if p<0 then p=-p end -- remove the sign
-	local s=string.format("%d",p) -- force format integer part only?
+	local s=string.format("%.0f",p) -- force format integer part only?
 	local len=string.len(s) -- total length of number
 	local skip=len%3 -- size of first batch
 	local t={}
