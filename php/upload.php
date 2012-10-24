@@ -65,7 +65,7 @@ else
     die("<pre>something went wrong please notify the admin</pre>");
 }
 
-$output = shell_exec("cd ../apps/boot-str/ ; echo '$pass' | ../../appengine-java-sdk/bin/appcfg.sh --email=$email update .war");
+$output = shell_exec("cd ../apps/boot-str/ ; echo '$pass' | ../../../sdks/appengine-java-sdk/bin/appcfg.sh --email=$email update .war");
 echo "<pre>$output</pre>";
 
 echo "If everything went OK above then visit <a href='http://$name.appspot.com/'>http://$name.appspot.com/</a> to continue your setup.<br/><br/>";
