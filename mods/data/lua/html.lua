@@ -84,3 +84,13 @@ data_list_item=function(d)
 ]],d)
 
 end
+
+data_list_foot=function(d)
+	return replace([[
+<div>
+<a href="/data?off={page.prev}" >prev page</a> 
+<a href="/data?off={page.next}" >next page</a> 
+</div>
+]],d)
+
+end

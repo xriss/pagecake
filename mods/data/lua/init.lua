@@ -263,13 +263,28 @@ local get,put=make_get_put(srv)
 	
 		put("data_upload_form",d)
 		
-		local t=meta.list(srv,{sort="usedate"})
 		
+		local page={}		
+		page.size=math.floor( tonumber(srv.gets.len) or 100)
+		page.show=math.floor( tonumber(srv.gets.off) or 0)
+		if page.size<1 then page.show=1 end	-- no small sizes
+		if page.show<0 then page.show=0 end	-- no negative offsets
+		
+		local t=meta.list(srv,{sort="usedate",limit=page.size,offset=page.show})
+
+		page.next=page.show+page.size
+		page.prev=page.show-page.size
+
+		if page.prev<0 then page.prev=0 end -- and prev does not go below 0 either	
+		if t and (#t < page.size) then page.next=0 end -- looks like the last page so set next to 0
+		
+		put("data_list_foot",{H=H,page=page})
 		for i,v in ipairs(t) do
 		
 			put("data_list_item",{H=H,it=v})
 		
 		end
+		put("data_list_foot",{H=H,page=page})
 		
 		put("footer")
 		

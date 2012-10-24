@@ -379,7 +379,10 @@ function create_arson(srv,p1,p2)
 
 	end
 
-	c.energy=math.ceil(att.power/2000) -- costs 1 energy per 2000 bros+sticks
+	c.energy=0
+	if att.bros>0 then
+		c.energy=math.ceil(att.power/att.bros) -- costs about 1 energy per house, cheaper if you have less sticks
+	end
 	if c.energy<1  then c.energy=1  end
 	
 	c.percent=winchance(att.power,def.power) -- this is the real chance of attacker winning (maybe randomised?)
@@ -405,14 +408,14 @@ function create_arson(srv,p1,p2)
 		att.result.houses=0 -- did not lose 1 house
 		def.result.houses=-1 -- destroys 1 house
 		
-		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0-100% of (10x) sticks
+		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0-100% of sticks
 		att.result.bros  =-frand(	att.bros,		0,  5,100)		-- att loses 0%->5% of bros
 		
-		def.result.sticks=-frand(	def.sticks,		0,100,100)		-- def loses 0%->100% of (10x) sticks
+		def.result.sticks=-frand(	def.sticks,		0,100,100)		-- def loses 0%->100% of sticks
 		def.result.bros  =-frand(	def.bros,		5, 15,100)		-- def loses 5%->15% of bros
 		
-		-- a house burning has a chance of destroying all the victims sticks
-		if math.random(0,99)<23 then
+		-- a good house burning has a 1 in 4 chance of also destroying all of the victims sticks
+		if math.random(0,99)<25 then
 			def.result.sticks=-def.player.sticks
 		end
 		
@@ -422,7 +425,7 @@ function create_arson(srv,p1,p2)
 		att.result.houses=0 -- did not lose 1 house
 		def.result.houses=0 -- did not lose 1 house
 		
-		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0%->100% of (10x) sticks
+		att.result.sticks=-frand(	att.sticks,		0,100,100)		-- att loses 0%->100% of sticks
 		att.result.bros  =-frand(	att.bros,		0,  5,100)		-- att loses 0%->5% of bros
 		
 		local sticks=def.sticks
