@@ -919,9 +919,9 @@ local H=srv.H
 				local fmt=string.format
 				v.cache.shout=
 [[<a href="]]..url..[[/]]..v.cache.id..[[">
-R: ]]..fmt("%02d",f[1].percent)..[[% (]]..fmt("%02d",f[4].percent)..[[%)<br/>
-A: ]]..fmt("%02d",f[2].percent)..[[% (]]..fmt("%02d",f[5].percent)..[[%)<br/>
-P: ]]..fmt("%02d",f[3].percent)..[[% (]]..fmt("%02d",f[6].percent)..[[%)</a>]]
+R: ]]..fmt("%02d",f[1].percent)..[[% (]]..fmt("%02d",f[4].percent)..[[%) S: ]]..html.num_to_thousands(v.cache.sticks)..[[<br/>
+A: ]]..fmt("%02d",f[2].percent)..[[% (]]..fmt("%02d",f[5].percent)..[[%) S: ]]..html.num_to_thousands(v.cache.sticks)..[[<br/>
+P: ]]..fmt("%02d",f[3].percent)..[[% (]]..fmt("%02d",f[6].percent)..[[%) M: ]]..html.num_to_thousands(v.cache.manure)..[[</a>]]
 
 			end
 			put("player_row",{player=v.cache,idx=i+page.show,crowns="",profile=profile})
