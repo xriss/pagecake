@@ -377,7 +377,7 @@ local get,put=make_get_put(srv)
 			for i,v in ipairs(list) do
 			
 				local c=chunk_prepare(srv,v,opts)
-				local text=get(macro_replace(c[opts.plate or ""] or c.plate_post or "{body}",c))
+				local text=get(macro_replace(--[[ c[opts.plate or ""] or c.plate_post or ]] "{body}",c))
 				text=text..[[<script type="text/javascript" src="]]..srv.url_domain..[[/note/import/blog]]..v.cache.pubname..[[.js"></script>]]
 				put("blog_atom_item",{it=v.cache,refined=c,text=atom_escape(text)})
 			end
