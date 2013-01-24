@@ -7,6 +7,8 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
+	{"cello",	"cello"},			-- any domain with play in it
+
 	{"play",	"play"},			-- any domain with play in it
 
 	{"cake",	"cake"},			-- any domain with cake in it

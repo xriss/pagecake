@@ -38,12 +38,14 @@ end
 blog_edit_form=function(d)
 
 	d.text=html_esc(d.it.text)
+	d.pubdate=os.date("%Y-%m-%d %H:%M:%S",d.it.pubdate)
 
 	return replace([[
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">
 	<table style="float:right">
 	<tr><td> group   </td><td> <input type="text" name="group"   size="20" value="{it.group}"  /> </td></tr>
 	<tr><td> pubname </td><td> <input type="text" name="pubname" size="20" value="{it.pubname}"/> </td></tr>
+	<tr><td> pubdate </td><td> <input type="text" name="pubdate" size="20" value="{pubdate}"/> </td></tr>
 	<tr><td> layer   </td><td> <input type="text" name="layer"   size="20" value="{it.layer}"  /> </td></tr>
 	</table>
 	<textarea style="width:100%" name="text" cols="80" rows="24" class="field" >{text}</textarea>

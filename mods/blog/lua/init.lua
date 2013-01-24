@@ -51,6 +51,27 @@ local LAYER_SHADOW    = 2
 
 module("blog")
 
+
+-----------------------------------------------------------------------------
+--
+-- create get and put wrapper functions
+--
+-----------------------------------------------------------------------------
+function tonumber_fromdate(s)
+	local def={year=2000,month=1,day=1,hour=12,min=0,sec=0}
+	local d={}
+	local t=0;
+	d.year,d.month,d.day,d.hour,d.min,d.sec=s:match("%s*(%d+)-(%d+)-(%d+)%s*(%d+):(%d+):(%d+)%s*")
+	for i,v in ipairs{"year","month","day","hour","min","sec"} do
+		d[v]=tonumber(d[v] or def[v]) or def[v]
+	end
+	
+	t=os.time(d)
+
+	return t
+end
+
+
 -----------------------------------------------------------------------------
 --
 -- create get and put wrapper functions
@@ -195,7 +216,7 @@ opts=opts or {}
 	c.author_icon=srv.url_domain..( c.author_icon or "" )
 	c.author_link=purl or "http://google.com/search?q="..c.author_name
 	
-	c.date=os.date("%Y-%m-%d %H:%M:%S",c.created)
+	c.date=os.date("%Y-%m-%d %H:%M:%S",c.pubdate)
 
 	if type(opts.hook) == "function" then -- fix up each item?
 		opts.hook(c,{class="blog"})
@@ -508,6 +529,9 @@ local output_que={} -- delayed page content
 	for i,v in pairs({"layer"}) do
 		if posts[v] then posts[v]=tonumber(posts[v]) end
 	end
+	for i,v in pairs({"pubdate"}) do -- parse date
+		if posts[v] then posts[v]=tonumber_fromdate(posts[v]) end -- unixtime number (hack for now)
+	end
 
 	local cmd=srv.url_slash[srv.url_slash_idx+2]
 
@@ -568,7 +592,7 @@ This is the #body of your post and can contain any html you wish.
 
 			ent.cache.author=user.cache.id
 			ent.cache.author_name=user.cache.name
-			for i,v in pairs({"text","group","pubname","layer"}) do -- can change these parts
+			for i,v in pairs({"text","group","pubname","pubdate","layer"}) do -- can change these parts
 				if posts[v] then ent.cache[v]=posts[v] end
 			end
 			ent.cache.updated=srv.time
