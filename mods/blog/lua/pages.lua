@@ -281,9 +281,23 @@ function list(srv,opts,t)
 		end
 	end
 	
+-- sort by?
+-- legacy, do not use, will be removed soon
 	if     opts.sort=="pubdate" then q[#q+1]={"sort","pubdate","DESC"} -- newest published
 	elseif opts.sort=="updated" then q[#q+1]={"sort","updated","DESC"} -- newest updated
 	end
+
+-- use these ones :)	
+	if opts.sort_updated then
+		q[#q+1]={"sort","updated", opts.sort_updated }
+	end
+	if opts.sort_created then
+		q[#q+1]={"sort","created", opts.sort_created }
+	end
+	if opts.sort_pubdate then
+		q[#q+1]={"sort","pubdate", opts.sort_pubdate }
+	end
+
 		
 	local r=t.query(q)
 		
@@ -292,6 +306,70 @@ function list(srv,opts,t)
 	end
 
 	return r.list
+end
+
+function list_next(srv,opts,t)
+	opts=opts or {} -- stop opts from being nil
+	
+	t=t or dat -- use transaction?
+	
+	local q={
+		kind=kind(srv),
+		limit=2,
+		offset=0,
+	}
+	
+-- add filters?
+	for i,v in ipairs{"layer","group"} do
+		if opts[v] then
+			local t=type(opts[v])
+			if t=="string" or t=="number" then
+				q[#q+1]={"filter",v,"==",opts[v]}
+			end
+		end
+	end
+	q[#q+1]={"filter","pubdate",">=",opts.pubdate or 0}
+	q[#q+1]={"sort","pubdate","ASC"}
+		
+	local r=t.query(q)
+		
+	for i=1,#r.list do local v=r.list[i]
+		dat.build_cache(v)
+	end
+
+	return r and r.list and r.list[2] and r.list[2].cache -- second item only
+end
+
+function list_prev(srv,opts,t)
+	opts=opts or {} -- stop opts from being nil
+	
+	t=t or dat -- use transaction?
+	
+	local q={
+		kind=kind(srv),
+		limit=2,
+		offset=0,
+	}
+	
+-- add filters?
+	for i,v in ipairs{"layer","group"} do
+		if opts[v] then
+			local t=type(opts[v])
+			if t=="string" or t=="number" then
+				q[#q+1]={"filter",v,"==",opts[v]}
+			end
+		end
+	end
+	q[#q+1]={"filter","pubdate","<=",opts.pubdate or 0}
+	q[#q+1]={"sort","pubdate","DESC"}
+		
+	local r=t.query(q)
+		
+	for i=1,#r.list do local v=r.list[i]
+		dat.build_cache(v)
+	end
+	
+	return r and r.list and r.list[2] and r.list[2].cache -- second item only
 end
 
 --------------------------------------------------------------------------------

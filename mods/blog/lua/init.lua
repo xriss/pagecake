@@ -478,6 +478,8 @@ local get,put=make_get_put(srv)
 		
 	else -- a single page
 	
+	
+	
 		local ent
 		if hash then -- by id only
 			ent=pages.get(srv,hash)
@@ -485,9 +487,17 @@ local get,put=make_get_put(srv)
 			ent=pages.cache_find_by_pubname(srv,group..page)
 		end
 		if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
+
+			local pageopts={}
+			local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
+			local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
+			pageopts.link_next="/blog" .. (list_next and list_next.pubname or "")
+			pageopts.link_prev="/blog" .. (list_prev and list_prev.pubname or "")
+
 		
 			local refined=chunk_prepare(srv,ent,opts)
 			refined.it=refined
+			refined.pageopts=pageopts
 			
 			if ext=="dbg" then -- dump out all the bubbled refined as json
 
