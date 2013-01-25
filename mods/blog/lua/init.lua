@@ -491,8 +491,8 @@ local get,put=make_get_put(srv)
 			local pageopts={}
 			local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
 			local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-			pageopts.link_next="/blog" .. (list_next and list_next.pubname or "")
-			pageopts.link_prev="/blog" .. (list_prev and list_prev.pubname or "")
+			pageopts.link_prev="/blog" .. (list_next and list_next.pubname or "")
+			pageopts.link_next="/blog" .. (list_prev and list_prev.pubname or "")
 
 		
 			local refined=chunk_prepare(srv,ent,opts)
