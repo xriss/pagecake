@@ -408,19 +408,42 @@ local get,put=make_get_put(srv)
 		else
 			local chunks=bubble_chunks(srv) -- this gets parent entities
 			
-			local limit=10
-print(wstr.dump(chunks.opts))
-			if chunks.opts then
-				limit=chunks.opts.opts.limit or limit
-				limit=tonumber(limit)
-			end
+			local pageopts={}
 
-			local list=pages.list(srv,{group=group,limit=limit,layer=LAYER_PUBLISHED,sort="pubdate"})
-			local refined
+			pageopts.limit=10
+--print(wstr.dump(chunks.opts))
+			if chunks.opts then
+				pageopts.limit=chunks.opts.opts.limit or pageopts.limit
+				pageopts.limit=tonumber(pageopts.limit)
+			end
+			
+			pageopts.limit=math.floor(tonumber(srv.vars.limit or pageopts.limit) or pageopts.limit)
+			if pageopts.limit<1 then pageopts.limit=1 end
+			
+			pageopts.offset=math.floor(tonumber(srv.vars.offset or 0) or 0)
+			if pageopts.offset<0 then pageopts.offset=0 end
+
+			pageopts.offset_next=pageopts.offset+pageopts.limit
+			pageopts.offset_prev=pageopts.offset-pageopts.limit
+			if pageopts.offset_prev<0 then pageopts.offset_prev=0 end
+
+			local list=pages.list(srv,{group=group,limit=pageopts.limit,offset=pageopts.offset,layer=LAYER_PUBLISHED,sort="pubdate"})
+			
+			if #list<pageopts.limit then -- end of list
+				pageopts.offset_next=0
+			end
+			
+			pageopts.link_next="/blog?limit="..pageopts.limit.."&offset="..pageopts.offset_next
+			pageopts.link_prev="/blog?limit="..pageopts.limit.."&offset="..pageopts.offset_prev
+			
+			local refined={}
 			if list[1] then -- get css?
 				refined=bubble(srv)
 			end
 			local css=refined and refined.css
+			refined.pageopts=pageopts
+			
+			
 			srv.set_mimetype("text/html; charset=UTF-8")
 			put("header",{title="blog : "..group..page,css=css,
 				H={sess=sess,user=user},
@@ -436,11 +459,19 @@ print(wstr.dump(chunks.opts))
 				ss[#ss+1]=text
 			end
 			
-			if refined then
+--			if refined then
+
+-- inject default plate_next
+			refined.plate_next=refined.plate_next or [[
+<div><a href="{pageopts.link_prev}">PREV</a> <a href="{pageopts.link_next}">NEXT</a></div>
+			]]
+			local text=get(macro_replace(refined.plate_next,refined))
+			ss[#ss+1]=text
+
 --				refined.title=""
 				refined.body=table.concat(ss)
 				put(macro_replace(refined.plate or "{body}",refined))
-			end
+--			end
 			
 			put("footer")
 		end
