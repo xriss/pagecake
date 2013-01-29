@@ -50,6 +50,7 @@ head={} -- stuff to inject into the html header
 head.favicon="/favicon.ico" -- the favicon
 head.extra_css={} -- more css links
 head.extra_js={} -- more js links
+head.extra={} -- more header junk
 
 -- need some admin users or we will get nowhere
 users={admin={
@@ -180,7 +181,7 @@ setup=function()
 			if v.lua then
 				local f=loadstring(v.lua)
 				if f then
-					setfenv(f,opts)
+					setfenv(f,v)
 					pcall( f )
 				end
 			end
