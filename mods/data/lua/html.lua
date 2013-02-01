@@ -49,7 +49,8 @@ data_upload_form=function(d)
 	mimetype : <input type="text" name="mimetype" id="mimetype" size="40" value="{mimetype}"  /><a onclick="$('#mimetype').val('');" class="button button_clear" >X</a> <br />
 	The above settings are optional, just leave them <a href="/data" class="button">blank</a> for most uploads. <br />
 	upload : <input type="file" name="filedata" size="40" />  <br />
-	<input type="submit" name="submit" value="Upload" class="button" /> <br />
+	<input type="submit" name="submit" value="Upload" class="button" /> a file or
+	<input type="submit" name="submit" value="DELETE" class="button" /> a file! <br />
 
 </form>
 

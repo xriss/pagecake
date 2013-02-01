@@ -235,6 +235,24 @@ local get,put=make_get_put(srv)
 			
 			return srv.redirect("/data")
 			
+		elseif posts.submit=="DELETE" then
+			local dat={}
+			dat.id=( (posts.dataid~="") and posts.dataid ) or 0
+			
+			local fd=posts.filedata
+		
+			dat.data=(fd and fd.data) or fd
+			dat.size=(fd and fd.size) or (fd and #fd)
+			dat.name=(fd and fd.name) or posts.filename
+			dat.owner=user.cache.email
+			
+			if posts.mimetype and posts.mimetype~="" then dat.mimetype=posts.mimetype end
+			if posts.filename and posts.filename~="" then dat.name=posts.filename end
+			
+			delete(srv,dat)
+			
+			return srv.redirect("/data")
+			
 		end
 		
 --		put("<img src=\"/data{pubname}\" />",{H=H,pubname=pubname})
@@ -482,6 +500,49 @@ local emc
 	return dat
 end
 
+-----------------------------------------------------------------------------
+--
+-- upload a file to the database (ie a file upload) returns data id,entity,url etc
+-- so it can now be displayed if it was a successful upload
+--
+-- incoming requirements are
+--
+-- data = the data of the file
+-- size = the size of the file
+-- name = the name of the file
+-- owner = file owner, defaults to user.cache.email
+--
+-- optional parts are
+--
+-- id = numerical datakey, pass in 0 or nil to create a new one, otherwise we update the given
+-- mimetype = mimetype to use when serving, we try to guess this from the name if not supplied
+--
+-- return values are
+--
+-- ent = the meta entity which we created / updated
+-- id = the numerical datakey
+-- url = the url we can access this file at, relative to this server base so begins with "/"
+--
+-----------------------------------------------------------------------------
+function delete(srv,dat)
+
+local em
+local emc
+
+	if ( not dat.id ) or dat.id==0 or dat.id=="" then -- a new file
+	else -- editing an old file
+
+		em=meta.get(srv,dat.id)
+		if em then
+			emc=em.cache
+			file.delete(srv,emc.filekey) -- remove any old file data	
+			meta.del(srv,em)  -- save the meta
+		end
+	end
+	
+
+	return dat
+end
 
 --
 -- guess a mimetype given a filename
