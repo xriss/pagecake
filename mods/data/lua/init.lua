@@ -17,6 +17,7 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
+local wstring=wet_string
 local wstr=wet_string
 local replace=wet_string.replace
 local macro_replace=wet_string.macro_replace
@@ -217,7 +218,6 @@ local get,put=make_get_put(srv)
 --log("postgot\n"..tostring(posts))
 		
 		if posts.submit=="Upload" then
-		
 			local dat={}
 			dat.id=( (posts.dataid~="") and posts.dataid ) or 0
 			
@@ -383,14 +383,15 @@ local em
 local emc
 
 	if ( not dat.id ) or dat.id==0 or dat.id=="" then -- a new file
-	
+
 		em=meta.create(srv)
 		emc=em.cache
 	
 	else -- editing an old file
-	
+
 		em=meta.get(srv,dat.id)
 		if not em then -- failed to get an entity to update so make a new one with custom id
+
 			em=meta.create(srv)
 			emc=em.cache		
 			em.key.id=dat.id
@@ -426,13 +427,13 @@ local emc
 		local dd=sys.bytes_split(dat.data,1000*1000) -- need smaller 1meg chunks
 		
 		for i,v in ipairs(dd) do
-		
+
 			v.ef=file.create(srv)
 			local efc=v.ef.cache
 			
 			efc.size=v.size
 			
-			efc.metakey=emc.id -- the meta id				
+			efc.metakey=emc.id -- the meta id
 			file.put(srv,v.ef) -- save this data, to get an id
 			efc=v.ef.cache
 			
@@ -446,8 +447,9 @@ local emc
 
 		for i,v in ipairs(dd) do
 		
+
 			local efc=v.ef.cache
-			
+
 			efc.data=v.data
 			
 			if dd[i-1] then

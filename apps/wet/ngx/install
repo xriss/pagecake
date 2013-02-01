@@ -18,7 +18,7 @@ tab.ngx_user="wet"
 
 tab.ngx_listen="80"
 
-tab.ngx_debug=""
+--tab.ngx_debug=""
 --tab.ngx_debug="debug"
 
 bake_ngx.build(tab)

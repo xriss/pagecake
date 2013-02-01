@@ -1,6 +1,8 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
+local log=require("wetgenes.www.ngx.log").log
+
 local ngx=ngx
 
 module("opts")
@@ -17,6 +19,8 @@ vhosts_map={
 	{"cog",		"cog"},				-- any domain with cog in it
 	{"hoe",		"hoe"},				-- any domain with hoe in it
 
+	{"wetgenes","wetgenes"},		-- any domain with wetgenes in it
+	
 	{"xixs",	"xixs"},			-- any domain with xixs in it
 	{"esyou",	"esyou"},			-- any domain with esyou in it
 	{"lo4d",	"lo4d"},			-- any domain with lo4d in it
@@ -24,9 +28,9 @@ vhosts_map={
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
-	local t={}
-	setmetatable(t,{__index=opts})
-	vhosts[ v[2] ]=t
+--	local t={}
+--	setmetatable(t,{__index=opts})
+	vhosts[ v[2] ]={}
 end
 
 
@@ -154,9 +158,16 @@ map=default_map()
 mods=find_mods(map) -- build mods pointers from the map for default app
 
 setup=function()
-	setup=function()end -- can only run once
+	setup=nil -- can only run once
 	
 	if ngx then
+	
+
+--make sure we setup the database
+		local dat=require("wetgenes.www.any.data")
+		dat.setup_db(ae_opts)
+--before we try and load the opts
+	
 		local srv=ngx.ctx
 		
 		local old_vhost=srv.vhost
@@ -176,7 +187,14 @@ setup=function()
 				add_map(v.map,"hoe")
 
 			end
-
+			
+			for nn,vv in pairs(opts) do
+				if type(vv)=="function" or type(nn)=="function" then -- skip
+				else
+					v[nn]=vv
+				end
+			end
+			
 			v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost
 			if v.lua then
 				local f=loadstring(v.lua)

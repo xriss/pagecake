@@ -17,6 +17,8 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
+local wstring=require("wetgenes.string")
+
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
@@ -52,6 +54,7 @@ default_props=
 default_cache=
 {
 }
+
 function kind(srv)
 	if not srv or not srv.flavour or srv.flavour=="data" then return "data.file" end
 	return srv.flavour..".data.file"
@@ -275,17 +278,22 @@ end
 function delete(srv,id)
 
 	if id==0 then return end -- nothing to do
+
+	local mc={}
+	
+	mc[ "type=ent.data&data.file="..id ]=true
 	
 	local e=get(srv,id) -- get entity first
 	if e then
+		cache_what(srv,e,mc) -- the new values
 		dat.del(e.key) -- delete first chunk
-		
-		while e.cache.nextkey~=0 do -- 0 termed
-			
+		while e.cache.nextkey~=0 do -- 0 termed			
 			e=get(srv,e.cache.nextkey) -- get entity first
+			cache_what(srv,e,mc) -- the new values
 			dat.del(e.key) -- delete linked chunk
-			
 		end
+
+		cache_fix(srv,mc) -- change any memcached values we just adjusted
 	end
 
 end
