@@ -28,9 +28,9 @@ vhosts_map={
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
---	local t={}
+	local t={}
 --	setmetatable(t,{__index=opts})
-	vhosts[ v[2] ]={}
+	vhosts[ v[2] ]=t
 end
 
 
@@ -43,27 +43,32 @@ local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
 
-bootstrapp_version=20120706 -- hand bump to todays date on release
+local function default_vars(v)
 
-mail={}
-mail.from="spam@wetgenes.com"
+	v.bootstrapp_version=20130201 -- hand bump to todays date on release
 
-urls={}
+	v.mail={}
+	v.mail.from="spam@wetgenes.com"
 
-head={} -- stuff to inject into the html header
-head.favicon="/favicon.ico" -- the favicon
-head.extra_css={} -- more css links
-head.extra_js={} -- more js links
-head.extra={} -- more header junk
+	v.urls={}
 
--- need some admin users or we will get nowhere
-users={admin={
-["2@id.wetgenes.com"]=true,
-["14@id.wetgenes.com"]=true,
-["notshi@gmail.com"]=true,
-["krissd@gmail.com"]=true,
-}}
+	v.head={} -- stuff to inject into the html header
+	v.head.favicon="/favicon.ico" -- the favicon
+	v.head.extra_css={} -- more css links
+	v.head.extra_js={} -- more js links
+	v.head.extra={} -- more header junk
 
+	-- need some admin users or we will get nowhere
+	v.users={admin={
+	["2@id.wetgenes.com"]=true,
+	["14@id.wetgenes.com"]=true,
+	["notshi@gmail.com"]=true,
+	["krissd@gmail.com"]=true,
+	}}
+
+end
+
+default_vars(opts)
 
 -- look through the mods and save the #opts of each mod used, this is for easy lookup in mod code
 -- add assumes you are only using each mod *once* per site
@@ -175,6 +180,8 @@ setup=function()
 		for n,v in pairs(vhosts) do --we need to load up each vhost for initial setup
 		
 			srv.vhost=n
+			
+			default_vars(v)
 
 			v.map=default_map()
 
@@ -187,14 +194,7 @@ setup=function()
 				add_map(v.map,"hoe")
 
 			end
-			
-			for nn,vv in pairs(opts) do
-				if type(vv)=="function" or type(nn)=="function" then -- skip
-				else
-					v[nn]=vv
-				end
-			end
-			
+						
 			v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost
 			if v.lua then
 				local f=loadstring(v.lua)

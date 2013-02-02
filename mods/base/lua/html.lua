@@ -205,11 +205,7 @@ head.fs.jquery_wet_js="/js/base/jquery-wet.js";
 head.fs.jquery_wakaedit_js="/js/base/jquery-wakaedit.js";
 head.fs.jquery_asynch_image_loader_js="/js/base/JqueryAsynchImageLoader-0.8.min.js";
 
-head.fs.ace_js="/js/base/ace/ace.js";
-head.fs.ace_theme_eclipse_js="/js/base/ace/theme-eclipse.js";
-head.fs.ace_mode_html_js="/js/base/ace/mode-html.js";
-head.fs.ace_mode_css_js="/js/base/ace/mode-css.js";
-head.fs.ace_mode_javascript_js="/js/base/ace/mode-javascript.js";
+head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 
 head.fs.swfobject_js="{swfobject_js}";
 

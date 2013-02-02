@@ -3,10 +3,6 @@
 head.js(
 	head.fs.jquery_js,
 	head.fs.ace_js,
-	head.fs.ace_theme_eclipse_js,
-	head.fs.ace_mode_html_js,
-	head.fs.ace_mode_css_js,
-	head.fs.ace_mode_javascript_js,
 	function() {
 		
 		
@@ -106,9 +102,6 @@ $.fn.wakaedit=function(opts)
 		var edit_div=$("<div class='field'></div>");
 		var edit_select=$("<select name='chunks'></select>");
 		
-		
-//<option value='volvo'>Volvo</option><option value='saab'>Saab</option><option value='fiat'>Fiat</option><option value='audi'>Audi</option>
-
 		var text=edit_textarea.val();
 		
 		var chunks=split_chunks(text);
@@ -160,12 +153,14 @@ $.fn.wakaedit=function(opts)
 		editor.getSession().setUseSoftTabs(false);
 		editor.getSession().setUseWrapMode(true);
 		
-		var HtmlMode = require("ace/mode/html").Mode;
-		var CssMode = require("ace/mode/css").Mode;
-		var JavascriptMode = require("ace/mode/javascript").Mode;
+//		var HtmlMode = require("ace/mode/html").Mode;
+//		var CssMode = require("ace/mode/css").Mode;
+//		var JavascriptMode = require("ace/mode/javascript").Mode;
 		
-		editor.getSession().setMode(new HtmlMode());
+//		editor.getSession().setMode(new HtmlMode());
 		
+		editor.getSession().setMode("ace/mode/html");
+	
 		editor.setTheme("ace/theme/eclipse");
 		
 		editor.getSession().setValue(text);
