@@ -19,7 +19,9 @@ vhosts_map={
 	{"cog",		"cog"},				-- any domain with cog in it
 	{"hoe",		"hoe"},				-- any domain with hoe in it
 
-	{"wetgenes","wetgenes"},		-- any domain with wetgenes in it
+	{"bulbaceous",	"bulbaceous"},		-- any domain with bulbaceous in it
+
+	{"wetgenes",	"wetgenes"},		-- any domain with wetgenes in it
 	
 	{"xixs",	"xixs"},			-- any domain with xixs in it
 	{"esyou",	"esyou"},			-- any domain with esyou in it
