@@ -24,7 +24,7 @@ footer=function(d)
 	d=d or {}
 	
 	d.mod_name="score"
-	d.mod_link="http://boot-str.appspot.com/about/mod/score"
+	d.mod_link="https://bitbucket.org/xixs/anlua/src/tip/mods/score"
 	
 	return html.footer(d)
 end

@@ -25,7 +25,7 @@ footer=function(d)
 	d=d or {}
 	
 	d.mod_name="todo"
-	d.mod_link="http://boot-str.appspot.com/about/mod/todo"
+	d.mod_link="https://bitbucket.org/xixs/anlua/src/tip/mods/todo"
 	
 	return html.footer(d)
 end
