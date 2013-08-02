@@ -17,13 +17,8 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local ngx=ngx
 
---local wet_string=require("wetgenes.string")
---local str_split=wet_string.str_split
---local serialize=wet_string.serialize
+local wstr=require("wetgenes.string")
 
-
--- require all the module sub parts
---local html=require("thumbcache.html")
 
 
 
@@ -167,6 +162,8 @@ function serv(srv)
 
 				if height<1 then height=1 end
 				if height>1024 then height=1024 end
+
+--log("thumb",wstr.dump(data))
 
 				image=img.get( data.body , data.mimetype ) -- convert to image
 					

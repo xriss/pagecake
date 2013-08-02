@@ -12,9 +12,13 @@ local fetch=require("wetgenes.www.any.fetch")
 local sys=require("wetgenes.www.any.sys")
 
 
-local wet_string=require("wetgenes.string")
+local wstr=require("wetgenes.string")
+local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
+
+local wxml=require("wetgenes.simpxml")
+
 
 module("dumid.users")
 local _M=require(...)
@@ -221,6 +225,7 @@ function get_avatar_url(userid,w,h,srv)
 			local turl="http://www.twitter.com/users/"..string.sub(userid,1,-(#v+1))..".json"
 			local got=fetch.get(turl) -- get twitter infos from internets
 			if type(got.body)=="string" then
+--log(wstr.dump(got))
 				local tab=json.decode(got.body)
 				if tab.profile_image_url then
 					url="/thumbcache/"..w.."/"..h.."/"..tab.profile_image_url:sub(8) -- skip "http://"
@@ -229,7 +234,26 @@ function get_avatar_url(userid,w,h,srv)
 
 		end
 	end
-	
+
+
+	local endings={"@id.steamcommunity.com"}
+	for i,v in ipairs(endings) do
+		if string.sub(userid,-#v)==v then
+
+			local id=userid:sub(1,-#v-1)
+			local got=fetch.get("http://steamcommunity.com/profiles/"..id.."/?xml=1")
+			if type(got.body)=="string" then
+				local x=wxml.parse(got.body)
+				if x then
+					local avatar=wxml.descendent(x,"avatarfull")
+					if avatar then
+						url="/thumbcache/"..w.."/"..h.."/"..(avatar[1]):sub(8) -- skip "http://"
+					end
+				end
+			end
+
+		end
+	end	
 --log(tostring(user))
 --log(email)
 

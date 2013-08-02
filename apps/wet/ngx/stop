@@ -1,4 +1,4 @@
 cd .ngx
-../../../bin/dbg/nginx -s quit -p .
+../../../../bin/dbg/nginx -s quit -p .
 
 

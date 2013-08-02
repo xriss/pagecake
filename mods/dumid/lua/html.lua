@@ -108,7 +108,7 @@ more=more..[[
 ]]
 	end
 
-if false then
+if true then
 more=more..[[
 <div class="cont">
 	<a class="button" href="{srv.url_base}login/steam/?continue={continue}">Steam</a>

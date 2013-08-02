@@ -24,6 +24,8 @@ local wet_string=wstr
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
+local wxml=require("wetgenes.simpxml")
+
 
 local opts=require("opts")
 
@@ -114,7 +116,6 @@ local put=make_put(srv)
 "openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
 "openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
 "openid.ns.sreg=http%3A%2F%2Fopenid.net%2Fextensions%2Fsreg%2F1.1&"..
-"openid.sreg.optional=nickname&"..
 "openid.return_to="..wet_html.url_esc(callback).."&"..
 "openid.realm="..wet_html.url_esc(site)
 
@@ -137,8 +138,14 @@ local put=make_put(srv)
 	elseif dat=="facebook" then
 	
 		local callback=srv.url_base.."callback/facebook/"..wet_html.url_esc(continue)
-		return srv.redirect("https://www.facebook.com/dialog/oauth?client_id="..
-			(srv.opts("facebook","id")or"").."&scope=email,publish_stream,offline_access&redirect_uri="..wet_html.url_esc(callback))
+		local url="https://www.facebook.com/dialog/oauth?client_id="..
+			(srv.opts("facebook","id")or"").."&scope=email,publish_stream,offline_access&redirect_uri="..wet_html.url_esc(callback)
+
+--log(continue)
+--log(callback)
+--log(url)
+
+		return srv.redirect(url)
 		
 	elseif dat=="google" then
 	
@@ -148,7 +155,7 @@ local put=make_put(srv)
 	elseif dat=="twitter" then
 	
 		local callback=srv.url_base.."callback/twitter/?continue="..wet_html.url_esc(continue)
-		local baseurl="http://twitter.com/oauth/request_token"
+		local baseurl="https://twitter.com/oauth/request_token"
 
 		local vars={}
 		vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
@@ -196,6 +203,14 @@ local put=make_put(srv)
 	end
 	if srv.gets.continue then continue=srv.gets.continue end -- where we wish to end up
 
+
+	if continue:sub(1,7) == "http://" then -- this is an ok continue url
+	else
+		if continue:sub(1,6) == "http:/" then -- facebook? fucks up the redirect url, which is nice, this unfucks it
+			continue="http://"..continue:sub(7)
+		end
+	end
+
 --log(continue)
 	
 	local user
@@ -209,50 +224,70 @@ local put=make_put(srv)
 	
 	if data=="steam" then
 
---[[
-{
- ["openid.op_endpoint"]="https://steamcommunity.com/openid/login",
- ["openid.ns"]="http://specs.openid.net/auth/2.0",
- ["openid.assoc_handle"]="1234567890",
- ["openid.return_to"]="http://host.local:8888/dumid/callback/steam/?continue=http://host.local:8888/welcome",
- ["openid.claimed_id"]="http://steamcommunity.com/openid/id/76561197960568486",
- ["openid.response_nonce"]="2012-09-08T12:57:06ZpjSZnDwEuQjYzeios0/wIszJnTI=",
- ["openid.signed"]="signed,op_endpoint,claimed_id,identity,return_to,response_nonce,assoc_handle",
- ["openid.sig"]="iUve+D5/LAtBY9kHogq1KJsl23Q=",
- ["continue"]="http://host.local:8888/welcome",
- ["openid.mode"]="id_res",
- ["openid.identity"]="http://steamcommunity.com/openid/id/76561197960568486",
-}
-]]
-		log(wstr.dump(srv.gets))
+		local url="https://steamcommunity.com/openid/login"
+
+		local a={
+		}
+
+		for i,v in pairs( srv.gets ) do
+			a[i]=(v)
+		end
 		
+		a["openid.mode"]="check_authentication"
+
+		local ai={}
+		for i,v in pairs( a ) do
+			ai[#ai+1]=i.."="..oauth.esc(v)
+		end
 		
---[[
-openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0 &openid.mode=id_res &openid.op_endpoint=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fud &openid.response_nonce=2010-02-12T14%3A46%3A52Z1PDyxBssEN9p5g &openid.return_to=http%3A%2F%2Flocalhost%3A104%2Fevalgoogle.aspx &openid.assoc_handle=AOQobUfpVnBFYzFO15z92rru88nWjEnw0u8ethVscpjDwkssp8GjVc0u &openid.signed=op_endpoint%2Cclaimed_id%2Cidentity%2Creturn_to %2Cresponse_nonce%2Cassoc_handle &openid.sig=24Hetky5HrNwrY3%2B%2B2vtIGnvmnI%3D &openid.identity=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3D{SOMEID} &openid.claimed_id=https%3A%2F%2Fwww.google.com%2Faccounts%2Fo8%2Fid%3Fid%3D{SOMEID}
-]]
-
-		local url=
-"http://steamcommunity.com/openid/login?"..
-"openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
-"openid.mode=id_res&"..
-"openid.op_endpoint="..wet_html.url_esc(srv.gets["openid.op_endpoint"]).."&"..
-"openid.response_nonce="..wet_html.url_esc(srv.gets["openid.response_nonce"]).."&"..
-"openid.assoc_handle="..wet_html.url_esc(srv.gets["openid.assoc_handle"]).."&"..
-"openid.signed="..wet_html.url_esc(srv.gets["openid.signed"]).."&"..
-"openid.sig="..wet_html.url_esc(srv.gets["openid.sig"]).."&"..
-"openid.claimed_id="..wet_html.url_esc(srv.gets["openid.claimed_id"]).."&"..
-"openid.identity="..wet_html.url_esc(srv.gets["openid.identity"]).."&"..
-""
+		local arg=table.concat(ai,"&")
 
 
-			local got=fetch.get(url) -- ask for confirmation from server
-			log(wstr.dump(got))
---			if got and type(got.body=="string") then
---			end
+			local got=fetch.get(url.."?"..arg) -- ask for confirmation from server
+
+
+			if got and type(got.body=="string") then
+			
+				if string.find(got.body,"is_valid:true",1,true) then -- all data sent is valid acording to the steam
+
+					local id=a["openid.claimed_id"]
+					local i,j=string.find(id,"%d+$")
+					if i and j then id=(string.sub(id,i,j)) else id=nil end
+--log("ID=="..id)					
+					if id then
+						local dat=fetch.get("http://steamcommunity.com/profiles/"..id.."/?xml=1")
+						local x=wxml.parse(dat.body)
+--log(wstr.dump(x[1])) -- use this data, it is goood
+
+						local steamid=wxml.descendent(x,"steamid")
+						local realname=wxml.descendent(x,"realname")
+						local avatar=wxml.descendent(x,"avatarfull")
+						
+						if steamid and avatar then
+
+--log(id.." : "..steamid[1].." : "..avatar[1] )
+
+							name=steamid[1]
+							email=id.."@id.steamcommunity.com"
+							flavour="steam"
+									
+							authentication.steam={ -- all the steam info we should also keep track of
+								name=steamid[1],
+								id=id,
+								avatar=avatar[1],
+								}
+				
+						
+						end
+
+					end
+
+				end
+			end
 
 
 		
-		return
+--		return
 
 	elseif data=="wetgenes" then
 	
@@ -332,7 +367,7 @@ openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0 &openid.mode=id_res &openid
 		
 -- ok now we get to ask twitter for an actual username using this junk we have collected so far
 
-		local baseurl="http://twitter.com/oauth/access_token"
+		local baseurl="https://twitter.com/oauth/access_token"
 		
 		local vars={}
 		vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
