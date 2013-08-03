@@ -154,10 +154,10 @@ local get=make_get(srv)
 						form="name",
 						show="head",
 					},
-					{
-						form="location",
-						show="head",
-					},
+--					{
+--						form="location",
+--						show="head",
+--					},
 				}
 			content.list=list
 			content.user=pusr.cache
@@ -200,6 +200,17 @@ local get=make_get(srv)
 				end
 			end
 	
+			local endings={"@id.steamcommunity.com"}
+			for i,v in ipairs(endings) do
+				if string.sub(t.userid,-#v)==v then
+					t.siteid=(string.sub(t.userid,1,-(#v+1)))
+					t.url="http://steamcommunity.com/profiles/"..t.siteid
+					t.site="steam"
+					list[#list+1]=t
+					break
+				end
+			end
+
 			for i,v in ipairs(list) do -- get all chunks
 				makechunk(content,v)
 			end
@@ -316,10 +327,14 @@ function makechunk_site(content,chunk)
 	
 		chunk.site=replace([[<a href="{chunk.url}"><img src="http://host.local:8888/thumbcache/640/50/like.wetgenes.com/-/badge/{name}/640/50/badge.png" /></a>]],d)
 		
+	elseif chunk.site=="steam" then
+	
+		chunk.site=replace([[<a href="{chunk.url}"><img src="http://badges.steamprofile.com/profile/default/steam/{chunk.siteid}.png"><br/>View steam profile</a>]],d)
+		
 	elseif chunk.site=="facebook" then
 	
 		chunk.site=replace([[<a href="{chunk.url}">View facebook profile</a>]],d)
-		
+
 	elseif chunk.site=="twitter" then
 
 		chunk.site=replace([[
