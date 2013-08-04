@@ -181,7 +181,6 @@ function get_avatar_url(userid,w,h,srv)
 	h=h or 100
 	local url
 	local email=userid
-	
 
 
 	if type(userid)=="table" then
@@ -190,12 +189,9 @@ function get_avatar_url(userid,w,h,srv)
 		email=(user.cache and user.cache.email) or user.email or userid
 	else
 		if srv then
-			local v="@id.google.com"
-			if string.sub(userid,-#v)==v then
-				user=get(srv,userid)
-				userid=user.id or ""
-				email=(user.cache and user.cache.email) or user.email or userid
-			end
+			user=get(srv,userid)
+			userid=user.id or ""
+			email=(user.cache and user.cache.email) or user.email or userid
 		end
 	end
 	
@@ -254,6 +250,23 @@ function get_avatar_url(userid,w,h,srv)
 
 		end
 	end	
+
+
+	local endings={"@id.google.com"}
+	for i,v in ipairs(endings) do
+		if string.sub(userid,-#v)==v then
+			local id=userid:sub(1,-#v-1)
+			local icon=nil
+			local hax=fetch.get("https://plus.google.com/"..id.."/about")
+			if type(hax.body=="string") then
+				hax.body:gsub('guidedhelpid="profile_photo"><img src="([^"]+)', function(a,b) icon="http:"..a end , 1)
+			end
+			if icon then -- got an image from a public google profile
+				url="/thumbcache/"..w.."/"..h.."/"..(icon):sub(8) -- skip "http://"
+			end
+		end
+	end
+
 --log(tostring(user))
 --log(email)
 

@@ -1,4 +1,4 @@
-#!../../../bin/dbg/lua
+#!../../../bin/exe/lua
 -- build or serve an nginx version of an app
 
 local apps=require("apps")

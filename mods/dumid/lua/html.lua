@@ -116,6 +116,14 @@ more=more..[[
 ]]
 end
 	
+if true then
+more=more..[[
+<div class="cont">
+	<a class="button" href="{srv.url_base}login/google/?continue={continue}">Google</a>
+</div>
+]]
+end
+
 	d.continue=url_esc(d.continue)
 	return replace([[
 <div class="contop">

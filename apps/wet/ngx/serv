@@ -1,4 +1,4 @@
 ngx/bake
 cd .ngx
-../../../../bin/dbg/nginx -s quit -p .
-../../../../bin/dbg/nginx -p .
+../../../../bin/exe/nginx -s quit -p .
+../../../../bin/exe/nginx -p .

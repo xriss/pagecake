@@ -99,34 +99,44 @@ function serv_login(srv)
 local put=make_put(srv)
 
 	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]
-	local dat=srv.url_slash[ srv.url_slash_idx+1 ]
+	local dat=srv.url_slash[ srv.url_slash_idx+1 ] or ""
 
 	local continue="/"
 	if srv.gets.continue then continue=srv.gets.continue end -- where we wish to end up
 	
+--build generic openid query string
 
-	if dat=="steam" then
-
-		local callback=srv.url_base.."callback/steam/?continue="..wet_html.url_esc(continue)
-		local site="http://"..srv.url_slash[3].."/"
-		local url=
-"https://steamcommunity.com/openid/login?"..
-"openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
+local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 "openid.mode=checkid_setup&"..
 "openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
 "openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
 "openid.ns.sreg=http%3A%2F%2Fopenid.net%2Fextensions%2Fsreg%2F1.1&"..
-"openid.return_to="..wet_html.url_esc(callback).."&"..
-"openid.realm="..wet_html.url_esc(site)
+"openid.return_to="..wet_html.url_esc(srv.url_base.."callback/"..dat.."/?continue="..wet_html.url_esc(continue)).."&"..
+"openid.realm="..wet_html.url_esc("http://"..srv.url_slash[3].."/")
 
---[[
-            'openid.return_to'  => $returnUrl,
-            'openid.mode'       => $immediate ? 'checkid_immediate' : 'checkid_setup',
-            'openid.identity'   => $this->identity,
-            'openid.trust_root' => $this->trustRoot,
-]]            
-            
-		return srv.redirect(url)
+
+	if dat=="google" then
+
+		openidquery=openidquery..
+		"&openid.ns.ax="..wet_html.url_esc("http://openid.net/srv/ax/1.0")..
+		"&openid.ax.mode="..("fetch_request")..
+		"&openid.ax.required="..("email,firstname,lastname,userid")..
+		"&openid.ax.type.email=http://axschema.org/contact/email"..
+		"&openid.ax.type.firstname=http://axschema.org/namePerson/first"..
+		"&openid.ax.type.lastname=http://axschema.org/namePerson/last"..
+		"&openid.ax.type.userid=http://schemas.openid.net/ax/api/user_id"..
+
+--		"&openid.ns.ext2=http://specs.openid.net/extensions/oauth/1.0"..
+--		"&openid.ext2.consumer="..(srv.url_slash[3])..
+--		"&openid.ext2.scope=https://www.googleapis.com/auth/userinfo.profile"..
+
+		""
+
+		return srv.redirect("https://accounts.google.com/o/openid2/auth?"..openidquery)
+		
+	elseif dat=="steam" then
+
+		return srv.redirect("https://steamcommunity.com/openid/login?"..openidquery)
 
 	elseif dat=="wetgenes" then
 	
@@ -147,10 +157,10 @@ local put=make_put(srv)
 
 		return srv.redirect(url)
 		
-	elseif dat=="google" then
+--	elseif dat=="google" then
 	
-		local callback=srv.url_base.."callback/google/?continue="..wet_html.url_esc(continue)
-		return srv.redirect(users.login_url(callback))
+--		local callback=srv.url_base.."callback/google/?continue="..wet_html.url_esc(continue)
+--		return srv.redirect(users.login_url(callback))
 		
 	elseif dat=="twitter" then
 	
@@ -222,12 +232,9 @@ local put=make_put(srv)
 	local authentication={} -- store any values we wish to cache here
 	local info={}
 	
-	if data=="steam" then
+	local checkopenid=function(url)
 
-		local url="https://steamcommunity.com/openid/login"
-
-		local a={
-		}
+		local a={}
 
 		for i,v in pairs( srv.gets ) do
 			a[i]=(v)
@@ -242,52 +249,87 @@ local put=make_put(srv)
 		
 		local arg=table.concat(ai,"&")
 
+		local got=fetch.get(url.."?"..arg) -- ask for confirmation from server
 
-			local got=fetch.get(url.."?"..arg) -- ask for confirmation from server
-
-
-			if got and type(got.body=="string") then
+		if got and type(got.body=="string") then
+		
+			if string.find(got.body,"is_valid:true",1,true) then -- if all data sent is valid 
 			
-				if string.find(got.body,"is_valid:true",1,true) then -- all data sent is valid acording to the steam
-
-					local id=a["openid.claimed_id"]
-					local i,j=string.find(id,"%d+$")
-					if i and j then id=(string.sub(id,i,j)) else id=nil end
---log("ID=="..id)					
-					if id then
-						local dat=fetch.get("http://steamcommunity.com/profiles/"..id.."/?xml=1")
-						local x=wxml.parse(dat.body)
---log(wstr.dump(x[1])) -- use this data, it is goood
-
-						local steamid=wxml.descendent(x,"steamid")
-						local realname=wxml.descendent(x,"realname")
-						local avatar=wxml.descendent(x,"avatarfull")
-						
-						if steamid and avatar then
-
---log(id.." : "..steamid[1].." : "..avatar[1] )
-
-							name=steamid[1]
-							email=id.."@id.steamcommunity.com"
-							flavour="steam"
-									
-							authentication.steam={ -- all the steam info we should also keep track of
-								name=steamid[1],
-								id=id,
-								avatar=avatar[1],
-								}
+				return a
 				
-						
-						end
+			end
+			
+		end
+		
+	end
+	
+	if data=="google" then
+	
+		local valid=checkopenid("https://www.google.com/accounts/o8/ud")
 
-					end
+		if valid then
+
+--log( wstr.dump(valid) )
+
+--	'guidedhelpid="profile_photo"><img src="(^\")"'
+
+--log( wstr.dump(hax) )
+
+--	local icon=nil
+--	local hax=fetch.get("https://plus.google.com/"..valid["openid.ext1.value.userid"].."/about")
+--	if type(hax.body=="string") then
+--		hax.body:gsub('guidedhelpid="profile_photo"><img src="([^"]+)', function(a,b) icon="http:"..a end , 1)
+--	end
+			
+			
+
+
+		if valid["openid.ext1.value.userid"] and valid["openid.ext1.value.email"] and valid["openid.ext1.value.firstname"] and valid["openid.ext1.value.lastname"] then
+
+			info={ gid=valid["openid.ext1.value.userid"] , email=valid["openid.ext1.value.email"] }
+			email=info.gid .. "@id.google.com" -- hide real email slightly
+			name=valid["openid.ext1.value.firstname"].." "..valid["openid.ext1.value.lastname"]
+			flavour="google"
+			
+		end
+			
+	end
+		
+	elseif data=="steam" then
+	
+		local valid=checkopenid("https://steamcommunity.com/openid/login")
+
+		if valid then
+		
+			local id=valid["openid.claimed_id"]
+			local i,j=string.find(id,"%d+$")
+			if i and j then id=(string.sub(id,i,j)) else id=nil end
+
+			if id then
+				local dat=fetch.get("http://steamcommunity.com/profiles/"..id.."/?xml=1")
+				local x=wxml.parse(dat.body)
+
+				local steamid=wxml.descendent(x,"steamid")
+				local realname=wxml.descendent(x,"realname")
+				local avatar=wxml.descendent(x,"avatarfull")
+				
+				if steamid and avatar then
+
+					name=steamid[1]
+					email=id.."@id.steamcommunity.com"
+					flavour="steam"
+							
+					authentication.steam={ -- all the steam info we should also keep track of
+						name=steamid[1],
+						id=id,
+						avatar=avatar[1],
+						}
 
 				end
+
 			end
 
-
-		
---		return
+		end
 
 	elseif data=="wetgenes" then
 	
@@ -348,6 +390,7 @@ local put=make_put(srv)
 			end
 		end
 		
+--[[
 	elseif data=="google" then
 		local guser=users.get_google_user() -- google handles its own login
 		if guser then -- google login OK
@@ -359,7 +402,7 @@ local put=make_put(srv)
 			flavour="google"
 			info={ gid=guser.gid , fid=guser.fid , email=guser.email }
 		end
-		
+]]
 	elseif data=="twitter" then
 
 		local gots=cache.get(srv,"oauth_token="..srv.gets.oauth_token) -- recover data
