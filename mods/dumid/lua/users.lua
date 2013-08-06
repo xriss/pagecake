@@ -187,18 +187,11 @@ function get_avatar_url(userid,w,h,srv)
 		user=userid
 		userid=user.id or ""
 		email=(user.cache and user.cache.email) or user.email or userid
-	else
-		if srv then
-			user=get(srv,userid)
-			userid=user.id or ""
-			email=(user.cache and user.cache.email) or user.email or userid
-		end
 	end
-	
 	
 	if type(userid)=="string" then userid=userid:lower() end
 	if type(email) =="string" then email = email:lower() end
-	
+
 	local endings={"@id.wetgenes.com"}
 	for i,v in ipairs(endings) do
 		if string.sub(userid,-#v)==v then

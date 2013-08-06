@@ -12,8 +12,10 @@ local dat=require("wetgenes.www.any.data")
 
 local users=require("wetgenes.www.any.users")
 
+local mail=require("wetgenes.www.any.mail")
 local fetch=require("wetgenes.www.any.fetch")
 local cache=require("wetgenes.www.any.cache")
+local iplog=require("wetgenes.www.any.iplog")
 
 local img=require("wetgenes.www.any.img")
 
@@ -79,6 +81,7 @@ local put=make_put(srv)
 		logout=		serv_logout,
 		callback=	serv_callback,
 		nag=		serv_nag,
+		token=		serv_token,
 	}
 	local f=cmds[ string.lower(cmd or "") ]
 	if f then return f(srv) end
@@ -88,6 +91,113 @@ local put=make_put(srv)
 
 	return serv_login(srv) -- try login by default?
 		
+end
+
+-----------------------------------------------------------------------------
+--
+-- enter some more details
+--
+-----------------------------------------------------------------------------
+function serv_token(srv)
+local put=make_put(srv)
+
+	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]
+	local dat=srv.url_slash[ srv.url_slash_idx+1 ] or ""
+
+	local continue="/"
+	if srv.gets.continue then continue=srv.gets.continue end -- where we wish to end up
+
+
+	if dat=="send" then -- send a token
+	
+		local email=srv.gets.email
+		
+		if email and (email:match("[A-Za-z0-9%.%%%+%-]+@[A-Za-z0-9%.%%%+%-]+%.%w%w%w?%w?")) then
+
+			local token=sys.md5( "login"..(srv.ip)..math.random()..os.time() )
+			local tokenurl=srv.url_base.."token/check?token="..token
+			
+			local domain=srv.url_slash[3]
+			domain=domain:gsub(":.*$","")
+
+
+			cache.put(srv,"dumid_ip_token="..srv.ip , json.encode{
+				domain=domain,
+				token=token,
+				time=os.time(),
+				email=email,
+				continue=continue,
+				} , 60*30 )
+
+			mail.send{
+				from="dumid@"..domain,
+				to=email,
+				subject="dumid login request for "..domain.." from "..srv.ip,
+				body=[[
+Why hello there,
+
+Someone from ]]..srv.ip..[[ has requested a login token for ]]..domain..[[ using this email address ( ]]..email..[[ ).
+
+if this was not you then I am really sorry! Please just ignore this email.
+
+
+Your login token is : ]]..token..[[ 
+
+To complete this login please visit the following url within the next 30 minutes.
+
+]]..tokenurl..[[ 
+
+Thank you for your cooperation.
+
+
+				]],
+			}
+
+			iplog.ratelimit(srv.ip,25)	-- allow at max only 4 emails per minute per ip (client)
+
+			return srv.redirect(srv.url_base.."token/check")
+
+		else
+			srv.redirect(srv.url_base.."login/email/?error=invalid_email&continue="..wet_html.url_esc(continue))
+		end
+
+	elseif dat=="check" then -- check a token
+	
+		local d=cache.get(srv,"dumid_ip_token="..srv.ip)
+		if d then
+--			cache.del(srv,"dumid_ip_token="..srv.ip)
+
+			d=json.decode(d)
+		end
+	
+		local token=srv.gets.token or ""
+	
+		if d and token and d.token==token then -- good token
+			cache.del(srv,"dumid_ip_token="..srv.ip)
+
+--log(wstr.dump(d))
+
+			local name=d.email
+			name=str_split("@",name)[1] -- get the left bit of any email
+			name=string.sub(name,1,32) -- limit length
+
+			return perform_login(srv,{
+				flavour="email",
+				name=name,
+				email=d.email,
+				info={email=d.email},
+				continue=d.continue,
+			})
+		end
+	
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("dumid_header",{})
+		put("dumid_token",{continue=continue})
+		put("dumid_footer",{})
+
+	end
+
+
 end
 
 -----------------------------------------------------------------------------
@@ -115,7 +225,28 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 "openid.realm="..wet_html.url_esc("http://"..srv.url_slash[3].."/")
 
 
-	if dat=="google" then
+	if dat=="email" then
+	
+--[[
+		mail.send{
+			from="notkriss@xixs.com",
+			to="kriss@xixs.com",
+			subject="hello",
+			body="this\nis\na\ntest\n",
+		}
+		iplog.ratelimit(srv.ip,25)
+]]
+--		return srv.redirect(srv.url_base.."enter/"..dat.."/?continue="..wet_html.url_esc(continue))
+	
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("dumid_header",{})
+		put("dumid_email",{continue=continue})
+		put("dumid_footer",{})
+
+		
+		return
+		
+	elseif dat=="google" then
 
 		openidquery=openidquery..
 		"&openid.ns.ax="..wet_html.url_esc("http://openid.net/srv/ax/1.0")..
@@ -191,6 +322,8 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 	put("dumid_footer",{})
 	
 end
+
+
 
 -----------------------------------------------------------------------------
 --
@@ -444,35 +577,57 @@ local put=make_put(srv)
 	
 	end
 	
-	if email then -- try and load or create a new user by email
 
-		if srv.opts("users","admin",email) then admin=true end -- set admin flag to true for these users
+	return perform_login(srv,{
+		flavour=flavour,
+		name=name,
+		email=email,
+		info=info,
+		authentication=authentication,
+		continue=continue,
+	})
+end
+
+
+-----------------------------------------------------------------------------
+--
+-- login using the authenticated data in tab
+--
+-----------------------------------------------------------------------------
+function perform_login(srv,tab)
+
+	local user
+	local admin
+
+	if tab.email then -- try and load or create a new user by email
+
+		if srv.opts("users","admin",tab.email) then admin=true end -- set admin flag to true for these users
 
 		for retry=1,10 do -- get or create user in database
 			
 			local t=dat.begin()
 			
-			user=d_users.get(srv,email:lower(),t) -- try and read a current user
+			user=d_users.get(srv,tab.email:lower(),t) -- try and read a current user
 			
 			if not user then -- didnt get, so make and put a new user?
 			
-				user=d_users.fill(srv,nil,{userid=email,name=name,flavour=flavour}) -- name can be nil, it will just be created from the userid
+				user=d_users.fill(srv,nil,{userid=tab.email,name=tab.name,flavour=tab.flavour}) -- name can be nil, it will just be created from the userid
 				if not d_users.put(srv,user,t) then user=nil end
 			end
 			
 			if user then
-				user.cache.name=name -- update?
-				user.cache.flavour=flavour
+				user.cache.name=tab.name -- update?
+				user.cache.flavour=tab.flavour
 				user.cache.authentication=user.cache.authentication or {} -- may need to create
-				for i,v in pairs(authentication) do -- remember any new special authentication values
+				for i,v in pairs( tab.authentication or {} ) do -- remember any new special authentication values
 					user.cache.authentication[i]=v
 				end
 			end
 			
 			user.cache.ip=srv.ip -- remember the last ip we logged in from
 			user.cache.admin=admin
-			user.cache.info=info -- extra procesed info
-			if info.email then user.cache.email=info.email end -- real email if available
+			user.cache.info=tab.info -- extra procesed info
+			if tab.info and tab.info.email then user.cache.email=tab.info.email end -- real email if available
 			if not d_users.put(srv,user,t) then user=nil end -- always write
 			
 			if user then -- things are looking good try a commit
@@ -494,24 +649,15 @@ local put=make_put(srv)
 		d_sess.del(srv,user.cache.id)
 	
 		-- create a new session for this user
-		
-		local hash=""
-		for i=1,8 do
-			hash=hash..string.format("%04x", math.random(0,65535) ) -- not so good but meh it will do for now
-		end
-		sess=d_sess.fill(srv,nil,{user=user,hash=hash})
+		local hash=sys.md5( "session"..(user.cache.ip)..math.random()..os.time() )
+		local sess=d_sess.fill(srv,nil,{user=user,hash=hash})
 		d_users.put(srv,sess) -- dump the session
 		srv.set_cookie{name="wet_session",value=hash,domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
+		
 	end
 
-	return srv.redirect( continue )
---[[
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("dumid_header",{})	
-	put("dumid_choose",{continue=continue})	
-	put("dumid_footer",{})
-]]
-	
+	return srv.redirect( tab.continue )
+
 end
 
 -----------------------------------------------------------------------------

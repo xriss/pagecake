@@ -124,6 +124,14 @@ more=more..[[
 ]]
 end
 
+if true then
+more=more..[[
+<div class="cont">
+	<a class="button" href="{srv.url_base}login/email/?continue={continue}">Email</a>
+</div>
+]]
+end
+
 	d.continue=url_esc(d.continue)
 	return replace([[
 <div class="contop">
@@ -137,3 +145,56 @@ end
 
 end
 
+
+-----------------------------------------------------------------------------
+--
+-- please enter email
+--
+-----------------------------------------------------------------------------
+dumid_email=function(d)
+
+	d.continue=url_esc(d.continue)
+
+	return replace([[
+<div class="emailinfo">
+	Please enter the email address you wish to login with and we will send you a login token. Beware that we use this email as your <b>public</b> identity so it will be visible to everyone on the internets.<br/><br/>If you are Batman and fear this may expose your true identity then please use one of the other login methods or just make a new "public" email address somewhere that you do feel so precious about.
+</div>
+<div class="cont">
+
+<form action="{srv.url_base}token/send/?continue={continue}" method="get">
+<input type="text" name="email" value="" maxlength="128" style="width:80%"/>
+<input type="submit" value="Submit" />
+</form>
+
+</div>
+]]
+,d)
+
+end
+
+-----------------------------------------------------------------------------
+--
+-- please enter token
+--
+-----------------------------------------------------------------------------
+dumid_token=function(d)
+
+	d.continue=url_esc(d.continue)
+
+	return replace([[
+<div class="emailinfo">
+	Please check your email and either click on the link we sent you or if that link does not work then try entering the token here.
+</div>
+<div class="cont">
+
+<form action="{srv.url_base}token/check" method="get">
+<input type="text" name="token" value="" maxlength="128" style="width:80%"/>
+<input type="submit" value="Submit" />
+</form>
+
+</div>
+]]
+,d)
+
+
+end
