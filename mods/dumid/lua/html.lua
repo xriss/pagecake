@@ -183,7 +183,7 @@ dumid_token=function(d)
 
 	return replace([[
 <div class="emailinfo">
-	Please check your email and either click on the link we sent you or if that link does not work then try entering the token here.
+	Please check your email ( It might be marked as spam, so look there ) and either click on the link we sent you or if that link does not work then try entering the token here.
 </div>
 <div class="cont">
 

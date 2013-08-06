@@ -29,7 +29,8 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 function serv_fail(srv)
 
 	srv.exit(404)
-
+	
+--[=[
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put([[
 	
@@ -38,6 +39,9 @@ PAGE MISSING<br/>
 <a href="/">return to the homepage?</a><br/>
 
 ]])
+
+]=]
+
 
 end
 
@@ -90,6 +94,8 @@ fetch.countzero()
 		local allow,tab=iplog.ratelimit(srv.ip)
 		srv.iplog=tab -- iplog info
 		if not allow then
+--			srv.set_mimetype("text/html; charset=UTF-8")
+--			srv.put( iplog.html_info(srv.ip) )
 			return srv.exit(503)
 --[[
 			srv.put("your ip ("..srv.ip..") is being RATELIMITED and you must wait a little while to access this server\n\n")
