@@ -225,7 +225,15 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 "openid.realm="..wet_html.url_esc("http://"..srv.url_slash[3].."/")
 
 
-	if dat=="email" then
+	if dat=="jedi" then
+
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("dumid_header",{})
+		put("dumid_jedi",{continue=continue})
+		put("dumid_footer",{})
+		return
+		
+	elseif dat=="email" then
 	
 --[[
 		mail.send{

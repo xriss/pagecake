@@ -97,6 +97,7 @@ more=more..[[
 	end
 
 more=more..[[
+	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/jedi/?continue={continue}">Jedi</a></div>
 	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/email/?continue={continue}">Email</a></div>
 ]]
 
@@ -166,6 +167,27 @@ dumid_token=function(d)
 </form>
 
 </div>
+]]
+,d)
+
+
+end
+
+
+dumid_jedi=function(d)
+
+	d.continue=url_esc(d.continue)
+
+	return replace([[
+	
+		<div class="dum-jedi">
+			Use the force.
+		</div>
+		
+	<div class="dum-butts">
+	<div class="dum-butt_wrap"><a class="form" style="color:#777777;" href="{srv.url_base}login/?continue={continue}">I accept that I am not a Jedi :(</a></div>
+	<div class="clear"></div>
+	</div>
 ]]
 ,d)
 

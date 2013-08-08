@@ -305,7 +305,7 @@ a:active	{color:#fff; text-decoration: none;}
 .dum-mail_form	{width:360px; padding:20px 20px 60px 20px; text-align:center; font-size:32px;}
 .dum-jedi		{width:360px; padding:40px 20px; text-align:center; font-size:32px; color:#454545;}
 
-input.form {
+.form {
 	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
 	box-shadow:inset 0px 1px 0px 0px #ffffff;
@@ -323,11 +323,11 @@ input.form {
 	text-decoration:none;
 	text-shadow:1px 1px 0px #ffffff;
 }
-input.form:hover	{background-color:#dfdfdf; cursor:pointer;}
-input.form:active	{position:relative; top:1px;}
+.form:hover	{background-color:#dfdfdf; cursor:pointer;}
+.form:active	{position:relative; top:1px;}
 
-input.txt			{font-family:arial; font-size:16px; font-weight:bold; padding:6px 24px;}
-input.txt:hover 	{background-color:#fff;}
+.txt			{font-family:arial; font-size:16px; font-weight:bold; padding:6px 24px;}
+.txt:hover 	{background-color:#fff;}
 
 
 
