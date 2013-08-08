@@ -42,7 +42,7 @@ waka_bar=function(d)
 	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
 		d.admin=replace([[
 	<div class="aelua_admin_bar" style="font-size:13px">
-		<form action="" method="POST" enctype="multipart/form-data">
+		<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
 			<button type="submit" name="submit" value="edit" class="button" >Edit</button>
 			<a href="?cmd=edit" class="button" >SafeEdit</a>
 			<a href="/!/admin" class="button" >Admin</a>
@@ -66,7 +66,7 @@ waka_edit_form=function(d)
 
 	return replace([[
 <div id="wakaedit" style="width:960px;position:relative;margin:auto;display:block">
-<form name="post"  action="" method="post" enctype="multipart/form-data">
+<form name="post" action="{srv.qurl}" method="post" enctype="multipart/form-data">
 	<textarea name="text" class="field" style="width:960px;height:480px;position:relative;margin:auto;display:block" >{text}</textarea>
 	<div style="text-align:center;">
 		<input type="submit" name="submit" value="Save" class="button" />
