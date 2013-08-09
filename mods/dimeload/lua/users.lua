@@ -16,19 +16,17 @@ local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-module("dimeload.shells")
+module("dimeload.users")
 local _M=require(...)
 
--- a shell maps to a wiki page (use same id as page) and should contain a list of data ids for the actual downloads
+
 default_props=
 {
-	owner="", -- the initial users id eg "1234@id.gmail.com"
-
+	dimes=0, -- how many dimes we currently have
 }
 
 default_cache=
 {
-	dataids={}, -- pointers to meta data, one file or maybe more
 }
 
 
@@ -39,7 +37,7 @@ default_cache=
 --
 --------------------------------------------------------------------------------
 function kind(srv)
-	return "dimeload.shell"
+	return "dimeload.users"
 end
 
 --------------------------------------------------------------------------------
@@ -58,13 +56,13 @@ end
 
 
 
-
-
-
-
 dat.set_defs(_M) -- create basic data handling funcs
 
 dat.setup_db(_M) -- make sure DB exists and is ready
+
+
+
+
 
 
 

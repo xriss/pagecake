@@ -11,25 +11,30 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 local fetch=require("wetgenes.www.any.fetch")
 local sys=require("wetgenes.www.any.sys")
 
+
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-module("dimeload.loads")
+module("dimeload.pages")
 local _M=require(...)
+
 
 default_props=
 {
-	shell="", -- the id of the shell this load belongs to
+	owner="", -- who owns this page
+	
+	project="", -- the name of the project you can dimeload from this page
 
-	owner="", -- the initial users id eg "1234@id.gmail.com"
-	dimes=0, -- number of initial downloads available
-	available=0, -- number of downloads available now
+	name="", -- the name of this page, maybe random, maybe user generated
+	
+	dimes=0, -- how many dimes remain, unclaimed, on this page
+	downloads=0, -- how many dimes have been claimed from this page
+	
 }
 
 default_cache=
 {
-	link="", -- as an actualy paying customer you may provide a promoted link
 }
 
 
@@ -40,7 +45,7 @@ default_cache=
 --
 --------------------------------------------------------------------------------
 function kind(srv)
-	return "dimeload.load"
+	return "dimeload.pages"
 end
 
 --------------------------------------------------------------------------------
@@ -59,12 +64,11 @@ end
 
 
 
-
-
-
 dat.set_defs(_M) -- create basic data handling funcs
 
 dat.setup_db(_M) -- make sure DB exists and is ready
+
+
 
 
 

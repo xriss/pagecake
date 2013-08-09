@@ -43,6 +43,7 @@ local comments=require("note.comments")
 
 -- our options
 
+local plate_blog_default="<div><h2>{it.title}</h2><a href=\"{it.link}\">by {it.author_name} on {it.date}</a><br/>{it.body}</div>"
 
 
 local LAYER_PUBLISHED = 0
@@ -288,7 +289,7 @@ local get,put=make_get_put(srv)
 		
 		c.it=c
 		if c then
-			t[#t+1]=get(macro_replace(c[opts.plate or ""] or c.plate_wrap or c.plate_post or "{body}",c))
+			t[#t+1]=get(macro_replace(c[opts.plate or ""] or c.plate_bloglist or c.plate_wrap or c.plate_post or "{body}",c))
 		end
 	end
 	
@@ -455,7 +456,7 @@ local get,put=make_get_put(srv)
 				local c=chunk_prepare(srv,v,opts)
 				refined.it=c
 
-				local text=get(macro_replace(c[opts.plate or ""] or c.plate_wrap or "{it.body}",refined))
+				local text=get(macro_replace(c[opts.plate or ""] or c.plate_bloglist or c.plate_wrap or plate_blog_default,refined))
 				ss[#ss+1]=text
 			end
 			
@@ -506,7 +507,7 @@ local get,put=make_get_put(srv)
 			
 			else
 			
-				local text=get(macro_replace(refined.plate_page or refined.plate_post or "{it.body}",refined))
+				local text=get(macro_replace(refined.plate_blogpost or refined.plate_page or refined.plate_post or plate_blog_default,refined))
 
 				srv.set_mimetype("text/html; charset=UTF-8")
 				put("header",{title=refined.title,
@@ -660,7 +661,7 @@ This is the #body of your post and can contain any html you wish.
 		
 		local refined=chunk_prepare(srv,ent,opts)
 		refined.it=refined
-		local blog_text=macro_replace(refined.plate or "<h1>{it.title}</h1>{it.body}",refined)
+		local blog_text=macro_replace(refined.plate or plate_blog_default,refined)
 		que(blog_text)
 		css=refined.css
 

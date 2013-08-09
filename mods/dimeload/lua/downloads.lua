@@ -16,21 +16,19 @@ local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-module("dimeload.dimes")
+module("dimeload.downloads")
 local _M=require(...)
 
 
--- each download is live for 60 minutes after first activation.
 default_props=
 {
-	shell="", -- the id of the shell this load belongs to
-	load="", -- the id of the load this dime belongs to
+	user="", -- who downloaded
+	date=0, -- when they downloaded
+	ip="", -- ip of where it was downloaded to
 
-	ip="", -- each download is locked to an ip
-	
-	owner="", -- a user may claim a dimeload if they wish
-	
-	count="", -- number of times this has been downloaded (if it gets large we may add more restrictions)
+	project="", -- project name
+	page="", -- page name (may be "")
+	file="", -- file name
 }
 
 default_cache=
@@ -45,7 +43,7 @@ default_cache=
 --
 --------------------------------------------------------------------------------
 function kind(srv)
-	return "dimeload.dime"
+	return "dimeload.downloads"
 end
 
 --------------------------------------------------------------------------------

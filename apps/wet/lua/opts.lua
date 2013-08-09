@@ -9,6 +9,8 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
+	{"local",	"lo4d"},			-- test domain
+
 	{"cello",	"cello"},			-- any domain with play in it
 
 	{"play",	"play"},			-- any domain with play in it
@@ -91,19 +93,25 @@ end
 -- add a mapping to the map table
 local function add_map(map,name,tab)
 
-	if not tab then -- just default mod settings
+	local mapname=name
+	if type(tab)=="string" then
+		mapname=tab
+		tab=nil
+	end
+	
+	if type(tab)~="table" then -- just default mod settings
 	
 		local baseurl=map["#opts"].url
 		if baseurl~="/" then baseurl=baseurl.."/" end
 		tab={
 			["#default"]	=	name, 		-- no badlinks, we own everything under here
 			["#opts"]		=	{
-									url=baseurl..name,
+									url=baseurl..mapname,
 									title=name,
 								},
 		}
 	end
-	map[name]=tab	
+	map[mapname]=tab	
 	return tab
 end
 
@@ -194,6 +202,10 @@ setup=function()
 			elseif n=="hoe" then -- extra site setup
 
 				add_map(v.map,"hoe")
+
+			elseif n=="lo4d" then -- extra site setup
+
+				add_map(v.map,"dimeload","dl")
 
 			end
 						

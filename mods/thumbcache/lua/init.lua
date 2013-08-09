@@ -12,6 +12,7 @@ local img=require("wetgenes.www.any.img")
 local fetch=require("wetgenes.www.any.fetch")
 
 local cache=require("wetgenes.www.any.cache")
+local iplog=require("wetgenes.www.any.iplog")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
@@ -44,6 +45,7 @@ module("thumbcache")
 -----------------------------------------------------------------------------
 function serv(srv)
 
+	iplog.ratelimit(srv.ip,-1)
 
 	local usecache=true
 
@@ -76,6 +78,7 @@ function serv(srv)
 			sys.sleep(1)
 		
 		elseif data then -- we got an image
+
 --log("cache")
 		
 			srv.set_mimetype( data.mimetype )
