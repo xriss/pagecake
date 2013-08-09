@@ -58,6 +58,64 @@ end
 --
 -----------------------------------------------------------------------------
 function serv(srv)
+
+	srv.dl=wakapages.load(srv,"/dl")[0] -- main waka page
+	local dlua=srv.dl.lua or {}
+
+	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]
+
+-- functions for each special command
+	local cmds={
+		tmp=		serv_test,
+	}
+	local f=cmds[ string.lower(cmd or "") ]
+	if f then return f(srv) end
+	
+-- check for project
+	local lc=string.lower(cmd or "")
+	for i,v in ipairs(dlua.projects or {}) do
+		if lc == string.lower(v) then
+			return serv_project(srv,lc)
+		end
+	end
+
+	return
+end
+
+
+-----------------------------------------------------------------------------
+--
+-- just a test
+--
+-----------------------------------------------------------------------------
+function serv_test(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+local get,put=make_get_put(srv)
+	
+	put("This is a dimeload test, please ignore it for now")
+
+end
+
+
+-----------------------------------------------------------------------------
+--
+-- display a project, or a subpage of the project
+--
+-----------------------------------------------------------------------------
+function serv_project(srv,pname)
+
+	local url_local="/dl/"..pname
+
+	local project=dl_projects.get(srv,pname)
+	if not project then return end
+
+	local code=srv.url_slash[ srv.url_slash_idx+1 ]
+	if code then -- check for code
+log(code)
+--		url_local="/dl/pname/"..code
+	end
+	
+
 local sess,user=d_sess.get_viewer_session(srv)
 local get,put=make_get_put(srv)
 	
@@ -84,121 +142,26 @@ local get,put=make_get_put(srv)
 		posts[n]=v
 	end
 	
-	put("This is a dimeload test, please ignore it for now")
+	local refined=wakapages.load(srv,"/dl/"..pname)[0]
+
+	local css=refined and refined.css
+	local html_head
+	if refined.html_head then html_head=get(refined.html_head,refined) end
+
+	refined.title=project.cache.title
+	refined.body=project.cache.body
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put("header",{title=refined.title,css=css,extra=html_head})
+	put("dimeload_bar",{page="dl/"..pname})
+	
+	put(macro_replace(refined.plate or "{body}",refined))
+
+	comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
+
+	put("footer")
+
 
 end
 
-
-
-
-
------------------------------------------------------------------------------
---
--- hook into waka page updates, any page under will come in here
--- that way we canuse the waka to update our basic data
---
--- page is just an entity get on the page, check its id or whatever before proceding
---
------------------------------------------------------------------------------
-function waka_changed(srv,page)
-
-	if not page then return end
-
-	local id=tostring(page.key.id)
-
---log("check : "..id)
-
-	local projectname
-	id:gsub("/dl/([^/]+)",function(s) projectname=s end)
-
-	if not projectname then return end
-	
-	log("dimeload project update : "..projectname)
-
-	local refined=wakapages.load(srv,id)[0]
-	local ldat=refined.lua or {} -- better just to use #lua chunk for data, so it can parse and maintain native types
-
-		local it=dl_projects.set(srv,projectname,function(srv,e) -- create or update
-			local c=e.cache
-			
-			c.title=refined.title or ""
-			c.body=refined.body or ""
-
-
-			c.published=ldat.published or 0
-			c.files=ldat.files or {}
-
---[[
-			e.cache.group=group -- update group
-			e.cache.name=name -- update name
-			
-			e.cache.title=title -- update title
-			e.cache.body=body -- update body
-
-			e.cache.width=width -- update width
-			e.cache.height=height -- update height
-
-			e.cache.image=image -- update image
-			e.cache.icon=icon -- update icon
-
-			e.cache.pubdate=pubdate -- update published time
-
-			e.cache.random=rand -- sort by this random number
-]]
-
-			return true
-		end)
-
-
---[[
-
-	local refined=wakapages.load(srv,id)[0]
-
-	local group=refined.group or ""
-	local name=refined.name or ""
-
-	local title=refined.title or ""
-	local body=refined.body or ""
-	local width=math.floor(tonumber(refined.width or 0) or 0)
-	local height=math.floor(tonumber(refined.height or 0) or 0)
-
-	local pubdate=math.floor(tonumber(refined.time or page.props.created) or page.props.created) -- force a published date?
-
-	local image=refined.image or ""
-	local icon=refined.icon or ""
-	
-	local rand=math.random()
-	
---	local tags=refined.tags or {}
-	
-	if id and title then 
-	
-
-		local it=comics.set(srv,id,function(srv,e) -- create or update
-			e.cache.group=group -- update group
-			e.cache.name=name -- update name
-			
-			e.cache.title=title -- update title
-			e.cache.body=body -- update body
-
-			e.cache.width=width -- update width
-			e.cache.height=height -- update height
-
-			e.cache.image=image -- update image
-			e.cache.icon=icon -- update icon
-
-			e.cache.pubdate=pubdate -- update published time
-
-			e.cache.random=rand -- sort by this random number
-
-			return true
-		end)
-		
-	end
-]]
-end
-
--- add our hook to the waka stuffs, this should get called on module load
--- We want to catch all edits here and then filter them in the function
-waka.add_changed_hook("^/",waka_changed)
 

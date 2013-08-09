@@ -34,16 +34,15 @@ end
 -- control bar
 --
 -----------------------------------------------------------------------------
-todo_bar=function(d)
+dimeload_bar=function(d)
 
 
 	d.admin=""
 	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
 		d.admin=replace([[
 	<div class="aelua_admin_bar">
-		<form method="POST" enctype="multipart/form-data" action="/?cmd=edit&page={page}">
-			<button type="submit" name="submit" value="edit" class="button" >Edit</button>
-		</form>
+		<a href="/?cmd=edit&page={page}" class="button" > Edit </a>
+		<a href="/?cmd=edit&page=dl" class="button" > Admin </a>
 	</div>
 ]],d)
 	end
