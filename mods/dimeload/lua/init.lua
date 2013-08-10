@@ -118,7 +118,7 @@ log(code)
 
 
 -- secret internal redirect to download a private file
-		return ngx.exec("/@private/dimeload/"..pname.."/Bulbaceous.v13570.7z")
+		return ngx.exec("/@private/dimeload/bulbaceous/Bulbaceous.v13570.7z")
 
 	end
 	
