@@ -41,6 +41,8 @@ local dl_pages=require("dimeload.pages")
 
 local dl_downloads=require("dimeload.downloads")
 
+local ngx=ngx
+
 module("dimeload")
 
 local function make_get_put(srv)
@@ -113,6 +115,11 @@ function serv_project(srv,pname)
 	if code then -- check for code
 log(code)
 --		url_local="/dl/pname/"..code
+
+
+-- secret internal redirect to download a private file
+		return ngx.exec("/@private/dimeload/"..pname.."/Bulbaceous.v13570.7z")
+
 	end
 	
 
