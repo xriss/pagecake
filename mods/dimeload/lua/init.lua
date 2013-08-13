@@ -237,6 +237,38 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 --	refined.title=project.cache.title
 --	refined.body=project.cache.body
 
+	if srv.gets.downloads and user and user.cache and user.cache.admin then
+	
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local r=dl_downloads.list(srv,opts)
+
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("header",{title=refined.title,css=css,extra=html_head})
+		put("dimeload_bar",{page="dl/"..pname})
+
+
+		put("There have been {count} downloads<br/><br/>",{count=#r})
+
+		if r then
+			for i,v in ipairs(r) do
+				local c=v.cache
+		put([[
+			{created} : {project}/{page}/{file} == {user} : {ip} <br/>
+		]],c)
+
+			end 
+		end
+
+
+		put("footer")
+
+		return
+
+	end
+
+
 	if srv.gets.sponsor and user and user.cache and user.cache.admin then
 
 	
@@ -318,6 +350,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 				c.project=pname
 				c.page=page.cache.name
 				c.file=fname
+				dl_downloads.put(srv,d)
 
 -- secret internal redirect to download a private file
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
@@ -349,7 +382,7 @@ function chunk_import(srv,tab)
 		local opts={}
 		opts.limit=tab.limit
 		opts.offset=tab.offset
-		local r=projects.list(srv,opts)
+		local r=dl_projects.list(srv,opts)
 		if r then
 			for i,v in ipairs(r) do tab[i]=v.cache end -- copy values only
 		end

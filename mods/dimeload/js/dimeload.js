@@ -89,6 +89,11 @@ dimeload.goto=function(name)
 	}
 	
 	dimeload.div.append( dimeload.gethtml("available") );
+
+	if(dl_page)
+	{
+		dimeload.div.append( dl_page.about );
+	}
 	
 	return false;
 };
