@@ -179,7 +179,7 @@ function serv_project(srv,pname)
 
 	local code=srv.url_slash[ srv.url_slash_idx+1 ]
 	if code then -- check for code, if code is valid then we are rendering a custom download page
-log(code)	
+--log(code)	
 
 -- check if the page exists	
 		page=dl_pages.get(srv,pname.."/"..code)
@@ -237,12 +237,48 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 --	refined.title=project.cache.title
 --	refined.body=project.cache.body
 
-	if srv.gets.sponser and user and user.cache and user.cache.admin then
+	if srv.gets.sponsor and user and user.cache and user.cache.admin then
+
+	
+		if posts.dimes then posts.dimes=tonumber(posts.dimes) end
+
+--log(wstr.dump(posts))
+	
+		local send={}
+		send.project=pname
+		send.about=posts.about or (page and page.cache.about) or ""
+		send.dimes=posts.dimes or (page and page.cache.dimes) or 1
+		send.code=posts.code or code or srv.gets.sponsor
+		
+		if posts.code then -- lets update stuff
+
+			dl_pages.set(srv,pname.."/"..send.code,function(srv,e)
+				local c=e.cache
+				
+				c.project=send.project
+				c.name=send.code
+				c.owner=user.cache.id
+				c.dimes=send.dimes
+				
+				c.about=send.about
+				
+				return true								
+			end)
+
+		end
+
+
+		if not page and type(srv.gets.sponsor)=="string" and #srv.gets.sponsor>=1 then
+			page=dl_pages.get(srv,pname.."/"..send.code)
+			refined.dl_page=page and page.cache
+		end
+
+	
 		srv.set_mimetype("text/html; charset=UTF-8")
 		put("header",{title=refined.title,css=css,extra=html_head})
 		put("dimeload_bar",{page="dl/"..pname})
 
-		put("sponser",refined)
+		put("sponsor",send)
 		
 		put("footer")
 		return
@@ -259,7 +295,30 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 			end
 		end
 		if fname then
-			if page then
+			if not user then
+
+				refined.json.error=[["you must be logged in to download"]]
+				
+			elseif page and page.cache.available>0 then
+
+-- check for a recent log entry and allow a rety of the download
+
+-- add 1 to the download count
+				dl_pages.update(srv,pname.."/"..code,function(srv,e)
+					local c=e.cache
+					c.downloads=c.downloads+1
+					return true								
+				end)
+
+-- create log entry
+				local d=dl_downloads.create(srv)
+				local c=d.cache
+				c.user=user.cache.id
+				c.ip=user.cache.ip
+				c.project=pname
+				c.page=page.cache.name
+				c.file=fname
+
 -- secret internal redirect to download a private file
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
 			else

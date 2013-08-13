@@ -17,7 +17,7 @@ Click here to login</a></div>\
 ';
 
 dimeload.html.welcome='\
-<div class="dl_welcome">Welcome to DimeLoad you have <span class="dl_dimes">0</span> dimes.<a href="#" onclick="return dimeload.goto(\'sponser\');">Buy dimes?</a></div>\
+<div class="dl_welcome">Welcome to DimeLoad you have <span class="dl_dimes">0</span> dimes.<a href="#" onclick="return dimeload.goto(\'sponsor\');">Buy dimes?</a></div>\
 ';
 
 dimeload.html.back='\
@@ -26,17 +26,24 @@ dimeload.html.back='\
 
 dimeload.html.menu='\
 <div class="dl_download"><a href="#" onclick="return dimeload.goto(\'downloads\');">Click here to view the list of downloads for this project.</a></div>\
-<div class="dl_sponser"><a href="#" onclick="return dimeload.goto(\'sponser\');">Click here to sponser this project and create a custom download page.</a></div>\
+<div class="dl_sponsor"><a href="#" onclick="return dimeload.goto(\'sponsor\');">Click here to sponsor this project and create a custom download page.</a></div>\
 ';
 
-dimeload.html.sponser='\
-Sponsership is still in development and will be available in a couple of days.\
+dimeload.html.sponsor='\
+Sponsorship is still in development and will be available in a couple of days.\
 ';
 
 //this should be calculated and filled in on the server
 dimeload.html.downloads='\
 No downloads available.\
 ';
+//this should be calculated and filled in on the server
+dimeload.html.available='\
+<div class="dl_available">This page has '+(dl_page?(dl_page.available):"0")+' dimes available</div>\
+';
+
+
+
 
 
 dimeload.inject=function(div)
@@ -80,6 +87,8 @@ dimeload.goto=function(name)
 			dimeload.div.html(dimeload.gethtml("back")+dimeload.gethtml(dimeload.state));	
 		break;
 	}
-
+	
+	dimeload.div.append( dimeload.gethtml("available") );
+	
 	return false;
 };

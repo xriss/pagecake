@@ -28,8 +28,9 @@ default_props=
 
 	name="", -- the name of this page, maybe random, maybe user generated
 	
-	dimes=0, -- how many dimes remain, unclaimed, on this page
+	dimes=0, -- how many dimes this page has (in total) set to 0 to disable page
 	downloads=0, -- how many dimes have been claimed from this page
+	available=0, -- how many dimes are still available (never less than 0)
 	
 }
 
@@ -58,6 +59,9 @@ function check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
+
+	c.available=c.dimes-c.downloads
+	if c.available<0 then c.available=0 end
 		
 	return ent
 end

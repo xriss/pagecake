@@ -26,8 +26,6 @@ local _M=require(...)
 default_props=
 {
 	published=0,	-- set to 1 if published
-	created=0,
-	updated=0,
 }
 
 default_cache=
@@ -119,17 +117,13 @@ log("dimeload project update : "..projectname)
 		
 -- grab chunks from this page that we want to associate with this project on other pages
 
+		c.body=""
 		c.title=refined.title or ""
 		c.about=refined.about or ""
 		c.icon=refined.icon or ""
 		c.video=refined.video or ""
 		c.sitelink=refined.sitelink or "" -- could just be the dimeload page or a special gamesite
 		c.name=projectname
-
-		if ( not c.created ) or ( c.created==0 ) then -- not set yet
-			c.created=srv.time
-		end
-		c.updated=srv.time
 
 		c.published=ldat.published or 0
 		c.files=ldat.files or {}

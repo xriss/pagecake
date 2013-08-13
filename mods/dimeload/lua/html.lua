@@ -50,3 +50,27 @@ dimeload_bar=function(d)
 	return (d.admin)
 
 end
+
+
+
+-----------------------------------------------------------------------------
+--
+-- sponsor form and links
+--
+-----------------------------------------------------------------------------
+sponsor=function(d)
+
+	return replace([[
+	<div>
+	<form action="?sponsor" method="post" >
+	 PROJECT:<input type="text" name="project" value="{project}"/> <br/>
+	 CODE:<input type="text" name="code" value="{code}"/> <br/>
+	 DIMES:<input type="text" name="dimes" value="{dimes}"/> <br/>
+	 ABOUT:<textarea rows="20" cols="80" name="about">{about}</textarea> <br/>
+	 <input type="submit" value="Update" /> <br/>
+	</form>
+	</div>
+]],d)
+
+
+end

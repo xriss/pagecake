@@ -23,7 +23,6 @@ local _M=require(...)
 default_props=
 {
 	user="", -- who downloaded
-	date=0, -- when they downloaded
 	ip="", -- ip of where it was downloaded to
 
 	project="", -- project name
