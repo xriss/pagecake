@@ -153,7 +153,7 @@ Thank you for your cooperation.
 				]],
 			}
 
-			iplog.ratelimit(srv.ip,25)	-- allow at max only 4 emails per minute per ip (client)
+			iplog.ratelimit(srv.ip,50)	-- allow at max only 4 emails per minute per ip (client)
 
 			return srv.redirect(srv.url_base.."token/check")
 

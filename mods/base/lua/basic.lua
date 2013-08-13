@@ -96,7 +96,7 @@ fetch.countzero()
 		if not allow then
 --			srv.set_mimetype("text/html; charset=UTF-8")
 --			srv.put( iplog.html_info(srv.ip) )
-			return srv.exit(503)
+			return srv.exit(429)
 --[[
 			srv.put("your ip ("..srv.ip..") is being RATELIMITED and you must wait a little while to access this server\n\n")
 			srv.put(tab.mhd[1][1].." > 100 per minute \n")

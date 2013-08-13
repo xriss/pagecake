@@ -117,8 +117,14 @@ log("dimeload project update : "..projectname)
 	local it=set(srv,projectname,function(srv,e) -- create or update
 		local c=e.cache
 		
+-- grab chunks from this page that we want to associate with this project on other pages
+
 		c.title=refined.title or ""
-		c.body=refined.body or ""
+		c.about=refined.about or ""
+		c.icon=refined.icon or ""
+		c.video=refined.video or ""
+		c.sitelink=refined.sitelink or "" -- could just be the dimeload page or a special gamesite
+		c.name=projectname
 
 		if ( not c.created ) or ( c.created==0 ) then -- not set yet
 			c.created=srv.time

@@ -469,7 +469,7 @@ local get,put=make_get_put(srv)
 			local text=get(macro_replace(refined.plate_next,refined))
 			ss[#ss+1]=text
 
---				refined.title=""
+				refined.title=""
 				refined.body=table.concat(ss)
 				put(macro_replace(refined.plate or "{body}",refined))
 --			end
@@ -516,7 +516,7 @@ local get,put=make_get_put(srv)
 					adminbar=get("blog_admin_links",{it=ent.cache,user=user}),
 					})
 
---				refined.title=""
+				refined.title=""
 				refined.body=text
 				put(macro_replace(refined.plate or "{body}",refined))
 				

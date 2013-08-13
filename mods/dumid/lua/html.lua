@@ -62,7 +62,7 @@ dumid_footer=function(d)
 	return replace([[
 
 		<div class="dum-foot">
-			This is a <a href="http://dum-id.appspot.com/">dumid</a> login system.
+			This is a <a href="http://www.wetgenes.com/">dumid</a> login system.
 		</div>
 	</div>
 </div>
