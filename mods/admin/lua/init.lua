@@ -14,6 +14,7 @@ local users=require("wetgenes.www.any.users")
 
 local fetch=require("wetgenes.www.any.fetch")
 local cache=require("wetgenes.www.any.cache")
+local iplog=require("wetgenes.www.any.iplog")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
@@ -55,8 +56,14 @@ local put=make_put(srv)
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 	
-print(srv.url_slash[ srv.url_slash_idx ])
+--print(srv.url_slash[ srv.url_slash_idx ])
 	
+	if srv.url_slash[ srv.url_slash_idx ]=="iplog" then
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put(iplog.html_info(srv.ip),{})
+		return
+	end
+
 	if srv.url_slash[ srv.url_slash_idx ]=="api" then
 		return serv_api(srv)
 	end
