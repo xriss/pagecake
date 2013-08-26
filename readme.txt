@@ -1,7 +1,7 @@
 
-The core anlua code https://bitbucket.org/xixs/anlua although this was
-originally designed and implimented on top of app engine it has slowly
-shifted into an nginx and openresty based web framework.
+Pagecake was originally called aelua/bottstrapp and designed and 
+implimented on top of googles app engine. It has slowly shifted into 
+an nginx and openresty based web framework.
 
 Google App Engine probably still works, but I no longer care. Sorry
 but it makes more sense to fire up an amazon instance and run the nginx
@@ -12,19 +12,20 @@ Yeah it don't scale but I will welcome that problem when I hit it. :)
 
 Actually I figure amazon is too expensive but you get the idea.
 
-The old appengine code has been removed to reduce confusion, as I am 
-no longer interested in even testing if it still works. Either look 
-in the history of this project or visit the old google code 
+All the old appengine code has been removed to reduce confusion, as 
+I am no longer interested in even testing if it still works. Either 
+look in the history of this project or visit the old google code 
 repository at
 
 https://code.google.com/p/aelua/
 
 
-The basic idea of anlua is producing a number of mods which are then 
-stuck together on a single website (each one living at a different 
-dir) depending on your needs. so for instance /thumbcache is where 
-some simple image caching code for thumbnails exists. The main 
-module is waka which is a wiki like html page creation/editing module.
+The basic idea of pagecake is producing a number of mods which are 
+then stuck together on a single website (each one living at a 
+different dir) depending on your needs. so for instance /thumbcache 
+is where some simple image caching code for thumbnails exists. The 
+main module is waka which is a wiki like html page creation/editing 
+module.
 
 Look inside the mods directory for more information about what each
 module is trying to achieve and if it is a good idea to use it.
@@ -41,8 +42,8 @@ http://dime.lo4d.net/
 http://hoe.4lfa.com/
 http://4lfa.com/
 
-
-Finally.
+Pagecake is a sister project to Gamecake and shares some of the same 
+code.
 
  All content is MIT licenesed unless explicitly stated otherwise.
 
