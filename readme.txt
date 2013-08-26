@@ -1,5 +1,5 @@
 
-Pagecake was originally called aelua/bottstrapp and designed and 
+Pagecake was originally called aelua/bootstrapp and designed and 
 implimented on top of googles app engine. It has slowly shifted into 
 an nginx and openresty based web framework.
 
