@@ -1,10 +1,19 @@
 
-Apps are sites which are collections ofmods and possibly some extra special code.
+Apps are sites which are collections of mods and possibly some extra 
+special code.
 
-For instance hoe-house is a basic boot-str install plus the game hoe-house.
+Originally I was building an app per site but this has become more 
+generic with a single shared between sites using vhost style setup.
 
-CD into the directory and MAKE to make, MAKE SERV to run locally and MAKE UPLOAD to upload to gae.
+The wet directory you see here contains config for all of the anlua 
+sites I currently run.
 
-However before you can install them you will have to adjust the appid to one that you control.
+The following commands bake, serv and then view the log files.
 
-Edit apps/*/html/WEB-INF/appengine-web.xml to change this appid.
+ngx/bake
+ngx/serv
+ngx/tail
+
+These serv on a localhost but since they are virtual hosts you will 
+have to access them via apropriately named domain to get to the 
+different ones. (ie edit your /etc/hosts)

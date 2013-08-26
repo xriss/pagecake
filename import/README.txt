@@ -1,4 +1,4 @@
-Some lua scripts to read some of my older sites and import them into aelua waka.
+Some lua scripts to read some of my older sites and import them into anlua waka.
 
 Probably need to suport wordpress as a source since it seems to have taken over the world.
 

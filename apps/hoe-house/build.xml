@@ -1,5 +1,0 @@
-<project name="app" default="war">
-
-<import file="../../build.xml"/>
-
-</project>

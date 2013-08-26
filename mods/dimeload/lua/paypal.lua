@@ -54,6 +54,19 @@ function check(srv,ent)
 end
 
 
+--[[
+<script src="paypal-button.min.js?merchant=paypal@lo4d.net" 
+    data-button="buynow" 
+    data-name="test" 
+    data-quantity="10" 
+    data-amount="0.1" 
+    data-currency="USD" 
+    data-shipping="0" 
+    data-tax="0" 
+    data-callback="http://callbackurl" 
+    data-env="sandbox"
+></script>
+]]
 
 dat.set_defs(_M) -- create basic data handling funcs
 
