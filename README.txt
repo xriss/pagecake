@@ -1,14 +1,37 @@
 
-The core aelua code http://code.google.com/p/aelua/ which is in part a lightly
-modified java port of lua 5.1 from http://code.google.com/p/jillcode/ along with
-some appengine specific lua libraries and other bits and bobs to make developing
-websites in lua and on appengine easy. This code is reasonably stable and should
-be considered beta quality.
+The core anlua code https://bitbucket.org/xixs/anlua although this was
+originally designed and implimented on top of app engine it has slowly
+shifted into an nginx and openresty based web framework for building
+lua based web sites.
 
-Look inside the mods directory for more information about what each module is
-hoping to achieve and if it is a good idea to try and use it yet.
+Google App Engine probably still works, but I no longer care. Sorry
+but it makes more sense to fire up an amazon instance and run the nginx
+version. Even in its currently hacked together state it's more stable
+and delivers faster responses for any medium size website.
 
-Do not run ant in this directory, go into apps/boot-str and use the makefile.
+Yeah it don't scale but I will welcome that problem when I hit it. :)
+
+Actually I figure amazon is too expensive but you get the idea.
+
+The basic idea is producing a number of mods which are then stuck
+together on a single website depending on your needs.
+
+Look inside the mods directory for more information about what each
+module is trying to achieve and if it is a good idea to use it.
+
+All of my websites are now contained within the apps/wet directory
+with virtual hosts support to run different bits from different
+domains. This is actually my live config, all secrets are added
+via the website and the admin module.
+
+Places to see this code run are...
+
+http://gamecake.4lfa.com/
+http://dime.lo4d.net/
+http://hoe.4lfa.com/
+http://4lfa.com/
+
+
 
  All content is MIT licenesed unless explicitly stated otherwise.
 
