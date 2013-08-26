@@ -60,7 +60,8 @@ local put=make_put(srv)
 	
 	if srv.url_slash[ srv.url_slash_idx ]=="iplog" then
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put(iplog.html_info(srv.ip),{})
+		log(srv.url_slash[ srv.url_slash_idx+1 ])
+		put(iplog.html_info( srv.url_slash[ srv.url_slash_idx+1 ] or srv.ip),{})
 		return
 	end
 
