@@ -32,6 +32,15 @@ http://hoe.4lfa.com/
 http://4lfa.com/
 
 
+The old appengine code has been removed to reduce confusion, as it 
+is no longer suported and I am no longer interested in even testing 
+if it still works. Either look in the history of this project or 
+visit the old google code repository at
+
+https://code.google.com/p/aelua/
+
+
+Finally.
 
  All content is MIT licenesed unless explicitly stated otherwise.
 
