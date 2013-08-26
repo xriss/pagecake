@@ -43,7 +43,21 @@ http://hoe.4lfa.com/
 http://4lfa.com/
 
 Pagecake is a sister project to Gamecake and shares some of the same 
-code.
+code as well as requireing Gamecake to build/install.
+
+You must checkout this repo side by side with bin and lua then build 
+the nginx in the lua repo.
+
+eg
+
+hg clone https://bitbucket.org/xixs/bin
+hg clone https://bitbucket.org/xixs/lua
+hg clone https://bitbucket.org/xixs/pagecake
+
+
+Building the code in lua creates a build of nginx with openresty and 
+other required lua/C libs.
+
 
  All content is MIT licenesed unless explicitly stated otherwise.
 
