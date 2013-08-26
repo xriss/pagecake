@@ -58,13 +58,22 @@ local put=make_put(srv)
 	
 --print(srv.url_slash[ srv.url_slash_idx ])
 	
-	if srv.url_slash[ srv.url_slash_idx ]=="iplog" then
-		srv.set_mimetype("text/html; charset=UTF-8")
-		log(srv.url_slash[ srv.url_slash_idx+1 ])
-		put(iplog.html_info( srv.url_slash[ srv.url_slash_idx+1 ] or srv.ip),{})
-		return
-	end
 
+	if srv.url_slash[ srv.url_slash_idx ]=="cmd" then
+		local cmd=srv.url_slash[ srv.url_slash_idx+1 ]
+		if cmd=="clearmemcache" then
+			srv.set_mimetype("text/html; charset=UTF-8")
+			srv.put("MEMCACHE CLEARED")
+			cache.clear(srv)
+			return
+		elseif cmd=="iplog" then
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(iplog.html_info( srv.url_slash[ srv.url_slash_idx+2 ] or srv.ip),{})
+			return
+		end
+	end
+	
+	
 	if srv.url_slash[ srv.url_slash_idx ]=="api" then
 		return serv_api(srv)
 	end
