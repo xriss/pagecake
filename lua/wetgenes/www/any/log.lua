@@ -1,0 +1,1 @@
+if ngx then	return require("wetgenes.www.ngx.log")else	return require("wetgenes.www.gae.log")end
