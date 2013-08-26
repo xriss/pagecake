@@ -115,6 +115,32 @@ end
 
 
 
+--------------------------------------------------------------------------------
+--
+-- Load a list of active visible projects
+--
+--------------------------------------------------------------------------------
+function list(srv,opts)
+local H=srv.H
+opts=opts or {}
+
+	local list={}
+	
+	local q={
+		kind=kind(srv),
+		limit=opts.limit or 10,
+		offset=0,
+		}
+	q[#q+1]={"sort","updated","DESC"}
+		
+	local ret=dat.query(q)
+		
+	for i=1,#ret.list do local v=ret.list[i]
+		dat.build_cache(v)
+	end
+
+	return ret.list
+end
 
 
 

@@ -267,6 +267,37 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		return
 
 	end
+	if srv.gets.users and user and user.cache and user.cache.admin then
+	
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local r=d_users.list(srv,opts)
+
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("header",{title=refined.title,css=css,extra=html_head})
+		put("dimeload_bar",{page="dl/"..pname})
+
+
+		put("There are {count} users<br/><br/>",{count=#r})
+
+		if r then
+			for i,v in ipairs(r) do
+				local c=v.cache
+		put([[
+			{created} : {id} {email} {name} : {ip} <br/>
+		]],c)
+
+	
+			end 
+		end
+
+
+		put("footer")
+
+		return
+
+	end
 
 
 	if srv.gets.sponsor and user and user.cache and user.cache.admin then

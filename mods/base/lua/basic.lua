@@ -78,6 +78,7 @@ fetch.countzero()
 
 
 -- low level hacks, requires google admin  to hit these urls (FIXME)
+--[[
 	if srv.url_slash[4]=="admin" and srv.url_slash[5]=="cmd" then
 		if srv.url_slash[6]=="clearmemcache" then
 			srv.put("MEMCACHE CLEARED")
@@ -85,7 +86,7 @@ fetch.countzero()
 			return
 		end
 	end
-
+]]
 
 	local guser=users.get_google_user() -- google handles its own login
 	if guser and guser.admin then -- trigger any special preadmin codes?
@@ -94,17 +95,8 @@ fetch.countzero()
 		local allow,tab=iplog.ratelimit(srv.ip)
 		srv.iplog=tab -- iplog info
 		if not allow then
---			srv.set_mimetype("text/html; charset=UTF-8")
---			srv.put( iplog.html_info(srv.ip) )
-			return srv.exit(429)
---[[
-			srv.put("your ip ("..srv.ip..") is being RATELIMITED and you must wait a little while to access this server\n\n")
-			srv.put(tab.mhd[1][1].." > 100 per minute \n")
-			srv.put(tab.mhd[1][2].." > 1000 per hour \n")
-			srv.put(tab.mhd[1][3].." > 10000 per day \n")
-			return srv.exit(503)
-]]
-		end -- drop request
+			return srv.exit(429) -- drop request
+		end
 
 	end
 

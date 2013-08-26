@@ -1,4 +1,4 @@
-#!../../../bin/exe/lua
+#!/bin/gamecake
 -- build or serve an nginx version of an app
 
 local apps=require("apps")

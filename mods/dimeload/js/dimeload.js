@@ -37,7 +37,12 @@ Sponsorship is still in development and will be available in a couple of days.\
 dimeload.html.downloads='\
 No downloads available.\
 ';
+
 //this should be calculated and filled in on the server
+dimeload.html.alldownloads='\
+No downloads available.\
+';
+
 dimeload.html.available='\
 <div class="dl_available">This page has '+(dl_page?(dl_page.available):"0")+' dimes available</div>\
 ';
