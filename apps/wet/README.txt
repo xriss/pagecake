@@ -1,7 +1,5 @@
 
-This is my basic aelua test ground, code found here is not safe to use as
-anything other than an example of what might be possible. Half of the code here
-is also probably broken.
+The only App I currently use, comprises of many vhost sites.
 
 
 All content is MIT licenesed unless explicitly stated otherwise.
