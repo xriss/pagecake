@@ -24,7 +24,7 @@ footer=function(d)
 	d=d or {}
 	
 	d.mod_name="comic"
-	d.mod_link="https://bitbucket.org/xixs/anlua/src/tip/mods/comic"
+	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/comic"
 	
 	return html.footer(d)
 end

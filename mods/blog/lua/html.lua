@@ -25,7 +25,7 @@ setmetatable(_M,{__index=html}) -- use a meta table to also return html base
 -----------------------------------------------------------------------------
 footer=function(d)
 	d.mod_name="blog"
-	d.mod_link="https://bitbucket.org/xixs/anlua/src/tip/mods/blog"
+	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/blog"
 	return html.footer(d)
 end
 

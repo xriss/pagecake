@@ -24,7 +24,7 @@ footer=function(d)
 	d=d or {}
 	
 	d.mod_name="dimeload"
-	d.mod_link="https://bitbucket.org/xixs/anlua/src/tip/mods/dimeload"
+	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/dimeload"
 	
 	return html.footer(d)
 end

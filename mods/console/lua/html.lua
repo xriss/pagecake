@@ -24,7 +24,7 @@ footer=function(d)
 	d=d or {}
 	
 	d.mod_name="console"
-	d.mod_link="https://bitbucket.org/xixs/anlua/src/tip/mods/console"
+	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/console"
 	
 	return html.footer(d)
 end

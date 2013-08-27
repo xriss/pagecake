@@ -86,7 +86,7 @@ about=function(d)
 	d=d or {}
 	d.hoehouse="<a href=\"http://hoe.4lfa.com/\">hoe house</a>"
 	d.whorehouse="<a href=\"http://whorehouse.naken.cc/\">whore house</a>"
-	d.aelua="<a href=\"http://www.bitbucket.org/xixs/anlua/\">anlua</a>"
+	d.aelua="<a href=\"http://www.bitbucket.org/xixs/pagecake/\">pagecake</a>"
 	d.lua="<a href=\"http://www.lua.org/\">lua</a>"
 	d.appengine="<a href=\"http://code.google.com/appengine/\">appengine</a>"
 	d.wetgenes="<a href=\"http://www.wetgenes.com/\">wetgenes</a>"
