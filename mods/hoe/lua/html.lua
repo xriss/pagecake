@@ -91,7 +91,7 @@ about=function(d)
 --	d.appengine="<a href=\"http://code.google.com/appengine/\">appengine</a>"
 	d.wetgenes="<a href=\"http://www.wetgenes.com/\">wetgenes</a>"
 
-	d.nginx="<a href=\"http://nginx.org//\">nginx</a>"
+	d.nginx="<a href=\"http://nginx.org/\">nginx</a>"
 	d.openresty="<a href=\"http://openresty.org/\">openresty</a>"
 
 	return replace(get_plate("about"),d)
