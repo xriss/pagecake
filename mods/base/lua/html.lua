@@ -294,9 +294,9 @@ end
 _M.basefunc.about=function(html,d)
 
 	d=d or {}
-	d.bootstrapp="<a href=\"http://boot-str.appspot.com/\">bootstrapp</a>"
-	d.mods="<a href=\"http://boot-str.appspot.com/about\">mods</a>"
-	d.aelua="<a href=\"https://bitbucket.org/xixs/pagecake\">pagecake</a>"
+--	d.bootstrapp="<a href=\"http://boot-str.appspot.com/\">bootstrapp</a>"
+	d.mods="<a href=\"https://bitbucket.org/xixs/pagecake/src/tip/mods\">mods</a>"
+	d.pagecake="<a href=\"https://bitbucket.org/xixs/pagecake\">pagecake</a>"
 	d.wetgenes="<a href=\"http://www.wetgenes.com\">wetgenes</a>"
 	
 --	d.version=opts.bootstrapp_version or 0
@@ -304,7 +304,7 @@ _M.basefunc.about=function(html,d)
 --	d.appengine="<a href=\"http://code.google.com/appengine/\">appengine</a>"
 
 	local p=html.get_plate("about",[[
-	{bootstrapp} is a distribution of {aelua} {mods} developed by {wetgenes}.
+	{pagecake} is a collection of {mods} developed by {wetgenes}.
 ]])
 	return replace(p,d)
 
