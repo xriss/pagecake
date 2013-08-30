@@ -9,7 +9,9 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",	"lo4d"},			-- test domain
+	{"local",	"lo4d"},			-- test this domain when on localhost or host.local
+
+	{"horror",	"horror"},			-- any domain with horror in it
 
 	{"cello",	"cello"},			-- any domain with play in it
 
@@ -43,6 +45,7 @@ local dat=require("wetgenes.www.any.data")
 local cache=require("wetgenes.www.any.cache")
 
 local wet_string=require("wetgenes.string")
+local wstr=wet_string
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -180,12 +183,13 @@ setup=function()
 
 --make sure we setup the database
 		local dat=require("wetgenes.www.any.data")
-		dat.setup_db(ae_opts)
+--		dat.setup_db(ae_opts)
 --before we try and load the opts
 	
 		local srv=ngx.ctx
 		
 		local old_vhost=srv.vhost
+
 
 		for n,v in pairs(vhosts) do --we need to load up each vhost for initial setup
 		
@@ -209,6 +213,7 @@ setup=function()
 
 			end
 						
+			dat.setup_db(ae_opts)
 			v.lua = ae_opts.get_dat("lua") -- this needs to be per vhost
 			if v.lua then
 				local f=loadstring(v.lua)
@@ -219,6 +224,8 @@ setup=function()
 			end
 
 			v.mods=find_mods(v.map) -- build mods pointers from the map
+
+log(n)
 
 		end
 
