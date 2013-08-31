@@ -64,7 +64,7 @@ function memsave(g,fmt)
 
 	local gfmt=grd.HINT_PNG
 	if fmt then fmt=fmt:lower() end
-	if fmt=="jpeg" then gfmt=grd.HINT_JPG end
+	if fmt=="jpeg" then gfmt=grd.HINT_JPG else fmt="png" end
 
 	local function file_read(filename)
 		local fp=assert(io.open(filename,"rb"))
@@ -78,7 +78,7 @@ function memsave(g,fmt)
 	g:save(filename,gfmt)
 	
 	g.body=file_read(filename)
---	g.format=fmt
+	g.format=fmt
 	
 	os.remove(filename)
 	
