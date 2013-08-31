@@ -47,13 +47,13 @@ function resize(g,x,y)
 end
 
 function composite(t)
---	log("img.composite:")
+--log("img.composite:",wstr.dump(t))
 
 	local go=grd.create(grd.FMT_U8_ARGB,t.width,t.height,1)
 	
 	for i,v in ipairs(t) do
-		v[1]:convert(grd.FMT_U8_ARGB)
-		go:blit(v[1],v[2],v[3])
+		v[1]:convert(grd.FMT_U8_ARGB_PREMULT)
+		assert(go:blit(v[1],v[2],v[3],v[4],v[5],v[6],v[7]))
 	end
 	
 	return go
@@ -78,7 +78,7 @@ function memsave(g,fmt)
 	g:save(filename,gfmt)
 	
 	g.body=file_read(filename)
-	g.format=fmt
+--	g.format=fmt
 	
 	os.remove(filename)
 	

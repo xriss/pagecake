@@ -57,14 +57,14 @@ end
 	local refined=wakapages.load(srv,"/dice")[0]	
 
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title="profile ",H={user=user,sess=sess}})
+	put("header",{title="dice",H={user=user,sess=sess}})
 
 	refined.title="Dice"
 	local body=""
 	
 	local style="plain"
 	local count=2
-	local side=6
+	local side=20
 	
 
 	if slash and slash~="" then -- requested format, eg 2d6
@@ -127,7 +127,7 @@ end
 	local width=count*100
 	if width>960 then width=960 end
 	
-	body=body..get("<a href=\"/dice/image/plain/{imgid}.jpg\"><img src=\"/dice/image/plain/{imgid}.jpg\" width=\"{width}\"/></a><br/>",{count=count,sides=sides,imgid=imgid,width=width})
+	body=body..get("<a href=\"/dice/image/plain/{imgid}.png\"><img src=\"/dice/image/plain/{imgid}.png\" width=\"{width}\"/></a><br/>",{count=count,sides=sides,imgid=imgid,width=width})
 	
 	refined.body=body;
 	put( macro_replace(refined.plate or "{body}", refined ) )
@@ -185,18 +185,18 @@ function image(srv)
 		if #nums==16 then break end
 	end
 	
+	local d=img.get(sys.file_read("public/art/dice/plain/d"..die..".png"))
+
 	local imgs={}
 	local comp={width=#nums*100, height=100, color=tonumber("ffffff",16), format="JPEG"}
 	for i=1,#nums do local v=nums[i]
-		if not imgs[v] then imgs[v]=img.get(sys.file_read("art/dice/plain/d"..die.."."..v..".png")) end -- load image
-		table.insert(comp,{imgs[v],100*(i-1),0,1,"TOP_LEFT"})
+		table.insert(comp,{d,100*(i-1),0,100*(v-1),0,100,100})
 	end
 
 	local t2=img.composite(comp)
-	
-	srv.set_mimetype( "image/"..string.lower(t2.format) )
---print(wstr.dump(t2))
-	img.memsave(t2,string.lower(t2.format))
+
+	img.memsave(t2,"png")
+	srv.set_mimetype( "image/png" )
 	srv.put( t2.body )
 		
 end

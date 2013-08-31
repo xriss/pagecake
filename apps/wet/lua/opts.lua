@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",	"play"},			-- test this domain when on localhost or host.local
+	{"local",	"cake"},			-- test this domain when on localhost or host.local
 
 	{"horror",	"horror"},			-- any domain with horror in it
 
@@ -215,6 +215,10 @@ setup=function()
 
 				add_map(v.map,"shadow")
 
+			elseif n=="cake" then -- extra site setup
+
+				add_map(v.map,"dice")
+				
 			end
 						
 			dat.setup_db(ae_opts)
