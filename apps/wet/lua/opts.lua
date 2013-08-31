@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",	"lo4d"},			-- test this domain when on localhost or host.local
+	{"local",	"play"},			-- test this domain when on localhost or host.local
 
 	{"horror",	"horror"},			-- any domain with horror in it
 
@@ -210,6 +210,10 @@ setup=function()
 			elseif n=="lo4d" then -- extra site setup
 
 				add_map(v.map,"dimeload","dl")
+
+			elseif n=="play" then -- extra site setup
+
+				add_map(v.map,"shadow")
 
 			end
 						
