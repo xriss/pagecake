@@ -68,22 +68,22 @@ dice_form=function(d)
 	
 	return wet_html.replace([[
 	
-<div class="#dice_title">
+<div class="dice_title">
 <h1>Choose your god!</h1>
 </div>
 
-<form class="jNice" name="dice_form" id="dice_form" action="" method="post">
-	<div class="#dice_form">
-		<div class="#dice_form_line1" style="float:left;width:150px;background-color:#f0f0ff" >
+<form class="dice_form" name="dice_form" id="dice_form" action="" method="post">
+	<div class="dice_div">
+		<div class="dice_div_line1" style="float:left;width:150px;background-color:#f0f0ff" >
 			{line1}
 		</div>
-		<div class="#dice_form_line2" style="float:left;width:75px;background-color:#f0ffff" >
+		<div class="dice_div_line2" style="float:left;width:75px;background-color:#f0ffff" >
 			{line2}
 		</div>
-		<div class="#dice_form_line3" style="float:left;width:400px" >
+		<div class="dice_div_line3" style="float:left;width:400px" >
 			{line3}
 		</div>
-		<div class="#dice_form_submit" style="clear:both" >
+		<div class="dice_div_submit" style="clear:both" >
 			<input type="submit" name="submit" value="Roll dice!"/>
 		</div>
 	</div>
