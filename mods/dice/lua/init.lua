@@ -64,7 +64,7 @@ end
 	local body=""
 	
 	local style="plain"
-	local count=2
+	local count=3
 	local side=20
 	
 
