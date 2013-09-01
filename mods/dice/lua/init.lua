@@ -112,10 +112,12 @@ end
 	local diename=dienames[side] or side.." sided dice"
 	body=body..get(
 	[[
-		<br/>
-		The webmaster grabs a handful of {diename} and throws them high into the air.<br/>
-		{count} land{ss} at your feet and stare{ss} up at you with the result.<br/>
-		<br/>
+	<div class="dice_tosser1">
+		The webmaster grabs a handful of {diename} and throws them high into the air.
+	</div>
+	<div class="dice_tosser2">
+		{count} land{ss} at your feet and stare{ss} up at you with the result.
+	</div>
 	]],{count=count,side=side,diename=diename,ss=(count==1)and"s"or"" })
 	
 	local rolls={}
@@ -128,7 +130,12 @@ end
 	local width=count*100
 	if width>960 then width=960 end
 	
-	body=body..get("<a href=\"/dice/image/plain/{imgid}.png\"><img src=\"/dice/image/plain/{imgid}.png\" width=\"{width}\"/></a><br/>",{count=count,sides=sides,imgid=imgid,width=width})
+	body=body..get([[
+	<div class="dice_tosser3">
+		<a href="/dice/image/plain/{imgid}.png"><img src="/dice/image/plain/{imgid}.png" width="{width}"/></a>
+	</div>
+	]]
+	,{count=count,sides=sides,imgid=imgid,width=width})
 	
 	refined.body=body;
 	put( refined.plate or "{body}", refined )
