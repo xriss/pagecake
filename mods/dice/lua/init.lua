@@ -55,9 +55,10 @@ end
 -- need the base wiki page, its kind of the main site everything
 	local wakapages=require("waka.pages")
 	local refined=wakapages.load(srv,"/dice")[0]	
-
+	refined.title=refined.title or "dice"
+	
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title="dice",H={user=user,sess=sess}})
+	put("header",refined)
 
 	refined.title="Dice"
 	local body=""
@@ -130,9 +131,9 @@ end
 	body=body..get("<a href=\"/dice/image/plain/{imgid}.png\"><img src=\"/dice/image/plain/{imgid}.png\" width=\"{width}\"/></a><br/>",{count=count,sides=sides,imgid=imgid,width=width})
 	
 	refined.body=body;
-	put( macro_replace(refined.plate or "{body}", refined ) )
+	put( refined.plate or "{body}", refined )
 			
-	put("footer")
+	put("footer",refined)
 
 end
 
