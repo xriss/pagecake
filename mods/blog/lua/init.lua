@@ -395,7 +395,7 @@ local get,put=make_get_put(srv)
 			
 			updated=os.date("%Y-%m-%dT%H:%M:%SZ",updated)
 			srv.set_mimetype("application/atom+xml; charset=UTF-8")
-			put("blog_atom_head",{title="blog",updated=updated,published=published,author_name=author_name})
+			put("blog_atom_head",{title="blog",updated=updated,author_name=author_name})
 			for i,v in ipairs(list) do
 			
 				local c=chunk_prepare(srv,v,opts)

@@ -130,7 +130,7 @@ blog_atom_head=function(d)
 
 	<title>{title}</title>
 	<link rel="self" href="{srv.url_base}.atom"/>
-	<pubished>{pubished}</pubished>
+	<pubished>{updated}</pubished>
 	<updated>{updated}</updated>
 	<author>
 		<name>{author_name}</name>
