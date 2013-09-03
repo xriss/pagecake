@@ -126,19 +126,16 @@ local get,put=make_get_put(srv)
 	local posts=make_posts(srv)	
 	local refined=wakapages.load(srv,"/dl")[0]
 
-	local css=refined and refined.css
-	local html_head
-	if refined.html_head then html_head=get(refined.html_head,refined) end
 
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title=refined.title,css=css,extra=html_head})
-	put("dimeload_bar",{page="dl"})
+	put("header",refined)
+	put("dimeload_bar",refined)
 	
 	put(macro_replace(refined.plate or "{body}",refined))
 
-	comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
+	comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 
-	put("footer")
+	put("footer",refined)
 
 end
 
@@ -183,25 +180,41 @@ function serv_paypal(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 local get,put=make_get_put(srv)
 	
+	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]	
+
+	if cmd=="ipn" then --paypal is talking to us, telling us about a payment
+		local p = dl_paypal.ipn( srv )
+		if p then -- we can now register this payment as an actual transaction
+			log("PAYPAL : "..p.cache.id.." : "..p.cache.msg) -- log another log, to the logs...
+			put("OK")
+			return
+		end
+	end
+
+	local posts=make_posts(srv)	
+
+	if not user then	-- require a login to view this paypal page (it is private user data)
+		return srv.redirect("/dumid?continue="..srv.url)
+	end
+	
+
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	
-	local posts=make_posts(srv)	
 	local refined=wakapages.load(srv,"/dl/paypal")[0]
-
-	local css=refined and refined.css
-	local html_head
-	if refined.html_head then html_head=get(refined.html_head,refined) end
+	refined.page="dl/paypal"
+	
+	refined.button10 =dl_paypal.button(srv,{custom=user.cache.id,quantity=10})
+	refined.button100=dl_paypal.button(srv,{custom=user.cache.id,quantity=100})
+	refined.button200=dl_paypal.button(srv,{custom=user.cache.id,quantity=200})
+	
+	refined.paylist=dl_paypal.paylist(srv,{custom=user.cache.id})
 
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title=refined.title,css=css,extra=html_head})
-	put("dimeload_bar",{page="dl/paypal"})
-	
-	refined.button=dl_paypal.button(srv,{receiver="receiver@xixs.com",custom=user.cache.id})
-	
+	put("header",refined)
+	put("dimeload_bar",refined)
 	put(macro_replace(refined.plate or "{body}",refined))
-	
-	put("footer")
+	put("footer",refined)
 	
 end
 
@@ -272,12 +285,6 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	end
 	refined.json.html=json.encode(h)
 
-	local css=refined and refined.css
-	local html_head if refined.html_head then html_head=get(refined.html_head,refined) end
-
---	refined.title=project.cache.title
---	refined.body=project.cache.body
-
 	if srv.gets.downloads and user and user.cache and user.cache.admin then
 	
 		local opts={}
@@ -286,8 +293,8 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		local r=dl_downloads.list(srv,opts)
 
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",{title=refined.title,css=css,extra=html_head})
-		put("dimeload_bar",{page="dl/"..pname})
+		put("header",refined)
+		put("dimeload_bar",refined)
 
 
 		put("There have been {count} downloads<br/><br/>",{count=#r})
@@ -303,7 +310,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		end
 
 
-		put("footer")
+		put("footer",refined)
 
 		return
 
@@ -316,8 +323,8 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		local r=d_users.list(srv,opts)
 
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",{title=refined.title,css=css,extra=html_head})
-		put("dimeload_bar",{page="dl/"..pname})
+		put("header",refined)
+		put("dimeload_bar",refined)
 
 
 		put("There are {count} users<br/><br/>",{count=#r})
@@ -334,7 +341,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		end
 
 
-		put("footer")
+		put("footer",refined)
 
 		return
 
@@ -379,12 +386,12 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 	
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",{title=refined.title,css=css,extra=html_head})
-		put("dimeload_bar",{page="dl/"..pname})
+		put("header",refined)
+		put("dimeload_bar",refined)
 
 		put("sponsor",send)
 		
-		put("footer")
+		put("footer",refined)
 		return
 	end
 
@@ -434,14 +441,14 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	end
 
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title=refined.title,css=css,extra=html_head})
-	put("dimeload_bar",{page="dl/"..pname})
+	put("header",refined)
+	put("dimeload_bar",refined)
 	
 	put(macro_replace(refined.plate or "{body}",refined))
 
 	comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 
-	put("footer")
+	put("footer",refined)
 
 end
 

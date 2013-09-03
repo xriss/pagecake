@@ -444,11 +444,9 @@ local get,put=make_get_put(srv)
 			local css=refined and refined.css
 			refined.pageopts=pageopts
 			
-			
+			refined.adminbar=get("blog_admin_links",{user=user})
 			srv.set_mimetype("text/html; charset=UTF-8")
-			put("header",{title="blog : "..group..page,css=css,
-				H={sess=sess,user=user},
-				adminbar=get("blog_admin_links",{user=user})})
+			put("header",refined)
 		
 			local ss={}
 			for i,v in ipairs(list) do
@@ -474,7 +472,7 @@ local get,put=make_get_put(srv)
 				put(macro_replace(refined.plate or "{body}",refined))
 --			end
 			
-			put("footer")
+			put("footer",refined)
 		end
 		
 	else -- a single page
@@ -509,12 +507,9 @@ local get,put=make_get_put(srv)
 			
 				local text=get(macro_replace(refined.plate_blogpost or refined.plate_page or refined.plate_post or plate_blog_default,refined))
 
+				refined.adminbar=get("blog_admin_links",{it=ent.cache,user=user})
 				srv.set_mimetype("text/html; charset=UTF-8")
-				put("header",{title=refined.title,
-					css=refined.css,
-					H={sess=sess,user=user},
-					adminbar=get("blog_admin_links",{it=ent.cache,user=user}),
-					})
+				put("header",refined)
 
 				refined.title=""
 				refined.body=text

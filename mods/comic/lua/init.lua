@@ -261,12 +261,10 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 		ss[#ss+1]=text
 	end
 	
-	local html_head
-	if refined.html_head then html_head=get(refined.html_head,refined) end
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title=title,css=css,extra=html_head})
-	put("comic_bar",{page=url_waka})
+	put("header",refined)
+	put("comic_bar",refined)
 
 	if refined then
 
@@ -289,12 +287,12 @@ function(){
 ]]
 
 	if pageopts.flame=="on" then -- add comments to this page
-		comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
+		comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 	elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
-		comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user,anon="default"})
+		comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user,anon="default"})
 	end
 
-	put("footer")
+	put("footer",refined)
 	
 end
 

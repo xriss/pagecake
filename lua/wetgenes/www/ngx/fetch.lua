@@ -33,6 +33,7 @@ end
 function get(url,headers,body)
 --	log("NEWfetch.get:"..url)
 
+
 local ret
 
 	for i=1,10 do -- limit redirects

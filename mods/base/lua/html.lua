@@ -91,10 +91,8 @@ _M.basefunc.header=function(html,d)
 	d.bar=d.bar or ""
 	d.bartop=d.bartop or ""
 
-	d.extra=(d.srv and d.srv.extra or "") .. ( d.extra or "" )
+	d.extra=(d.srv and d.srv.extra or "") .. ( d.extra or "" ).. ( d.html_head or "" )
 	
-	d.favicon="/favicon.ico"
-
 
 	for _,v in ipairs{d.srv or {},d,srv.opts("head") or {} } do
 				
@@ -122,9 +120,6 @@ _M.basefunc.header=function(html,d)
 
 	end
 
-	if srv.opts("head","favicon") then
-		d.favicon=srv.opts("head","favicon")
-	end
 	
 	d.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"
 	d.jquery_ui_js="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js"
@@ -182,8 +177,6 @@ _M.basefunc.header=function(html,d)
 <title>{title}</title>
 
 <meta http-equiv="X-UA-Compatible" content="chrome=1">
-
-<link rel="shortcut icon" href="{favicon}" />
 
 <link rel="stylesheet" type="text/css" href="/css/base/aelua.css" /> 
 <link rel="stylesheet" type="text/css" href="/{dotcss}" /> 

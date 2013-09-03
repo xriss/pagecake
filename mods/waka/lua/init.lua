@@ -236,6 +236,7 @@ local ext
 	if not display_edit_only then
 		refined=wet_waka.refine_chunks(srv,chunks,pageopts) -- build processed strings
 	end
+	refined.crumbs=crumbs
 	
 	if pageopts.redirect then -- we may force a redirect here
 		return srv.redirect(pageopts.redirect)
@@ -288,11 +289,9 @@ local ext
 		local css
 		if refined.css then css=macro_replace(refined.css,refined) end
 		
-		local html_head
-		if refined.html_head then htmlhead=get(refined.html_head,refined) end
-		put("header",{title=refined.title,css=css--[[,css=url..".css"]],crumbs=crumbs,extra=html_head})
+		put("header",refined)
 		
-		put("waka_bar",{page=pagename})
+		put("waka_bar",refined)
 		
 		if display_edit then srv.put(display_edit) end
 		
