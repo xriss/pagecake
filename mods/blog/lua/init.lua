@@ -526,7 +526,10 @@ local get,put=make_get_put(srv)
 				put("footer")
 				
 			end
-		end			
+		else -- bad page, redirect to blog
+			return srv.redirect(srv.url_base)
+		end		
+				
 	end
 	
 end
