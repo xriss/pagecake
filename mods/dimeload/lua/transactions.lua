@@ -17,11 +17,12 @@ local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
 -- keep track of where each user gets dimes from, IE payment or gift from the gods.
-module("dimeload.transactions")
-local _M=require(...)
+local M={ modname=(...) } ; package.loaded[M.modname]=M
+function M.kind(srv) return "dimeload.transactions" end
 
 
-default_props=
+
+M.default_props=
 {
 	user="", -- who gets the dimes
 	dimes=0, -- how many dimes
@@ -30,7 +31,7 @@ default_props=
 	source="", -- where it came from for quick searches. eg god user id or paypal email address
 }
 
-default_cache=
+M.default_cache=
 {
 }
 
@@ -38,20 +39,11 @@ default_cache=
 
 --------------------------------------------------------------------------------
 --
--- allways this kind
---
---------------------------------------------------------------------------------
-function kind(srv)
-	return "dimeload.transactions"
-end
-
---------------------------------------------------------------------------------
---
 -- check that entity has initial data and set any missing defaults
 -- the second return value is false if this is not a valid entity
 --
 --------------------------------------------------------------------------------
-function check(srv,ent)
+function M.check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
@@ -61,9 +53,9 @@ end
 
 
 
-dat.set_defs(_M) -- create basic data handling funcs
+dat.set_defs(M) -- create basic data handling funcs
 
-dat.setup_db(_M) -- make sure DB exists and is ready
+dat.setup_db(M) -- make sure DB exists and is ready
 
 
 

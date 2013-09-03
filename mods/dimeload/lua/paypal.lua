@@ -11,33 +11,78 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 local fetch=require("wetgenes.www.any.fetch")
 local sys=require("wetgenes.www.any.sys")
 
+local whtml=require("wetgenes.html")
 
-local wet_string=require("wetgenes.string")
-local str_split=wet_string.str_split
-local serialize=wet_string.serialize
+local wstr=require("wetgenes.string")
 
-module("dimeload.paypal")
-local _M=require(...)
+--module
+local M={ modname=(...) } ; package.loaded[M.modname]=M
+function M.kind(srv) return "dimeload.paypal" end
 
+local url_verify="https://www.paypal.com/cgi-bin/webscr?cmd=_notify-validate&"
 
-default_props=
+M.default_props=
+{
+-- use txn_id/payment_status as the id, since we may? get the same txn_id with differnt statuses.
+	msg="",			-- the full msg sent from paypal (VERIFIED)
+	status="",   	-- payment_status  -- really only interested in "Completed"
+	payer="",    	-- payer_email     -- check it was sent to *us*
+	receiver="", 	-- receiver_email  -- who sent it
+	gross=0,		-- mc_gross        -- how much
+	currency="USD",	-- mc_currency     -- which currency? should only accept USD
+	custom="",		-- custom          -- dumid string of player that we gave to paypal (where to credit dimes)
+}
+
+M.default_cache=
 {
 }
 
-default_cache=
-{
-}
+
+
+--[[
+mc_gross=19.95&
+protection_eligibility=Eligible&
+address_status=confirmed&
+payer_id=LPLWNMTBWMFAY&
+tax=0.00&
+address_street=1+Main+St&
+payment_date=20%3A12%3A59+Jan+13%2C+2009+PST&
+payment_status=Completed&
+charset=windows-1252&
+address_zip=95131&
+first_name=Test&
+mc_fee=0.88&
+address_country_code=US&
+address_name=Test+User&
+notify_version=2.6&
+custom=&
+payer_status=verified&
+address_country=United+States&
+address_city=San+Jose&
+quantity=1&
+verify_sign=AtkOfCXbDm2hu0ZELryHFjY-Vb7PAUvS6nMXgysbElEn9v-1XcmSoGtf&
+payer_email=gpmac_1231902590_per%40paypal.com&
+txn_id=61E67681CH3238416&
+payment_type=instant&
+last_name=User&
+address_state=CA&
+receiver_email=gpmac_1231902686_biz%40paypal.com&
+payment_fee=0.88&
+receiver_id=S8XGHLYDW9T3S&
+txn_type=express_checkout&
+item_name=&
+mc_currency=USD&
+item_number=&
+residence_country=US&
+test_ipn=1&
+handling_amount=0.00&
+transaction_subject=&
+payment_gross=19.95&
+shipping=0.00
+]]
 
 
 
---------------------------------------------------------------------------------
---
--- allways this kind
---
---------------------------------------------------------------------------------
-function kind(srv)
-	return "dimeload.paypal"
-end
 
 --------------------------------------------------------------------------------
 --
@@ -45,7 +90,7 @@ end
 -- the second return value is false if this is not a valid entity
 --
 --------------------------------------------------------------------------------
-function check(srv,ent)
+function M.check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
@@ -54,23 +99,42 @@ function check(srv,ent)
 end
 
 
---[[
-<script src="paypal-button.min.js?merchant=paypal@lo4d.net" 
+function M.button(srv,d)
+	
+	d.ipn=srv.url_base.."paypal/ipn"
+	d.ret=srv.url_base.."paypal"
+
+	d.custom="2@id.wetgnes.com"
+
+	return wstr.replace([[
+<script src="/js/dimeload/paypal-button.min.js?merchant={receiver}" 
     data-button="buynow" 
-    data-name="test" 
-    data-quantity="10" 
+    data-name="Dimes" 
+    data-quantity="100" 
+    data-undefined_quantity="1"
     data-amount="0.1" 
     data-currency="USD" 
-    data-shipping="0" 
+    data-shipping="0"
+    data-no_shipping="1"
+    data-no_note
     data-tax="0" 
-    data-callback="http://callbackurl" 
+    data-callback="{ipn}" 
+    data-custom="{custom}"
+    data-return="{ret}"
     data-env="sandbox"
 ></script>
+]],d)
+
+--[[
+
+
 ]]
 
-dat.set_defs(_M) -- create basic data handling funcs
+end
 
-dat.setup_db(_M) -- make sure DB exists and is ready
+dat.set_defs(M) -- create basic data handling funcs
+
+dat.setup_db(M) -- make sure DB exists and is ready
 
 
 

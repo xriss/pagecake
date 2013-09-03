@@ -9,9 +9,12 @@ local replace=wet_html.replace
 
 local html=require("base.html")
 
-module("dimeload.html")
 
-setmetatable(_M,{__index=html}) -- use a meta table to also return html base 
+--module
+local M={ modname=(...) } ; package.loaded[M.modname]=M
+
+
+setmetatable(M,{__index=html}) -- use a meta table to also return html base 
 
 
 -----------------------------------------------------------------------------
@@ -19,7 +22,7 @@ setmetatable(_M,{__index=html}) -- use a meta table to also return html base
 -- overload footer
 --
 -----------------------------------------------------------------------------
-footer=function(d)
+M.footer=function(d)
 
 	d=d or {}
 	
@@ -34,7 +37,7 @@ end
 -- control bar
 --
 -----------------------------------------------------------------------------
-dimeload_bar=function(d)
+M.dimeload_bar=function(d)
 
 
 	d.admin=""
@@ -58,7 +61,7 @@ end
 -- sponsor form and links
 --
 -----------------------------------------------------------------------------
-sponsor=function(d)
+M.sponsor=function(d)
 
 	return replace([[
 	<div>

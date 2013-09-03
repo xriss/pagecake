@@ -13,7 +13,7 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 --module
 local M={ modname=(...) } ; package.loaded[M.modname]=M
 
-function M.kind() return "shadow.game" end
+function M.kind() return "shadow.games" end
 
 M.default_props=
 {

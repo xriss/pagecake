@@ -16,11 +16,12 @@ local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
-module("dimeload.downloads")
-local _M=require(...)
+--module
+local M={ modname=(...) } ; package.loaded[M.modname]=M
+function M.kind(srv) return "dimeload.downloads" end
 
 
-default_props=
+M.default_props=
 {
 	user="", -- who downloaded
 	ip="", -- ip of where it was downloaded to
@@ -30,20 +31,9 @@ default_props=
 	file="", -- file name
 }
 
-default_cache=
+M.default_cache=
 {
 }
-
-
-
---------------------------------------------------------------------------------
---
--- allways this kind
---
---------------------------------------------------------------------------------
-function kind(srv)
-	return "dimeload.downloads"
-end
 
 --------------------------------------------------------------------------------
 --
@@ -51,7 +41,7 @@ end
 -- the second return value is false if this is not a valid entity
 --
 --------------------------------------------------------------------------------
-function check(srv,ent)
+function M.check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
@@ -64,14 +54,13 @@ end
 -- Load a list of active visible projects
 --
 --------------------------------------------------------------------------------
-function list(srv,opts)
-local H=srv.H
+function M.list(srv,opts)
 opts=opts or {}
 
 	local list={}
 	
 	local q={
-		kind=kind(srv),
+		kind=M.kind(srv),
 		limit=opts.limit or 10,
 		offset=0,
 		}
@@ -87,9 +76,9 @@ opts=opts or {}
 end
 
 
-dat.set_defs(_M) -- create basic data handling funcs
+dat.set_defs(M) -- create basic data handling funcs
 
-dat.setup_db(_M) -- make sure DB exists and is ready
+dat.setup_db(M) -- make sure DB exists and is ready
 
 
 

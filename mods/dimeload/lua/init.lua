@@ -41,6 +41,7 @@ local dl_projects=require("dimeload.projects")
 local dl_pages=require("dimeload.pages")
 
 local dl_downloads=require("dimeload.downloads")
+local dl_paypal=require("dimeload.paypal")
 
 local ngx=ngx
 
@@ -82,28 +83,26 @@ end
 -----------------------------------------------------------------------------
 function serv(srv)
 
-	srv.dl=wakapages.load(srv,"/dl")[0] -- main waka page
-	local dlua=srv.dl.lua or {}
+	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]	
+	if cmd and string.sub(cmd,1,2)=="0x" then -- special hexkey
+		return serv_hexkey(srv)
+	end
 
-	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]
-
--- functions for each special command
+-- check flavours
 	local cmds={
 		api=		serv_api,
+		paypal=		serv_paypal,
 	}
 	local f=cmds[ string.lower(cmd or "") ]
 	if f then return f(srv) end
 	
--- check for project
+-- check for a project with this name
 	local lc=string.lower(cmd or "")
-	for i,v in ipairs(dlua.projects or {}) do
-		if lc == string.lower(v) then
-			return serv_project(srv,lc)
-		end
-	end
+	local p=dl_projects.get(srv,lc)
+	if p then return serv_project(srv,p) end
 
-	if cmd then -- failed to find so goto base
-			return srv.redirect(srv.url_base:sub(1,-2))
+	if cmd then -- failed to find anything so just goto base
+		return srv.redirect(srv.url_base:sub(1,-2))
 	end
 	
 	return serv_main(srv)
@@ -163,19 +162,61 @@ local get,put=make_get_put(srv)
 	return srv.exit(400)
 end
 
+-----------------------------------------------------------------------------
+--
+-- handle API ( returns json results )
+--
+-----------------------------------------------------------------------------
+function serv_hexkey(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+local get,put=make_get_put(srv)
+	
+	return srv.exit(400)
+end
+
+-----------------------------------------------------------------------------
+--
+-- handle paypal stuff
+--
+-----------------------------------------------------------------------------
+function serv_paypal(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+local get,put=make_get_put(srv)
+	
+	local url=srv.url_base
+	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
+	
+	local posts=make_posts(srv)	
+	local refined=wakapages.load(srv,"/dl/paypal")[0]
+
+	local css=refined and refined.css
+	local html_head
+	if refined.html_head then html_head=get(refined.html_head,refined) end
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put("header",{title=refined.title,css=css,extra=html_head})
+	put("dimeload_bar",{page="dl/paypal"})
+	
+	refined.button=dl_paypal.button(srv,{receiver="receiver@xixs.com",custom=user.cache.id})
+	
+	put(macro_replace(refined.plate or "{body}",refined))
+	
+	put("footer")
+	
+end
 
 -----------------------------------------------------------------------------
 --
 -- display a project, or a subpage of the project
 --
 -----------------------------------------------------------------------------
-function serv_project(srv,pname)
+function serv_project(srv,project)
 
-	local url_local="/dl/"..pname
+	if not project then return end
 
 	local page
-	local project=dl_projects.get(srv,pname)
-	if not project then return end
+	local pname=project.cache.id
+	local url_local="/dl/"..pname
 
 	local code=srv.url_slash[ srv.url_slash_idx+1 ]
 	if code then -- check for code, if code is valid then we are rendering a custom download page

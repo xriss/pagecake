@@ -80,11 +80,15 @@ a:focus {color: #666; text-decoration: underline;}
 }
 
 .aelua_admin_bar {
+	pointer-events: none;
     left: 30%;
     position: absolute;
     text-align: center;
     top: 0px;
     width: 40%;
+}
+.aelua_admin_bar button , .aelua_admin_bar a {
+	pointer-events: all;
 }
 
 .aelua_home_bar {

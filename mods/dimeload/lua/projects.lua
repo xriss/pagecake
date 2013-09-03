@@ -19,29 +19,20 @@ local wakapages=require("waka.pages")
 
 
 
-module("dimeload.projects")
-local _M=require(...)
+--module
+local M={ modname=(...) } ; package.loaded[M.modname]=M
+function M.kind(srv) return "dimeload.projects" end
 
 
-default_props=
+M.default_props=
 {
 	published=0,	-- set to 1 if published
 }
 
-default_cache=
+M.default_cache=
 {
 }
 
-
-
---------------------------------------------------------------------------------
---
--- allways this kind
---
---------------------------------------------------------------------------------
-function kind(srv)
-	return "dimeload.projects"
-end
 
 --------------------------------------------------------------------------------
 --
@@ -49,7 +40,7 @@ end
 -- the second return value is false if this is not a valid entity
 --
 --------------------------------------------------------------------------------
-function check(srv,ent)
+function M.check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
@@ -62,14 +53,13 @@ end
 -- Load a list of active visible projects
 --
 --------------------------------------------------------------------------------
-function list(srv,opts)
-local H=srv.H
+function M.list(srv,opts)
 opts=opts or {}
 
 	local list={}
 	
 	local q={
-		kind=kind(srv),
+		kind=M.kind(srv),
 		limit=opts.limit or 10,
 		offset=0,
 		}
@@ -94,7 +84,7 @@ end
 -- page is just an entity get on the page, check its id or whatever before proceding
 --
 -----------------------------------------------------------------------------
-function waka_changed(srv,page)
+function M.waka_changed(srv,page)
 
 	if not page then return end
 
@@ -112,7 +102,7 @@ log("dimeload project update : "..projectname)
 	local refined=wakapages.load(srv,id)[0]
 	local ldat=refined.lua or {} -- better just to use #lua chunk for data, so it can parse and maintain native types
 
-	local it=set(srv,projectname,function(srv,e) -- create or update
+	local it=M.set(srv,projectname,function(srv,e) -- create or update
 		local c=e.cache
 		
 -- grab chunks from this page that we want to associate with this project on other pages
@@ -136,14 +126,14 @@ log("dimeload project update : "..projectname)
 end
 
 
-dat.set_defs(_M) -- create basic data handling funcs
+dat.set_defs(M) -- create basic data handling funcs
 
-dat.setup_db(_M) -- make sure DB exists and is ready
+dat.setup_db(M) -- make sure DB exists and is ready
 
 
 -- add our hook to the waka stuffs, this should get called on module load
 -- We want to catch all edits here and then filter them in the function
-waka.add_changed_hook("^/",waka_changed)
+waka.add_changed_hook("^/",M.waka_changed)
 
 
 
