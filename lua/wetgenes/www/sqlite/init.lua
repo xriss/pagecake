@@ -51,6 +51,7 @@ function set_pragmas(db)
 exec(db,[[
 PRAGMA synchronous = 0 ;
 PRAGMA encoding = "UTF-8" ;
+PRAGMA journal_mode=WAL;
 ]])
 
 -- tunrning sync off is dangerous, but so is life

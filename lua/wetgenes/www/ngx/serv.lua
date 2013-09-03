@@ -52,6 +52,17 @@ function serv2()
 
 	local opts=require("opts")
 	local srv=serv_srv()
+
+-- force redirect to a standard domain if it is set in opts
+	if ngx.var.host~="host.local" then -- allow testing on this domain only
+		local t=opts.vhosts[srv.vhost] or opts
+		if t.domain then
+			if ngx.var.host~=t.domain then -- redirect to standard domain
+log("REDIRECT:"..t.domain.." FROM "..ngx.var.host)
+				ngx.redirect( ngx.var.scheme.."://"..t.domain..ngx.var.uri )
+			end
+		end
+	end
 	
 --	if srv.vhost then log("VHOST = "..srv.vhost) end
 	

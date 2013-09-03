@@ -9,34 +9,36 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",	"lo4d"},			-- test this domain when on localhost or host.local
+	{"local",		"lo4d",			"host.local",			},			-- test this domain when on localhost or host.local
 
-	{"horror",	"horror"},			-- any domain with horror in it
+	{"horror",		"horror",		"horrordriv.esyou.com",	},			-- any domain with horror in it
 
-	{"cello",	"cello"},			-- any domain with play in it
+	{"cello",		"cello",		"cello.esyou.com",		},			-- any domain with play in it
 
-	{"play",	"play"},			-- any domain with play in it
+	{"play",		"play",			"play.4lfa.com",		},			-- any domain with play in it
 
-	{"cake",	"cake"},			-- any domain with cake in it
-	{"catch",	"catch"},			-- any domain with catch in it
+	{"cake",		"cake",			"cake.4lfa.com",		},			-- any domain with cake in it
+	{"catch",		"catch",		"catch.4lfa.com",		},			-- any domain with catch in it
 
-	{"cog",		"cog"},				-- any domain with cog in it
-	{"hoe",		"hoe"},				-- any domain with hoe in it
+	{"cog",			"cog",			"cog.4lfa.com",			},			-- any domain with cog in it
+	{"hoe",			"hoe",			"hoe.4lfa.com",			},			-- any domain with hoe in it
 
-	{"bulbaceous",	"bulbaceous"},		-- any domain with bulbaceous in it
+	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",		},			-- any domain with bulbaceous in it
 
-	{"wetgenes",	"wetgenes"},		-- any domain with wetgenes in it
+	{"wetgenes",	"wetgenes",		"wetgenes.com",			},			-- any domain with wetgenes in it
 	
-	{"xixs",	"xixs"},			-- any domain with xixs in it
-	{"esyou",	"esyou"},			-- any domain with esyou in it
-	{"lo4d",	"lo4d"},			-- any domain with lo4d in it
-	{"4lfa",	"4lfa"},			-- any domain with 4lfa in it (the last vhost is also the default)
+	{"xixs",		"xixs",			"xixs.com",				},			-- any domain with xixs in it
+	{"esyou",		"esyou",		"esyou.com",			},			-- any domain with esyou in it
+	{"lo4d",		"lo4d",			"dime.lo4d.net",		},			-- any domain with lo4d in it
+	{"4lfa",		"4lfa",			"4lfa.com",				},			-- any domain with 4lfa in it (the last vhost is also the default)
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
 	local t={}
 --	setmetatable(t,{__index=opts})
 	vhosts[ v[2] ]=t
+	
+	t.domain=v[3] -- force redirect to this domain
 end
 
 
