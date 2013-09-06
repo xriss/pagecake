@@ -44,7 +44,7 @@ M.dimeload_bar=function(d)
 	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
 		d.admin=replace([[
 	<div class="aelua_admin_bar">
-		<a href="/?cmd=edit&page={page}" class="button" > Edit </a>
+		<a href="/?cmd=edit&page={pagename}" class="button" > Edit </a>
 		<a href="/?cmd=edit&page=dl" class="button" > Admin </a>
 	</div>
 ]],d)

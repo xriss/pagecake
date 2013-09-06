@@ -130,7 +130,6 @@ blog_atom_head=function(d)
 
 	<title>{title}</title>
 	<link rel="self" href="{srv.url_base}.atom"/>
-	<pubished>{updated}</pubished>
 	<updated>{updated}</updated>
 	<author>
 		<name>{author_name}</name>
@@ -154,7 +153,7 @@ blog_atom_item=function(d)
 		<title type="text">{refined.title}</title>
 		<link href="{link}"/>
 		<id>{id}</id>
-		<pubished>{pubdate}</pubished>
+		<published>{pubdate}</published>
 		<updated>{pubdate}</updated>
 		<content type="html">{text}</content>
 	</entry>

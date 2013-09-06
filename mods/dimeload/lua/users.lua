@@ -16,15 +16,21 @@ local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
+
 --module
 local M={ modname=(...) } ; package.loaded[M.modname]=M
 function M.kind(srv) return "dimeload.users" end
 
 
+local dl_users=M
+local dl_transactions=require("dimeload.transactions")
+
 
 M.default_props=
 {
-	dimes=0, -- how many dimes we currently have
+	dimes=0, -- how many dimes we have bought in total
+	spent=0, -- how many dimes we have spent in total
+	avail=0, -- how many dimes we have left to spend (dimes-spent)
 }
 
 M.default_cache=
@@ -41,11 +47,41 @@ function M.check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
-		
+	c.dimes=c.dimes or 0
+	c.spent=c.spent or 0
+	c.avail=(c.dimes-c.spent)
+	if c.avail<0 then c.avail=0 end
+	
 	return ent
 end
 
 
+
+--------------------------------------------------------------------------------
+--
+-- deposit some dimes, record the transaction
+--
+--------------------------------------------------------------------------------
+function M.deposit(srv,opts)
+
+-- create log entry
+	local e=dl_transactions.create(srv)
+	local c=e.cache
+	c.dimes=opts.dimes
+	c.userid=opts.userid
+	c.flavour=opts.lavour
+	c.source=opts.source
+	dl_transactions.put(srv,e)
+
+-- update user dimes
+	dl_users.set(srv,opts.userid,function(srv,e) -- create or update
+		local c=e.cache
+		c.dimes=c.dimes+opts.dimes
+		return true
+	end)
+
+end
+			
 
 dat.set_defs(M) -- create basic data handling funcs
 

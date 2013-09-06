@@ -24,10 +24,9 @@ function M.kind(srv) return "dimeload.transactions" end
 
 M.default_props=
 {
-	user="", -- who gets the dimes
+	userid="", -- who gets the dimes
 	dimes=0, -- how many dimes (negative for "chargebacks" or other removals)
-	date=0,  -- when this happened (unixtime)
-	type="", -- how it happend, eg god or bitcoin or litecoin or paypal
+	flavour="", -- how it happend, eg god or bitcoin or litecoin or paypal
 	source="", -- where it came from for quick searches. eg god user id or paypal email address
 }
 

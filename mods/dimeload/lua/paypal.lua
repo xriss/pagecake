@@ -139,13 +139,11 @@ function M.button(srv,d)
     data-callback="{ipn}" 
     data-custom="{custom}"
     data-return="{ret}"
-    data-env="sandbox"
 ></script>
 ]],d)
 
 --[[
-
-
+    data-env="sandbox"
 ]]
 
 end
@@ -163,7 +161,7 @@ function M.ipn(srv)
 
 -- srv.body is expected to be the urlencoded data that paypal just sent us
 
-	local test=fetch.get("https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_notify-validate&"..srv.body)
+	local test=fetch.get("https://www.paypal.com/cgi-bin/webscr?cmd=_notify-validate&"..srv.body)
 	
 	if test.body=="VERIFIED" then -- data is good
 
@@ -191,7 +189,7 @@ function M.ipn(srv)
 				c.payer=p.payer_email
 				c.receiver=p.receiver_email
 				c.gross=p.mc_gross
-				c.currency=p.mc_currency
+				c.currency=p.mc_currency11
 				c.custom=p.custom
 
 				return true
@@ -203,53 +201,6 @@ function M.ipn(srv)
 	
 	return nil
 end
---[[
-https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_notify-validate&mc_gross=1.00&protection_eligibility=Ineligible&payer_id=AXDL9YW7DY6LU&tax=0.00&payment_date=22%3A01%3A15+Sep+02%2C+2013+PDT&payment_status=Completed&charset=windows-1252&first_name=Kristian&mc_fee=0.33&notify_version=3.7&custom=2%40id.wetgnes.com&payer_status=verified&business=receiver%40xixs.com&quantity=10&verify_sign=AnycuKjOg3dsShBEXJ65qE6iPk8dAuR--nHCaNJWZgS-mIWjICRNqmPU&payer_email=payer%40xixs.com&txn_id=42N64503TL0019712&payment_type=instant&last_name=Daniels&receiver_email=receiver%40xixs.com&payment_fee=0.33&receiver_id=9UX7FUW9HJCAC&txn_type=web_accept&item_name=Dimes&mc_currency=USD&item_number=&residence_country=US&test_ipn=1&handling_amount=0.00&transaction_subject=2%40id.wetgnes.com&payment_gross=1.00&shipping=0.00&ipn_track_id=6bf71a0bacf15
-]]
-
---[[
-mc_gross=19.95&
-protection_eligibility=Eligible&
-address_status=confirmed&
-payer_id=LPLWNMTBWMFAY&
-tax=0.00&
-address_street=1+Main+St&
-payment_date=20%3A12%3A59+Jan+13%2C+2009+PST&
-payment_status=Completed&
-charset=windows-1252&
-address_zip=95131&
-first_name=Test&
-mc_fee=0.88&
-address_country_code=US&
-address_name=Test+User&
-notify_version=2.6&
-custom=&
-payer_status=verified&
-address_country=United+States&
-address_city=San+Jose&
-quantity=1&
-verify_sign=AtkOfCXbDm2hu0ZELryHFjY-Vb7PAUvS6nMXgysbElEn9v-1XcmSoGtf&
-payer_email=gpmac_1231902590_per%40paypal.com&
-txn_id=61E67681CH3238416&
-payment_type=instant&
-last_name=User&
-address_state=CA&
-receiver_email=gpmac_1231902686_biz%40paypal.com&
-payment_fee=0.88&
-receiver_id=S8XGHLYDW9T3S&
-txn_type=express_checkout&
-item_name=&
-mc_currency=USD&
-item_number=&
-residence_country=US&
-test_ipn=1&
-handling_amount=0.00&
-transaction_subject=&
-payment_gross=19.95&
-shipping=0.00
-]]
-
-
 
 dat.set_defs(M) -- create basic data handling funcs
 

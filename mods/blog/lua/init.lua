@@ -250,6 +250,23 @@ local get,put=make_get_put(srv)
 		if c then ret[#ret+1]=c end
 	end
 	
+-- ask for links to the next or previous blog
+	if opts.need_link_next or opts.need_link_prev then
+		ret.link_prev="/blog"
+		ret.link_next="/blog"
+		
+		if list[1] then
+			local list_prev=pages.list_prev(srv,{group=opts.group,layer=LAYER_PUBLISHED,pubdate=list[1].cache.pubdate})
+			ret.link_prev="/blog" .. (list_next and list_next.pubname or "")
+		end
+		
+		if list[#list] then
+			local list_next=pages.list_next(srv,{group=opts.group,layer=LAYER_PUBLISHED,pubdate=list[#list].cache.pubdate})
+			ret.link_next="/blog" .. (list_prev and list_prev.pubname or "")
+		end
+		
+	end
+	
 	return ret
 		
 end

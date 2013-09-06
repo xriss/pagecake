@@ -31,7 +31,7 @@ local comments=require("note.comments")
 
 local ipv4=require("admin.ipv4")
 
-
+local dl_users=require("dimeload.users")
 
 -- opts
 
@@ -210,6 +210,20 @@ local get=make_get(srv)
 					break
 				end
 			end
+			
+
+-- display dimeload chunk on profile?
+			local dluser=dl_users.get(srv,pusr.cache.id)
+--dluser={cache={id=0,dimes=100,spent=90,avail=10}}
+			if dluser then
+				local t={form="dimeload",show="head"}
+				t.userid=pusr.cache.id
+				t.dimes=dluser.cache.dimes
+				t.spent=dluser.cache.spent
+				t.avail=dluser.cache.avail
+				list[#list+1]=t
+			end
+
 
 			for i,v in ipairs(list) do -- get all chunks
 				makechunk(content,v)
@@ -384,3 +398,25 @@ new TWTR.Widget({
 ]]
 	return replace(p,d)
 end
+
+
+
+-----------------------------------------------------------------------------
+--
+-- dimeload stats
+--
+-----------------------------------------------------------------------------
+function makechunk_dimeload(content,chunk)
+	return replace([[
+	<div class="profile_dimeload">
+		<div>
+			<span>Dimes remaining:</span>{avail}
+		</div>
+		<div>
+			<span>Total dimes purchased:</span>{dimes}
+		</div>
+	</div>
+]],chunk)
+end
+
+

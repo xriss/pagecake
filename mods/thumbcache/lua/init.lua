@@ -125,37 +125,34 @@ function serv(srv)
 
 			elseif usecache then
 
-				if cache.put(srv,cachename,"*",10,"ADD_ONLY_IF_NOT_PRESENT") then -- get a 10sec lock
+				cache.put(srv,cachename,"*",10,"ADD_ONLY_IF_NOT_PRESENT") -- get a 10sec lock
 
-					if t[1]=="data" then -- grab local data
-					
-						data=require("data").read(srv,t[2]) -- grab our data						
-						if data then data.body=data.body or data.data end
---						if data then data=data.data end -- check
-
-					end
-				end
 			end
 
 			if not data then -- grab from internets
+				if t[1]=="data" then -- grab local data
 				
-				if t[1] then
+					data=require("data").read(srv,t[2]) -- grab our data						
+					if data then data.body=data.body or data.data end
+
+				elseif t[1] then
+				
 					local url="http://"..table.concat(t,"/") -- build the remote request string
 					if srv.query and #srv.query>0 then
 						url=url.."?"..srv.query
 					end
 --log("Fetching : "..url)
 					data=fetch.get(url) -- get from internets
---							if data then data=data.body end -- check
+					
 				else
 					return --fail
 				end
 				
 			end
 
-			cache.del(srv,cachename) -- do this here to help clear later errors
+--			cache.del(srv,cachename) -- do this here to help clear later errors
 				
-			if data then -- we got data to serve
+			if data and data.body then -- we got data to serve
 			
 				local width=hx or 100
 				local height=hy or 100
@@ -194,29 +191,12 @@ function serv(srv)
 						width=ix,
 						height=iy,
 						color=tonumber("ffffff",16), -- white, does not work?
-						{image,px,py,1,"TOP_LEFT"},
+						{image,px,py},
 					}) -- and force it to a JPEG with a white? background
 
-				else
 				end
 
---log(ix.." , "..iy.." : "..px.." , "..py)
-
---[[
-				image=img.composite({
-					format="DEFAULT",
-					width=ix,
-					height=iy,
-					color=tonumber("ffffff",16), -- white, does not work?
-					{image,px,py,1,"TOP_LEFT"},
-				}) -- and force it to a JPEG with a white? background
-]]
-
---				if srv.url_slash[3]=="host.local:8080" then
-					image=img.resize(image,width,height) -- for somereason jpeg breaks locally, so this removes the errors
---				else
---					image=img.resize(image,width,height,"JPEG") -- resize image and force to jpeg
---				end
+				image=img.resize(image,width,height) -- for somereason jpeg breaks locally, so this removes the errors
 
 				if img.memsave then
 					img.memsave(image,"jpeg")
@@ -240,11 +220,8 @@ function serv(srv)
 					srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache	
 				end
 
---				if usecache then
-					srv.set_mimetype( "image/"..string.lower(image.format) )
---				else
---					srv.set_mimetype( "application/octet-stream" )
---				end
+				srv.set_mimetype( "image/"..string.lower(image.format) )
+
 				srv.put(image.body)
 			
 				return

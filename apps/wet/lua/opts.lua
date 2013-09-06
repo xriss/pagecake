@@ -25,7 +25,7 @@ vhosts_map={
 
 	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",		},			-- any domain with bulbaceous in it
 
-	{"wetgenes",	"wetgenes",		"wetgenes.com",			},			-- any domain with wetgenes in it
+	{"wetgenes",	"wetgenes",		"wetgenes.4lfa.com",	},			-- any domain with wetgenes in it
 	
 	{"xixs",		"xixs",			"xixs.com",				},			-- any domain with xixs in it
 	{"esyou",		"esyou",		"esyou.com",			},			-- any domain with esyou in it

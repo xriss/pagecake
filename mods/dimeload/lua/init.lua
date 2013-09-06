@@ -161,7 +161,7 @@ end
 
 -----------------------------------------------------------------------------
 --
--- handle API ( returns json results )
+-- handle magic hexkeys
 --
 -----------------------------------------------------------------------------
 function serv_hexkey(srv)
@@ -187,6 +187,26 @@ local get,put=make_get_put(srv)
 		if p then -- we can now register this payment as an actual transaction
 			log("PAYPAL : "..p.cache.id.." : "..p.cache.msg) -- log another log, to the logs...
 			put("OK")
+			
+-- only automate completed transactions (ignore refunded or anything else)
+-- any refunded action must be adjusted manually...
+-- The reason is that this may be flakey,
+-- so the main reason to refund is a failure for the credit to turn up here
+
+			if p.cache.currency=="USD" and p.cache.status=="Completed" then
+
+				local dimes=math.floor(p.cache.gross/0.1) -- how many dimes
+				local userid=p.cache.custom
+				
+				dl_users.deposit(srv,{
+					dimes=dimes,
+					userid=userid,
+					flavour="paypal",
+					source=p.cache.payer,
+				})
+				
+			end
+			
 			return
 		end
 	end
@@ -263,7 +283,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 	local posts=make_posts(srv)		
 	local refined=wakapages.load(srv,"/dl/"..pname)[0]
-	
+	refined.pagename="dl/"..pname
 -- override some parts of the page with things that we know
 	refined.user=user and user.cache
 	refined.dl_user=dluser and dluser.cache
