@@ -482,5 +482,138 @@ log("loading plates "..(fname or "?") )
 
 end
 
+-- fill cake with juicy chunks ready to be served
+function fill_cake(srv)
+	local cake={}
+	
+	cake.html={}
+	cake.html.css="{css}" -- use css chunk
+	cake.html.title="{title}" -- empty title
+	cake.html.extra="" -- squirt this into the head
+
+-- for example add an atom link using cake.html.custom
+-- <link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
+
+
+	cake.html.js=[[
+<script type="text/javascript" src="/js/base/head.min.js"></script>
+<script type="text/javascript">
+head.fs={};
+head.fs.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js";
+head.fs.jquery_ui_js="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js";
+head.fs.jquery_validate_js="http://ajax.microsoft.com/ajax/jQuery.Validate/1.6/jQuery.Validate.min.js";
+head.fs.jquery_asynch_image_loader_js="/js/base/JqueryAsynchImageLoader-0.8.min.js";
+head.fs.jquery_wet_js="/js/base/jquery-wet.js";
+head.fs.jquery_wakaedit_js="/js/base/jquery-wakaedit.js";
+head.fs.swfobject_js="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js";
+head.fs.gcf_js="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js";
+head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
+</script>
+]]
+	
+-- open main html chunk of a page and fill in head chunk
+	cake.html.head=[[
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>{cake.html.title}</title>
+<link rel="stylesheet" type="text/css" href="/css/base/pagecake.css" />
+{cake.html.extra}
+{cake.html.js}
+<style type="text/css">{cake.html.css}</style>
+</head>
+<body>
+]]
+
+-- close main html chunk of a page
+	cake.html.foot=[[
+</body>
+</html>
+]]
+	cake.html.plate=[[
+{cake.html.head}
+<div class="cake_body">
+{cake.body.admin}
+{cake.body.homebar.div}{cake.body.userbar.div}
+{cake.body.plate}
+{cake.body.notes}
+</div>
+{cake.html.foot}
+]]
+
+	cake.body={}
+	cake.body.edit=""
+	cake.body.notes=""
+	cake.body.plate=[[
+<h1>{title}</h1>
+{body}
+]]
+
+	cake.body.admin=""
+	cake.body.admin_waka_bar=[[
+<div class="cake_admin_bar">
+	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
+		<button type="submit" name="submit" value="edit" class="cake_button" >Edit</button>
+		<a href="?cmd=edit" class="cake_button" >SafeEdit</a>
+		<a href="/!/admin" class="cake_button" >Admin</a>
+	</form>
+</div>
+]]
+	cake.body.admin_waka_form=[[
+<div id="cake_wakaedit">
+<form name="post" action="{srv.qurl}" method="post" enctype="multipart/form-data">
+	<div style="text-align:center;">
+		<input type="submit" name="submit" value="Save" class="cake_button" />
+		<input type="submit" name="submit" value="Save and Edit" class="cake_button" />
+		<input type="submit" name="submit" value="Preview" class="cake_button" />
+		<input type="submit" name="submit" value="Cancel" class="cake_button" />
+	</div>
+	<textarea name="text" class="cake_field cake_wakaedit_field">{.cake.body.admin_waka_form_text}</textarea>
+</form>
+
+<script>
+window.auto_wakaedit={who:"#cake_wakaedit",width:960,height:window.innerHeight-40};
+head.js(head.fs.jquery_wakaedit_js);
+</script>
+
+</div>
+]]
+
+
+	cake.body.userbar={}
+	cake.body.userbar.urlesc=url_esc(srv.url)
+	cake.body.userbar.hello="Hello {cake.body.userbar.profile},"
+
+	if srv.user and srv.sess then -- a user is logged i and viewing
+		local user=srv.user
+		local hash=srv.sess and srv.sess.key and srv.sess.key.id
+
+		cake.body.userbar.name=user.cache.name
+		cake.body.userbar.id=user.cache.id
+		cake.body.userbar.hash=hash
+		cake.body.userbar.profile="<a href=\"/profile/{.cake.body.userbar.id}\" >{.cake.body.userbar.name}</a>"
+		cake.body.userbar.action="<a href=\"/dumid/logout/{cake.body.userbar.hash}/?continue={.cake.body.userbar.urlesc}\">Logout?</a>"
+	else
+		cake.body.userbar.name="Anon"
+		cake.body.userbar.id=""
+		cake.body.userbar.hash=""
+		cake.body.userbar.profile="{.cake.body.userbar.name}"
+		cake.body.userbar.action="<a href=\"/dumid/login/?continue={.cake.body.userbar.urlesc}\">Login?</a>"
+	end
+	
+	cake.body.userbar.div=[[<div class="cake_userbar">{cake.body.userbar.hello} {cake.body.userbar.action}</div>]]
+
+	cake.body.homebar={}
+	cake.body.homebar.div=[[<div class="cake_homebar">{cake.body.homebar.crumbs}</div>]]
+	cake.body.homebar.crumbs_plate=[[
+	/ <a href="{it.url}">{it.text}</a>
+	]]
+
+
+	return cake
+end
+
+
 import(_M)
 

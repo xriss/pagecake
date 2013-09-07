@@ -99,8 +99,8 @@ $.fn.wakaedit=function(opts)
 	opts = $.extend(defs, opts); 
 
 		var edit_textarea=this;
-		var edit_div=$("<div class='field'></div>");
-		var edit_select=$("<select name='chunks'></select>");
+		var edit_div=$("<div class='field cake_field'></div>");
+		var edit_select=$("<select name='chunks' class='cake_wakaedit_chunks'></select>");
 		
 		var text=edit_textarea.val();
 		

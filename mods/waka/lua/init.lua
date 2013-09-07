@@ -99,6 +99,11 @@ local display_edit
 local display_edit_only=false
 local ext
 
+	local refined={}
+	refined.cake=html.fill_cake(srv)
+	refined[".cake"]=refined.cake
+
+
 	local aa={}
 	if srv.vars.page then -- overload with this forced pagename
 		if srv.vars.page~="" then
@@ -130,8 +135,9 @@ local ext
 	local crumbs={ {url=url,text="Home"}}
 	for i,v in ipairs(aa) do
 		baseurl=url
-		url=url..v
-		crumbs[#crumbs+1]={url=url,text=v}
+		url=url..wstr.url_escape(v)
+		local text=string.gsub(v,"([^%w%s]*)","")
+		crumbs[#crumbs+1]={url=url,text=text}
 		url=url.."/"
 	end
 	local pagename="/"..table.concat(aa,"/")
@@ -182,40 +188,22 @@ local ext
 			end
 			
 			if posts.submit~="Save" then -- keep editing
-				display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
+
+--todo, remove since the new way does not need
+display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
+
+				refined.cake.body.admin_waka_form_text=page.cache.text
 				if (srv.vars.cmd and srv.vars.cmd=="edit") then display_edit_only=true end
 			end
 			
 		end
 	end
 	
-	
-	local ps={}
-	local p=page
-	ps[1]=p
-	while p.cache.group ~= p.cache.id do -- grab each parent page going upwards
-		p=pages.manifest(srv,p.cache.group)
-		ps[#ps+1]=p
-	end
-
-	local chunks={}	-- merge all pages and their parents into this
-	for i=#ps,1,-1 do local v=ps[i]
-		v.chunks = wet_waka.text_to_chunks(v.cache.text) -- build this page only
-		wet_waka.chunks_merge(chunks,v.chunks) -- merge all pages chunks
-	end
-
-	
 	local pageopts={
 		flame="on",
 	}
 	srv.pageopts=pageopts -- keep the page options here
-	
-	if chunks.opts then
-		for n,s in pairs(chunks.opts.opts) do
-			pageopts[n]=s
-		end
-	end
-	
+
 	pageopts.vars=srv.vars -- page code is allowed access to these bits
 	pageopts.url           = srv.url
 	pageopts.url_slash     = srv.url_slash
@@ -232,11 +220,22 @@ local ext
 	if pageopts.offset_prev<0 then pageopts.offset_prev=0 end
 	
 
-	local refined={}
-	if not display_edit_only then
-		refined=wet_waka.refine_chunks(srv,chunks,pageopts) -- build processed strings
-	end
 	refined.crumbs=crumbs
+	crumbs.plate="{cake.body.homebar.crumbs_plate}"
+	refined.cake.body.homebar.crumbs=crumbs
+
+	local refined_opts={}
+	refined_opts.refined=refined
+	if display_edit_only then
+		refined_opts.unrefined=true
+	end
+
+	local chunks=pages.load(srv,pagename,refined_opts)
+	if chunks.opts then
+		for n,s in pairs(chunks.opts.opts) do
+			pageopts[n]=s
+		end
+	end
 	
 	if pageopts.redirect then -- we may force a redirect here
 		return srv.redirect(pageopts.redirect)
@@ -244,8 +243,15 @@ local ext
 
 -- disable comments if page is not saved to the database IE a MISSING PAGE	
 -- except when page has been locked upstream
-	if ps[1].key.notsaved and pageopts.lock~="on" then
-		pageopts.flame="off"
+	if page.key.notsaved then
+		if pageopts.lock=="on" then -- we are using fake pages and smart lua codes to generate them
+		else -- redirect to parent except when we are admin
+			if not( user and user.cache and user.cache.admin ) then -- only admins can go to empty pages
+				if page.cache.id~="/welcome" then -- special safe welcome page even if it doesnt exist
+					return srv.redirect(page.cache.group)
+				end
+			end
+		end
 	end
 
 -- disable comments if this is not the real page address
@@ -283,6 +289,42 @@ local ext
 		srv.set_mimetype(chunks[ext].opts.mimetype or "text/plain; charset=UTF-8")
 		put(macro_replace(refined[ext],refined))
 		
+	elseif srv.opts("pagecake") then -- new pagecake way
+	
+		if user and user.cache and user.cache.admin then
+			if refined.cake.body.admin_waka_form_text then
+				refined.cake.body.admin=refined.cake.body.admin.."{cake.body.admin_waka_form}"
+			else
+				refined.cake.body.admin=refined.cake.body.admin.."{cake.body.admin_waka_bar}"
+			end
+		end
+		
+		if display_edit_only then
+			refined.cake.body.plate=""
+		end
+
+		local _tab={}
+		local _put=function(a,b)
+			local s=get(a,b)
+			_tab[#_tab+1]=s
+		end
+		local t={
+			title=refined.title or pagename,
+			url=url_local,
+			posts=posts,
+			get=get,
+			put=_put,
+			sess=sess,
+			user=user,
+		}
+		if pageopts.flame=="on" then -- add comments to this page
+			comments.build(srv,t)
+			refined.cake.body.notes=table.concat(_tab)
+		end
+		
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put(macro_replace("{cake.html.plate}",refined))
+	
 	else
 	
 		srv.set_mimetype("text/html; charset=UTF-8")

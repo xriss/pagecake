@@ -1,0 +1,234 @@
+
+@import url("/css/note/import.css");
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, font, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	outline: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
+}
+html{
+	overflow-y: scroll;
+	height: 100%;
+}
+:focus {
+	outline: 0;
+}
+body {
+	font-family: sans-serif;
+	height: 100%;
+}
+ol, ul {
+	list-style: none;
+}
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+caption, th, td {
+	text-align: left;
+	font-weight: normal;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+}
+blockquote, q {
+	quotes: "" "";
+}
+
+pre, tt, code, kbd, samp, var {
+  font-family: monospace;
+}
+
+th, strong, dt, b {
+  font-weight: bold;
+}
+
+h1 {font-size: 3em; padding: 0.3em 0px;}
+h2 {font-size: 1.8em;}
+h3 {font-size: 1.6em;}
+h4 {font-size: 1.4em;}
+h5 {font-size: 1.2em;}
+h6 {font-size: 1em;}
+
+a:link {color: #666; text-decoration: none;}
+a:visited {color: #666; text-decoration: none;}
+a:hover {color: #666; text-decoration: underline;}
+a:focus {color: #666; text-decoration: underline;}
+
+/*
+ * Every class in use here should begin with .cake_
+ */
+
+
+.cake_body {
+	background-color: transparent;
+    margin: auto;
+	width: 960px;
+	position: relative;
+}
+
+.cake_admin_bar {
+	pointer-events: none;
+    left: 30%;
+    position: absolute;
+    text-align: center;
+    top: 0px;
+    width: 40%;
+	font-size:13px;
+}
+.cake_admin_bar button , .cake_admin_bar a {
+	pointer-events: all;
+}
+
+.cake_homebar {
+	background-color: transparent;
+    display: inline-block;
+    text-align:left;
+    width:70%;
+}
+
+.cake_userbar {
+	background-color: transparent;
+    display: inline-block;
+    text-align:right;
+    width:30%;
+}
+
+.cake_footer {
+    margin: auto;
+    width: 960px;
+    position: relative;
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.cake_clear{ clear: both; }
+
+
+.cake_profile_layout{
+margin: 0 auto;
+width: 940px;
+padding-top: 20px;
+padding-bottom: 20px;
+}
+
+.cake_profile_layout_head{
+    width: 960px;
+}
+
+
+.cake_profile_layout_body{
+    width: 960px;
+}
+
+
+.cake_profile_layout_wide{
+    width: 640px;
+    float: right;
+}
+
+
+.cake_profile_layout_side{
+    width: 320px;
+    float: left;
+}
+
+
+.cake_profile_layout_foot{
+    clear: both;
+    width: 640px;
+}
+
+.cake_profile_name .wetnote_comment_div{
+width: 920px;
+}
+
+.cake_profile_name .wetnote_comment_text {
+width: 760px;
+line-height: 1.1;
+padding-right: 20px;
+}
+
+
+.cake_button, .cake_button:hover, .cake_button:visited ,.cake_button:active {
+	display:inline;
+	cursor:pointer;
+	color: #000;
+	background-color: #ddd;
+	padding: 1px 2px 0px 3px ;
+	border-top:    solid #fff 1px;
+	border-right:  solid #888 1px;
+	border-bottom: solid #888 1px;
+	border-left:   solid #fff 1px;
+}  
+.cake_button:active {
+	cursor:pointer;
+	padding: 0px 2px 0px 2px ;
+	border-bottom: solid #fff 1px;
+	border-left:   solid #444 2px;
+	border-top:    solid #444 2px;
+	border-right:  solid #fff 1px;
+}
+
+.cake_field {
+	border-bottom: solid #ccc 1px;
+	border-left:   solid #444 2px;
+	border-top:    solid #444 2px;
+	border-right:  solid #ccc 1px;
+}
+
+ 
+.cake_wakaedit {
+	width:960px;
+	position:relative;
+	margin:auto;
+	display:block;
+}
+
+.cake_wakaedit_chunks {
+	position: absolute;
+	top:0px;
+}
+.cake_wakaedit_field {
+	width:960px;
+	height:480px;
+	position:relative;
+	margin:auto;
+	display:block;
+} 
+
+.cake_nags {
+background-color:#eee;
+width: 960px;
+margin: 0 auto;
+padding: 20px 0px;
+}
+.cake_nag {
+-moz-border-radius: 8px;
+-webkit-border-radius: 8px;
+border-radius: 8px 8px;
+background-color: white;
+border: 0;
+margin: 0 auto;
+margin-top: 5px;
+margin-bottom: 5px;
+width: 900px;
+padding: 5px;
+text-align:center;
+}
+

@@ -82,7 +82,11 @@ function check(srv,ent)
 	end
 	
 	if c.text=="" then -- change empty value only
-		c.text="#title\n"..string.gsub(c.id or "","/"," ").."\n#body\n".."MISSING CONTENT\n"
+		local title=c.id or ""
+		title=string.gsub(title,"/"," ")
+		title=string.gsub(title,"([^%w%s]*)","")
+		
+		c.text="#title\n"..title.."\n#body\n".."MISSING CONTENT\n"
 	end
 		
 	return ent

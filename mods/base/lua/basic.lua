@@ -76,9 +76,9 @@ fetch.countzero()
 	srv.url_slash=str_split("/",srv.url) -- break the input url
 	srv.crumbs={} -- for crumbs based navigation 
 
-	local guser=users.get_google_user() -- google handles its own login
-	if guser and guser.admin then -- trigger any special preadmin codes?
-	else -- only non admins get rate limited
+--	local guser=users.get_google_user() -- google handles its own login
+--	if guser and guser.admin then -- trigger any special preadmin codes?
+--	else -- only non admins get rate limited
 
 		local allow,tab=iplog.ratelimit(srv.ip)
 		srv.iplog=tab -- iplog info
@@ -86,7 +86,7 @@ fetch.countzero()
 			return srv.exit(429) -- drop request
 		end
 
-	end
+--	end
 
 -- check for sitedown fail whale
 	local cmd=srv.url_slash[4]
@@ -115,6 +115,7 @@ fetch.countzero()
 	srv.slash="/"
 	local loop=true
 	
+--[[
 	for i,v in ipairs( srv.opts("basedomains") or {} ) do
 --			log(srv.url.."=="..srv.url_domain)
 		v="."..v.."/"
@@ -132,6 +133,7 @@ fetch.countzero()
 			end
 		end
 	end
+]]
 
 	function build_tail(frm)
 			local tail=""
