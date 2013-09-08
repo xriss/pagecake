@@ -578,10 +578,13 @@ head.js(head.fs.jquery_wakaedit_js);
 
 </div>
 ]]
+	cake.admin_blog_bar_edit=[[
+		<a href="/blog/!/admin/edit/$hash/{it.id}" class="cake_button" > EditPost </a>
+]]
 	cake.admin_blog_bar=[[
 <div class="cake_admin_bar">
 	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
-		<a href="/blog/!/admin/edit/$hash/{it.id}" class="cake_button" > EditPost </a>
+		{-cake.admin_blog_bar_edit}
 		<a href="/?cmd=edit&page=blog" class="cake_button" > EditWaka </a>
 		<a href="/blog" class="cake_button" > View Blog </a> 
 		<a href="/blog/!/admin/pages" class="cake_button" > List </a> 
