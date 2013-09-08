@@ -534,24 +534,23 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	cake.html.plate=[[
 {cake.html.head}
 <div class="cake_body">
-{cake.body.admin}
-{cake.body.homebar.div}{cake.body.userbar.div}
-{cake.body.plate}
-{cake.body.notes}
+{cake.admin}
+{cake.plate}
+{cake.bars}
 </div>
 {cake.html.foot}
 ]]
 
-	cake.body={}
-	cake.body.edit=""
-	cake.body.notes=""
-	cake.body.plate=[[
+	cake.edit=""
+	cake.notes=""
+	cake.plate=[[
 <h1>{title}</h1>
 {body}
+{cake.notes}
 ]]
 
-	cake.body.admin=""
-	cake.body.admin_waka_bar=[[
+	cake.admin=""
+	cake.admin_waka_bar=[[
 <div class="cake_admin_bar">
 	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
 		<button type="submit" name="submit" value="edit" class="cake_button" >Edit</button>
@@ -560,8 +559,8 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	</form>
 </div>
 ]]
-	cake.body.admin_waka_form=[[
-<div id="cake_wakaedit">
+	cake.admin_waka_form=[[
+<div class="cake_wakaedit">
 <form name="post" action="{srv.qurl}" method="post" enctype="multipart/form-data">
 	<div style="text-align:center;">
 		<input type="submit" name="submit" value="Save" class="cake_button" />
@@ -569,44 +568,57 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 		<input type="submit" name="submit" value="Preview" class="cake_button" />
 		<input type="submit" name="submit" value="Cancel" class="cake_button" />
 	</div>
-	<textarea name="text" class="cake_field cake_wakaedit_field">{.cake.body.admin_waka_form_text}</textarea>
+	<textarea name="text" class="cake_field cake_wakaedit_field">{.cake.admin_waka_form_text}</textarea>
 </form>
 
 <script>
-window.auto_wakaedit={who:"#cake_wakaedit",width:960,height:window.innerHeight-40};
+window.auto_wakaedit={who:".cake_wakaedit",width:960,height:window.innerHeight-40};
 head.js(head.fs.jquery_wakaedit_js);
 </script>
 
 </div>
 ]]
+	cake.admin_blog_bar=[[
+<div class="cake_admin_bar">
+	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
+		<a href="/blog/!/admin/edit/$hash/{it.id}" class="cake_button" > EditPost </a>
+		<a href="/?cmd=edit&page=blog" class="cake_button" > EditWaka </a>
+		<a href="/blog" class="cake_button" > View Blog </a> 
+		<a href="/blog/!/admin/pages" class="cake_button" > List </a> 
+		<a href="/blog/!/admin/edit/$newpage" class="cake_button" > New Post </a>
+	</form>
+</div>
+]]
 
-
-	cake.body.userbar={}
-	cake.body.userbar.urlesc=url_esc(srv.url)
-	cake.body.userbar.hello="Hello {cake.body.userbar.profile},"
+	cake.bars=[[
+<div class="cake_bars">{cake.homebar.div}{cake.userbar.div}</div>
+]]
+	cake.userbar={}
+	cake.userbar.urlesc=url_esc(srv.url)
+	cake.userbar.hello="Hello {cake.userbar.profile},"
 
 	if srv.user and srv.sess then -- a user is logged i and viewing
 		local user=srv.user
 		local hash=srv.sess and srv.sess.key and srv.sess.key.id
 
-		cake.body.userbar.name=user.cache.name
-		cake.body.userbar.id=user.cache.id
-		cake.body.userbar.hash=hash
-		cake.body.userbar.profile="<a href=\"/profile/{.cake.body.userbar.id}\" >{.cake.body.userbar.name}</a>"
-		cake.body.userbar.action="<a href=\"/dumid/logout/{cake.body.userbar.hash}/?continue={.cake.body.userbar.urlesc}\">Logout?</a>"
+		cake.userbar.name=user.cache.name
+		cake.userbar.id=user.cache.id
+		cake.userbar.hash=hash
+		cake.userbar.profile="<a href=\"/profile/{.cake.userbar.id}\" >{.cake.userbar.name}</a>"
+		cake.userbar.action="<a href=\"/dumid/logout/{cake.userbar.hash}/?continue={.cake.userbar.urlesc}\">Logout?</a>"
 	else
-		cake.body.userbar.name="Anon"
-		cake.body.userbar.id=""
-		cake.body.userbar.hash=""
-		cake.body.userbar.profile="{.cake.body.userbar.name}"
-		cake.body.userbar.action="<a href=\"/dumid/login/?continue={.cake.body.userbar.urlesc}\">Login?</a>"
+		cake.userbar.name="Anon"
+		cake.userbar.id=""
+		cake.userbar.hash=""
+		cake.userbar.profile="{.cake.userbar.name}"
+		cake.userbar.action="<a href=\"/dumid/login/?continue={.cake.userbar.urlesc}\">Login?</a>"
 	end
 	
-	cake.body.userbar.div=[[<div class="cake_userbar">{cake.body.userbar.hello} {cake.body.userbar.action}</div>]]
+	cake.userbar.div=[[<div class="cake_userbar">{cake.userbar.hello} {cake.userbar.action}</div>]]
 
-	cake.body.homebar={}
-	cake.body.homebar.div=[[<div class="cake_homebar">{cake.body.homebar.crumbs}</div>]]
-	cake.body.homebar.crumbs_plate=[[
+	cake.homebar={}
+	cake.homebar.div=[[<div class="cake_homebar">{cake.homebar.crumbs}</div>]]
+	cake.homebar.crumbs_plate=[[
 	/ <a href="{it.url}">{it.text}</a>
 	]]
 

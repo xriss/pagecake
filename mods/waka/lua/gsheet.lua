@@ -62,6 +62,8 @@ end
 --
 function get(srv,opts)
 
+	opts.offset=opts.offset or 0
+
 --"http://spreadsheets.google.com/tq?tq=select+*+limit+10+offset+0+&key=tYrIfWhE3Q1i8t8VLKgEZSA"
 
 	local tq=(opts.query or "select *").." limit "..opts.limit.." offset "..opts.offset

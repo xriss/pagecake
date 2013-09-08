@@ -87,6 +87,107 @@ end
 
 -----------------------------------------------------------------------------
 --
+-- fill the pageopts and return
+--
+-----------------------------------------------------------------------------
+function fill_opts(srv)
+	local pageopts={
+		flame="on",
+	}
+
+	pageopts.vars=srv.vars -- page code is allowed access to these bits
+	pageopts.url           = srv.url
+	pageopts.url_slash     = srv.url_slash
+	pageopts.url_slash_idx = srv.url_slash_idx
+	
+	pageopts.limit=math.floor(tonumber(pageopts.limit or 10) or 10)
+	if pageopts.limit<1 then pageopts.limit=1 end
+	
+	pageopts.offset=math.floor(tonumber(srv.vars.offset or 0) or 0)
+	if pageopts.offset<0 then pageopts.offset=0 end
+	
+	pageopts.offset_next=pageopts.offset+pageopts.limit
+	pageopts.offset_prev=pageopts.offset-pageopts.limit
+	if pageopts.offset_prev<0 then pageopts.offset_prev=0 end
+	
+	return pageopts
+end
+-----------------------------------------------------------------------------
+--
+-- fill the crumbs and return
+--
+-----------------------------------------------------------------------------
+function fill_crumbs(srv,pagename)
+
+	local crumbs={ {url=url,text="Home"}}
+	crumbs.plate="{cake.homebar.crumbs_plate}"
+	local url=srv.url_base
+	for i,v in ipairs( wstr.split(pagename,"/",true) ) do
+		url=url..wstr.url_escape(v)
+		local text=string.gsub(v,"([^%w%s]*)","")
+		crumbs[#crumbs+1]={url=url,text=text}
+		url=url.."/"
+	end
+	
+	return crumbs
+end
+
+-----------------------------------------------------------------------------
+--
+-- fill the refined values from the given pagename,
+-- including the cake and opts also bubble up the chunks
+--
+-----------------------------------------------------------------------------
+function fill_refined(srv,pagename)
+
+	local refined={}
+	
+	refined.cake=html.fill_cake(srv)
+	refined.cake.homebar.crumbs=fill_crumbs(srv,pagename)
+	refined.opts=fill_opts(srv)
+	
+	local chunks=pages.load(srv,pagename,{refined=refined})
+
+	return refined	
+end
+
+
+-----------------------------------------------------------------------------
+--
+-- comments for pagename, handle post inputs and more
+--
+-----------------------------------------------------------------------------
+function build_notes(srv,pagename)
+
+local sess,user=d_sess.get_viewer_session(srv)
+local get=make_get(srv)
+local posts={}
+if srv.method=="POST" and srv:check_referer(srv.url) then
+	for i,v in pairs(srv.posts) do
+		posts[i]=v
+	end
+end
+	
+	local _tab={}
+	local _put=function(a,b)
+		local s=get(a,b)
+		_tab[#_tab+1]=s
+	end
+	local t={
+		title=pagename,
+		url=srv.url_local..pagename,
+		put=_put,
+		posts=posts,
+		get=get,
+		sess=sess,
+		user=user,
+	}
+	comments.build(srv,t)
+	return table.concat(_tab)
+end	
+			
+-----------------------------------------------------------------------------
+--
 -- the serv function, where the action happens.
 --
 -----------------------------------------------------------------------------
@@ -99,11 +200,7 @@ local display_edit
 local display_edit_only=false
 local ext
 
-	local refined={}
-	refined.cake=html.fill_cake(srv)
-	refined[".cake"]=refined.cake
-
-
+-- allow ?page=this to override page name from url
 	local aa={}
 	if srv.vars.page then -- overload with this forced pagename
 		if srv.vars.page~="" then
@@ -120,6 +217,7 @@ local ext
 		return serv_admin(srv)
 	end
 	
+-- find extension and remove it from name
 	if aa[#aa] then
 		local ap=str_split(".",aa[#aa])
 		if #ap>1 and ap[#ap] then
@@ -129,12 +227,14 @@ local ext
 			if aa[#aa]=="" then aa[#aa]=nil end-- kill any trailing slash we may have just created
 		end
 	end
-	
+
+
+-- finally build page name and also build crumbs
+
 	local url=srv.url_base
-	local baseurl=url
 	local crumbs={ {url=url,text="Home"}}
+	crumbs.plate="{cake.homebar.crumbs_plate}"
 	for i,v in ipairs(aa) do
-		baseurl=url
 		url=url..wstr.url_escape(v)
 		local text=string.gsub(v,"([^%w%s]*)","")
 		crumbs[#crumbs+1]={url=url,text=text}
@@ -145,9 +245,11 @@ local ext
 	local url_local=srv.url_local..table.concat(aa,"/")
 	if ext then url=url.."."..ext end -- this is a page extension
 	
-	if not srv.vars.page and srv.url~=url then -- force a redirect to the perfect page name with or without a trailing slash
+	if not srv.vars.page and srv.url~=url then -- force a redirect to the page name
 		return srv.redirect(url)
 	end
+
+
 
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this *SITE* before allowing post params
@@ -161,7 +263,7 @@ local ext
 	if posts.submit then posts.submit=trim(posts.submit) end
 	
 	local page=pages.manifest(srv,pagename)
-
+	local page_edit
 	if posts.text or posts.submit or (srv.vars.cmd and srv.vars.cmd=="edit") then
 	
 		if posts.submit=="Cancel" then
@@ -192,38 +294,20 @@ local ext
 --todo, remove since the new way does not need
 display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 
-				refined.cake.body.admin_waka_form_text=page.cache.text
+				page_edit=page.cache.text
 				if (srv.vars.cmd and srv.vars.cmd=="edit") then display_edit_only=true end
 			end
 			
 		end
 	end
 	
-	local pageopts={
-		flame="on",
-	}
-	srv.pageopts=pageopts -- keep the page options here
-
-	pageopts.vars=srv.vars -- page code is allowed access to these bits
-	pageopts.url           = srv.url
-	pageopts.url_slash     = srv.url_slash
-	pageopts.url_slash_idx = srv.url_slash_idx
+	local refined={}
+	refined.cake=html.fill_cake(srv)
+	refined.cake.homebar.crumbs=crumbs
+	if page_edit then refined.cake.admin_waka_form_text=page_edit end
 	
-	pageopts.limit=math.floor(tonumber(pageopts.limit or 10) or 10)
-	if pageopts.limit<1 then pageopts.limit=1 end
+	refined.opts=fill_opts(srv)
 	
-	pageopts.offset=math.floor(tonumber(srv.vars.offset or 0) or 0)
-	if pageopts.offset<0 then pageopts.offset=0 end
-	
-	pageopts.offset_next=pageopts.offset+pageopts.limit
-	pageopts.offset_prev=pageopts.offset-pageopts.limit
-	if pageopts.offset_prev<0 then pageopts.offset_prev=0 end
-	
-
-	refined.crumbs=crumbs
-	crumbs.plate="{cake.body.homebar.crumbs_plate}"
-	refined.cake.body.homebar.crumbs=crumbs
-
 	local refined_opts={}
 	refined_opts.refined=refined
 	if display_edit_only then
@@ -231,20 +315,15 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	end
 
 	local chunks=pages.load(srv,pagename,refined_opts)
-	if chunks.opts then
-		for n,s in pairs(chunks.opts.opts) do
-			pageopts[n]=s
-		end
-	end
 	
-	if pageopts.redirect then -- we may force a redirect here
-		return srv.redirect(pageopts.redirect)
+	if refined.opts.redirect then -- we may force a redirect here
+		return srv.redirect(refined.opts.redirect)
 	end
 
 -- disable comments if page is not saved to the database IE a MISSING PAGE	
 -- except when page has been locked upstream
 	if page.key.notsaved then
-		if pageopts.lock=="on" then -- we are using fake pages and smart lua codes to generate them
+		if refined.opts.lock=="on" then -- we are using fake pages and smart lua codes to generate them
 		else -- redirect to parent except when we are admin
 			if not( user and user.cache and user.cache.admin ) then -- only admins can go to empty pages
 				if page.cache.id~="/welcome" then -- special safe welcome page even if it doesnt exist
@@ -255,7 +334,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	end
 
 -- disable comments if this is not the real page address
-	if srv.vars.page then pageopts.flame="off" end
+	if srv.vars.page then refined.opts.flame="off" end
 
 	if ext=="css" then -- css only
 	
@@ -266,7 +345,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		
 	elseif ext=="xml" or ext=="frame" then -- special full control frameless render mode
 	
-		srv.set_mimetype((pageopts.mimetype or "text/html").."; charset=UTF-8")
+		srv.set_mimetype((refined.opts.mimetype or "text/html").."; charset=UTF-8")
 		put(macro_replace(refined.frame or [[
 		<h1>{title}</h1>
 		{body}
@@ -292,40 +371,40 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	elseif srv.opts("pagecake") then -- new pagecake way
 	
 		if user and user.cache and user.cache.admin then
-			if refined.cake.body.admin_waka_form_text then
-				refined.cake.body.admin=refined.cake.body.admin.."{cake.body.admin_waka_form}"
+			if refined.cake.admin_waka_form_text then
+				refined.cake.admin=refined.cake.admin.."{cake.admin_waka_form}"
 			else
-				refined.cake.body.admin=refined.cake.body.admin.."{cake.body.admin_waka_bar}"
+				refined.cake.admin=refined.cake.admin.."{cake.admin_waka_bar}"
 			end
 		end
 		
 		if display_edit_only then
-			refined.cake.body.plate=""
+			refined.cake.plate=""
 		end
 
-		local _tab={}
-		local _put=function(a,b)
-			local s=get(a,b)
-			_tab[#_tab+1]=s
-		end
-		local t={
-			title=refined.title or pagename,
-			url=url_local,
-			posts=posts,
-			get=get,
-			put=_put,
-			sess=sess,
-			user=user,
-		}
-		if pageopts.flame=="on" then -- add comments to this page
+		if refined.opts.flame=="on" then -- add comments to this page
+			local _tab={}
+			local _put=function(a,b)
+				local s=get(a,b)
+				_tab[#_tab+1]=s
+			end
+			local t={
+				title=refined.title or pagename,
+				url=url_local,
+				posts=posts,
+				get=get,
+				put=_put,
+				sess=sess,
+				user=user,
+			}
 			comments.build(srv,t)
-			refined.cake.body.notes=table.concat(_tab)
+			refined.cake.notes=table.concat(_tab)
 		end
 		
 		srv.set_mimetype("text/html; charset=UTF-8")
 		put(macro_replace("{cake.html.plate}",refined))
 	
-	else
+	else -- old style
 	
 		srv.set_mimetype("text/html; charset=UTF-8")
 		local css
@@ -347,9 +426,9 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 <h1>{title}</h1>
 {body}]],refined,repopts))
 
-			if pageopts.flame=="on" then -- add comments to this page
+			if refined.opts.flame=="on" then -- add comments to this page
 				comments.build(srv,{title=refined.title or pagename,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
-			elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
+			elseif refined.opts.flame=="anon" then -- add *anonymous* comments to this page
 				comments.build(srv,{title=refined.title or pagename,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user,anon="default"})
 			end
 			

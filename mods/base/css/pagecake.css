@@ -89,9 +89,16 @@ a:focus {color: #666; text-decoration: underline;}
     top: 0px;
     width: 40%;
 	font-size:13px;
+	z-index:1000;
 }
 .cake_admin_bar button , .cake_admin_bar a {
 	pointer-events: all;
+}
+
+.cake_bars {
+	position: absolute;
+	top:0px;
+	width:100%;
 }
 
 .cake_homebar {
@@ -198,6 +205,7 @@ padding-right: 20px;
 	position:relative;
 	margin:auto;
 	display:block;
+	z-index:1000;
 }
 
 .cake_wakaedit_chunks {

@@ -36,6 +36,7 @@ local d_nags=require("dumid.nags")
 -- require all the module sub parts
 local html=require("blog.html")
 local pages=require("blog.pages")
+local waka=require("waka")
 local wakapages=require("waka.pages")
 
 local comments=require("note.comments")
@@ -423,6 +424,37 @@ local get,put=make_get_put(srv)
 			put("blog_atom_foot",{})
 			
 		
+		elseif srv.opts("pagecake") then -- new pagecake way
+
+			local pagename="/blog"
+			local refined=waka.fill_refined(srv,pagename)
+--			refined.cake.notes=waka.build_notes(srv,pagename)
+
+			if user and user.cache and user.cache.admin then
+				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
+			end
+		
+			local list=pages.list(srv,
+			{group=group,limit=refined.opts.limit,offset=refined.opts.offset,layer=LAYER_PUBLISHED,sort="pubdate"})
+
+			if #list<refined.opts.limit then -- end of list
+				refined.opts.offset_next=0
+			end
+			
+			local posts={}
+			for i,v in ipairs(list) do
+				posts[i]=chunk_prepare(srv,v,opts)
+			end
+			posts.plate="<h1>{it.title}</h1>{it.body}"
+			refined.cake.blog=posts
+			refined.body="{cake.blog}"
+			
+			refined.opts.link_next="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_next
+			refined.opts.link_prev="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_prev
+
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(macro_replace("{cake.html.plate}",refined))
+		
 		else
 			local chunks=bubble_chunks(srv) -- this gets parent entities
 			
@@ -494,59 +526,66 @@ local get,put=make_get_put(srv)
 		
 	else -- a single page
 	
+		if srv.opts("pagecake") then -- new pagecake way
 	
-	
-		local ent
-		if hash then -- by id only
-			ent=pages.get(srv,hash)
+			local pagename="/blog"
+			local refined=waka.fill_refined(srv,pagename)
+--			refined.cake.body.notes=waka.build_notes(srv,pagename)
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(macro_replace("{cake.html.plate}",refined))
+
 		else
-			ent=pages.cache_find_by_pubname(srv,group..page)
-		end
-		if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
-
-			local pageopts={}
-			local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-			local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-			pageopts.link_prev="/blog" .. (list_next and list_next.pubname or "")
-			pageopts.link_next="/blog" .. (list_prev and list_prev.pubname or "")
-
-		
-			local refined=chunk_prepare(srv,ent,opts)
-			refined.it=refined
-			refined.pageopts=pageopts
-			
-			if ext=="dbg" then -- dump out all the bubbled refined as json
-
-				srv.set_mimetype("text/plain; charset=UTF-8")
-				put( json.encode(refined) )
-			
+			local ent
+			if hash then -- by id only
+				ent=pages.get(srv,hash)
 			else
-			
-				local text=get(macro_replace(refined.plate_blogpost or refined.plate_page or refined.plate_post or plate_blog_default,refined))
-
-				refined.adminbar=get("blog_admin_links",{it=ent.cache,user=user})
-				srv.set_mimetype("text/html; charset=UTF-8")
-				put("header",refined)
-
-				refined.title=""
-				refined.body=text
-				put(macro_replace(refined.plate or "{body}",refined))
-				
-				local ret=comments.build(srv,{title=refined.title,url=refined.link,posts=posts,get=get,put=put,sess=sess,user=user})
-				
-				if ret and ret.count then
-					if ret.count~=ent.cache.comment_count then -- need to update cached number of comments
-						pages.update(srv,ent,function(srv,e) e.cache.comment_count=ret.count return true end)
-					end
-				end
-
-				put("footer")
-				
+				ent=pages.cache_find_by_pubname(srv,group..page)
 			end
-		else -- bad page, redirect to blog
-			return srv.redirect(srv.url_base)
-		end		
+			if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
+
+				local pageopts={}
+				local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
+				local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
+				pageopts.link_prev="/blog" .. (list_next and list_next.pubname or "")
+				pageopts.link_next="/blog" .. (list_prev and list_prev.pubname or "")
+
+			
+				local refined=chunk_prepare(srv,ent,opts)
+				refined.it=refined
+				refined.pageopts=pageopts
 				
+				if ext=="dbg" then -- dump out all the bubbled refined as json
+
+					srv.set_mimetype("text/plain; charset=UTF-8")
+					put( json.encode(refined) )
+				
+				else
+				
+					local text=get(macro_replace(refined.plate_blogpost or refined.plate_page or refined.plate_post or plate_blog_default,refined))
+
+					refined.adminbar=get("blog_admin_links",{it=ent.cache,user=user})
+					srv.set_mimetype("text/html; charset=UTF-8")
+					put("header",refined)
+
+					refined.title=""
+					refined.body=text
+					put(macro_replace(refined.plate or "{body}",refined))
+					
+					local ret=comments.build(srv,{title=refined.title,url=refined.link,posts=posts,get=get,put=put,sess=sess,user=user})
+					
+					if ret and ret.count then
+						if ret.count~=ent.cache.comment_count then -- need to update cached number of comments
+							pages.update(srv,ent,function(srv,e) e.cache.comment_count=ret.count return true end)
+						end
+					end
+
+					put("footer")
+					
+				end
+			else -- bad page, redirect to blog
+				return srv.redirect(srv.url_base)
+			end		
+		end
 	end
 	
 end
