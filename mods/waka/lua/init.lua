@@ -90,17 +90,17 @@ end
 -- fill the pageopts and return
 --
 -----------------------------------------------------------------------------
-function fill_opts(srv)
-	local pageopts={
-		flame="on",
-	}
+function fill_opts(srv,pageopts)
+	local pageopts=pageopts or {}
+
+	pageopts.flame="on"
 
 	pageopts.vars=srv.vars -- page code is allowed access to these bits
 	pageopts.url           = srv.url
 	pageopts.url_slash     = srv.url_slash
 	pageopts.url_slash_idx = srv.url_slash_idx
 	
-	pageopts.limit=math.floor(tonumber(pageopts.limit or 10) or 10)
+	pageopts.limit=math.floor(tonumber(srv.vars.limit or 10) or 10)
 	if pageopts.limit<1 then pageopts.limit=1 end
 	
 	pageopts.offset=math.floor(tonumber(srv.vars.offset or 0) or 0)
@@ -119,16 +119,17 @@ end
 -----------------------------------------------------------------------------
 function fill_crumbs(srv,pagename)
 
-	local crumbs={ {url=url,text="Home"}}
+	local url="/"-- srv.url_base
+	local crumbs={}
 	crumbs.plate="{cake.homebar.crumbs_plate}"
-	local url=srv.url_base
-	for i,v in ipairs( wstr.split(pagename,"/",true) ) do
-		url=url..wstr.url_escape(v)
-		local text=string.gsub(v,"([^%w%s]*)","")
-		crumbs[#crumbs+1]={url=url,text=text}
-		url=url.."/"
+	if pagename and pagename~="" then
+		for i,v in ipairs( wstr.split(pagename,"/",true) ) do
+			url=url..wstr.url_escape(v)
+			local text=string.gsub(v,"([^%w%s]*)","")
+			crumbs[#crumbs+1]={url=url,text=text}
+			url=url.."/"
+		end
 	end
-	
 	return crumbs
 end
 
@@ -138,15 +139,15 @@ end
 -- including the cake and opts also bubble up the chunks
 --
 -----------------------------------------------------------------------------
-function fill_refined(srv,pagename)
+function fill_refined(srv,pagename,refined)
 
-	local refined={}
+	local refined=refined or {}
 	
 	refined.cake=html.fill_cake(srv)
 	refined.cake.homebar.crumbs=fill_crumbs(srv,pagename)
-	refined.opts=fill_opts(srv)
+	refined.opts=fill_opts(srv,refined.opts)
 	
-	local chunks=pages.load(srv,pagename,{refined=refined})
+	local chunks=pages.load(srv,"/"..pagename,{refined=refined})
 
 	return refined	
 end
@@ -232,7 +233,7 @@ local ext
 -- finally build page name and also build crumbs
 
 	local url=srv.url_base
-	local crumbs={ {url=url,text="Home"}}
+	local crumbs={ }
 	crumbs.plate="{cake.homebar.crumbs_plate}"
 	for i,v in ipairs(aa) do
 		url=url..wstr.url_escape(v)

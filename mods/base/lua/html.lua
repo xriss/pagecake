@@ -487,8 +487,8 @@ function fill_cake(srv)
 	local cake={}
 	
 	cake.html={}
-	cake.html.css="{css}" -- use css chunk
-	cake.html.title="{title}" -- empty title
+	cake.html.css="{-css}" -- use css chunk
+	cake.html.title="{-title}" -- empty title
 	cake.html.extra="" -- squirt this into the head
 
 -- for example add an atom link using cake.html.custom
@@ -592,6 +592,17 @@ head.js(head.fs.jquery_wakaedit_js);
 	</form>
 </div>
 ]]
+	cake.admin_blog_item=[[
+<div>
+<input type="checkbox" name="{it.pubname}" value="Check"></input>
+<a href="{srv.url_base}!/admin/edit/$hash/{it.id}">
+<span style="width:20px;display:inline-block;">{it.layer}</span>
+<span style="width:200px;display:inline-block;">{it.pubname}</span>
+<span style="width:400px;display:inline-block;">{it.chunks.title.text}</span>
+{it.pubdate}
+</a>
+</div>
+]]
 
 	cake.bars=[[
 <div class="cake_bars">{cake.homebar.div}{cake.userbar.div}</div>
@@ -620,11 +631,34 @@ head.js(head.fs.jquery_wakaedit_js);
 	cake.userbar.div=[[<div class="cake_userbar">{cake.userbar.hello} {cake.userbar.action}</div>]]
 
 	cake.homebar={}
-	cake.homebar.div=[[<div class="cake_homebar">{cake.homebar.crumbs}</div>]]
+	cake.homebar.div=[[<div class="cake_homebar"><a href="/">Home</a>{-cake.homebar.crumbs}</div>]]
 	cake.homebar.crumbs_plate=[[
 	/ <a href="{it.url}">{it.text}</a>
 	]]
 
+
+	cake.blog_item=[[<h1><a href="{it.link}">{it.title}</a></h1>{it.body}]]
+	cake.blog_page=[[{cake.blog_item}]]
+	cake.blog_list=[[{cake.blog_item}]]
+
+	cake.blog_bar=[[<div class="cake_blog_bar"><a href="{-opts.link_next}">NEXT<a> <a href="{-opts.link_prev}">PREV<a></div>]]
+
+	cake.blog_edit_form=[[
+<form name="post" id="post" action="" method="post" enctype="multipart/form-data">
+	<table style="float:right">
+	<tr><td> group   </td><td> <input type="text" name="group"   size="20" value="{.it.group}"  /> </td></tr>
+	<tr><td> pubname </td><td> <input type="text" name="pubname" size="20" value="{.it.pubname}"/> </td></tr>
+	<tr><td> pubdate </td><td> <input type="text" name="pubdate" size="20" value="{.it.pubdates}"/> </td></tr>
+	<tr><td> layer   </td><td> <input type="text" name="layer"   size="20" value="{.it.layer}"  /> </td></tr>
+	</table>
+	<textarea style="width:100%" name="text" cols="80" rows="24" class="field" >{.it.text}</textarea>
+	<br/>
+	<input type="submit" name="submit" value="Save" class="button" />
+	<input type="submit" name="submit" value="Preview" class="button" />
+	<input type="submit" name="submit" value="{it.publish}" class="button" />
+	<br/>	
+</form>
+]]
 
 	return cake
 end
