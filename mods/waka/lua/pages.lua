@@ -254,11 +254,13 @@ function load(srv,id,opts)
 	local chunks
 	local name=id
 	
+log( "waka base : "..id )
 	pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,name).cache.text ) -- start with main page	
 	if id~="/" then -- if asking for root then no need to look for anything else
 		while string.find(name,"/") do -- whilst there are still / in the name	
 			name=string.gsub(name,"/[^/]*$","") -- remove the tail from the string			
 			if name~="" then -- skip empty
+log( "waka load : "..name )
 				pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,name).cache.text )
 			end
 		end

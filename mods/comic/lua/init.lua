@@ -204,64 +204,50 @@ local get,put=make_get_put(srv)
 
 
 	local refined	
-	
-	if group then 
-		refined=wakapages.load(srv,"/comic/"..group)[0]
+	if comicname then 
+		refined=waka.fill_refined(srv,"comic/"..comicname)
 	else
-		refined=wakapages.load(srv,"/comic")[0]
+		refined=waka.fill_refined(srv,"comic")
 	end
 
-
-	local css=refined and refined.css
-
-
--- plates to display the comic in a list or on its own page
--- you can override these in the wiki
-
-refined["comic_inlist"]=refined["comic_inlist"] or [[
-<a href="/comic/{it.name}" title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img src="{it.image}"/></a>
-]]
--- an easy shadow, if you put it in the a tag
--- <div style="position:absolute;width:100px;height:100px;right:-100px;bottom:0px;background-image:url(http://4lfa.com/css/img/diag_shad.png)"></div>
-
-refined["comic_inpage"]=refined["comic_inpage"] or [[
-<h3 style="text-align:center;height:100px;">{it.title}</h3>
-<div style="margin:20px auto;width:{it.width}px;" >
-<span title="{it.title}" style="background:#000;margin:20px auto;position:relative;display:block;width:{it.width}px;height:{it.height}px"><img src="{it.image}"/>
-<div style="position:absolute;width:100px;height:100px;right:-100px;bottom:0px;background-image:url(http://4lfa.com/css/img/diag_shad.png)"></div>
-</span>
-<div style="text-align:center;height:100px;" >
-<a href="/comic/{cprev.name}" style="width:100px;height:100px;opacity:0.25;" ><img src="{cprev.icon}" width="100" height="100" /></a>
-<span style="display:inline-block;width:10px;"></span>
-<a href="/comic/{cnext.name}" style="width:100px;height:100px;opacity:0.25;" ><img src="{cnext.icon}" width="100" height="100" /></a>
-</div>
-<div>{it.body}</div>
-</div>
-]]
-
-	refined.cfirst=cstash.cfirst
-	refined.clast=cstash.clast
-	refined.crandom=cstash.crandom
-	refined.cprev=cstash.cprev
-	refined.cnext=cstash.cnext
 	
 	if list[1] then
 		refined.cprev=refined.cprev or list[1].cache
 		refined.cnext=refined.cnext or list[1].cache
 	end
+
+	local comics={}
+	for i,v in ipairs(list) do	
+		comics[i]=v.cache
+	end
+
+	comics.plate="{cake."..plate_comic.."}"
 	
-
-	local ss={}
-	for i,v in ipairs(list) do
 	
-		refined.it=v.cache
+	refined.comics=comics
+	refined.it=comics[1]
+	refined.it.cfirst=cstash.cfirst
+	refined.it.clast=cstash.clast
+	refined.it.crandom=cstash.crandom
+	refined.it.cprev=cstash.cprev
+	refined.it.cnext=cstash.cnext
 
-		local text=get(get(refined[plate_comic] ,refined))
-
-		ss[#ss+1]=text
+	if user and user.cache and user.cache.admin then
+		refined.cake.admin="{cake.admin_comic_bar}"
 	end
 	
-	
+--	refined.cake.admin_list=tab
+	refined.body=[[
+	{comics}
+]]
+
+	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put(macro_replace("{cake.html.plate}",refined))
+
+
+--[[	
 	srv.set_mimetype("text/html; charset=UTF-8")
 	put("header",refined)
 	put("comic_bar",refined)
@@ -274,18 +260,6 @@ refined["comic_inpage"]=refined["comic_inpage"] or [[
 
 	end
 
---[[
-	put(<script> 
-head.js(head.fs.jquery_js,
-head.fs.jquery_asynch_image_loader_js,
-function(){
-	$(function(){
-		$('img').jail({effect:"fadeIn",offset:300});
-	});
-});
-</script>)
-]]
-
 	if pageopts.flame=="on" then -- add comments to this page
 		comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 	elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
@@ -293,7 +267,8 @@ function(){
 	end
 
 	put("footer",refined)
-	
+]]
+
 end
 
 

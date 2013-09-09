@@ -26,6 +26,8 @@ local d_users=require("dumid.users")
 -- require all the module sub parts
 local html=require("profile.html")
 
+local waka=require("waka")
+local note=require("note")
 local wakapages=require("waka.pages")
 local comments=require("note.comments")
 
@@ -92,9 +94,29 @@ local get=make_get(srv)
 	if name then name=name:lower() end -- force to lower
 	
 	if name then -- need to check the name is valid
+		local notes=waka.build_notes(srv,"profile/"..name,{save_post="status"})
 		local pusr=d_users.get(srv,name) -- get user from userid
 		local phtml=get_profile_html(srv,name)
 		if pusr and phtml then
+
+			local refined=waka.fill_refined(srv,"profile")
+			
+			refined.cake.notes=notes
+
+			if user and user.cache and user.cache.admin then
+--				refined.cake.admin="{cake.admin_profile_bar}"
+			end
+
+			
+			refined.cake.profile=phtml
+			refined.body="{.cake.profile}"
+			refined.title=pusr.cache.name.." profile"
+
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(macro_replace("{cake.html.plate}",refined))
+
+
+--[[
 			baseurl=baseurl.."/"..name
 
 -- need the base wiki page, its kind of the main site everything
@@ -122,7 +144,10 @@ local get=make_get(srv)
 				})
 			
 			put("footer")
+]]
 			return
+		else
+			srv.redirect("/")
 		end	
 	end
 

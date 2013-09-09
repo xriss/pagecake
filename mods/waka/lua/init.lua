@@ -118,7 +118,6 @@ end
 --
 -----------------------------------------------------------------------------
 function fill_crumbs(srv,pagename)
-
 	local url="/"-- srv.url_base
 	local crumbs={}
 	crumbs.plate="{cake.homebar.crumbs_plate}"
@@ -142,8 +141,8 @@ end
 function fill_refined(srv,pagename,refined)
 
 	local refined=refined or {}
-	
 	refined.cake=html.fill_cake(srv)
+	refined.cake.pagename=pagename
 	refined.cake.homebar.crumbs=fill_crumbs(srv,pagename)
 	refined.opts=fill_opts(srv,refined.opts)
 	
@@ -158,7 +157,7 @@ end
 -- comments for pagename, handle post inputs and more
 --
 -----------------------------------------------------------------------------
-function build_notes(srv,pagename)
+function build_notes(srv,pagename,opts)
 
 local sess,user=d_sess.get_viewer_session(srv)
 local get=make_get(srv)
@@ -174,15 +173,14 @@ end
 		local s=get(a,b)
 		_tab[#_tab+1]=s
 	end
-	local t={
-		title=pagename,
-		url=srv.url_local..pagename,
-		put=_put,
-		posts=posts,
-		get=get,
-		sess=sess,
-		user=user,
-	}
+	local t=opts or {}
+	t.title=pagename
+	t.url="/"..pagename
+	t.put=_put
+	t.posts=posts
+	t.get=get
+	t.sess=sess
+	t.user=user
 	comments.build(srv,t)
 	return table.concat(_tab)
 end	
@@ -212,6 +210,7 @@ local ext
 			aa[#aa+1]=srv.url_slash[ i ]
 		end
 	end
+	if aa[1]=="" then table.remove(aa,1) end-- kill any leading slash
 	if aa[#aa]=="" then aa[#aa]=nil end-- kill any trailing slash
 	
 	if aa[1]=="!" and aa[2]=="admin" then

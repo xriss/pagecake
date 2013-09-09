@@ -519,7 +519,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 <head>
 <title>{cake.html.title}</title>
 <link rel="stylesheet" type="text/css" href="/css/base/pagecake.css" />
-{cake.html.extra}
+{-cake.html.extra}
 {cake.html.js}
 <style type="text/css">{cake.html.css}</style>
 </head>
@@ -535,8 +535,8 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 {cake.html.head}
 <div class="cake_body">
 {cake.admin}
-{cake.plate}
 {cake.bars}
+{cake.plate}
 </div>
 {cake.html.foot}
 ]]
@@ -546,7 +546,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	cake.plate=[[
 <h1>{title}</h1>
 {body}
-{cake.notes}
+{.cake.notes}
 ]]
 
 	cake.admin=""
@@ -562,7 +562,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	cake.admin_waka_form=[[
 <div class="cake_wakaedit">
 <form name="post" action="{srv.qurl}" method="post" enctype="multipart/form-data">
-	<div style="text-align:center;">
+	<div class="cake_wakaedit_bar">
 		<input type="submit" name="submit" value="Save" class="cake_button" />
 		<input type="submit" name="submit" value="Save and Edit" class="cake_button" />
 		<input type="submit" name="submit" value="Preview" class="cake_button" />
@@ -601,6 +601,15 @@ head.js(head.fs.jquery_wakaedit_js);
 <span style="width:400px;display:inline-block;">{it.chunks.title.text}</span>
 {it.pubdate}
 </a>
+</div>
+]]
+
+	cake.admin_comic_bar=[[
+<div class="cake_admin_bar">
+	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
+		<a href="/?cmd=edit&page=comic" class="cake_button" > EditWaka </a>
+		<a href="/?cmd=edit&page={it.id}" class="cake_button" > EditComic</a>
+	</form>
 </div>
 ]]
 
@@ -658,6 +667,48 @@ head.js(head.fs.jquery_wakaedit_js);
 	<input type="submit" name="submit" value="{it.publish}" class="button" />
 	<br/>	
 </form>
+]]
+
+
+	cake.comic_inlist=[[
+<div>
+<h3>{it.title}</h3>
+<img src="{it.image}"/>
+</div>
+]]
+
+	cake.comic_inpage=[[
+<div>
+<h3>{it.title}</h3>
+<img src="{it.image}"/>
+<div>
+<a href="/comic/{cfirst.name}"> FIRST <img src="{cfirst.icon}" width="100" height="100"/> </a>
+<a href="/comic/{cprev.name}"> PREVIOUS <img src="{cprev.icon}" width="100" height="100"/> </a>
+<a href="/comic/{crandom.name}"> RANDOM <img src="{crandom.icon}" width="100" height="100"/> </a>
+<a href="/comic/{cnext.name}"> NEXT <img src="{cnext.icon}" width="100" height="100"/> </a>
+<a href="/comic/{clast.name}"> LAST <img src="{clast.icon}" width="100" height="100"/> </a>
+</div>
+<div>{it.body}</div>
+</div>
+]]
+
+	cake.profile_layout=[[
+<div class="profile_layout">
+<div class="profile_layout_head">
+{-cake.profile_head}
+</div>
+<div class="profile_layout_body">
+	<div class="profile_layout_wide">
+{-cake.profile_wide}
+	</div>
+	<div class="profile_layout_side">
+{-cake.profile_side}
+	</div>
+</div>
+<div class="profile_layout_foot">
+{-cake.profile_foot}
+</div>
+</div>
 ]]
 
 	return cake
