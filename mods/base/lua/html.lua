@@ -554,7 +554,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 <div class="cake_admin_bar">
 	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
 		<button type="submit" name="submit" value="edit" class="cake_button" >Edit</button>
-		<a href="?cmd=edit" class="cake_button" >SafeEdit</a>
+		<a href="?cmd=edit&page={-cake.pagename}" class="cake_button" >SafeEdit</a>
 		<a href="/!/admin" class="cake_button" >Admin</a>
 	</form>
 </div>

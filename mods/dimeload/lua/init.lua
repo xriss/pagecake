@@ -122,7 +122,18 @@ local get,put=make_get_put(srv)
 	
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
+
+	local refined=waka.fill_refined(srv,"dl")
+	html.fill_cake(srv,refined.cake)
+	if user and user.cache and user.cache.admin then
+		refined.cake.admin="{cake.admin_comic_bar}"
+	end
+	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
 	
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put(macro_replace("{cake.html.plate}",refined))
+
+--[[
 	local posts=make_posts(srv)	
 	local refined=wakapages.load(srv,"/dl")[0]
 
@@ -136,6 +147,7 @@ local get,put=make_get_put(srv)
 	comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 
 	put("footer",refined)
+]]
 
 end
 
@@ -231,11 +243,15 @@ local get,put=make_get_put(srv)
 	refined.paylist=dl_paypal.paylist(srv,{custom=user.cache.id})
 
 	srv.set_mimetype("text/html; charset=UTF-8")
+	put(macro_replace("{cake.html.plate}",refined))
+
+--[[
+	srv.set_mimetype("text/html; charset=UTF-8")
 	put("header",refined)
 	put("dimeload_bar",refined)
 	put(macro_replace(refined.plate or "{body}",refined))
 	put("footer",refined)
-	
+]]	
 end
 
 -----------------------------------------------------------------------------
@@ -282,8 +298,18 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 
 	local posts=make_posts(srv)		
-	local refined=wakapages.load(srv,"/dl/"..pname)[0]
-	refined.pagename="dl/"..pname
+
+	local refined=waka.fill_refined(srv,"dl/"..pname)
+	html.fill_cake(srv,refined.cake)
+	if user and user.cache and user.cache.admin then
+--		refined.cake.admin="{cake.admin_dimeload_bar}"
+	end
+	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+
+--	local refined=wakapages.load(srv,"/dl/"..pname)[0]
+--	refined.pagename="dl/"..pname
+	
+	
 -- override some parts of the page with things that we know
 	refined.user=user and user.cache
 	refined.dl_user=dluser and dluser.cache
@@ -313,6 +339,10 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		local r=dl_downloads.list(srv,opts)
 
 		srv.set_mimetype("text/html; charset=UTF-8")
+		put(macro_replace("{cake.html.plate}",refined))
+
+--[=[
+		srv.set_mimetype("text/html; charset=UTF-8")
 		put("header",refined)
 		put("dimeload_bar",refined)
 
@@ -331,7 +361,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 
 		put("footer",refined)
-
+]=]
 		return
 
 	end
@@ -342,6 +372,10 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		opts.offset=0
 		local r=d_users.list(srv,opts)
 
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put(macro_replace("{cake.html.plate}",refined))
+
+--[=[
 		srv.set_mimetype("text/html; charset=UTF-8")
 		put("header",refined)
 		put("dimeload_bar",refined)
@@ -362,6 +396,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 
 		put("footer",refined)
+]=]
 
 		return
 
@@ -406,12 +441,17 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 	
 		srv.set_mimetype("text/html; charset=UTF-8")
+		put(macro_replace("{cake.html.plate}",refined))
+
+--[[
+		srv.set_mimetype("text/html; charset=UTF-8")
 		put("header",refined)
 		put("dimeload_bar",refined)
 
 		put("sponsor",send)
 		
 		put("footer",refined)
+]]
 		return
 	end
 
@@ -459,7 +499,11 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		end
 		
 	end
+	
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put(macro_replace("{cake.html.plate}",refined))
 
+--[[
 	srv.set_mimetype("text/html; charset=UTF-8")
 	put("header",refined)
 	put("dimeload_bar",refined)
@@ -469,6 +513,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
 
 	put("footer",refined)
+]]
 
 end
 

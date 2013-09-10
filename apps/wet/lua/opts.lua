@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"4lfa",			"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"lo4d",			"host.local",			},			-- test this domain when on localhost or host.local
 
 	{"horror",		"horror",		"horrordriv.esyou.com",	},			-- any domain with horror in it
 
