@@ -1,8 +1,25 @@
 
-console.log("dimeload ready project="+dl_project.name);
-
 dimeload={};
 
+dimeload.goto=function(name)
+{
+	dimeload.state=name;
+	$(".dimeload_tabs").hide(200);
+	$("#dimeload_tab_"+name).show(200);
+}
+
+
+/*
+ * dimeload.inject=function(div)
+{
+	dimeload.div=$(div);
+	
+	dimeload.goto("login");
+};
+*/
+
+/*
+ * 
 dimeload.html={};
 
 dimeload.gethtml=function(name)
@@ -102,3 +119,4 @@ dimeload.goto=function(name)
 	
 	return false;
 };
+*/

@@ -233,8 +233,15 @@ local get,put=make_get_put(srv)
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	
-	local refined=wakapages.load(srv,"/dl/paypal")[0]
-	refined.page="dl/paypal"
+	local refined=waka.fill_refined(srv,"dl/paypal")
+	html.fill_cake(srv,refined.cake)
+	if user and user.cache and user.cache.admin then
+--		refined.cake.admin="{cake.admin_dimeload_bar}"
+	end
+	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+
+--	local refined=wakapages.load(srv,"/dl/paypal")[0]
+--	refined.page="dl/paypal"
 	
 	refined.button10 =dl_paypal.button(srv,{custom=user.cache.id,quantity=10})
 	refined.button100=dl_paypal.button(srv,{custom=user.cache.id,quantity=100})
@@ -252,6 +259,136 @@ local get,put=make_get_put(srv)
 	put(macro_replace(refined.plate or "{body}",refined))
 	put("footer",refined)
 ]]	
+end
+
+-----------------------------------------------------------------------------
+--
+-- downloads
+--
+-----------------------------------------------------------------------------
+function refined_project_downloads(srv,refined)
+
+	local opts={}
+		opts.limit=100
+		opts.offset=0
+		local r=dl_downloads.list(srv,opts)
+
+--[=[
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("header",refined)
+		put("dimeload_bar",refined)
+
+
+		put("There have been {count} downloads<br/><br/>",{count=#r})
+
+		if r then
+			for i,v in ipairs(r) do
+				local c=v.cache
+		put([[
+			{created} : {project}/{page}/{file} == {user} : {ip} <br/>
+		]],c)
+
+			end 
+		end
+
+
+		put("footer",refined)
+]=]
+
+end
+
+-----------------------------------------------------------------------------
+--
+-- users
+--
+-----------------------------------------------------------------------------
+function refined_project_users(srv,refined)
+
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local r=d_users.list(srv,opts)
+
+--[=[
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("header",refined)
+		put("dimeload_bar",refined)
+
+
+		put("There are {count} users<br/><br/>",{count=#r})
+
+		if r then
+			for i,v in ipairs(r) do
+				local c=v.cache
+		put([[
+			{created} : {id} {email} {name} : {ip} <br/>
+		]],c)
+
+	
+			end 
+		end
+
+
+		put("footer",refined)
+]=]
+
+end
+
+-----------------------------------------------------------------------------
+--
+-- sponsor
+--
+-----------------------------------------------------------------------------
+function serv_project_sponsor(srv,refined)
+
+
+	
+		if posts.dimes then posts.dimes=tonumber(posts.dimes) end
+
+--log(wstr.dump(posts))
+	
+		local send={}
+		send.project=pname
+		send.about=posts.about or (page and page.cache.about) or ""
+		send.dimes=posts.dimes or (page and page.cache.dimes) or 1
+		send.code=posts.code or code or srv.gets.sponsor
+		
+		if posts.code then -- lets update stuff
+
+			dl_pages.set(srv,pname.."/"..send.code,function(srv,e)
+				local c=e.cache
+				
+				c.project=send.project
+				c.name=send.code
+				c.owner=user.cache.id
+				c.dimes=send.dimes
+				
+				c.about=send.about
+				
+				return true								
+			end)
+
+		end
+
+
+		if not page and type(srv.gets.sponsor)=="string" and #srv.gets.sponsor>=1 then
+			page=dl_pages.get(srv,pname.."/"..send.code)
+			refined.dl_page=page and page.cache
+		end
+
+	
+
+--[[
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("header",refined)
+		put("dimeload_bar",refined)
+
+		put("sponsor",send)
+		
+		put("footer",refined)
+]]
+		return
+
 end
 
 -----------------------------------------------------------------------------
@@ -311,150 +448,45 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	
 	
 -- override some parts of the page with things that we know
-	refined.user=user and user.cache
-	refined.dl_user=dluser and dluser.cache
-	refined.dl_project=project.cache
-	refined.dl_page=page and page.cache
-
-	refined.json={}
-	refined.json.error="null"
-	refined.json.user=(refined.user and json.encode(refined.user)) or "null"
-	refined.json.dl_user=(refined.dl_user and json.encode(refined.dl_user)) or "null"
-	refined.json.dl_project=json.encode(refined.dl_project) or "null"
-	refined.json.dl_page=( refined.dl_page and json.encode(refined.dl_page) ) or "null"
+	refined.cake.user=user and user.cache
+	refined.cake.dimeload.page=page and page.cache
+	refined.cake.dimeload.user=dluser and dluser.cache
+	refined.cake.dimeload.project=project.cache
 	
-	local h={}
-	for n,v in pairs(refined) do
-		if type(n)=="string" and string.sub(n,1,5)=="html_" then
-			h[ string.sub(n,6,-1) ] = macro_replace("{"..n.."}",refined)	-- expand the macros
-		end
+	refined.cake.dimeload.list={}
+	for i,v in ipairs(refined.lua.files) do
+		refined.cake.dimeload.list[i]=refined.lua.files[i]
 	end
-	refined.json.html=json.encode(h)
-
-	if srv.gets.downloads and user and user.cache and user.cache.admin then
+	refined.cake.dimeload.list.plate="{cake.dimeload.item}"
 	
-		local opts={}
-		opts.limit=100
-		opts.offset=0
-		local r=dl_downloads.list(srv,opts)
-
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
-
---[=[
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",refined)
-		put("dimeload_bar",refined)
-
-
-		put("There have been {count} downloads<br/><br/>",{count=#r})
-
-		if r then
-			for i,v in ipairs(r) do
-				local c=v.cache
-		put([[
-			{created} : {project}/{page}/{file} == {user} : {ip} <br/>
-		]],c)
-
-			end 
-		end
-
-
-		put("footer",refined)
-]=]
-		return
-
-	end
-	if srv.gets.users and user and user.cache and user.cache.admin then
-	
-		local opts={}
-		opts.limit=100
-		opts.offset=0
-		local r=d_users.list(srv,opts)
-
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
-
---[=[
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",refined)
-		put("dimeload_bar",refined)
-
-
-		put("There are {count} users<br/><br/>",{count=#r})
-
-		if r then
-			for i,v in ipairs(r) do
-				local c=v.cache
-		put([[
-			{created} : {id} {email} {name} : {ip} <br/>
-		]],c)
-
-	
-			end 
-		end
-
-
-		put("footer",refined)
-]=]
-
-		return
-
+	if not user then
+		refined.cake.dimeload.needlogin="{cake.dimeload.login}"
 	end
 
-
-	if srv.gets.sponsor and user and user.cache and user.cache.admin then
-
-	
-		if posts.dimes then posts.dimes=tonumber(posts.dimes) end
-
---log(wstr.dump(posts))
-	
-		local send={}
-		send.project=pname
-		send.about=posts.about or (page and page.cache.about) or ""
-		send.dimes=posts.dimes or (page and page.cache.dimes) or 1
-		send.code=posts.code or code or srv.gets.sponsor
+	if user and user.cache and user.cache.admin then
+		if srv.gets.downloads then
 		
-		if posts.code then -- lets update stuff
-
-			dl_pages.set(srv,pname.."/"..send.code,function(srv,e)
-				local c=e.cache
-				
-				c.project=send.project
-				c.name=send.code
-				c.owner=user.cache.id
-				c.dimes=send.dimes
-				
-				c.about=send.about
-				
-				return true								
-			end)
+			refined_project_downloads(srv,refined)
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(macro_replace("{cake.html.plate}",refined))
+			return
 
 		end
-
-
-		if not page and type(srv.gets.sponsor)=="string" and #srv.gets.sponsor>=1 then
-			page=dl_pages.get(srv,pname.."/"..send.code)
-			refined.dl_page=page and page.cache
-		end
-
-	
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
-
---[[
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",refined)
-		put("dimeload_bar",refined)
-
-		put("sponsor",send)
+		if srv.gets.users then
 		
-		put("footer",refined)
-]]
-		return
-	end
+			refined_project_users(srv,refined)
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(macro_replace("{cake.html.plate}",refined))
+			return
 
+		end
+		if srv.gets.sponsor then
+			refined_project_sponsor(srv,refined)
+			srv.set_mimetype("text/html; charset=UTF-8")
+			put(macro_replace("{cake.html.plate}",refined))
+		end
+	end
+	
 	if srv.gets.download then
 
 		local fname
@@ -468,7 +500,8 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		if fname then
 			if not user then
 
-				refined.json.error=[["you must be logged in to download"]]
+				refined.cake.dimeload.goto="error"
+				refined.cake.dimeload.error_text=[[You must be logged in to download.]]
 				
 			elseif page and page.cache.available>0 then
 
@@ -494,7 +527,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 -- secret internal redirect to download a private file
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
 			else
-				refined.json.error=[["no dimes available to download with"]]
+				refined.cake.dimeload.goto="error"
+				refined.cake.dimeload.error_text=[[No dimes available to download with.]]
+log(fname..refined.cake.dimeload.error_text)
 			end
 		end
 		

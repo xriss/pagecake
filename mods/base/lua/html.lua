@@ -486,10 +486,16 @@ end
 function fill_cake(srv)
 	local cake={}
 	
+	cake.url=srv.url
+	cake.urlesc=url_esc(srv.url)
+
 	cake.html={}
 	cake.html.css="{-css}" -- use css chunk
 	cake.html.title="{-title}" -- empty title
 	cake.html.extra="" -- squirt this into the head
+	
+	cake.html.url=srv.url
+	cake.html.urlesc=url_esc(srv.url)
 
 -- for example add an atom link using cake.html.custom
 -- <link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
