@@ -37,26 +37,18 @@ local wakapages=require("waka.pages")
 local comments=require("note.comments")
 
 local dl_users=require("dimeload.users")
-local dl_transactions=require("dimeload.transactions")
-
 local dl_projects=require("dimeload.projects")
 local dl_pages=require("dimeload.pages")
 
+-- logs
+local dl_sponsors=require("dimeload.sponsors")
 local dl_downloads=require("dimeload.downloads")
 local dl_paypal=require("dimeload.paypal")
+local dl_transactions=require("dimeload.transactions")
 
 local ngx=ngx
 
 module("dimeload")
-
-local function make_get_put(srv)
-	local get=function(a,b)
-		b=b or {}
-		b.srv=srv
-		return wet_html.get(html,a,b)
-	end
-	return  get , function(a,b) srv.put(get(a,b)) end
-end
 
 local function make_posts(srv)
 	local url=srv.url_base
@@ -94,6 +86,8 @@ function serv(srv)
 	local cmds={
 		api=		serv_api,
 		paypal=		serv_paypal,
+		admin=		serv_admin,
+		user=		serv_user,
 	}
 	local f=cmds[ string.lower(cmd or "") ]
 	if f then return f(srv) end
@@ -120,20 +114,19 @@ function serv_main(srv)
 	local url_local="/dl"
 
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
 	
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 
 	local refined=waka.fill_refined(srv,"dl")
-	html.fill_cake(srv,refined.cake)
+	html.fill_cake(srv,refined)
 	if user and user.cache and user.cache.admin then
-		refined.cake.admin="{cake.admin_comic_bar}"
+		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put(macro_replace("{cake.html.plate}",refined))
+	srv.put(macro_replace("{cake.html.plate}",refined))
 
 --[[
 	local posts=make_posts(srv)	
@@ -161,12 +154,11 @@ end
 -----------------------------------------------------------------------------
 function serv_api(srv)
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
 	
 	if srv.method=="POST" and srv.body and srv:check_referer(url) then
 		local d=json.decode(srv.body)
 		if d then
-			put(wstr.dump(d))
+			srv.put(wstr.dump(d))
 		end
 	end
 	
@@ -180,7 +172,6 @@ end
 -----------------------------------------------------------------------------
 function serv_hexkey(srv)
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
 	
 	return srv.exit(400)
 end
@@ -192,7 +183,6 @@ end
 -----------------------------------------------------------------------------
 function serv_paypal(srv)
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
 	
 	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]	
 
@@ -236,7 +226,7 @@ local get,put=make_get_put(srv)
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	
 	local refined=waka.fill_refined(srv,"dl/paypal")
-	html.fill_cake(srv,refined.cake)
+	html.fill_cake(srv,refined)
 	if user and user.cache and user.cache.admin then
 --		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
@@ -252,7 +242,7 @@ local get,put=make_get_put(srv)
 	refined.paylist=dl_paypal.paylist(srv,{custom=user.cache.id})
 
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put(macro_replace("{cake.html.plate}",refined))
+	srv.put(macro_replace("{cake.html.plate}",refined))
 
 --[[
 	srv.set_mimetype("text/html; charset=UTF-8")
@@ -261,6 +251,56 @@ local get,put=make_get_put(srv)
 	put(macro_replace(refined.plate or "{body}",refined))
 	put("footer",refined)
 ]]	
+end
+
+-----------------------------------------------------------------------------
+--
+-- handle user pages
+--
+-----------------------------------------------------------------------------
+function serv_user(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+
+	-- require a login
+	if not (user) then
+		return srv.redirect("/dumid?continue="..srv.url)
+	end
+	
+	local refined=waka.fill_refined(srv,"dl/user")
+	html.fill_cake(srv,refined)
+	if user and user.cache and user.cache.admin then
+		refined.cake.admin="{cake.admin_dimeload_bar}"
+	end
+	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+	srv.put(macro_replace("{cake.html.plate}",refined))
+	return
+end
+
+-----------------------------------------------------------------------------
+--
+-- handle admin pages
+--
+-----------------------------------------------------------------------------
+function serv_admin(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+
+	-- require admin login
+	if not (user and user.cache and user.cache.admin ) then
+		return srv.redirect("/dumid?continue="..srv.url)
+	end
+
+	local refined=waka.fill_refined(srv,"dl/admin")
+	html.fill_cake(srv,refined)
+	if user and user.cache and user.cache.admin then
+		refined.cake.admin="{cake.admin_dimeload_bar}"
+	end
+	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+	
+	srv.set_mimetype("text/html; charset=UTF-8")
+	srv.put(macro_replace("{cake.html.plate}",refined))
+	return
 end
 
 -----------------------------------------------------------------------------
@@ -351,9 +391,9 @@ function refined_project_sponsor(srv,refined)
 	local send={}
 	send.code=string.gsub(posts.code or "","([^0-9a-zA-Z_]*)","")
 	send.dimes=math.floor( tonumber(posts.dimes or 0) or 0 ) or 0
-	if send.dimes~=0 or send.dimes<0 then send.dimes=0 end -- number sanity
+	if send.dimes~=send.dimes or send.dimes<0 then send.dimes=0 end -- number sanity
 
-	send.owner=refined.cake.user.id
+	send.owner=refined.cake.user and refined.cake.user.id
 	send.project=refined.cake.dimeload.project.id
 	send.about=posts.about or ""
 	send.id=send.project.."/"..send.code
@@ -361,22 +401,51 @@ function refined_project_sponsor(srv,refined)
 	local oldpage=dl_pages.get(srv,send.id)
 	oldpage=oldpage and oldpage.cache
 	
-	if #send.code<3 then -- error, code is too short
+	refined.cake.dimeload.post_code=send.code
+	refined.cake.dimeload.post_about=wet_html.esc(send.about)
 
-		refined.cake.dimeload.goto="error"
-		refined.cake.dimeload.error_text=[[secret code is too short]]
+	if not refined.cake.user then
+
+		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload.error_text=[[you must login to sponsor]]
+
+	elseif #send.code<3 then -- error, code is too short
+
+		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload.error_text=[[secret name is too short]]
+	
+	elseif #send.about>4096 then
+
+		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload.error_text=[[about text is too long]]
 	
 	elseif (not oldpage) and send.dimes<1 then
 	
-		refined.cake.dimeload.goto="error"
+		refined.cake.dimeload.goto="sponsor"
 		refined.cake.dimeload.error_text=[[must use 1 or more dimes to create a page]]
+
+	elseif send.dimes>refined.cake.dimeload.user.avail then
+	
+		refined.cake.dimeload.goto="buy"
+		refined.cake.dimeload.error_text=[[you need to buy more dimes]]
 
 	elseif oldpage and (oldpage.owner~=send.owner) then
 
-		refined.cake.dimeload.goto="error"
-		refined.cake.dimeload.error_text=[[secret code is already used]]
+		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload.error_text=[[that secret code is already used by someone else]]
 	
 	else
+	
+-- create sponsors log entry
+		local d=dl_sponsors.create(srv)
+		local c=d.cache
+		c.user=send.owner
+		c.ip=srv.ip
+		c.project=send.project
+		c.page=send.code
+		c.dimes=send.dimes
+		dl_sponsors.put(srv,d)
+				
 		local r=dl_pages.set(srv,send.id,function(srv,e)
 			local c=e.cache
 			
@@ -391,7 +460,7 @@ function refined_project_sponsor(srv,refined)
 		end)
 		r=(r and r.cache)
 		if r then -- check if we should redirect to new page?
-			if r.id~=refined.cake.dimeload.page.id then -- redirect
+			if (not refined.cake.dimeload.page) or (r.id~=refined.cake.dimeload.page.id) then -- redirect
 				return srv.redirect(srv.url_base..send.id)
 			else
 				refined.cake.dimeload.page=r
@@ -402,9 +471,8 @@ function refined_project_sponsor(srv,refined)
 		end
 	end
 
-	local get,put=make_get_put(srv)
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put(macro_replace("{cake.html.plate}",refined))
+	srv.put(macro_replace("{cake.html.plate}",refined))
 	return
 end
 
@@ -444,7 +512,6 @@ function serv_project(srv,project)
 	
 
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
 
 local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	
@@ -454,9 +521,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	local posts=make_posts(srv)		
 
 	local refined=waka.fill_refined(srv,"dl/"..pname)
-	html.fill_cake(srv,refined.cake)
+	html.fill_cake(srv,refined)
 	if user and user.cache and user.cache.admin then
---		refined.cake.admin="{cake.admin_dimeload_bar}"
+		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
 
@@ -473,10 +540,13 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	refined.cake.dimeload.post_code=""
 	refined.cake.dimeload.post_about=""
 	refined.cake.dimeload.waka_about=""
-	if refined.cake.dimeload.page then
+	if refined.cake.dimeload.page then -- use dimes from page
 		refined.cake.dimeload.post_code=refined.cake.dimeload.page.name
 		refined.cake.dimeload.post_about=wet_html.esc(refined.cake.dimeload.page.about)
 		refined.cake.dimeload.waka_about=wet_waka.waka_to_html(refined.cake.dimeload.page.about,{escape_html=true})
+	else -- use personal dimes
+		refined["cake.dimeload.mydimes_available"]=0
+--		refined["cake.dimeload.page.available"]=0
 	end
 	
 	
@@ -495,7 +565,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		
 			refined_project_downloads(srv,refined)
 			srv.set_mimetype("text/html; charset=UTF-8")
-			put(macro_replace("{cake.html.plate}",refined))
+			srv.put(macro_replace("{cake.html.plate}",refined))
 			return
 
 		end
@@ -503,16 +573,17 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		
 			refined_project_users(srv,refined)
 			srv.set_mimetype("text/html; charset=UTF-8")
-			put(macro_replace("{cake.html.plate}",refined))
+			srv.put(macro_replace("{cake.html.plate}",refined))
 			return
 
 		end
-		if srv.gets.sponsor or srv.posts.sponsor then
-			refined_project_sponsor(srv,refined)
-			return
-		end
 	end
 	
+	if srv.gets.sponsor or srv.posts.sponsor then
+		refined_project_sponsor(srv,refined)
+		return
+	end
+
 	if srv.gets.download then
 
 		local fname
@@ -529,7 +600,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 				refined.cake.dimeload.goto="error"
 				refined.cake.dimeload.error_text=[[You must be logged in to download.]]
 				
-			elseif page and page.cache.available>0 then
+			elseif page and page.cache.available>0 then -- sponsored download
 
 -- check for a recent log entry and allow a rety of the download
 
@@ -544,7 +615,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 				local d=dl_downloads.create(srv)
 				local c=d.cache
 				c.user=user.cache.id
-				c.ip=user.cache.ip
+				c.ip=srv.ip
 				c.project=pname
 				c.page=page.cache.name
 				c.file=fname
@@ -552,29 +623,40 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 -- secret internal redirect to download a private file
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
+
+			elseif dluser and dluser.cache.avail>0 then -- personal download
+
+-- update user dime count
+				dl_users.set(srv,user.cache.id,function(srv,e)
+					local c=e.cache
+					c.spent=c.spent+1
+					c.avail=c.avail-1
+					return true
+				end)
+
+-- create download log entry
+				local d=dl_downloads.create(srv)
+				local c=d.cache
+				c.user=user.cache.id
+				c.ip=srv.ip
+				c.project=pname
+				c.page=""
+				c.file=fname
+				dl_downloads.put(srv,d)
+
+-- secret internal redirect to download a private file
+				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
+
 			else
 				refined.cake.dimeload.goto="error"
 				refined.cake.dimeload.error_text=[[No dimes available to download with.]]
-log(fname..refined.cake.dimeload.error_text)
 			end
 		end
 		
 	end
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put(macro_replace("{cake.html.plate}",refined))
-
---[[
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",refined)
-	put("dimeload_bar",refined)
-	
-	put(macro_replace(refined.plate or "{body}",refined))
-
-	comments.build(srv,{title=title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
-
-	put("footer",refined)
-]]
+	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 

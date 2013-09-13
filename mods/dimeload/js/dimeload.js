@@ -6,6 +6,8 @@ dimeload.goto=function(name)
 	dimeload.state=name;
 	$(".dimeload_tabs").hide(200);
 	$("#dimeload_tab_"+name).show(200);
+	
+	return false;
 }
 
 

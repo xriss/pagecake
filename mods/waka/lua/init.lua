@@ -347,7 +347,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	elseif ext=="xml" or ext=="frame" then -- special full control frameless render mode
 	
 		srv.set_mimetype((refined.opts.mimetype or "text/html").."; charset=UTF-8")
-		put(macro_replace(refined.frame or [[
+		srv.put(macro_replace(refined.frame or [[
 		<h1>{title}</h1>
 		{body}
 		]],refined))
@@ -360,14 +360,14 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	elseif ext=="dump" then -- dump out all the bubbled chunks as json
 
 		srv.set_mimetype("text/plain; charset=UTF-8")
-		put( json.encode(chunks) )
+		srv.put( json.encode(chunks) )
 	
 	elseif ext and chunks[ext] then -- generic extension dump using named chunk
 	
 		srv.set_header("Cache-Control","public") -- allow caching of page
 		srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 		srv.set_mimetype(chunks[ext].opts.mimetype or "text/plain; charset=UTF-8")
-		put(macro_replace(refined[ext],refined))
+		srv.put(macro_replace(refined[ext],refined))
 		
 	elseif srv.opts("pagecake") then -- new pagecake way
 	
@@ -403,7 +403,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		end
 		
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
+		srv.put(macro_replace("{cake.html.plate}",refined))
 	
 	else -- old style
 	

@@ -17,26 +17,28 @@ local M={ modname=(...) } ; package.loaded[M.modname]=M
 setmetatable(M,{__index=html}) -- use a meta table to also return html base 
 
 
-function M.fill_cake(srv,cake)
+function M.fill_cake(srv,refined)
+	local cake=refined.cake or {}
+	refined.cake=cake
 	
 	cake.dimeload={}
 
 	cake.dimeload.tabs=[[
 {-cake.dimeload.needlogin}
 {cake.dimeload.menu}
+{-cake.dimeload.error}
 {cake.dimeload.download}
 {cake.dimeload.sponsor}
 {cake.dimeload.buy}
-{cake.dimeload.error}
 {-cake.dimeload.about}
 ]]
 
 	cake.dimeload.menu=[=[
 <div class="sponsor_wrap land">
 	Would you like to 
-	<a href="#" onclick="dimeload.goto('buy');">Buy Dimes</a> ,
-	<a href="#" onclick="dimeload.goto('download');">Download</a> or
-	<a href="#" onclick="dimeload.goto('sponsor');">Sponsor</a>
+	<a href="#" onclick="return dimeload.goto('buy');">Buy Dimes</a> ,
+	<a href="#" onclick="return dimeload.goto('download');">Download</a> or
+	<a href="#" onclick="return dimeload.goto('sponsor');">Sponsor</a>
 	this project?
 </div>
 ]=]
@@ -53,7 +55,7 @@ function M.fill_cake(srv,cake)
 
 	cake.dimeload.sponsor=[=[
 <div class="dimeload_tabs" id="dimeload_tab_sponsor" style="display:none;">
-	<form action="{srv.url}" method="POST" enctype="multipart/form-data">
+	<form action="{cake.url}" method="POST" enctype="multipart/form-data">
 <div class="dime-game_main">
 	<div class="dime-game_txt">Sponsorship information:</div>
 	<div>
@@ -109,22 +111,25 @@ function M.fill_cake(srv,cake)
 
 	cake.dimeload.available=[[
 	There are currently <span class="dl_dimes">{cake.dimeload.page.available} dimes</span> available.<br/>
-	Any downloads you make will use dimes from this pool.
+	Any downloads you make will use dimes from this pages pool.
+]]
+	cake.dimeload.mydimes=[[
+	You have <span class="dl_dimes">{cake.dimeload.mydimes_available} dimes</span> available.<br/>
+	Any downloads you make will use dimes from your personal pool.
 ]]
 	cake.dimeload.download=[[
 <div class="dimeload_tabs" id="dimeload_tab_download" style="display:none;">
 <div class="sponsor_wrap land">
 	{-cake.dimeload.available}
+	{-cake.dimeload.mydimes}
 	{cake.dimeload.list}
 </div>
 </div>
 ]]
 
 	cake.dimeload.error=[[
-<div class="dimeload_tabs" id="dimeload_tab_error" style="display:none;">
 <div class="sponsor_wrap land">
 	{cake.dimeload.error_text}
-</div>
 </div>
 ]]
 

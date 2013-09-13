@@ -488,15 +488,14 @@ function fill_cake(srv)
 	
 	cake.url=srv.url
 	cake.urlesc=url_esc(srv.url)
+	cake.qurl=srv.qurl
+	cake.url_base=srv.url_base
 
 	cake.html={}
 	cake.html.css="{-css}" -- use css chunk
 	cake.html.title="{-title}" -- empty title
 	cake.html.extra="" -- squirt this into the head
 	
-	cake.html.url=srv.url
-	cake.html.urlesc=url_esc(srv.url)
-
 -- for example add an atom link using cake.html.custom
 -- <link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
 
@@ -558,16 +557,45 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	cake.admin=""
 	cake.admin_waka_bar=[[
 <div class="cake_admin_bar">
-	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
-		<button type="submit" name="submit" value="edit" class="cake_button" >Edit</button>
-		<a href="?cmd=edit&page={-cake.pagename}" class="cake_button" >SafeEdit</a>
-		<a href="/!/admin" class="cake_button" >Admin</a>
+	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
+		<button type="submit" name="submit" value="edit" class="cake_button" > Edit </button>
+		<a href="?cmd=edit&page={-cake.pagename}" class="cake_button" > EditOnly </a>
+		<a href="/!/admin" class="cake_button" > Admin </a>
 	</form>
 </div>
 ]]
+	cake.admin_blog_bar=[[
+<div class="cake_admin_bar">
+	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
+		{-cake.admin_blog_bar_edit}
+		<a href="/?cmd=edit&page=blog" class="cake_button" > EditWaka </a>
+		<a href="/blog" class="cake_button" > View Blog </a> 
+		<a href="/blog/!/admin/pages" class="cake_button" > List </a> 
+		<a href="/blog/!/admin/edit/$newpage" class="cake_button" > New Post </a>
+	</form>
+</div>
+]]
+	cake.admin_comic_bar=[[
+<div class="cake_admin_bar">
+	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
+		<a href="/?cmd=edit&page=comic" class="cake_button" > EditWaka </a>
+		<a href="/?cmd=edit&page={it.id}" class="cake_button" > EditComic </a>
+	</form>
+</div>
+]]
+
+	cake.admin_dimeload_bar=[[
+<div class="cake_admin_bar">
+	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
+		<a href="/?cmd=edit&page=dl" class="cake_button" > EditWaka </a>
+		<a href="/?cmd=edit&page=dl/{cake.dimeload.project.id}" class="cake_button" > EditProject </a>
+	</form>
+</div>
+]]
+
 	cake.admin_waka_form=[[
 <div class="cake_wakaedit">
-<form name="post" action="{srv.qurl}" method="post" enctype="multipart/form-data">
+<form name="post" action="{cake.qurl}" method="post" enctype="multipart/form-data">
 	<div class="cake_wakaedit_bar">
 		<input type="submit" name="submit" value="Save" class="cake_button" />
 		<input type="submit" name="submit" value="Save and Edit" class="cake_button" />
@@ -587,21 +615,11 @@ head.js(head.fs.jquery_wakaedit_js);
 	cake.admin_blog_bar_edit=[[
 		<a href="/blog/!/admin/edit/$hash/{it.id}" class="cake_button" > EditPost </a>
 ]]
-	cake.admin_blog_bar=[[
-<div class="cake_admin_bar">
-	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
-		{-cake.admin_blog_bar_edit}
-		<a href="/?cmd=edit&page=blog" class="cake_button" > EditWaka </a>
-		<a href="/blog" class="cake_button" > View Blog </a> 
-		<a href="/blog/!/admin/pages" class="cake_button" > List </a> 
-		<a href="/blog/!/admin/edit/$newpage" class="cake_button" > New Post </a>
-	</form>
-</div>
-]]
+
 	cake.admin_blog_item=[[
 <div>
 <input type="checkbox" name="{it.pubname}" value="Check"></input>
-<a href="{srv.url_base}!/admin/edit/$hash/{it.id}">
+<a href="{cake.url_base}!/admin/edit/$hash/{it.id}">
 <span style="width:20px;display:inline-block;">{it.layer}</span>
 <span style="width:200px;display:inline-block;">{it.pubname}</span>
 <span style="width:400px;display:inline-block;">{it.chunks.title.text}</span>
@@ -610,20 +628,10 @@ head.js(head.fs.jquery_wakaedit_js);
 </div>
 ]]
 
-	cake.admin_comic_bar=[[
-<div class="cake_admin_bar">
-	<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">
-		<a href="/?cmd=edit&page=comic" class="cake_button" > EditWaka </a>
-		<a href="/?cmd=edit&page={it.id}" class="cake_button" > EditComic</a>
-	</form>
-</div>
-]]
-
 	cake.bars=[[
 <div class="cake_bars">{cake.homebar.div}{cake.userbar.div}</div>
 ]]
 	cake.userbar={}
-	cake.userbar.urlesc=url_esc(srv.url)
 	cake.userbar.hello="Hello {cake.userbar.profile},"
 
 	if srv.user and srv.sess then -- a user is logged i and viewing
@@ -634,13 +642,13 @@ head.js(head.fs.jquery_wakaedit_js);
 		cake.userbar.id=user.cache.id
 		cake.userbar.hash=hash
 		cake.userbar.profile="<a href=\"/profile/{.cake.userbar.id}\" >{.cake.userbar.name}</a>"
-		cake.userbar.action="<a href=\"/dumid/logout/{cake.userbar.hash}/?continue={.cake.userbar.urlesc}\">Logout?</a>"
+		cake.userbar.action="<a href=\"/dumid/logout/{cake.userbar.hash}/?continue={.cake.urlesc}\">Logout?</a>"
 	else
 		cake.userbar.name="Anon"
 		cake.userbar.id=""
 		cake.userbar.hash=""
 		cake.userbar.profile="{.cake.userbar.name}"
-		cake.userbar.action="<a href=\"/dumid/login/?continue={.cake.userbar.urlesc}\">Login?</a>"
+		cake.userbar.action="<a href=\"/dumid/login/?continue={.cake.urlesc}\">Login?</a>"
 	end
 	
 	cake.userbar.div=[[<div class="cake_userbar">{cake.userbar.hello} {cake.userbar.action}</div>]]
