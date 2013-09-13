@@ -17,67 +17,6 @@ local M={ modname=(...) } ; package.loaded[M.modname]=M
 setmetatable(M,{__index=html}) -- use a meta table to also return html base 
 
 
------------------------------------------------------------------------------
---
--- overload footer
---
------------------------------------------------------------------------------
-M.footer=function(d)
-
-	d=d or {}
-	
-	d.mod_name="dimeload"
-	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/dimeload"
-	
-	return html.footer(d)
-end
-
------------------------------------------------------------------------------
---
--- control bar
---
------------------------------------------------------------------------------
-M.dimeload_bar=function(d)
-
-
-	d.admin=""
-	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
-		d.admin=replace([[
-	<div class="aelua_admin_bar">
-		<a href="/?cmd=edit&page={pagename}" class="button" > Edit </a>
-		<a href="/?cmd=edit&page=dl" class="button" > Admin </a>
-	</div>
-]],d)
-	end
-	
-	return (d.admin)
-
-end
-
-
-
------------------------------------------------------------------------------
---
--- sponsor form and links
---
------------------------------------------------------------------------------
-M.sponsor=function(d)
-
-	return replace([[
-	<div>
-	<form action="?sponsor" method="post" >
-	 PROJECT:<input type="text" name="project" value="{project}"/> <br/>
-	 CODE:<input type="text" name="code" value="{code}"/> <br/>
-	 DIMES:<input type="text" name="dimes" value="{dimes}"/> <br/>
-	 ABOUT:<textarea rows="20" cols="80" name="about">{about}</textarea> <br/>
-	 <input type="submit" value="Update" /> <br/>
-	</form>
-	</div>
-]],d)
-
-
-end
-
 function M.fill_cake(srv,cake)
 	
 	cake.dimeload={}
@@ -89,6 +28,7 @@ function M.fill_cake(srv,cake)
 {cake.dimeload.sponsor}
 {cake.dimeload.buy}
 {cake.dimeload.error}
+{-cake.dimeload.about}
 ]]
 
 	cake.dimeload.menu=[=[
@@ -113,34 +53,36 @@ function M.fill_cake(srv,cake)
 
 	cake.dimeload.sponsor=[=[
 <div class="dimeload_tabs" id="dimeload_tab_sponsor" style="display:none;">
+	<form action="{srv.url}" method="POST" enctype="multipart/form-data">
 <div class="dime-game_main">
 	<div class="dime-game_txt">Sponsorship information:</div>
 	<div>
-		<div>
-			Secret name: <input type="text" name="projectname" placeholder="This will be your secret link, ie. http://dime.lo4d.net/dl/project/secretname">
-			<span> You may only use numbers and letters. </span>
+		<div class="dimeload_page_secret">
+			Secret name: <input class="dimeload_page_secret_input" type="text" name="code" placeholder="This will be your secret link, ie. http://dime.lo4d.net/dl/project/secretname" value="{.cake.dimeload.post_code}" />
+			<span> You may only use numbers, letters and underscore. </span>
 		</div>
-		<div>
-			<div>
-				There are currently <span class="dl_dimes">{cake.dimeload.page.available}</span> dimeloads for this sponsored page.
-			</div>
-			Add <input type="text" name="dimes" placeholder="How many?"> dimes.
+		<div class="dimeload_page_dimes">
+			{-cake.dimeload.available}
+			<div class="dimeload_page_add">
+			Add <input name="dimes" placeholder="How many?"> dimes.
 			Once added you may not remove them.
+			</div>
 		</div>
-		<div>
-			<textarea name="aboutproject" placeholder="Tell us all about yourself and why you are sponsoring this project, if you want to. Go on, go on, go on, go on."></textarea>
-			<div>
+		<div class="dimeload_page_text">
+			<textarea rows="10" cols="50" name="about" placeholder="Tell us all about yourself and why you are sponsoring this project, if you want to. Go on, go on, go on, go on.">{.cake.dimeload.post_about}</textarea>
+			<div class="dimeload_page_markdown">
 				markdown syntax is allowed.<br/>
 				//italics// **bold** ##monospace##<br/>
 				\\* Bullet list\\* Second item\\** Sub item\\<br/>
 				[[http://google.com|Google]]<br/>
 				Force\\linebreak<br/>
 				<a href="#">click for more</a> (opens in new window)
-				<input type="submit" class="dime-butt more">
+				<input type="submit" value="sponsor" name="sponsor" class="dime-butt more" />
 			</div>
 		</div>
 	</div>
 </div>
+	</form>
 </div>
 ]=]
 
@@ -186,11 +128,34 @@ function M.fill_cake(srv,cake)
 </div>
 ]]
 
+	cake.dimeload.about=[[
+<div class="dimeload_about dimeload_autoembed">
+	{.cake.dimeload.waka_about}
+</div>
+]]
+
+
+
 	cake.dimeload.goto="download"
 	cake.dimeload.js=[[
 <script>
-head.js( head.fs.jquery_js , "/js/dimeload/dimeload.js",function(){
+head.js( head.fs.jquery_js , head.fs.jquery_wet_js , "/js/dimeload/dimeload.js",function(){
+
+	$(".dimeload_autoembed a").autoembedlink({width:640,height:480});
+
 	dimeload.goto("{cake.dimeload.goto}");
+	
+	$('.dimeload_page_secret input').keyup(function () {     
+		var t=this.value.replace(/[^0-9_a-zA-Z]/g,'');
+		if(t!=this.value) { this.value = t; }
+	});
+	
+	$('.dimeload_page_add input').keyup(function () {     
+		var t=this.value.replace(/[^0-9]/g,'');
+		if(t!=this.value) { this.value = t; }
+	});
+	
+
 });
 </script>
 ]]

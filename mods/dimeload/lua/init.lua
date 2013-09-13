@@ -4,6 +4,8 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 
+local markdown=require("markdown")
+
 local sys=require("wetgenes.www.any.sys")
 
 local json=require("wetgenes.json")
@@ -339,56 +341,71 @@ end
 -- sponsor
 --
 -----------------------------------------------------------------------------
-function serv_project_sponsor(srv,refined)
+function refined_project_sponsor(srv,refined)
 
+	local posts=make_posts(srv)		
 
+	refined.cake.dimeload.goto="sponsor"
 	
-		if posts.dimes then posts.dimes=tonumber(posts.dimes) end
 
---log(wstr.dump(posts))
+	local send={}
+	send.code=string.gsub(posts.code or "","([^0-9a-zA-Z_]*)","")
+	send.dimes=math.floor( tonumber(posts.dimes or 0) or 0 ) or 0
+	if send.dimes~=0 or send.dimes<0 then send.dimes=0 end -- number sanity
+
+	send.owner=refined.cake.user.id
+	send.project=refined.cake.dimeload.project.id
+	send.about=posts.about or ""
+	send.id=send.project.."/"..send.code
 	
-		local send={}
-		send.project=pname
-		send.about=posts.about or (page and page.cache.about) or ""
-		send.dimes=posts.dimes or (page and page.cache.dimes) or 1
-		send.code=posts.code or code or srv.gets.sponsor
-		
-		if posts.code then -- lets update stuff
+	local oldpage=dl_pages.get(srv,send.id)
+	oldpage=oldpage and oldpage.cache
+	
+	if #send.code<3 then -- error, code is too short
 
-			dl_pages.set(srv,pname.."/"..send.code,function(srv,e)
-				local c=e.cache
-				
-				c.project=send.project
-				c.name=send.code
-				c.owner=user.cache.id
-				c.dimes=send.dimes
-				
-				c.about=send.about
-				
-				return true								
-			end)
+		refined.cake.dimeload.goto="error"
+		refined.cake.dimeload.error_text=[[secret code is too short]]
+	
+	elseif (not oldpage) and send.dimes<1 then
+	
+		refined.cake.dimeload.goto="error"
+		refined.cake.dimeload.error_text=[[must use 1 or more dimes to create a page]]
 
+	elseif oldpage and (oldpage.owner~=send.owner) then
+
+		refined.cake.dimeload.goto="error"
+		refined.cake.dimeload.error_text=[[secret code is already used]]
+	
+	else
+		local r=dl_pages.set(srv,send.id,function(srv,e)
+			local c=e.cache
+			
+			c.owner=send.owner
+			c.project=send.project
+			c.name=send.code
+			c.dimes=c.dimes + send.dimes
+			
+			c.about=send.about
+			
+			return true								
+		end)
+		r=(r and r.cache)
+		if r then -- check if we should redirect to new page?
+			if r.id~=refined.cake.dimeload.page.id then -- redirect
+				return srv.redirect(srv.url_base..send.id)
+			else
+				refined.cake.dimeload.page=r
+				refined.cake.dimeload.post_code=r.name
+				refined.cake.dimeload.post_about=wet_html.esc(r.about)
+				refined.cake.dimeload.waka_about=wet_waka.waka_to_html(r.about,{escape_html=true})
+			end
 		end
+	end
 
-
-		if not page and type(srv.gets.sponsor)=="string" and #srv.gets.sponsor>=1 then
-			page=dl_pages.get(srv,pname.."/"..send.code)
-			refined.dl_page=page and page.cache
-		end
-
-	
-
---[[
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",refined)
-		put("dimeload_bar",refined)
-
-		put("sponsor",send)
-		
-		put("footer",refined)
-]]
-		return
-
+	local get,put=make_get_put(srv)
+	srv.set_mimetype("text/html; charset=UTF-8")
+	put(macro_replace("{cake.html.plate}",refined))
+	return
 end
 
 -----------------------------------------------------------------------------
@@ -453,6 +470,16 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	refined.cake.dimeload.user=dluser and dluser.cache
 	refined.cake.dimeload.project=project.cache
 	
+	refined.cake.dimeload.post_code=""
+	refined.cake.dimeload.post_about=""
+	refined.cake.dimeload.waka_about=""
+	if refined.cake.dimeload.page then
+		refined.cake.dimeload.post_code=refined.cake.dimeload.page.name
+		refined.cake.dimeload.post_about=wet_html.esc(refined.cake.dimeload.page.about)
+		refined.cake.dimeload.waka_about=wet_waka.waka_to_html(refined.cake.dimeload.page.about,{escape_html=true})
+	end
+	
+	
 	refined.cake.dimeload.list={}
 	for i,v in ipairs(refined.lua.files) do
 		refined.cake.dimeload.list[i]=refined.lua.files[i]
@@ -480,10 +507,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 			return
 
 		end
-		if srv.gets.sponsor then
+		if srv.gets.sponsor or srv.posts.sponsor then
 			refined_project_sponsor(srv,refined)
-			srv.set_mimetype("text/html; charset=UTF-8")
-			put(macro_replace("{cake.html.plate}",refined))
+			return
 		end
 	end
 	

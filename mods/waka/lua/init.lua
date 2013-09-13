@@ -305,7 +305,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	refined.cake=html.fill_cake(srv)
 	refined.cake.pagename=pagename
 	refined.cake.homebar.crumbs=crumbs
-	if page_edit then refined.cake.admin_waka_form_text=page_edit end
+	if page_edit then refined.cake.admin_waka_form_text=wet_html.esc(page_edit) end
 	
 	refined.opts=fill_opts(srv)
 	
