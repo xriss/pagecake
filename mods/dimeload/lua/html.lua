@@ -110,18 +110,21 @@ function M.fill_cake(srv,refined)
 ]]
 
 	cake.dimeload.available=[[
+<div class="dimeload_left">
 	There are currently <span class="dl_dimes">{cake.dimeload.page.available} dimes</span> available.<br/>
-	Any downloads you make will use dimes from this pages pool.
+	Any downloads you make will use dimes from this pool.
+</div>
 ]]
 	cake.dimeload.mydimes=[[
+<div class="dimeload_left">
 	You have <span class="dl_dimes">{cake.dimeload.mydimes_available} dimes</span> available.<br/>
-	Any downloads you make will use dimes from your personal pool.
+	Any downloads you make will use your dimes.
+</div>
 ]]
 	cake.dimeload.download=[[
 <div class="dimeload_tabs" id="dimeload_tab_download" style="display:none;">
 <div class="sponsor_wrap land">
-	{-cake.dimeload.available}
-	{-cake.dimeload.mydimes}
+	{cake.dimeload.dimecount}
 	{cake.dimeload.list}
 </div>
 </div>

@@ -538,13 +538,15 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	refined.cake.dimeload.post_code=""
 	refined.cake.dimeload.post_about=""
 	refined.cake.dimeload.waka_about=""
+	refined.cake.dimeload.dimecount="{cake.dimeload.mydimes}"
+	refined["cake.dimeload.mydimes_available"]=(dluser and dluser.cache.avail) or 0
 	if refined.cake.dimeload.page then -- use dimes from page
+		refined.cake.dimeload.dimecount="{cake.dimeload.available}"
 		refined.cake.dimeload.post_code=refined.cake.dimeload.page.name
 		refined.cake.dimeload.post_about=wet_html.esc(refined.cake.dimeload.page.about)
 		refined.cake.dimeload.waka_about=wet_waka.waka_to_html(refined.cake.dimeload.page.about,{escape_html=true})
 	else -- use personal dimes
-		refined["cake.dimeload.mydimes_available"]=0
---		refined["cake.dimeload.page.available"]=0
+		refined["cake.dimeload.page.available"]=0
 	end
 	
 	
@@ -576,7 +578,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		if fname then
 			if not user then
 
-				refined.cake.dimeload.goto="error"
+				refined.cake.dimeload.goto="download"
 				refined.cake.dimeload.error_text=[[You must be logged in to download.]]
 				
 			elseif page and page.cache.available>0 then -- sponsored download
@@ -603,7 +605,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 -- secret internal redirect to download a private file
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
 
-			elseif dluser and dluser.cache.avail>0 then -- personal download
+			elseif (not page) and dluser and dluser.cache.avail>0 then -- personal download (never if on a sponsor page)
 
 -- update user dime count
 				dl_users.set(srv,user.cache.id,function(srv,e)
@@ -627,7 +629,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
 
 			else
-				refined.cake.dimeload.goto="error"
+				refined.cake.dimeload.goto="buy"
 				refined.cake.dimeload.error_text=[[No dimes available to download with.]]
 			end
 		end
