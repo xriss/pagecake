@@ -315,9 +315,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 ]]
 		refined.list=list
 		refined.body="<h1>DOWNLOADS</h1>{list}"
-	end
-	
-	if cmd=="users" then
+		
+	elseif cmd=="users" then
+
 		local opts={}
 		opts.limit=100
 		opts.offset=0
@@ -332,84 +332,37 @@ local sess,user=d_sess.get_viewer_session(srv)
 ]]
 		refined.list=list
 		refined.body="<h1>USERS</h1>{list}"
+
+	elseif cmd=="dimes" then
+
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local list={}
+		local r=dl_users.list(srv,opts)
+		for i,v in ipairs(r) do
+			list[i]=v.cache
+		end
+		list.plate="{list_plate}"
+		refined.list_plate=[[
+{it.created} : {it.id} : {it.dimes} - {it.spent} = {it.avail} <br/>
+]]
+		refined.list=list
+		refined.body="<h1>DIMES</h1>{list}"
+
+	else
+		refined.body=[[
+<h1>ADMIN</h1>
+<a href="/dl/admin/downloads" >downloads</a><br/>
+<a href="/dl/admin/users" >users</a><br/>
+<a href="/dl/admin/dimes" >dimes</a><br/>
+]]
+	
 	end
 		
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
 	return
-end
-
------------------------------------------------------------------------------
---
--- downloads
---
------------------------------------------------------------------------------
-function refined_project_downloads(srv,refined)
-
-	local opts={}
-		opts.limit=100
-		opts.offset=0
-		local r=dl_downloads.list(srv,opts)
-
---[=[
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",refined)
-		put("dimeload_bar",refined)
-
-
-		put("There have been {count} downloads<br/><br/>",{count=#r})
-
-		if r then
-			for i,v in ipairs(r) do
-				local c=v.cache
-		put([[
-			{created} : {project}/{page}/{file} == {user} : {ip} <br/>
-		]],c)
-
-			end 
-		end
-
-
-		put("footer",refined)
-]=]
-
-end
-
------------------------------------------------------------------------------
---
--- users
---
------------------------------------------------------------------------------
-function refined_project_users(srv,refined)
-
-		local opts={}
-		opts.limit=100
-		opts.offset=0
-		local r=d_users.list(srv,opts)
-
---[=[
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",refined)
-		put("dimeload_bar",refined)
-
-
-		put("There are {count} users<br/><br/>",{count=#r})
-
-		if r then
-			for i,v in ipairs(r) do
-				local c=v.cache
-		put([[
-			{created} : {id} {email} {name} : {ip} <br/>
-		]],c)
-
-	
-			end 
-		end
-
-
-		put("footer",refined)
-]=]
-
 end
 
 -----------------------------------------------------------------------------
@@ -482,6 +435,15 @@ function refined_project_sponsor(srv,refined)
 		c.dimes=send.dimes
 		dl_sponsors.put(srv,d)
 				
+-- update user dime count
+		dl_users.set(srv,send.owner,function(srv,e)
+			local c=e.cache
+			c.spent=c.spent+send.dimes
+			c.avail=c.avail-send.dimes
+			return true
+		end)
+
+
 		local r=dl_pages.set(srv,send.id,function(srv,e)
 			local c=e.cache
 			
@@ -596,25 +558,6 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		refined.cake.dimeload.needlogin="{cake.dimeload.login}"
 	end
 
-	if user and user.cache and user.cache.admin then
-		if srv.gets.downloads then
-		
-			refined_project_downloads(srv,refined)
-			srv.set_mimetype("text/html; charset=UTF-8")
-			srv.put(macro_replace("{cake.html.plate}",refined))
-			return
-
-		end
-		if srv.gets.users then
-		
-			refined_project_users(srv,refined)
-			srv.set_mimetype("text/html; charset=UTF-8")
-			srv.put(macro_replace("{cake.html.plate}",refined))
-			return
-
-		end
-	end
-	
 	if srv.gets.sponsor or srv.posts.sponsor then
 		refined_project_sponsor(srv,refined)
 		return

@@ -82,6 +82,28 @@ function M.deposit(srv,opts)
 
 end
 
+--------------------------------------------------------------------------------
+function M.list(srv,opts)
+opts=opts or {}
+
+	local list={}
+	
+	local q={
+		kind=M.kind(srv),
+		limit=opts.limit or 10,
+		offset=0,
+		}
+	q[#q+1]={"sort","updated","DESC"}
+		
+	local ret=dat.query(q)
+		
+	for i=1,#ret.list do local v=ret.list[i]
+		dat.build_cache(v)
+	end
+
+	return ret.list
+end
+
 
 dat.set_defs(M) -- create basic data handling funcs
 
