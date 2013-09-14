@@ -255,7 +255,7 @@ end
 
 -----------------------------------------------------------------------------
 --
--- handle user pages
+-- handle user info pages
 --
 -----------------------------------------------------------------------------
 function serv_user(srv)
@@ -271,7 +271,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if user and user.cache and user.cache.admin then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
-	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+--	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
 
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
@@ -286,6 +286,8 @@ end
 function serv_admin(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 
+	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]	
+
 	-- require admin login
 	if not (user and user.cache and user.cache.admin ) then
 		return srv.redirect("/dumid?continue="..srv.url)
@@ -296,8 +298,42 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if user and user.cache and user.cache.admin then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
-	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+--	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+
+	if cmd=="downloads" then
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local list={}
+		local r=dl_downloads.list(srv,opts)
+		for i,v in ipairs(r) do
+			list[i]=v.cache
+		end
+		list.plate="{list_plate}"
+		refined.list_plate=[[
+{it.created} : {it.project}/{it.page}/{it.file} == {it.user} : {it.ip} <br/>
+]]
+		refined.list=list
+		refined.body="<h1>DOWNLOADS</h1>{list}"
+	end
 	
+	if cmd=="users" then
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local list={}
+		local r=d_users.list(srv,opts)
+		for i,v in ipairs(r) do
+			list[i]=v.cache
+		end
+		list.plate="{list_plate}"
+		refined.list_plate=[[
+{it.created} : {it.id} {it.email} {it.name} : {it.ip} <br/>
+]]
+		refined.list=list
+		refined.body="<h1>USERS</h1>{list}"
+	end
+		
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
 	return
