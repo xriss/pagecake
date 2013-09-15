@@ -199,7 +199,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 	local oldpage=dl_pages.get(srv,send.id)
 
-
+	if srv.posts.sponsor then
 	if #send.code<3 then -- error, code is too short
 
 		refined.cake.dimeload.error_text=[[secret name is too short]]
@@ -235,7 +235,8 @@ local sess,user=d_sess.get_viewer_session(srv)
 		return srv.redirect(srv.url_base..send.id)
 
 	end
-
+	end
+	
 	refined.body="{-cake.dimeload.errorwrap}{cake.dimeload.hexkeypage}{cake.dimeload.js}"
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
@@ -772,33 +773,37 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 			end
 		end
 		if fname then
-			if not user then
-
-				refined.cake.dimeload.goto="download"
-				refined.cake.dimeload.error_text=[[You must be logged in to download.]]
+		
+--			if not user then
+--				refined.cake.dimeload.goto="download"
+--				refined.cake.dimeload.error_text=[[You must be logged in to download.]]
 				
+-- check for a recent log entry and allow a free rety of the download without any extra cost
+
+			if  dl_downloads.allowretry(srv,{project=pname,file=fname}) then
+
+-- secret internal redirect to download a private file
+				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
+
 			elseif page and page.cache.available>0 then -- sponsored download
-
--- check for a recent log entry and allow a rety of the download
-
 
 
 -- add 1 to the download count
-				dl_pages.update(srv,pname.."/"..code,function(srv,e)
-					local c=e.cache
-					c.downloads=c.downloads+1
-					return true								
-				end)
+					dl_pages.update(srv,pname.."/"..code,function(srv,e)
+						local c=e.cache
+						c.downloads=c.downloads+1
+						return true								
+					end)
 
 -- create log entry
-				local d=dl_downloads.create(srv)
-				local c=d.cache
-				c.user=user.cache.id
-				c.ip=srv.ip
-				c.project=pname
-				c.page=page.cache.name
-				c.file=fname
-				dl_downloads.put(srv,d)
+					local d=dl_downloads.create(srv)
+					local c=d.cache
+					c.user=user and user.cache.id or ""
+					c.ip=srv.ip
+					c.project=pname
+					c.page=page.cache.name
+					c.file=fname
+					dl_downloads.put(srv,d)
 
 -- secret internal redirect to download a private file
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)

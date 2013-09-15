@@ -13,6 +13,7 @@ local sys=require("wetgenes.www.any.sys")
 
 
 local wet_string=require("wetgenes.string")
+local wstr=wet_string
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
@@ -74,6 +75,34 @@ opts=opts or {}
 
 	return ret.list
 end
+
+--------------------------------------------------------------------------------
+--
+-- Check if we should allow a free download retry for this ip
+-- 
+-- return true if there is a recent log entry
+--
+--------------------------------------------------------------------------------
+function M.allowretry(srv,opts)
+
+	local q={
+		kind=M.kind(srv),
+		limit=1,
+		offset=0,
+		}
+	q[#q+1]={"sort","updated","DESC"}
+	q[#q+1]={"filter","ip","==",opts.ip or srv.ip}
+	q[#q+1]={"filter","project","==",opts.project}
+	q[#q+1]={"filter","file","==",opts.file}
+	q[#q+1]={"filter","updated",">",srv.time-(60*60*4)} -- give a 4 hours download window
+
+	local ret=dat.query(q)
+
+--log(wstr.dump(ret))
+
+	if #ret.list>0 then return true else return false end
+end
+
 
 
 dat.set_defs(M) -- create basic data handling funcs
