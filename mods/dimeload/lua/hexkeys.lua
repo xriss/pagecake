@@ -28,7 +28,6 @@ M.default_props=
 		
 	project="", -- the name of the project this hexkey is for
 	dimes=0, -- how many dimes this hexkey gives
-	note="", -- an extra note about this heykey
 
 	page="", -- the name of the page this hexkey generated
 	owner="", -- who claimed this key
@@ -38,6 +37,7 @@ M.default_props=
 
 M.default_cache=
 {
+	note="", -- an extra note about this heykey
 }
 
 

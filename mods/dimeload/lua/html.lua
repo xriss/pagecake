@@ -142,6 +142,22 @@ function M.fill_cake(srv,refined)
 </div>
 ]]
 
+	cake.dimeload.hexkeypage=[=[
+<div class="dimeload_tab_hexkeypage" >
+	<form action="{cake.url}" method="POST" enctype="multipart/form-data">
+<div class="dime-game_main">
+	<div class="dimeload_page_hexkey">
+		Congratulations, this is an active hexcode, just type in the name that you would like to use for your secret link and we will create a sponsored {cake.dimeload.project} page preloaded with {cake.dimeload.dimes} dimes for you.
+	</div>
+		<div class="dimeload_page_secret">
+			Secret name: <input class="dimeload_page_secret_input" type="text" name="code" placeholder="This will be your secret link, ie. http://dime.lo4d.net/dl/project/secretname" value="{.cake.dimeload.post_code}" />
+			<span> You may only use numbers, letters and underscore. </span>
+		</div>
+		<input type="submit" value="sponsor" name="sponsor" class="dime-butt more" />
+</div>
+	</form>
+</div>
+]=]
 
 
 	cake.dimeload.goto="download"

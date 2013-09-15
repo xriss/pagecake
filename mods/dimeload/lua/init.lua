@@ -80,7 +80,7 @@ function serv(srv)
 
 	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]	
 	if cmd and string.sub(cmd,1,2)=="0x" then -- special hexkey
-		return serv_hexkey(srv)
+		return serv_hexkey(srv,string.sub(cmd,3))
 	end
 
 -- check flavours
@@ -155,10 +155,91 @@ end
 -- handle magic hexkeys
 --
 -----------------------------------------------------------------------------
-function serv_hexkey(srv)
+function serv_hexkey(srv,hex)
 local sess,user=d_sess.get_viewer_session(srv)
+
+	-- require a login
+	if not (user) then
+		return srv.redirect("/dumid?continue="..srv.url)
+	end
+
+	local e=dl_hexkeys.get(srv,hex)
+	if not e then
+		iplog.ratelimit(srv.ip,50)	-- limit the guesswork
+		srv.redirect(srv.url_base)
+		return
+	end
+	local c=e.cache
 	
-	return srv.exit(400)
+	if c.state=="used" then
+		srv.redirect(srv.url_base..c.project.."/"..c.page)
+		return	
+	end
+
+
+	local refined=waka.fill_refined(srv,"dl/0x")
+	html.fill_cake(srv,refined)
+	if user and user.cache and user.cache.admin then
+		refined.cake.admin="{cake.admin_dimeload_bar}"
+	end
+	
+	local posts=make_posts(srv)	
+	refined.cake.dimeload.post_code=""
+	refined.cake.dimeload.project=c.project
+	refined.cake.dimeload.dimes=c.dimes
+	refined.cake.dimeload.errorwrap="{cake.dimeload.error_text}"
+
+
+	local send={}
+	send.project=c.project
+	send.code=string.gsub(posts.code or "","([^0-9a-zA-Z_]*)","")
+	send.dimes=tonumber(c.dimes)
+	send.id=send.project.."/"..send.code
+	send.owner=user.cache.id
+
+	local oldpage=dl_pages.get(srv,send.id)
+
+
+	if #send.code<3 then -- error, code is too short
+
+		refined.cake.dimeload.error_text=[[secret name is too short]]
+		
+	elseif oldpage then
+
+		refined.cake.dimeload.error_text=[[that secret name is already used by someone else]]	
+	
+	else
+	
+		dl_hexkeys.set(srv,hex,function(srv,e)
+			local c=e.cache
+			
+			c.state="used"
+			c.page=send.code
+			c.owner=send.owner
+			c.ip=srv.ip
+			
+			return true								
+		end)
+	
+		local r=dl_pages.set(srv,send.id,function(srv,e)
+			local c=e.cache
+			
+			c.owner=send.owner
+			c.project=send.project
+			c.name=send.code
+			c.dimes=c.dimes + send.dimes
+			c.about=""
+			
+			return true								
+		end)
+		return srv.redirect(srv.url_base..send.id)
+
+	end
+
+	refined.body="{-cake.dimeload.errorwrap}{cake.dimeload.hexkeypage}{cake.dimeload.js}"
+	
+	srv.set_mimetype("text/html; charset=UTF-8")
+	srv.put(macro_replace("{cake.html.plate}",refined))
 end
 
 -----------------------------------------------------------------------------
@@ -213,9 +294,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local refined=waka.fill_refined(srv,"dl/paypal")
 	html.fill_cake(srv,refined)
 	if user and user.cache and user.cache.admin then
---		refined.cake.admin="{cake.admin_dimeload_bar}"
+		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
-	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+--	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
 
 --	local refined=wakapages.load(srv,"/dl/paypal")[0]
 --	refined.page="dl/paypal"
@@ -656,6 +737,10 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		refined.cake.dimeload.post_code=refined.cake.dimeload.page.name
 		refined.cake.dimeload.post_about=wet_html.esc(refined.cake.dimeload.page.about)
 		refined.cake.dimeload.waka_about=wet_waka.waka_to_html(refined.cake.dimeload.page.about,{escape_html=true})
+		
+		if user and user.cache.id == page.cache.owner then -- owner defaults to sponsor page
+			refined.cake.dimeload.goto="sponsor"
+		end
 	else -- use personal dimes
 		refined["cake.dimeload.page.available"]=0
 	end
@@ -695,6 +780,8 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 			elseif page and page.cache.available>0 then -- sponsored download
 
 -- check for a recent log entry and allow a rety of the download
+
+
 
 -- add 1 to the download count
 				dl_pages.update(srv,pname.."/"..code,function(srv,e)
