@@ -589,6 +589,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
 		<a href="/?cmd=edit&page=dl" class="cake_button" > EditWaka </a>
 		<a href="/?cmd=edit&page=dl/{cake.dimeload.project.id}" class="cake_button" > EditProject </a>
+		<a href="/dl/admin" class="cake_button" > Admin </a>
 	</form>
 </div>
 ]]

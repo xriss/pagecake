@@ -39,6 +39,7 @@ local comments=require("note.comments")
 local dl_users=require("dimeload.users")
 local dl_projects=require("dimeload.projects")
 local dl_pages=require("dimeload.pages")
+local dl_hexkeys=require("dimeload.hexkeys")
 
 -- logs
 local dl_sponsors=require("dimeload.sponsors")
@@ -127,22 +128,6 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
-
---[[
-	local posts=make_posts(srv)	
-	local refined=wakapages.load(srv,"/dl")[0]
-
-
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",refined)
-	put("dimeload_bar",refined)
-	
-	put(macro_replace(refined.plate or "{body}",refined))
-
-	comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
-
-	put("footer",refined)
-]]
 
 end
 
@@ -299,8 +284,105 @@ local sess,user=d_sess.get_viewer_session(srv)
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 --	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+	refined.result=""
 
-	if cmd=="downloads" then
+	if cmd=="hexkeys" then
+	
+--		log(wstr.dump(srv.posts))
+		
+		if srv.posts.newhex=="newhexpage" then
+		
+			local note=srv.posts.note or ""
+			local proj=srv.posts.project
+			local dime=tonumber(srv.posts.dimes or 0) or 0
+			if dime~=dime or dime<0 then dime=0 end
+			
+			local e=dl_projects.get(src,proj)
+			
+			local id=sys.md5(note..proj..dime..os.time().."hexkeys")
+
+			if dl_hexkeys.get(srv,id) then -- this should never really happen...
+			
+				refined.result="error keyclash : "..id
+			
+			elseif not e then
+			
+				refined.result="unknown project : "..proj
+			
+			elseif dime<=0 then
+			
+				refined.result="dimes must be more than 0 : "..dime
+
+			else
+				local e=dl_hexkeys.create(srv)
+				local c=e.cache
+				e.key.id=id
+				c.note=note
+				c.project=proj
+				c.dimes=dime
+				c.state="active"
+				c.action="page"
+				dl_hexkeys.put(srv,e)
+			end
+		
+		end
+	
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local list={}
+		local r=dl_hexkeys.list(srv,opts)
+		for i,v in ipairs(r) do
+			list[i]=v.cache
+		end
+		list.plate="{list_plate}"
+		refined.list_plate=[[
+<tr>
+<td> {it.created} </td>
+<td> | </td>
+<td> {it.id} </td>
+<td> | </td>
+<td> {it.action}/{it.state} </td>
+<td> | </td>
+<td> {it.project}/{it.page} </td>
+<td> | </td>
+<td> {it.dimes} </td>
+<td> | </td>
+<td> {it.owner} </td>
+<td> | </td>
+<td> {it.ip} </td>
+<td> | </td>
+<td> {it.note} </td>
+</tr>
+]]
+	
+		refined.list=list
+		refined.newhex=[[
+<div>
+<form action="{cake.url}" method="POST" enctype="multipart/form-data">
+<table>
+<tr>
+	<td>PROJECT : </td><td><input name="project" /></td>
+</tr>
+<tr>
+	<td>DIMES : </td><td><input name="dimes" /></td>
+</tr>
+<tr>
+	<td>NOTE : </td><td><input name="note" /></td>
+</tr>
+<tr>
+	<td><input type="submit" value="newhexpage" name="newhex" /></td>
+</tr>
+</table>
+</form>
+</div>
+		]]
+		refined.delhex=[[
+		]]
+		refined.resultwrap=[[<h2>{.result}</h2>]]
+		refined.body="<h1>HEXKEYS</h1>{-resultwrap}{newhex}{delhex}<br/><table>{list}</table>"
+		
+	elseif cmd=="downloads" then
 		local opts={}
 		opts.limit=100
 		opts.offset=0
@@ -311,10 +393,18 @@ local sess,user=d_sess.get_viewer_session(srv)
 		end
 		list.plate="{list_plate}"
 		refined.list_plate=[[
-{it.created} : {it.project}/{it.page}/{it.file} == {it.user} : {it.ip} <br/>
+<tr>
+<td> {it.created} </td>
+<td> | </td>
+<td> {it.project}/{it.page}/{it.file} </td>
+<td> | </td>
+<td> {it.user} </td>
+<td> | </td>
+<td> {it.ip} </td>
+</tr>
 ]]
 		refined.list=list
-		refined.body="<h1>DOWNLOADS</h1>{list}"
+		refined.body="<h1>DOWNLOADS</h1><table>{list}</table>"
 		
 	elseif cmd=="users" then
 
@@ -328,10 +418,18 @@ local sess,user=d_sess.get_viewer_session(srv)
 		end
 		list.plate="{list_plate}"
 		refined.list_plate=[[
-{it.created} : {it.id} {it.email} {it.name} : {it.ip} <br/>
+<tr>
+<td> {it.created} </td>
+<td> | </td>
+<td> {it.id} </td>
+<td> | </td>
+<td> {it.name} </td>
+<td> | </td>
+<td> {it.ip} </td>
+</tr>
 ]]
 		refined.list=list
-		refined.body="<h1>USERS</h1>{list}"
+		refined.body="<h1>USERS</h1><table>{list}</table>"
 
 	elseif cmd=="dimes" then
 
@@ -345,10 +443,22 @@ local sess,user=d_sess.get_viewer_session(srv)
 		end
 		list.plate="{list_plate}"
 		refined.list_plate=[[
-{it.created} : {it.id} : {it.dimes} - {it.spent} = {it.avail} <br/>
+<tr>
+<td> {it.created} </td>
+<td> | </td>
+<td> {it.id} </td>
+<td> | </td>
+<td> {it.dimes} </td>
+<td> - </td>
+<td> {it.spent} </td>
+<td> = </td>
+<td> {it.avail} </td>
+<tr>
 ]]
 		refined.list=list
-		refined.body="<h1>DIMES</h1>{list}"
+		refined.newdim=[[
+]]
+		refined.body="<h1>DIMES</h1>{newdim}<table>{list}</table>"
 
 	else
 		refined.body=[[
@@ -356,6 +466,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 <a href="/dl/admin/downloads" >downloads</a><br/>
 <a href="/dl/admin/users" >users</a><br/>
 <a href="/dl/admin/dimes" >dimes</a><br/>
+<a href="/dl/admin/hexkeys" >hexkeys</a><br/>
 ]]
 	
 	end
@@ -537,7 +648,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	
 	refined.cake.dimeload.post_code=""
 	refined.cake.dimeload.post_about=""
-	refined.cake.dimeload.waka_about=""
+	refined.cake.dimeload.waka_about=nil
 	refined.cake.dimeload.dimecount="{cake.dimeload.mydimes}"
 	refined["cake.dimeload.mydimes_available"]=(dluser and dluser.cache.avail) or 0
 	if refined.cake.dimeload.page then -- use dimes from page
