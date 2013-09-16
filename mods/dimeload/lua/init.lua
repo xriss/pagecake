@@ -182,62 +182,100 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if user and user.cache and user.cache.admin then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
-	
-	local posts=make_posts(srv)	
-	refined.cake.dimeload.post_code=""
-	refined.cake.dimeload.project=c.project
-	refined.cake.dimeload.dimes=c.dimes
-	refined.cake.dimeload.errorwrap="{cake.dimeload.error_text}"
+
+	if c.action=="page" then
+		local posts=make_posts(srv)	
+		refined.cake.dimeload.post_code=""
+		refined.cake.dimeload.project=c.project
+		refined.cake.dimeload.dimes=c.dimes
+		refined.cake.dimeload.errorwrap="{cake.dimeload.error_text}"
 
 
-	local send={}
-	send.project=c.project
-	send.code=string.gsub(posts.code or "","([^0-9a-zA-Z_]*)","")
-	send.dimes=tonumber(c.dimes)
-	send.id=send.project.."/"..send.code
-	send.owner=user.cache.id
+		local send={}
+		send.project=c.project
+		send.code=string.gsub(posts.code or "","([^0-9a-zA-Z_]*)","")
+		send.dimes=tonumber(c.dimes)
+		send.id=send.project.."/"..send.code
+		send.owner=user.cache.id
 
-	local oldpage=dl_pages.get(srv,send.id)
+		local oldpage=dl_pages.get(srv,send.id)
 
-	if srv.posts.sponsor then
-	if #send.code<3 then -- error, code is too short
+		if srv.posts.sponsor then
+		if #send.code<3 then -- error, code is too short
 
-		refined.cake.dimeload.error_text=[[secret name is too short]]
+			refined.cake.dimeload.error_text=[[secret name is too short]]
+			
+		elseif oldpage then
+
+			refined.cake.dimeload.error_text=[[that secret name is already used by someone else]]	
 		
-	elseif oldpage then
+		else
+		
+			dl_hexkeys.set(srv,hex,function(srv,e)
+				local c=e.cache
+				
+				c.state="used"
+				c.page=send.code
+				c.owner=send.owner
+				c.ip=srv.ip
+				
+				return true								
+			end)
+		
+			local r=dl_pages.set(srv,send.id,function(srv,e)
+				local c=e.cache
+				
+				c.owner=send.owner
+				c.project=send.project
+				c.name=send.code
+				c.dimes=c.dimes + send.dimes
+				c.about=""
+				
+				return true								
+			end)
+			return srv.redirect(srv.url_base..send.id)
 
-		refined.cake.dimeload.error_text=[[that secret name is already used by someone else]]	
-	
-	else
-	
-		dl_hexkeys.set(srv,hex,function(srv,e)
-			local c=e.cache
-			
-			c.state="used"
-			c.page=send.code
-			c.owner=send.owner
-			c.ip=srv.ip
-			
-			return true								
-		end)
-	
-		local r=dl_pages.set(srv,send.id,function(srv,e)
-			local c=e.cache
-			
-			c.owner=send.owner
-			c.project=send.project
-			c.name=send.code
-			c.dimes=c.dimes + send.dimes
-			c.about=""
-			
-			return true								
-		end)
-		return srv.redirect(srv.url_base..send.id)
+		end
+		end
+		
+		refined.body="{-cake.dimeload.errorwrap}{cake.dimeload.hexkeypage}{cake.dimeload.js}"
+		
+	elseif c.action=="dimes" then
+
+		local posts=make_posts(srv)	
+		refined.cake.dimeload.dimes=c.dimes
+		refined.cake.dimeload.errorwrap="{cake.dimeload.error_text}"
+
+		local send={}
+		send.dimes=tonumber(c.dimes)
+		send.owner=user.cache.id
+
+		if srv.posts.claim then
+		
+			dl_hexkeys.set(srv,hex,function(srv,e)
+				local c=e.cache
+				
+				c.state="used"
+				c.owner=send.owner
+				c.ip=srv.ip
+				
+				return true								
+			end)
+		
+			dl_users.deposit(srv,{
+				dimes=send.dimes,
+				userid=send.owner,
+				flavour="hexkey",
+				source=hex,
+			})
+
+			return srv.redirect(srv.url_base)
+
+		end
+
+		refined.body="{-cake.dimeload.errorwrap}{cake.dimeload.hexkeydimes}{cake.dimeload.js}"
 
 	end
-	end
-	
-	refined.body="{-cake.dimeload.errorwrap}{cake.dimeload.hexkeypage}{cake.dimeload.js}"
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
@@ -407,6 +445,33 @@ local sess,user=d_sess.get_viewer_session(srv)
 				dl_hexkeys.put(srv,e)
 			end
 		
+		elseif srv.posts.newhex=="newhexdimes" then
+
+			local note=srv.posts.note or ""
+			local dime=tonumber(srv.posts.dimes or 0) or 0
+			if dime~=dime or dime<0 then dime=0 end
+			
+			local id=sys.md5(note..dime..os.time().."hexkeysdimes")
+
+			if dl_hexkeys.get(srv,id) then -- this should never really happen...
+			
+				refined.result="error keyclash : "..id
+						
+			elseif dime<=0 then
+			
+				refined.result="dimes must be more than 0 : "..dime
+
+			else
+				local e=dl_hexkeys.create(srv)
+				local c=e.cache
+				e.key.id=id
+				c.note=note
+				c.dimes=dime
+				c.state="active"
+				c.action="dimes"
+				dl_hexkeys.put(srv,e)
+			end
+
 		end
 	
 		local opts={}
@@ -422,7 +487,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 <tr>
 <td> {it.created} </td>
 <td> | </td>
-<td> {it.id} </td>
+<td> <a href="/dl/0x{it.id}">{it.id}</a> </td>
 <td> | </td>
 <td> {it.action}/{it.state} </td>
 <td> | </td>
@@ -458,6 +523,23 @@ local sess,user=d_sess.get_viewer_session(srv)
 </table>
 </form>
 </div>
+<br/><br/>
+<div>
+<form action="{cake.url}" method="POST" enctype="multipart/form-data">
+<table>
+<tr>
+	<td>DIMES : </td><td><input name="dimes" /></td>
+</tr>
+<tr>
+	<td>NOTE : </td><td><input name="note" /></td>
+</tr>
+<tr>
+	<td><input type="submit" value="newhexdimes" name="newhex" /></td>
+</tr>
+</table>
+</form>
+</div>
+
 		]]
 		refined.delhex=[[
 		]]
@@ -542,9 +624,40 @@ local sess,user=d_sess.get_viewer_session(srv)
 ]]
 		refined.body="<h1>DIMES</h1>{newdim}<table>{list}</table>"
 
+	elseif cmd=="transactions" then
+
+		local opts={}
+		opts.limit=100
+		opts.offset=0
+		local list={}
+		local r=dl_transactions.list(srv,opts)
+		for i,v in ipairs(r) do
+			list[i]=v.cache
+		end
+		list.plate="{list_plate}"
+		refined.list_plate=[[
+<tr>
+<td> {it.created} </td>
+<td> | </td>
+<td> {it.userid} </td>
+<td> | </td>
+<td> {it.dimes} </td>
+<td> | </td>
+<td> {it.flavour} </td>
+<td> | </td>
+<td> {it.source} </td>
+<tr>
+]]
+
+		refined.list=list
+		refined.newdim=[[
+]]
+		refined.body="<h1>TRANSACTIONS</h1>{newdim}<table>{list}</table>"
+
 	else
 		refined.body=[[
 <h1>ADMIN</h1>
+<a href="/dl/admin/transactions" >transactions</a><br/>
 <a href="/dl/admin/downloads" >downloads</a><br/>
 <a href="/dl/admin/users" >users</a><br/>
 <a href="/dl/admin/dimes" >dimes</a><br/>

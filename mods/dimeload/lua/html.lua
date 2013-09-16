@@ -159,6 +159,18 @@ function M.fill_cake(srv,refined)
 </div>
 ]=]
 
+	cake.dimeload.hexkeydimes=[=[
+<div class="dimeload_tab_hexkeydimes" >
+	<form action="{cake.url}" method="POST" enctype="multipart/form-data">
+		<div class="dime-game_main">
+			<div class="dimeload_page_hexkey">
+				Congratulations, this is an active hexcode, just click the button to claim your {cake.dimeload.dimes} dimes.
+			</div>
+				<input type="submit" value="claim" name="claim" class="dime-butt more" />
+		</div>
+	</form>
+</div>
+]=]
 
 	cake.dimeload.goto="download"
 	cake.dimeload.js=[[

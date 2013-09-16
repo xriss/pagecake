@@ -27,7 +27,7 @@ M.default_props=
 	userid="", -- who gets the dimes
 	dimes=0, -- how many dimes (negative for "chargebacks" or other removals)
 	flavour="", -- how it happend, eg god or bitcoin or litecoin or paypal
-	source="", -- where it came from for quick searches. eg god user id or paypal email address
+	source="", -- where it came from for quick searches. eg god user id or paypal email address or hexkey
 }
 
 M.default_cache=
@@ -50,6 +50,28 @@ function M.check(srv,ent)
 	return ent
 end
 
+
+--------------------------------------------------------------------------------
+function M.list(srv,opts)
+opts=opts or {}
+
+	local list={}
+	
+	local q={
+		kind=M.kind(srv),
+		limit=opts.limit or 10,
+		offset=0,
+		}
+	q[#q+1]={"sort","updated","DESC"}
+		
+	local ret=dat.query(q)
+		
+	for i=1,#ret.list do local v=ret.list[i]
+		dat.build_cache(v)
+	end
+
+	return ret.list
+end
 
 
 dat.set_defs(M) -- create basic data handling funcs
