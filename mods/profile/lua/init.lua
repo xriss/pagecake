@@ -364,7 +364,7 @@ function makechunk_site(content,chunk)
 	
 	if chunk.site=="wetgenes" then
 	
-		chunk.site=replace([[<a href="{chunk.url}"><img src="http://host.local:8888/thumbcache/640/50/like.wetgenes.com/-/badge/{name}/640/50/badge.png" /></a>]],d)
+		chunk.site=replace([[<a href="{chunk.url}"><img src="/thumbcache/640/50/like.wetgenes.com/-/badge/{name}/640/50/badge.png" /></a>]],d)
 		
 	elseif chunk.site=="steam" then
 	

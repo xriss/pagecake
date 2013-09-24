@@ -31,7 +31,7 @@ function resize(g,x,y)
 
 	if g.width==0 or g.height==0 then return nil end
 
-	g:convert(grd.FMT_U8_ARGB) -- need this format
+	g:convert(grd.FMT_U8_RGBA) -- need this format
 
 	if ( x * g.height/g.width ) <= y then -- aspect fits at maximum width
 
@@ -49,10 +49,14 @@ end
 function composite(t)
 --log("img.composite:",wstr.dump(t))
 
-	local go=grd.create(grd.FMT_U8_ARGB,t.width,t.height,1)
+	local go=grd.create(grd.FMT_U8_RGBA,t.width,t.height,1)
+	
+	if t.color then
+		go:clear(t.color)
+	end
 	
 	for i,v in ipairs(t) do
-		v[1]:convert(grd.FMT_U8_ARGB_PREMULT)
+		v[1]:convert(grd.FMT_U8_RGBA_PREMULT)
 		assert(go:blit(v[1],v[2],v[3],v[4],v[5],v[6],v[7]))
 	end
 	

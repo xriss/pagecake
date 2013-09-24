@@ -152,7 +152,7 @@ put("downloading "..fname.."\n")
 			local height=100
 			
 			local ba_fname="cache/data/"..t.group.."."..t.name..".png"
-			local ba=grd.create("GRD_FMT_U8_BGRA",ba_fname)
+			local ba=grd.create("GRD_FMT_U8_RGBA",ba_fname)
 
 			width=ba.width
 			height=ba.height

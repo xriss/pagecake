@@ -20,7 +20,7 @@ local ngx=ngx
 
 local wstr=require("wetgenes.string")
 
-
+local pcall=pcall
 
 
 local math=math
@@ -45,7 +45,7 @@ module("thumbcache")
 -----------------------------------------------------------------------------
 function serv(srv)
 
-	iplog.ratelimit(srv.ip,-1)
+--	iplog.ratelimit(srv.ip,-1)
 
 	local usecache=true
 
@@ -165,67 +165,79 @@ function serv(srv)
 
 --log("thumb",wstr.dump(data))
 
-				image=img.get( data.body , data.mimetype ) -- convert to image
-					
-
+				pcall(function()
+					image=img.get( data.body , data.mimetype ) -- convert to image
+				end)
+				
 -- crop it to desired aspect ratio and or size?
 				local px=0
 				local py=0
 				local ix=image.width
 				local iy=image.height
-					
-				if mode=="crop" then
 
-					local sx=width
-					local sy=height
-					if (ix/iy) > (sx/sy) then -- widthcrop
-						ix=math.floor(iy*(sx/sy))
-						px=0-math.floor((image.width-ix)/2)
-					elseif (iy/ix) > (sy/sx) then -- heightcrop
-						iy=math.floor(ix*(sy/sx))
-						py=0-math.floor((image.height-iy)/2)
+				if image and image.width>0 and image.height>0 then				
+						
+					if mode=="crop" then
+
+						local sx=width
+						local sy=height
+						if (ix/iy) > (sx/sy) then -- widthcrop
+							ix=math.floor(iy*(sx/sy))
+							px=0-math.floor((image.width-ix)/2)
+						elseif (iy/ix) > (sy/sx) then -- heightcrop
+							iy=math.floor(ix*(sy/sx))
+							py=0-math.floor((image.height-iy)/2)
+						end
+
 					end
 
 					image=img.composite({
 						format="DEFAULT",
 						width=ix,
 						height=iy,
-						color=tonumber("ffffff",16), -- white, does not work?
+						color=0xffffffff, -- white, does not work?
 						{image,px,py},
 					}) -- and force it to a JPEG with a white? background
 
-				end
+					image=img.resize(image,width,height) -- for somereason jpeg breaks locally, so this removes the errors
 
-				image=img.resize(image,width,height) -- for somereason jpeg breaks locally, so this removes the errors
-
-				if img.memsave then
-					img.memsave(image,"jpeg")
+					if img.memsave then
+						img.memsave(image,"jpeg")
+					else
+						image.body=image.data -- rename raw file from data to body
+					end
 				else
-					image.body=image.data -- rename raw file from data to body
+					image=nil
 				end
-				
-				if usecache then
-					cache.put(srv,cachename,{
-						body=image.body ,
-						size=image.size ,
-						width=image.width ,
-						height=image.height ,
-						format=image.format ,
-						mimetype="image/"..string.lower(image.format),
-						},60*60)
-				end
-			
-				if usecache then -- controls local cache as well as server cache
-					srv.set_header("Cache-Control","public") -- allow caching of page
-					srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache	
-				end
-
-				srv.set_mimetype( "image/"..string.lower(image.format) )
-
-				srv.put(image.body)
-			
-				return
 			end
+				
+			if not image then -- return empty image
+				image=img.composite({width=hx or 100,height=hy or 100})
+				img.memsave(image,"jpeg")
+			end
+				
+			if usecache then
+				cache.put(srv,cachename,{
+					body=image.body ,
+					size=image.size ,
+					width=image.width ,
+					height=image.height ,
+					format=image.format ,
+					mimetype="image/"..string.lower(image.format),
+					},60*60)
+			end
+		
+			if usecache then -- controls local cache as well as server cache
+				srv.set_header("Cache-Control","public") -- allow caching of page
+				srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache	
+			end
+
+			srv.set_mimetype( "image/"..string.lower(image.format) )
+
+			srv.put(image.body)
+		
+			return
+			
 		end
 	end
 end

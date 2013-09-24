@@ -424,9 +424,9 @@ local get,put=make_get_put(srv)
 			put("blog_atom_foot",{})
 			
 		
-		elseif srv.opts("pagecake") then -- new pagecake way
+		else
 
-			local refined=waka.fill_refined(srv,"blog")
+			local refined=waka.fill_refined(srv,"blog/list")
 
 			if user and user.cache and user.cache.admin then
 				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
@@ -441,7 +441,7 @@ local get,put=make_get_put(srv)
 			end
 
 
-			if #list<refined.opts.limit then -- end of list
+			if #list<tonumber(refined.opts.limit) then -- end of list
 				refined.opts.offset_next=0
 			end
 			
@@ -460,174 +460,64 @@ local get,put=make_get_put(srv)
 			refined.opts.link_prev="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_prev
 
 			srv.set_mimetype("text/html; charset=UTF-8")
-			put(macro_replace("{cake.html.plate}",refined))
-		
---TODO: remove non pagecake code
-		else
-			local chunks=bubble_chunks(srv) -- this gets parent entities
-			
-			local pageopts={}
+			srv.put(macro_replace("{cake.html.plate}",refined))
 
-			pageopts.limit=10
---print(wstr.dump(chunks.opts))
-			if chunks.opts then
-				pageopts.limit=chunks.opts.opts.limit or pageopts.limit
-				pageopts.limit=tonumber(pageopts.limit)
-			end
-			
-			pageopts.limit=math.floor(tonumber(srv.vars.limit or pageopts.limit) or pageopts.limit)
-			if pageopts.limit<1 then pageopts.limit=1 end
-			
-			pageopts.offset=math.floor(tonumber(srv.vars.offset or 0) or 0)
-			if pageopts.offset<0 then pageopts.offset=0 end
-
-			pageopts.offset_next=pageopts.offset+pageopts.limit
-			pageopts.offset_prev=pageopts.offset-pageopts.limit
-			if pageopts.offset_prev<0 then pageopts.offset_prev=0 end
-
-			local list=pages.list(srv,{group=group,limit=pageopts.limit,offset=pageopts.offset,layer=LAYER_PUBLISHED,sort="pubdate"})
-			
-			if #list<pageopts.limit then -- end of list
-				pageopts.offset_next=0
-			end
-			
-			pageopts.link_next="/blog?limit="..pageopts.limit.."&offset="..pageopts.offset_next
-			pageopts.link_prev="/blog?limit="..pageopts.limit.."&offset="..pageopts.offset_prev
-			
-			local refined={}
-			if list[1] then -- get css?
-				refined=bubble(srv)
-			end
-			local css=refined and refined.css
-			refined.pageopts=pageopts
-			
-			refined.adminbar=get("blog_admin_links",{user=user})
-			srv.set_mimetype("text/html; charset=UTF-8")
-			put("header",refined)
-		
-			local ss={}
-			for i,v in ipairs(list) do
-			
-				local c=chunk_prepare(srv,v,opts)
-				refined.it=c
-
-				local text=get(macro_replace(c[opts.plate or ""] or c.plate_bloglist or c.plate_wrap or plate_blog_default,refined))
-				ss[#ss+1]=text
-			end
-			
---			if refined then
-
--- inject default plate_next
-			refined.plate_next=refined.plate_next or [[
-<div><a href="{pageopts.link_prev}">PREV</a> <a href="{pageopts.link_next}">NEXT</a></div>
-			]]
-			local text=get(macro_replace(refined.plate_next,refined))
-			ss[#ss+1]=text
-
-				refined.title=""
-				refined.body=table.concat(ss)
-				put(macro_replace(refined.plate or "{body}",refined))
---			end
-			
-			put("footer",refined)
 		end
 		
 	else -- a single page
 	
-		if srv.opts("pagecake") then -- new pagecake way
-	
-			local ent
-			if hash then -- by id only
-				ent=pages.get(srv,hash)
-			else
-				ent=pages.cache_find_by_pubname(srv,group..page)
-			end
-			if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
-
-				local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-				local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-				local link_next
-				local link_prev
-				if list_next and list_next.pubname then link_next="/blog" .. (list_next and list_next.pubname ) end
-				if list_prev and list_prev.pubname then link_prev="/blog" .. (list_prev and list_prev.pubname ) end
-
-				local refined=waka.fill_refined(srv,"blog"..ent.cache.pubname,
-					{opts={link_next=link_next,link_prev=link_prev}})
-
-				if user and user.cache and user.cache.admin then
-					refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
-				end
-			
-				local list=pages.list(srv,
-				{group=group,limit=refined.opts.limit,offset=refined.opts.offset,layer=LAYER_PUBLISHED,sort="pubdate"})
-
-				if #list<refined.opts.limit then -- end of list
-					refined.opts.offset_next=0
-				end
-				
-				refined.it=chunk_prepare(srv,ent,opts)			
-				refined.cake.blog={refined.it,plate="{cake.blog_page}"}
-				refined.body="{cake.blog}{cake.blog_bar}"
-				
-				srv.set_mimetype("text/html; charset=UTF-8")
-				put(macro_replace("{cake.html.plate}",refined))
-			else -- bad page, redirect to blog
-				return srv.redirect(srv.url_base)
-			end		
-
---TODO: remove non pagecake code
+		local ent
+		if hash then -- by id only
+			ent=pages.get(srv,hash)
 		else
-			local ent
-			if hash then -- by id only
-				ent=pages.get(srv,hash)
-			else
-				ent=pages.cache_find_by_pubname(srv,group..page)
-			end
-			if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
-
-				local pageopts={}
-				local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-				local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
-				pageopts.link_next="/blog" .. (list_next and list_next.pubname or "")
-				pageopts.link_prev="/blog" .. (list_prev and list_prev.pubname or "")
-
-			
-				local refined=chunk_prepare(srv,ent,opts)
-				refined.it=refined
-				refined.pageopts=pageopts
-				
-				if ext=="dbg" then -- dump out all the bubbled refined as json
-
-					srv.set_mimetype("text/plain; charset=UTF-8")
-					put( json.encode(refined) )
-				
-				else
-				
-					local text=get(macro_replace(refined.plate_blogpost or refined.plate_page or refined.plate_post or plate_blog_default,refined))
-
-					refined.adminbar=get("blog_admin_links",{it=ent.cache,user=user})
-					srv.set_mimetype("text/html; charset=UTF-8")
-					put("header",refined)
-
-					refined.title=""
-					refined.body=text
-					put(macro_replace(refined.plate or "{body}",refined))
-					
-					local ret=comments.build(srv,{title=refined.title,url=refined.link,posts=posts,get=get,put=put,sess=sess,user=user})
-					
-					if ret and ret.count then
-						if ret.count~=ent.cache.comment_count then -- need to update cached number of comments
-							pages.update(srv,ent,function(srv,e) e.cache.comment_count=ret.count return true end)
-						end
-					end
-
-					put("footer")
-					
-				end
-			else -- bad page, redirect to blog
-				return srv.redirect(srv.url_base)
-			end		
+			ent=pages.cache_find_by_pubname(srv,group..page)
 		end
+		if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
+
+			local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
+			local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
+			local link_next
+			local link_prev
+			if list_next and list_next.pubname then link_next="/blog" .. (list_next and list_next.pubname ) end
+			if list_prev and list_prev.pubname then link_prev="/blog" .. (list_prev and list_prev.pubname ) end
+
+			local refined=waka.fill_refined(srv,"blog"..ent.cache.pubname,
+				{opts={link_next=link_next,link_prev=link_prev}})
+
+			if user and user.cache and user.cache.admin then
+				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
+			end
+	
+			refined.it=chunk_prepare(srv,ent,opts)			
+			refined.cake.blog={refined.it,plate="{cake.blog_page}"}
+			refined.body="{cake.blog}{cake.blog_bar}"
+			refined.title=refined.it.title
+			
+			if refined.opts.flame=="on" then -- add comments to this page
+				local _tab={}
+				local _put=function(a,b)
+					local s=get(a,b)
+					_tab[#_tab+1]=s
+				end
+				local t={
+					title=refined.it.title or pagename,
+					url=refined.it.link,
+					posts=posts,
+					get=get,
+					put=_put,
+					sess=sess,
+					user=user,
+				}
+				comments.build(srv,t)
+				refined.cake.notes=table.concat(_tab)
+			end
+
+			srv.set_mimetype("text/html; charset=UTF-8")
+			srv.put(macro_replace("{cake.html.plate}",refined))
+		else -- bad page, redirect to blog
+			return srv.redirect(srv.url_base)
+		end		
+
 	end
 	
 end
@@ -640,7 +530,6 @@ end
 -----------------------------------------------------------------------------
 function serv_admin(srv)
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
 
 	if not( user and user.cache and user.cache.admin ) then
 		return false
@@ -696,7 +585,7 @@ local output_que={} -- delayed page content
 ]]
 
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
+		srv.put(macro_replace("{cake.html.plate}",refined))
 		
 		return
 
@@ -779,7 +668,7 @@ This is the #body of your post and can contain any html you wish.
 			
 		refined.body="<h1>Blog Admin</h1>{cake.blog_edit_form}"
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
+		srv.put(macro_replace("{cake.html.plate}",refined))
 --[[		
 		que("blog_edit_form",{it=ent.cache,publish=publish,url=url})
 		
@@ -835,25 +724,13 @@ This is the #body of your post and can contain any html you wish.
 		return
 
 	end
-		local refined=waka.fill_refined(srv,"blog/!/admin")
-		refined.body="<h1>Blog Admin</h1>"
-		srv.set_mimetype("text/html; charset=UTF-8")
-		put(macro_replace("{cake.html.plate}",refined))
-		
-		return
 
-
---[[
+	local refined=waka.fill_refined(srv,"blog/!/admin")
+	refined.body="<h1>Blog Admin</h1>"
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title="blog : admin",css=css,
-		H={sess=sess,user=user},
-		adminbar=get("blog_admin_links",{user=user})})
+	srv.put(macro_replace("{cake.html.plate}",refined))
 	
-	for i,v in ipairs(output_que) do
-		put(v)
-	end
-	
-	put("footer")
-]]
+	return
+
 
 end

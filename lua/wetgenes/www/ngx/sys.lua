@@ -47,7 +47,9 @@ end
 function sleep(t)
 --	log("sys.sleep:")
 
-	local res = ngx.location.capture("/@sleep/"..t)
+	ngx.sleep(t)
+	
+--	local res = ngx.location.capture("/@sleep/"..t)
 
 --	return core.sleep(...)
 

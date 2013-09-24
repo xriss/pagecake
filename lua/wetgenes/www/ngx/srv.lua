@@ -84,6 +84,8 @@ function new()
 	local port=ngx.var.server_port
 	local uri=ngx.var.uri				-- begins with /
 	
+	srv.url_local=uri --local url begins with / and without any query params
+
 	if port and port~="80" then
 	
 		srv.url=scheme.."://"..domain..":"..port..uri -- the url requested (not including any query string)
@@ -97,7 +99,7 @@ function new()
 	srv.query=ngx.var.args -- the query string
 --log(srv.query)
 	
-	srv.qurl=srv.url
+	srv.qurl=srv.url -- query url
 	if srv.query and srv.query~="" then srv.qurl=srv.qurl.."?"..srv.query end
 	
 	srv.headers={}

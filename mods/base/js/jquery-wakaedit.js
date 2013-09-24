@@ -159,6 +159,8 @@ $.fn.wakaedit=function(opts)
 		
 //		editor.getSession().setMode(new HtmlMode());
 		
+		editor.setBehavioursEnabled(false);
+		
 		editor.getSession().setMode("ace/mode/html");
 	
 		editor.setTheme("ace/theme/eclipse");

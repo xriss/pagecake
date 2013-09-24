@@ -860,11 +860,13 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	end
 	
 	
-	refined.cake.dimeload.list={}
-	for i,v in ipairs(refined.lua.files) do
-		refined.cake.dimeload.list[i]=refined.lua.files[i]
+	if refined.lua and refined.lua.files then
+		refined.cake.dimeload.list={}
+		for i,v in ipairs(refined.lua.files) do
+			refined.cake.dimeload.list[i]=refined.lua.files[i]
+		end
+		refined.cake.dimeload.list.plate="{cake.dimeload.item}"
 	end
-	refined.cake.dimeload.list.plate="{cake.dimeload.item}"
 	
 	if not user then
 		refined.cake.dimeload.needlogin="{cake.dimeload.login}"
@@ -946,7 +948,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 			else
 				refined.cake.dimeload.goto="buy"
-				refined.cake.dimeload.error_text=[[No dimes available to download with.]]
+				refined.cake.dimeload.error_text=[[no dimes available to download with]]
 			end
 		end
 		

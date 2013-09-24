@@ -153,7 +153,7 @@ function getwaka(srv,opts)
 				
 			end
 			
-			if not info.name then info.name=opts.name:gsub("_"," ") end
+			if not info.name then info.name=opts.name and opts.name:gsub("_"," ") or "" end
 			
 --			info.name=opts.name:gsub("_"," ")
 

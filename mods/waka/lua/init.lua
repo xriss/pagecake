@@ -97,6 +97,7 @@ function fill_opts(srv,pageopts)
 
 	pageopts.vars=srv.vars -- page code is allowed access to these bits
 	pageopts.url           = srv.url
+	pageopts.url_local     = srv.url_local
 	pageopts.url_slash     = srv.url_slash
 	pageopts.url_slash_idx = srv.url_slash_idx
 	
@@ -236,13 +237,12 @@ local ext
 	crumbs.plate="{cake.homebar.crumbs_plate}"
 	for i,v in ipairs(aa) do
 		url=url..wstr.url_escape(v)
-		local text=string.gsub(v,"([^%w%s]*)","")
+		local text=string.gsub(v,"([^%w%s%-%_]*)","")
 		crumbs[#crumbs+1]={url=url,text=text}
 		url=url.."/"
 	end
 	local pagename="/"..table.concat(aa,"/")
 	local url=srv.url_base..table.concat(aa,"/")
-	local url_local=srv.url_local..table.concat(aa,"/")
 	if ext then url=url.."."..ext end -- this is a page extension
 	
 	if not srv.vars.page and srv.url~=url then -- force a redirect to the page name
@@ -369,7 +369,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		srv.set_mimetype(chunks[ext].opts.mimetype or "text/plain; charset=UTF-8")
 		srv.put(macro_replace(refined[ext],refined))
 		
-	elseif srv.opts("pagecake") then -- new pagecake way
+	else -- new pagecake way
 	
 		if user and user.cache and user.cache.admin then
 			if refined.cake.admin_waka_form_text then
@@ -391,7 +391,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 			end
 			local t={
 				title=refined.title or pagename,
-				url=url_local,
+				url=srv.url_local,
 				posts=posts,
 				get=get,
 				put=_put,
@@ -405,37 +405,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		srv.set_mimetype("text/html; charset=UTF-8")
 		srv.put(macro_replace("{cake.html.plate}",refined))
 	
-	else -- old style
-	
-		srv.set_mimetype("text/html; charset=UTF-8")
-		local css
-		if refined.css then css=macro_replace(refined.css,refined) end
-		
-		put("header",refined)
-		
-		put("waka_bar",refined)
-		
-		if display_edit then srv.put(display_edit) end
-		
-		if not display_edit_only then
-		
-			local repopts={}
-			
-			if ext=="dbg" then repopts.dbg_html_comments=true end
-			
-			put(macro_replace(refined.plate or [[
-<h1>{title}</h1>
-{body}]],refined,repopts))
 
-			if refined.opts.flame=="on" then -- add comments to this page
-				comments.build(srv,{title=refined.title or pagename,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
-			elseif refined.opts.flame=="anon" then -- add *anonymous* comments to this page
-				comments.build(srv,{title=refined.title or pagename,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user,anon="default"})
-			end
-			
-		end
-
-		put("footer")
 	end
 end
 

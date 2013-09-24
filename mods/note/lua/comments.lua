@@ -645,7 +645,7 @@ function get_reply_form(srv,tab,id)
 	local upload=""
 	local anon=""
 	
-	if tab.image or user and user.admin then
+	if tab.image --[[or user and user.admin]] then
 		local com=" Please choose an image! "
 		if tab.image=="force" then com=" You must choose an image! " end
 		upload=[[<div class="wetnote_comment_form_image_div" ><span>]]..com..[[</span><input  class="wetnote_comment_form_image" type="file" name="filedata" /></div>]]
@@ -656,7 +656,7 @@ function get_reply_form(srv,tab,id)
 		anon=[[<div class="wetnote_comment_form_anon_dic" ><input  class="wetnote_comment_form_anon_check" type="checkbox" name="anon" value="anon" ]]..checked..[[/><span>Post anonymously?</span></div>]]
 	end
 	
-	local post_text="Express your important opinion"
+	local post_text="Say something nice"
 	
 	local reply_text="Reply"
 	

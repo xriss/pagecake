@@ -11,6 +11,7 @@ local opts=require("opts")
 vhosts_map={
 	{"local",		"lo4d",			"host.local",			},			-- test this domain when on localhost or host.local
 
+	{"gamayo",		"gamayo",		"gamayo.esyou.com",	},				-- any domain with gamayo in it
 	{"horror",		"horror",		"horrordriv.esyou.com",	},			-- any domain with horror in it
 
 	{"cello",		"cello",		"cello.esyou.com",		},			-- any domain with play in it

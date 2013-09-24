@@ -111,7 +111,7 @@ fetch.countzero()
 	if srv.domainport then srv.domain=str_split(":",srv.domainport)[1] end -- lose any port part
 		
 	srv.url_domain=table.concat({srv.url_slash[1],srv.url_slash[2],srv.url_slash[3]},"/")
-	srv.url_local="/"
+	srv.url_base_local="/"
 	srv.slash="/"
 	local loop=true
 	
@@ -192,7 +192,7 @@ fetch.countzero()
 			srv.url_slash_idx=srv.url_slash_idx+1 -- move the slash index along one
 			srv.flavour=lookup[ "#flavour" ] -- get flavour of this table
 		
-			srv.url_local=srv.url_local..slash.."/"
+			srv.url_base_local=srv.url_base_local..slash.."/"
 			srv.slash=slash -- the last slash table we looked up
 			
 		elseif type(cmd)=="string" then -- a string so require that module and use its serv func
@@ -213,7 +213,7 @@ fetch.countzero()
 	
 	if not f then f=serv_fail end -- default
 
-	srv.url_base=srv.url_domain..srv.url_local
+	srv.url_base=srv.url_domain..srv.url_base_local
 	
 	f(srv) -- handle this base url
 	

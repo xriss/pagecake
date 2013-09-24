@@ -18,6 +18,7 @@ local str_split=wstr.str_split
 local serialize=wstr.serialize
 local macro_replace=wstr.macro_replace
 
+local waka=require("waka")
 
 -- require all the module sub parts
 local html=require("dice.html")
@@ -39,12 +40,7 @@ function serv(srv)
 
 	local slash=srv.url_slash[ srv.url_slash_idx ]
 	if slash=="image" then return image(srv) end -- image request
-		
-local function put(a,b)
-	b=b or {}
-	b.srv=srv
-	srv.put(wet_html.get(html,a,b))
-end
+
 local function get(a,b)
 	b=b or {}
 	b.srv=srv
@@ -53,12 +49,7 @@ end
 
 
 -- need the base wiki page, its kind of the main site everything
-	local wakapages=require("waka.pages")
-	local refined=wakapages.load(srv,"/dice")[0]	
-	refined.title=refined.title or "dice"
-	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",refined)
+	local refined=waka.fill_refined(srv,"dice")
 
 	refined.title="Dice"
 	local body=""
@@ -137,10 +128,10 @@ end
 	]]
 	,{count=count,sides=sides,imgid=imgid,width=width})
 	
-	refined.body=body;
-	put( refined.plate or "{body}", refined )
-			
-	put("footer",refined)
+	refined.body=body
+	
+	srv.set_mimetype("text/html; charset=UTF-8")
+	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 

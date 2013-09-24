@@ -169,7 +169,7 @@ local get,put=make_get_put(srv)
 				
 				while true do
 				
-					if ef then
+					if ef and ef.cache then
 					
 						srv.put(ef.cache.data or "ERROR:"..wstr.serialize(ef))
 						

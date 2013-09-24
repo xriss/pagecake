@@ -548,10 +548,11 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 
 	cake.edit=""
 	cake.notes=""
+	cake.comments="{.cake.notes}"
 	cake.plate=[[
 <h1>{title}</h1>
 {body}
-{.cake.notes}
+{-cake.comments}
 ]]
 
 	cake.admin=""
@@ -568,7 +569,8 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
 		{-cake.admin_blog_bar_edit}
-		<a href="/?cmd=edit&page=blog" class="cake_button" > EditWaka </a>
+		<a href="/?cmd=edit&page=blog" class="cake_button" > EditMain </a>
+		<a href="/?cmd=edit&page=blog/list" class="cake_button" > EditList </a>
 		<a href="/blog" class="cake_button" > View Blog </a> 
 		<a href="/blog/!/admin/pages" class="cake_button" > List </a> 
 		<a href="/blog/!/admin/edit/$newpage" class="cake_button" > New Post </a>
