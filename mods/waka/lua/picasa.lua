@@ -64,11 +64,10 @@ function get(srv,opts)
 	local datastr
 	local err
 	
-	local data,entity=stash.get(srv,cachename) -- check cache
-	if entity then
-		if entity.cache.updated+(60*60*24) < srv.time then -- cache for 24 hours
-			data=nil
-		end
+	local meta=stash.get(srv,cachename) -- check cache
+	local data=meta.data
+	if meta.updated+(60*60*24) < srv.time then -- cache for 24 hours
+		data=nil
 	end
 	
 --log(tostring(data))
@@ -113,7 +112,7 @@ function get(srv,opts)
 				d.title=d.title:gsub("\"","'")
 			end
 --			cache.put(srv,cachename,data,60*60)
-			stash.put(srv,cachename,data)
+			stash.put(srv,cachename,{data=data})
 		end -- cache for an hour
 	end
 		

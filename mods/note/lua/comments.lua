@@ -162,8 +162,8 @@ end
 --
 --------------------------------------------------------------------------------
 function manifest_meta(srv,url)
-	local r,e=stash.get(srv,"note.comments.meta&"..url)
-	if e and e.cache.updated+(60*60*24*1) < srv.time then r=nil end -- check age is less than one day
+	local r=stash.get(srv,"note.comments.meta&"..url)
+	if r and r.updated+(60*60*24*1) < srv.time then r=nil end -- check age is less than one day
 	if not r then
 		r=update_meta_cache(srv,url)
 	end

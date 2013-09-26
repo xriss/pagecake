@@ -60,11 +60,10 @@ function get(srv,opts)
 	local datastr
 	local err
 	
-	local data,entity=stash.get(srv,cachename) -- check cache
-	if entity then
-		if entity.cache.updated+(cachetime) < srv.time then -- cache for 24 hours
-			data=nil
-		end
+	local meta=stash.get(srv,cachename) -- check cache
+	local data=meta.data
+	if meta.updated+(cachetime) < srv.time then -- cache for 24 hours
+		data=nil
 	end
 	
 --log(tostring(data))
@@ -94,7 +93,7 @@ function get(srv,opts)
 		suc,data=pcall(function() return json.decode(datastr) end) -- convert from json, hopefully
 		
 		if suc and data then
-			stash.put(srv,cachename,data)
+			stash.put(srv,cachename,{data=data})
 		end -- cache for an hour
 	end
 		

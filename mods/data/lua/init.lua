@@ -14,6 +14,8 @@ local fetch=require("wetgenes.www.any.fetch")
 
 local img=require("wetgenes.www.any.img")
 
+local stash=require("wetgenes.www.any.stash")
+
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_string=require("wetgenes.string")
@@ -88,15 +90,52 @@ function serv(srv)
 --		return serv_admin(srv)
 	end
 	
-local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
-
 --	put(tostring(user and user.cache),{H=H})
 
 --log("srv.postgot\n"..tostring(srv.posts))
 --log("admin:"..tostring(user and user.cache and user.cache.admin))
 
 	local num=sanitize_id(srv.url_slash[srv.url_slash_idx+0])
+	
+	local stash_group=sanitize_id(srv.url_slash[srv.url_slash_idx+0])
+	local stash_id
+	if srv.url_slash[srv.url_slash_idx+1] then
+		stash_id=stash_group.."/"..sanitize_id(srv.url_slash[srv.url_slash_idx+1])
+	end
+	
+	if stash_id then
+		local m=stash.get(srv,"data&"..stash_id)
+		if m then
+log("stash got "..stash_id)
+			srv.set_mimetype( m.mime )
+			srv.set_header("Cache-Control","public") -- allow caching of page
+			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
+			srv.put(m.data)
+			return
+		end
+	end
+	
+	if stash_group then
+		local m=stash.get(srv,"data&"..stash_group)
+		if m then
+log("stash got "..stash_group)
+			srv.set_mimetype( m.mime )
+			srv.set_header("Cache-Control","public") -- allow caching of page
+			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
+			srv.put(m.data)
+			return
+		end
+	end
+
+-- first try to use stash for this data
+
+	
+
+-- finally go get the data and build the cache in the process
+	
+local sess,user=d_sess.get_viewer_session(srv)
+local get,put=make_get_put(srv)
+
 		
 	if num~=0 and tostring(num)==srv.url_slash[srv.url_slash_idx+0] then --got us an id
 	
@@ -126,10 +165,18 @@ local get,put=make_get_put(srv)
 					local data=sys.zip_read(zip,name)
 					if data then
 					
-						srv.set_mimetype( (srv.vars.mime or guess_mimetype(name)).."; charset=UTF-8" )
+						local meta={
+								mime=(srv.vars.mime or guess_mimetype(name)).."; charset=UTF-8",
+								data=data,
+								group="data&"..tostring(num),
+							}
+						srv.set_mimetype( mime )
 						srv.set_header("Cache-Control","public") -- allow caching of page
 						srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 						srv.put(data)
+log("stash put "..stash_id)
+						stash.put(srv,"data&"..stash_id,meta) -- save in cache for later
+						
 						return
 					end
 				end
@@ -165,7 +212,6 @@ local get,put=make_get_put(srv)
 				srv.set_mimetype( (srv.vars.mime or em.cache.mimetype).."; charset=UTF-8")				
 				srv.set_header("Cache-Control","public") -- allow caching of page
 				srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
-
 				
 				while true do
 				
@@ -231,8 +277,10 @@ local get,put=make_get_put(srv)
 			if posts.mimetype and posts.mimetype~="" then dat.mimetype=posts.mimetype end
 			if posts.filename and posts.filename~="" then dat.name=posts.filename end
 			
-			upload(srv,dat)
-			
+			local d=upload(srv,dat)
+log("stash clear "..d.id)
+			stash.delgroup(srv,"data&"..d.id)
+
 			return srv.redirect("/data")
 			
 		elseif posts.submit=="DELETE" then
@@ -250,7 +298,9 @@ local get,put=make_get_put(srv)
 			if posts.filename and posts.filename~="" then dat.name=posts.filename end
 			
 			delete(srv,dat)
-			
+log("stash clear "..d.id)
+			stash.delgroup(srv,"data&"..dat.id)
+
 			return srv.redirect("/data")
 			
 		end
