@@ -339,17 +339,16 @@ end
 function setup_db(env,srv)
 	if opts and opts.vhosts and ngx and ngx.ctx then
 	
-		env=env or ngx.ctx
+		srv=srv or ngx.ctx
 	
-		local old_vhost=env.vhost
+		local old_vhost=srv.vhost
 
 		for n,b in pairs(opts.vhosts) do
-			env.vhost=n
---			log("data.setup_vhost:",ngx.ctx.vhost)
-			setup_dbv(env,ngx.ctx)
+			srv.vhost=n
+			setup_dbv(env,srv)
 		end
 
-		env.vhost=old_vhost
+		srv.vhost=old_vhost
 		
 	else
 		setup_dbv(env,srv)

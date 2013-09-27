@@ -149,7 +149,7 @@ function set_info(db,kind,info)
 
 	kind=fixkind(kind)
 
---	print(wstr.serialize(info))
+--print(wstr.dump(info))
 
 	old=get_info(db,kind)
 
@@ -208,6 +208,8 @@ function set_info(db,kind,info)
 		end
 
 		if ch then
+print("ORIGINAL TABLE:"..wstr.dump(old))
+print("ALTER TABLE:"..wstr.dump(ch))
 			for i,v in ipairs(ch) do
 				p("ALTER TABLE "..kind.." ADD COLUMN ")
 				pdef(v)
