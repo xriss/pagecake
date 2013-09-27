@@ -44,6 +44,9 @@ function M.check(srv,ent)
 
 	local ok=true
 	local c=ent.cache
+	local p=ent.props
+	
+	if not p.published then p.published=0 end
 		
 	return ent
 end
@@ -96,8 +99,6 @@ function M.waka_changed(srv,page)
 	id:gsub("/dl/([^/]+)",function(s) projectname=s end)
 
 	if not projectname then return end
-	
-log("dimeload project update : "..projectname)
 
 	local refined=wakapages.load(srv,id)[0]
 	local ldat=refined.lua or {} -- better just to use #lua chunk for data, so it can parse and maintain native types
@@ -120,8 +121,6 @@ log("dimeload project update : "..projectname)
 
 		return true
 	end)
-	
---	log(wstr.dump(it))
 		
 end
 
