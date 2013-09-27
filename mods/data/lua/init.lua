@@ -106,7 +106,7 @@ function serv(srv)
 	if stash_id then
 		local m=stash.get(srv,"data&"..stash_id)
 		if m then
-log("stash got "..stash_id)
+--log("stash got "..stash_id)
 			srv.set_mimetype( m.mime )
 			srv.set_header("Cache-Control","public") -- allow caching of page
 			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
@@ -118,7 +118,7 @@ log("stash got "..stash_id)
 	if stash_group then
 		local m=stash.get(srv,"data&"..stash_group)
 		if m then
-log("stash got "..stash_group)
+--log("stash got "..stash_group)
 			srv.set_mimetype( m.mime )
 			srv.set_header("Cache-Control","public") -- allow caching of page
 			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
@@ -174,7 +174,7 @@ local get,put=make_get_put(srv)
 						srv.set_header("Cache-Control","public") -- allow caching of page
 						srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 						srv.put(data)
-log("stash put "..stash_id)
+--log("stash put "..stash_id)
 						stash.put(srv,"data&"..stash_id,meta) -- save in cache for later
 						
 						return
@@ -278,7 +278,7 @@ log("stash put "..stash_id)
 			if posts.filename and posts.filename~="" then dat.name=posts.filename end
 			
 			local d=upload(srv,dat)
-log("stash clear "..d.id)
+--log("stash clear "..d.id)
 			stash.delgroup(srv,"data&"..d.id)
 
 			return srv.redirect("/data")
@@ -298,7 +298,7 @@ log("stash clear "..d.id)
 			if posts.filename and posts.filename~="" then dat.name=posts.filename end
 			
 			delete(srv,dat)
-log("stash clear "..d.id)
+--log("stash clear "..d.id)
 			stash.delgroup(srv,"data&"..dat.id)
 
 			return srv.redirect("/data")

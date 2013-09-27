@@ -8,8 +8,7 @@ local wstr=require("wetgenes.string")
 local html=require("base.html")
 
 local fetch=require("wetgenes.www.any.fetch")
-
-local cache=require("wetgenes.www.any.cache")
+local stash=require("wetgenes.www.any.stash")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
@@ -72,50 +71,57 @@ end
 
 function chunk_import(srv,chunk)
 
-	local savebody=false
-	local body
+	local data	
+	local meta=stash.get(srv,"waka_csv&"..chunk.url)
+	
+	if meta and meta.updated+(60*60) > os.time() then -- use cache
+	
+		data=meta.data
+--log("using stash")
+	
+	else -- build cache
 
-	if not body then -- try internet
+		local body
 
 		local req,err=fetch.get(chunk.url) -- get from internets
 		if err then
 			log(err)
 		end
 		if req then body=req.body end -- check
-	
-		savebody=true
-	end
-	
-	if type(body)=="string" then	
 
-		if savebody then  -- cache string for later
-		end
-
-		local dat,ids
-		local idx=1
-		ids,idx=fromCSV(body,idx)
-		if ids then
-			repeat
-				local done=false
-				dat,idx=fromCSV(body,idx)
-				if dat then
-					local t={}
-					for n,id in ipairs(ids) do
-						if id and id~="" and dat[n] and dat[n]~="" then
-							if dat[n] then
-								t[id]=dat[n]
+		if type(body)=="string" then
+		
+			data={}
+			
+			local dat,ids
+			local idx=1
+			ids,idx=fromCSV(body,idx)
+			if ids then
+				repeat
+					local done=false
+					dat,idx=fromCSV(body,idx)
+					if dat then
+						local t={}
+						for n,id in ipairs(ids) do
+							if id and id~="" and dat[n] and dat[n]~="" then
+								if dat[n] then
+									t[id]=dat[n]
+								end
 							end
 						end
+						data[#data+1]=t
+					else
+						done=true
 					end
-					chunk[#chunk+1]=t
-				else
-					done=true
-				end
-			until done or not idx
+				until done or not idx
+			end
 		end
+		
+		stash.put(srv,"waka_csv&"..chunk.url,{data=data})		
 	end
-	
---	chunk.plate="{it.ID} -> {it.URL} <br/>\n"
+
+-- copy data into chunk
+	if data then for i,v in ipairs(data) do chunk[i]=v end end
 
 	if #chunk>0 then -- something to fix
 	
@@ -148,94 +154,3 @@ function chunk_import(srv,chunk)
 
 	return chunk
 end
-
---[[
-
-function getwaka(srv,opts)
-
-	local s=""
-	local t,err=get(srv,opts)
-	local o={}
-	
-	if t and t.table and t.table.rows  and t.table.cols then
-		for i,v in ipairs(t.table.rows) do
-			local tab={}
-			for i,v in ipairs(v and v.c or {} ) do
-				local id=(t.table.cols[i].id) or i
-				local s=(v and v.v) or ""
-				
-				-- stuff coming in seems to be a bit crazy, this forces it to 7bit ascii
-				if type(s)=="string" then s=s:gsub("[^!-~%s]","") end
-
-				tab[id]=s
-			end
-			if opts.hook then -- update this stuff?
-				opts.hook(tab)
-			end
-			for id,s in pairs(tab) do
-				o[#o+1]="{"..id.."=}"
-				o[#o+1]=s
-				o[#o+1]="{="..id.."}"
-			end
-			o[#o+1]="{"..(opts.plate or "item").."}"
-		end
-		s=table.concat(o)
-	else
-		s=err or "GSHEET IMPORT fail please reload page to try again."
-	end
-
-	return s
-end
-
---
--- get a table given the opts
---
-function get(srv,opts)
-
-	opts.offset=opts.offset or 0
-
---"http://spreadsheets.google.com/tq?tq=select+*+limit+10+offset+0+&key=tYrIfWhE3Q1i8t8VLKgEZSA"
-
-	local tq=(opts.query or "select *").." limit "..opts.limit.." offset "..opts.offset
-	local url
-
-	url="http://spreadsheets.google.com/tq?key="..opts.key
-	url=url.."&v"..opts.v
-	url=url.."&tq="..url_esc(tq)
-
-	local cachename="waka_gsheet&"..url_esc(url)
-	local datastr
-	local err
-	
-	local data=cache.get(srv,cachename) -- check cache
-	if data then return data end
-	
-	if not datastr then -- we didnt got it from the cache?
-		datastr,err=fetch.get(url) -- get from internets
-		if err then
-			log(err)
-		end
-		if datastr then datastr=datastr.body end -- check
---log("DATASTR : ",datastr)	
-		if type(datastr)=="string" then -- trim some junk get string within the outermost {}
-			datastr=datastr:match("^[^{]*(.-)[^}]*$")
-		end
-	end
-	
-	
---	local origsize=0
-	
-	if datastr then
-
---log("DATASTR : ",datastr)	
---		origsize=datastr:len() or 0
-		local suc
-		suc,data=pcall(function() return json.decode(datastr) end) -- convert from json, hopefully
-		if not suc then data=nil end
-		
-		if data then cache.put(srv,cachename,data,60*60) end
-	end
-		
-	return data,err
-end
-]]

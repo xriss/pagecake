@@ -56,7 +56,8 @@ admin_edit=function(d)
 <a href="/!/admin" class="button" >waka</a>
 <a href="/blog/!/admin" class="button" >blog</a>
 <a href="/note/!/admin" class="button" >note</a>
-<a href="/admin/cmd/clearmemcache" class="button" >decache</a>
+<a href="/admin/cmd/clearcache" class="button" >decache</a>
+<a href="/admin/cmd/clearstash" class="button" >destash</a>
 </p>
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">
 	<textarea name="text" cols="120" rows="24" class="field" >{text}</textarea>

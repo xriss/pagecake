@@ -14,6 +14,7 @@ local users=require("wetgenes.www.any.users")
 
 local fetch=require("wetgenes.www.any.fetch")
 local cache=require("wetgenes.www.any.cache")
+local stash=require("wetgenes.www.any.stash")
 local iplog=require("wetgenes.www.any.iplog")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
@@ -61,10 +62,15 @@ local put=make_put(srv)
 
 	if srv.url_slash[ srv.url_slash_idx ]=="cmd" then
 		local cmd=srv.url_slash[ srv.url_slash_idx+1 ]
-		if cmd=="clearmemcache" then
+		if cmd=="clearcache" then
 			srv.set_mimetype("text/html; charset=UTF-8")
 			srv.put("MEMCACHE CLEARED")
 			cache.clear(srv)
+			return
+		elseif cmd=="clearstash" then
+			srv.set_mimetype("text/html; charset=UTF-8")
+			srv.put("STASH CLEARED")
+			stash.clear(srv)
 			return
 		elseif cmd=="iplog" then
 			srv.set_mimetype("text/html; charset=UTF-8")
