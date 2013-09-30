@@ -45,6 +45,7 @@ local dl_hexkeys=require("dimeload.hexkeys")
 local dl_sponsors=require("dimeload.sponsors")
 local dl_downloads=require("dimeload.downloads")
 local dl_paypal=require("dimeload.paypal")
+local dl_bitcoin=require("dimeload.bitcoin")
 local dl_transactions=require("dimeload.transactions")
 
 local ngx=ngx
@@ -87,6 +88,7 @@ function serv(srv)
 	local cmds={
 		api=		serv_api,
 		paypal=		serv_paypal,
+		bitcoin=	serv_bitcoin,
 		admin=		serv_admin,
 		user=		serv_user,
 	}
@@ -335,11 +337,8 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if user and user.cache and user.cache.admin then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
---	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
-
---	local refined=wakapages.load(srv,"/dl/paypal")[0]
---	refined.page="dl/paypal"
 	
+	refined.button =dl_paypal.button(srv,{custom=user.cache.id,quantity="{A}"})
 	refined.button10 =dl_paypal.button(srv,{custom=user.cache.id,quantity=10})
 	refined.button100=dl_paypal.button(srv,{custom=user.cache.id,quantity=100})
 	refined.button200=dl_paypal.button(srv,{custom=user.cache.id,quantity=200})
@@ -349,14 +348,62 @@ local sess,user=d_sess.get_viewer_session(srv)
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
 
---[[
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",refined)
-	put("dimeload_bar",refined)
-	put(macro_replace(refined.plate or "{body}",refined))
-	put("footer",refined)
-]]	
 end
+
+-----------------------------------------------------------------------------
+--
+-- handle paypal stuff
+--
+-----------------------------------------------------------------------------
+function serv_bitcoin(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+	
+	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]	
+
+	if cmd=="hook" then --paypal is talking to us, telling us about a payment
+		local p = dl_bitcoin.hook( srv )
+		if p then -- we can now register this payment as an actual transaction
+			log("BITCOIN : "..p.cache.id.." : "..p.cache.dimes) -- log another log, to the logs...
+			dl_users.deposit(srv,{
+				dimes=p.cache.dimes,
+				userid=p.cache.dumid,
+				flavour="bitcoin",
+				source=p.cache.hash,
+			})
+			return
+		end
+		
+		return -- hook is special, never do anything else
+	end
+
+	local posts=make_posts(srv)	
+
+	if not user then	-- require a login to view this actual page (it is private user data)
+		return srv.redirect("/dumid?continue="..srv.url)
+	end
+	
+	local addr=dl_bitcoin.addr( srv ) -- make sure we have an address to send bitcoin to for this user
+	
+
+	local url=srv.url_base
+	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
+	
+	local refined=waka.fill_refined(srv,"dl/bitcoin")
+	html.fill_cake(srv,refined)
+	if user and user.cache and user.cache.admin then
+		refined.cake.admin="{cake.admin_dimeload_bar}"
+	end
+	
+	refined.bitcoin_address=addr
+	refined.bitcoin_dimes=srv.opts("bitcoin","dimes")
+	refined.button =dl_bitcoin.button(srv,{dumid=user.cache.id,quantity="{A}"})
+	refined.paylist=dl_bitcoin.paylist(srv,{dumid=user.cache.id})
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+	srv.put(macro_replace("{cake.html.plate}",refined))
+
+end
+
 
 -----------------------------------------------------------------------------
 --

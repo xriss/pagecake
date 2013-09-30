@@ -31,6 +31,8 @@ M.default_props=
 	dimes=0, -- how many dimes we have bought in total
 	spent=0, -- how many dimes we have spent in total
 	avail=0, -- how many dimes we have left to spend (dimes-spent)
+	
+	bitcoin="", -- the bitcoin address that this user accepts bitcoins on (auto created for each user when they try to pay with bitcoin)
 }
 
 M.default_cache=

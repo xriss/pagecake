@@ -337,20 +337,12 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 -- disable comments if this is not the real page address
 	if srv.vars.page then refined.opts.flame="off" end
 
-	if ext=="css" then -- css only
+	if ext=="css" then -- css only, with cache enabled
 	
 		srv.set_mimetype("text/css; charset=UTF-8")
 		srv.set_header("Cache-Control","public") -- allow caching of page
 		srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 		srv.put(refined.css or "")
-		
-	elseif ext=="xml" or ext=="frame" then -- special full control frameless render mode
-	
-		srv.set_mimetype((refined.opts.mimetype or "text/html").."; charset=UTF-8")
-		srv.put(macro_replace(refined.frame or [[
-		<h1>{title}</h1>
-		{body}
-		]],refined))
 		
 	elseif ext=="data" then -- raw chunk data
 	
@@ -359,8 +351,10 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		
 	elseif ext=="dump" then -- dump out all the bubbled chunks as json
 
-		srv.set_mimetype("text/plain; charset=UTF-8")
-		srv.put( json.encode(chunks) )
+		if user and user.cache and user.cache.admin then -- only admin
+			srv.set_mimetype("text/plain; charset=UTF-8")
+			srv.put( json.encode(chunks) )
+		end
 	
 	elseif ext and chunks[ext] then -- generic extension dump using named chunk
 	
