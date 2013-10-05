@@ -16,6 +16,8 @@ local fetch=require("wetgenes.www.any.fetch")
 local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
+local wstr=require("wetgenes.string")
+local dlog=function(...) log(wstr.dump(...)) end
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
@@ -271,6 +273,12 @@ function list(srv,opts,t)
 		offset=opts.offset or 0,
 	}
 	
+	dat.build_q_filters(opts,q,{"layer","group","pubdate","updated","created"})
+
+--dlog(opts)	
+--dlog(q)	
+
+--[[
 -- add filters?
 	for i,v in ipairs{"layer","group"} do
 		if opts[v] then
@@ -297,7 +305,7 @@ function list(srv,opts,t)
 	if opts.sort_pubdate then
 		q[#q+1]={"sort","pubdate", opts.sort_pubdate }
 	end
-
+]]
 		
 	local r=t.query(q)
 		

@@ -73,7 +73,10 @@ opts=opts or {}
 		offset=0,
 		}
 	q[#q+1]={"sort","updated","DESC"}
-		
+	if opts.custom then
+		q[#q+1]={"filter","custom","==",opts.custom}
+	end
+	
 	local ret=dat.query(q)
 		
 	for i=1,#ret.list do local v=ret.list[i]

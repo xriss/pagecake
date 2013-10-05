@@ -66,6 +66,9 @@ opts=opts or {}
 		offset=0,
 		}
 	q[#q+1]={"sort","updated","DESC"}
+	if opts.dumid then
+		q[#q+1]={"filter","dumid","==",opts.dumid}
+	end
 		
 	local ret=dat.query(q)
 		
@@ -83,10 +86,10 @@ end
 --
 --------------------------------------------------------------------------------
 function M.paylist(srv,opts)
---[=[
-local t={}
-local l=M.list(srv,{custom=opts.custom,limit=100})
 
+local t={}
+local l=M.list(srv,{dumid=opts.dumid,limit=100})
+			
 	if l[1] then
 
 		t[#t+1]=[[
@@ -95,10 +98,11 @@ local l=M.list(srv,{custom=opts.custom,limit=100})
 		for i,v in ipairs(l) do
 			local c=v.cache
 			t[#t+1]=wstr.replace([[
-			<li lass="paylist_item" >{amount} from {payer} on {date}</li>
+			<li lass="paylist_item" >Sent {amount} BTC , ({dimes}d) on {date} <a href="https://blockchain.info/tx/{payer}">(view)</a></li>
 ]],{
-	amount= (c.currency=="USD" and "$" or c.currency)..c.gross,
-	payer=c.payer,
+	amount=c.value/100000000,
+	dimes=c.dimes,
+	payer=c.hash,
 	date=os.date("%c",c.created),
 })
 		end
@@ -108,39 +112,9 @@ local l=M.list(srv,{custom=opts.custom,limit=100})
 	end
 
 	return table.concat(t,"")
-]=]
+
 end
 
-function M.button(srv,d)
---[=[
-	d.receiver=srv.opts("paypal","receiver")
-	d.ipn=srv.url_base.."paypal/ipn"
-	d.ret=srv.url_base.."paypal"
-	d.quantity=d.quantity or 100
-
-	return wstr.replace([[
-<script src="/js/dimeload/paypal-button.min.js?merchant={receiver}" 
-    data-button="buynow" 
-    data-name="Dimes" 
-    data-quantity="{quantity}" 
-    data-undefined_quantity="1"
-    data-amount="0.1" 
-    data-currency="USD" 
-    data-shipping="0"
-    data-no_shipping="1"
-    data-no_note
-    data-tax="0" 
-    data-callback="{ipn}" 
-    data-custom="{custom}"
-    data-return="{ret}"
-></script>
-]],d)
-
---[[
-    data-env="sandbox"
-]]
-]=]
-end
 
 -- create a custom bitcoin address for the viewing user to pay into
 -- the addrress will be saved in dl_user, if we havealready made an addr
@@ -192,7 +166,7 @@ local addr
 	local t={}
 	t.value=0
 
---addr=srv.opts("bitcoin","address")
+local main_addr=srv.opts("bitcoin","address")
 --log(addr)
 	if addr and srv.gets.transaction_hash then -- we are being told to checkout this transaction (ignore all other inputs)
 	
@@ -202,13 +176,30 @@ local addr
 		if tx and tx.body then
 			tx=json.decode(tx.body)
 
-			if tx and tx.out then
-				for i,v in ipairs(tx.out) do
-					if v.addr==addr then -- check it is for us
-						t.value=t.value+v.value
+			local valin=0
+			if tx and tx.inputs then
+				for i,v in ipairs(tx.inputs) do
+					if v.prev_out then
+						if v.prev_out.addr==addr then -- incoming value from correct address
+							valin=valin+v.prev_out.value
+						end
 					end
 				end
 			end
+
+			local valout=0
+			if tx and tx.out then
+				for i,v in ipairs(tx.out) do
+					if v.addr==main_addr then -- check it is comming to us
+						valout=valout+v.value
+					end
+				end
+			end
+			
+			if valin==valout then -- confirmed spend
+				t.value=valout
+			end
+			
 			t.block=tx.block_height
 		end
 		

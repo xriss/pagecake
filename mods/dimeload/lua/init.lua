@@ -297,7 +297,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 		local p = dl_paypal.ipn( srv )
 		if p then -- we can now register this payment as an actual transaction
 			log("PAYPAL : "..p.cache.id.." : "..p.cache.msg) -- log another log, to the logs...
-			put("OK")
+			srv.put("OK")
 			
 -- only automate completed transactions (ignore refunded or anything else)
 -- any refunded action must be adjusted manually...
@@ -396,7 +396,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	refined.bitcoin_address=addr
 	refined.bitcoin_dimes=srv.opts("bitcoin","dimes")
-	refined.button =dl_bitcoin.button(srv,{dumid=user.cache.id,quantity="{A}"})
+	refined.value10=math.ceil(1000*10/refined.bitcoin_dimes)/1000
+	refined.value100=math.ceil(1000*100/refined.bitcoin_dimes)/1000
+	refined.value200=math.ceil(1000*200/refined.bitcoin_dimes)/1000
 	refined.paylist=dl_bitcoin.paylist(srv,{dumid=user.cache.id})
 
 	srv.set_mimetype("text/html; charset=UTF-8")

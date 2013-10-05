@@ -100,7 +100,10 @@ function serv(srv)
 	local stash_group=sanitize_id(srv.url_slash[srv.url_slash_idx+0])
 	local stash_id
 	if srv.url_slash[srv.url_slash_idx+1] then
-		stash_id=stash_group.."/"..sanitize_id(srv.url_slash[srv.url_slash_idx+1])
+		stash_id=stash_group
+		for i=srv.url_slash_idx+1,#srv.url_slash do
+			stash_id=stash_id.."/"..sanitize_id(srv.url_slash[i])
+		end
 	end
 	
 	if stash_id then

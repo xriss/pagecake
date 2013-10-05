@@ -290,9 +290,7 @@ function def_cache_fix(env,srv,mc)
 		cache.del(srv,n)
 	end
 end
-
-
-
+	
 -----------------------------------------------------------------------------
 --
 -- set these default functions into the given environment
@@ -322,3 +320,43 @@ function set_defs(env)
 	return env
 end
 
+
+
+-----------------------------------------------------------------------------
+--
+-- add filters?
+--
+-----------------------------------------------------------------------------
+function build_q_filters(opts,q,names)
+	for i,vf in ipairs(names) do
+		for j,c in pairs({"","<",">","equal_","more_than_","less_than_"}) do
+			local d=opts[c..vf]
+			if d then
+				local t=type(d)
+				if t=="string" or t=="number" then
+					if c==">" or c=="more_than_" then
+						q[#q+1]={"filter",vf,">",d}
+					elseif c=="<" or c=="less_than_"  then
+						q[#q+1]={"filter",vf,"<",d}
+					else
+						q[#q+1]={"filter",vf,"==",d}
+					end
+				else
+					if t=="table" then
+						q[#q+1]={"filter",vf,"in",d}
+					end
+				end
+			end
+		end
+	end
+	for i,vf in ipairs(names) do
+		local d=opts["sort_"..vf]
+		if d then
+			if     d=="+" then d="ASC"
+			elseif d=="-" then d="DESC"
+			end
+			q[#q+1]={"sort",vf,d}
+		end
+	end
+	return q
+end

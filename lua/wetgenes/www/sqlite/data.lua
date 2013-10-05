@@ -335,6 +335,10 @@ function set_defs(env)
 	return wdatadef.set_defs(env)
 end
 
+function build_q_filters(...)
+	return wdatadef.build_q_filters(...)
+end
+
 
 function setup_db(env,srv)
 	if opts and opts.vhosts and ngx and ngx.ctx then

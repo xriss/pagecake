@@ -291,7 +291,7 @@ local get,put=make_get_put(srv)
 
 	local t={}
 	local css=""
-	local list=pages.list(srv,{group=group,limit=num,layer=LAYER_PUBLISHED,sort="pubdate"})
+	local list=pages.list(srv,{group=group,limit=num,layer=LAYER_PUBLISHED,sort_pubdate="-",less_than_pubdate=srv.time})
 	
 	if opts.over and type(opts.over)=="string" then
 		opts.over=pages.cache_find_by_pubname(srv,opts.over)
@@ -402,7 +402,7 @@ local get,put=make_get_put(srv)
 		
 		if ext=="atom" then -- an atom feed
 		
-			local list=pages.list(srv,{group=group,limit=23,layer=LAYER_PUBLISHED,sort="pubdate"})
+			local list=pages.list(srv,{group=group,limit=23,layer=LAYER_PUBLISHED,sort_pubdate="-",less_than_pubdate=srv.time})
 			
 			local updated=0
 			local author_name=""
@@ -433,11 +433,11 @@ local get,put=make_get_put(srv)
 			end
 		
 			local list=pages.list(srv,
-			{group=group,limit=refined.opts.limit,offset=refined.opts.offset,layer=LAYER_PUBLISHED,sort="pubdate"})
+			{group=group,limit=refined.opts.limit,offset=refined.opts.offset,layer=LAYER_PUBLISHED,sort_pubdate="-",less_than_pubdate=srv.time})
 
 			if not list[1] then -- try offset 0
 				list=pages.list(srv,
-				{group=group,limit=refined.opts.limit,offset=0,layer=LAYER_PUBLISHED,sort="pubdate"})
+				{group=group,limit=refined.opts.limit,offset=0,layer=LAYER_PUBLISHED,sort_pubdate="-",less_than_pubdate=srv.time})
 			end
 
 
@@ -566,7 +566,7 @@ local output_que={} -- delayed page content
 	
 		local refined=waka.fill_refined(srv,"blog/!/admin/pages")
 
-		local list=pages.list(srv,{sort="updated"})
+		local list=pages.list(srv,{sort_updated="-"})
 		
 		local tab={}
 		for i=1,#list do local v=list[i]
