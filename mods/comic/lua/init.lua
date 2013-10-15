@@ -232,7 +232,7 @@ local get,put=make_get_put(srv)
 	refined.it.cprev=cstash.cprev
 	refined.it.cnext=cstash.cnext
 
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_comic_bar}"
 	end
 	

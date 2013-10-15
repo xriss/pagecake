@@ -23,14 +23,14 @@ function M.fill_cake(srv,refined)
 	
 	cake.dimeload={}
 
+--{-cake.dimeload.needlogin}
 	cake.dimeload.tabs=[[
-{-cake.dimeload.needlogin}
 {cake.dimeload.menu}
 {-cake.dimeload.error}
+{-cake.dimeload.about}
 {cake.dimeload.download}
 {cake.dimeload.sponsor}
 {cake.dimeload.buy}
-{-cake.dimeload.about}
 ]]
 
 	cake.dimeload.menu=[=[

@@ -151,7 +151,7 @@ _M.basefunc.header=function(html,d)
 	end
 	
 	d.dotcss=".css"
-	if d.srv and d.srv.user and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
+	if d.srv and d.srv.is_admin(d.srv.user) then -- admin
 		d.dotcss=".css?t="..os.time()
 	end
 	

@@ -45,12 +45,14 @@ PAGE MISSING<br/>
 
 end
 
+
 -----------------------------------------------------------------------------
 --
 -- the main serv function, named the same as the file it is in
 --
 -----------------------------------------------------------------------------
 function serv(srv)
+
 
 	if not ngx then -- gae hax tbh
 	
@@ -62,6 +64,16 @@ function serv(srv)
 			return t
 		end
 		
+	end
+
+	srv.is_admin = function(user,flavour)
+		if user and user.cache then
+			if user.cache.admin then return true end -- site admin
+			if flavour then -- check sub admin list
+				--if srv.opts(flavour,user.cache.id)
+			end
+		end
+		return false
 	end
 
 	srv.check_referer=check_referer

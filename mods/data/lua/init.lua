@@ -238,13 +238,13 @@ local get,put=make_get_put(srv)
 	
 	
 	
-	if not( user and user.cache and user.cache.admin ) then -- adminfail
+	if not srv.is_admin(user) then -- adminfail
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
 
 --	put(tostring(user and user.cache),{H=H})
-	if user and user.cache and user.cache.admin then -- admin
+	if srv.is_admin(user) then -- admin
 	
 		local posts={} -- remove any gunk from the posts input
 		if srv.method=="POST" and srv:check_referer(url) then

@@ -336,6 +336,7 @@ function list_next(srv,opts,t)
 			end
 		end
 	end
+	q[#q+1]={"filter","pubdate","<",srv.time}
 	q[#q+1]={"filter","pubdate",">=",opts.pubdate or 0}
 	q[#q+1]={"sort","pubdate","ASC"}
 		
@@ -368,7 +369,8 @@ function list_prev(srv,opts,t)
 			end
 		end
 	end
-	q[#q+1]={"filter","pubdate","<=",opts.pubdate or 0}
+	local tm=opts.pubdate if tm>srv.time then tm=srv.time end -- skip future posts
+	q[#q+1]={"filter","pubdate","<=",tm or 0}
 	q[#q+1]={"sort","pubdate","DESC"}
 		
 	local r=t.query(q)

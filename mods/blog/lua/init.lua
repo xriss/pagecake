@@ -237,9 +237,13 @@ opts=opts or {}
 
 local get,put=make_get_put(srv)
 
+	opts.sort_pubdate=opts.sort_pubdate or "DESC"
+	opts.less_than_pubdate=opts.less_than_pubdate or srv.time
+
 	local t={}
 	local css=""
 	local list=pages.list(srv,opts)
+	
 
 	local ret={}
 	for i,v in pairs(opts) do ret[i]=v end -- copy opts into the return
@@ -428,7 +432,7 @@ local get,put=make_get_put(srv)
 
 			local refined=waka.fill_refined(srv,"blog/list")
 
-			if user and user.cache and user.cache.admin then
+			if srv.is_admin(user) then
 				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
 			end
 		
@@ -472,7 +476,7 @@ local get,put=make_get_put(srv)
 		else
 			ent=pages.cache_find_by_pubname(srv,group..page)
 		end
-		if ent and ent.cache.layer==LAYER_PUBLISHED then -- must be published
+		if ent and ent.cache.layer==LAYER_PUBLISHED and ent.cache.pubdate<srv.time then -- must be published
 
 			local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
 			local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
@@ -484,7 +488,7 @@ local get,put=make_get_put(srv)
 			local refined=waka.fill_refined(srv,"blog"..ent.cache.pubname,
 				{opts={link_next=link_next,link_prev=link_prev}})
 
-			if user and user.cache and user.cache.admin then
+			if srv.is_admin(user) then
 				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
 			end
 	
@@ -531,7 +535,7 @@ end
 function serv_admin(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 
-	if not( user and user.cache and user.cache.admin ) then
+	if not srv.is_admin(user) then
 		return false
 	end
 
@@ -640,7 +644,7 @@ This is the #body of your post and can contain any html you wish.
 			end
 			ent.cache.updated=srv.time
 					
-			if user and user.cache and user.cache.admin then -- admin only, so less need to validate inputs
+			if srv.is_admin(user) then -- admin only, so less need to validate inputs
 				if		posts.submit=="Save" or
 						posts.submit=="Publish" or
 						posts.submit=="UnPublish" then -- save page to database
@@ -678,7 +682,7 @@ This is the #body of your post and can contain any html you wish.
 		que(blog_text)
 		css=refined.css
 ]]
-		if user and user.cache and user.cache.admin then -- admin only, so less need to validate inputs
+		if srv.is_admin(user) then -- admin only, so less need to validate inputs
 				
 			if posts.submit=="Publish" then -- build a nag when we click publish
 				

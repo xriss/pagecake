@@ -39,7 +39,7 @@ waka_bar=function(d)
 
 
 	d.admin=""
-	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
+	if d.srv and d.srv.is_admin(d.srv.user) then -- admin
 		d.admin=replace([[
 	<div class="aelua_admin_bar" style="font-size:13px">
 		<form action="{srv.qurl}" method="POST" enctype="multipart/form-data">

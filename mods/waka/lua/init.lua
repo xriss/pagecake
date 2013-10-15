@@ -274,7 +274,7 @@ local ext
 			page.cache.text=posts.text
 		end
 		
-		if user and user.cache and user.cache.admin then -- admin
+		if srv.is_admin(user) then -- admin
 			if posts.submit=="Save" or posts.submit=="Save and Edit" then -- save page to database
 				if posts.text then
 					local chunks=wet_waka.text_to_chunks(posts.text)
@@ -326,7 +326,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	if page.key.notsaved then
 		if refined.opts.lock=="on" then -- we are using fake pages and smart lua codes to generate them
 		else -- redirect to parent except when we are admin
-			if not( user and user.cache and user.cache.admin ) then -- only admins can go to empty pages
+			if not srv.is_admin(user) then -- only admins can go to empty pages
 				if page.cache.id~="/welcome" then -- special safe welcome page even if it doesnt exist
 					return srv.redirect(page.cache.group)
 				end
@@ -351,7 +351,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		
 	elseif ext=="dump" then -- dump out all the bubbled chunks as json
 
-		if user and user.cache and user.cache.admin then -- only admin
+		if srv.is_admin(user) then -- only admin
 			srv.set_mimetype("text/plain; charset=UTF-8")
 			srv.put( json.encode(chunks) )
 		end
@@ -365,7 +365,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		
 	else -- new pagecake way
 	
-		if user and user.cache and user.cache.admin then
+		if srv.is_admin(user) then
 			if refined.cake.admin_waka_form_text then
 				refined.cake.admin=refined.cake.admin.."{cake.admin_waka_form}"
 			else
@@ -415,7 +415,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 local put=make_put(srv)
 local get=make_get(srv)
 
-	if not( user and user.cache and user.cache.admin ) then -- adminfail
+	if not srv.is_admin(user) then -- adminfail
 		return false
 	end
 

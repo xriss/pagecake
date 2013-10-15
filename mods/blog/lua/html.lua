@@ -67,7 +67,7 @@ end
 -----------------------------------------------------------------------------
 blog_admin_links=function(d)
 
-	if not ( d and d.user and d.user.cache and d.user.cache.admin ) then return "" end
+	if not ( d and d.srv and d.srv.is_admin(d.srv.user) ) then return "" end
 	
 	if d.it then
 		d.edit_post=replace([[<a href="{srv.url_base}!/admin/edit/$hash/{it.id}" class="button" > Edit Post </a>]],d)

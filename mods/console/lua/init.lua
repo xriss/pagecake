@@ -42,7 +42,7 @@ module("console")
 function serv(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 
-	if not( user and user.cache and user.cache.admin ) then -- adminfail
+	if not srv.is_admin(user) then -- adminfail
 		return false
 	end
 
@@ -52,7 +52,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 		srv.put(wet_html.get(html,a,b))
 	end
 
-	if not ( user and user.cache.admin ) then -- error must be admin
+	if not srv.is_admin(user) then -- error must be admin
 		srv.set_mimetype("text/html")
 		put("header",{})
 		put("error_need_admin",{})

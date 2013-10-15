@@ -123,7 +123,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 	local refined=waka.fill_refined(srv,"dl")
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
@@ -181,7 +181,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 	local refined=waka.fill_refined(srv,"dl/0x")
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 
@@ -334,7 +334,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	local refined=waka.fill_refined(srv,"dl/paypal")
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	
@@ -390,7 +390,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	local refined=waka.fill_refined(srv,"dl/bitcoin")
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	
@@ -422,7 +422,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	local refined=waka.fill_refined(srv,"dl/user")
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 --	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
@@ -443,13 +443,13 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]	
 
 	-- require admin login
-	if not (user and user.cache and user.cache.admin ) then
+	if not srv.is_admin(user) then
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
 	local refined=waka.fill_refined(srv,"dl/admin")
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 --	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
@@ -875,7 +875,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 	local refined=waka.fill_refined(srv,"dl/"..pname)
 	html.fill_cake(srv,refined)
-	if user and user.cache and user.cache.admin then
+	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
@@ -903,6 +903,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		
 		if user and user.cache.id == page.cache.owner then -- owner defaults to sponsor page
 			refined.cake.dimeload.goto="sponsor"
+		else
+			refined.cake.dimeload.menu=""
+			refined["cake.dimeload.menu"]=""
 		end
 	else -- use personal dimes
 		refined["cake.dimeload.page.available"]=0

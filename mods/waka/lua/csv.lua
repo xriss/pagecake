@@ -49,6 +49,7 @@ local function fromCSV (s,fieldstart)
 				table.insert(t, string.sub(s, fieldstart, nexti-1))
 				fieldstart = nexti + 1
 			else
+				table.insert(t, string.sub(s, fieldstart))
 				fieldstart=nil
 			end
 		end
@@ -100,6 +101,7 @@ function chunk_import(srv,chunk)
 				repeat
 					local done=false
 					dat,idx=fromCSV(body,idx)
+--log(tostring(idx)..":"..wstr.dump(dat))
 					if dat then
 						local t={}
 						for n,id in ipairs(ids) do

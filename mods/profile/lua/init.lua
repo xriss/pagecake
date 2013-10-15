@@ -103,7 +103,7 @@ local get=make_get(srv)
 			
 			refined.cake.notes=notes
 
-			if user and user.cache and user.cache.admin then
+			if srv.is_admin(user) then
 --				refined.cake.admin="{cake.admin_profile_bar}"
 			end
 

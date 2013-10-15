@@ -53,7 +53,7 @@ function serv(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 local put=make_put(srv)
 
-	if not( user and user.cache and user.cache.admin ) then -- adminfail
+	if not srv.is_admin(user) then -- adminfail
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 	
@@ -119,7 +119,7 @@ function serv_api(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 local put=make_put(srv)
 
-	if not( user and user.cache and user.cache.admin ) then -- adminfail
+	if not srv.is_admin(user) then -- adminfail
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 	

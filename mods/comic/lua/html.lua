@@ -38,7 +38,7 @@ comic_bar=function(d)
 
 
 	d.admin=""
-	if d.srv and d.srv.user and d.srv.user.cache and d.srv.user.cache.admin then -- admin
+	if d.srv and d.srv.is_admin(d.srv.user) then -- admin
 		d.admin=replace([[
 	<div class="aelua_admin_bar">
 		<form method="POST" enctype="multipart/form-data" action="/?cmd=edit&page={page}">

@@ -61,7 +61,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 local put=make_put(srv)
 local get=make_get(srv)
 	
-	if not( user and user.cache and user.cache.admin ) then -- adminfail
+	if not srv.is_admin(user) then -- adminfail
 --		return false
 	end
 

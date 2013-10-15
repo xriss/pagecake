@@ -90,7 +90,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	H.arg=function(i) return srv.url_slash[ srv.url_slash_idx + i ]	end -- get an arg from the url
 	
-	H.page_admin=--[[( users.core.user and users.core.user.admin) or]](H.user and H.user.cache and H.user.cache.admin) -- page admin flag
+	H.page_admin=--[[( users.core.user and users.core.user.admin) or]](srv.is_admin(H.user)) -- page admin flag
 		
 	return H
 
