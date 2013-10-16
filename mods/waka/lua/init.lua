@@ -344,19 +344,19 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 		srv.put(refined.css or "")
 		
-	elseif ext=="data" then -- raw chunk data
+	elseif ext=="data" then -- show the raw chunk data
 	
 		srv.set_mimetype("text/plain; charset=UTF-8")
 		srv.put(page.cache.text or "")
 		
-	elseif ext=="dump" then -- dump out all the bubbled chunks as json
+	elseif ext=="dump" then -- dump out all the bubbled chunks
 
 		if srv.is_admin(user) then -- only admin
 			srv.set_mimetype("text/plain; charset=UTF-8")
-			srv.put( json.encode(chunks) )
+			srv.put( wstr.dump(refined):gsub("\\13\\",""):gsub("\\9","\t") )
 		end
 	
-	elseif ext and chunks[ext] then -- generic extension dump using named chunk
+	elseif ext and chunks[ext] then -- generic extension dump using any named chunk
 	
 		srv.set_header("Cache-Control","public") -- allow caching of page
 		srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache

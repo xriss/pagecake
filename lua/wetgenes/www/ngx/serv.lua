@@ -1,5 +1,8 @@
+local g=require("global")
+
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
+
 
 local log=require("wetgenes.www.ngx.log").log
 local debug=require("debug")
@@ -24,10 +27,13 @@ local _M=require(...)
 package.loaded["wetgenes.www.any.serv"]=_M
 
 function serv()
+	local success=true
 	xpcall(serv2,function(msg,lev)
 		log( msg )
 		log( debug.traceback() )
+		success=false
 	end)
+	assert(success)
 end
 
 -- work out which is our vhost but do not do any more setup, returns srv
@@ -87,8 +93,13 @@ log("REDIRECT:"..t.domain.." FROM "..ngx.var.host)
 		for n,v in pairs(opts.mods) do
 			if type(n)=="string" then
 --				log("require "..n)
-				local m,err=pcall(require,n)
-				if not m then
+--				local m,err=pcall(require,n)
+				local m,n=xpcall(function() return require(n) end,function(msg,lev)
+					log( msg )
+					log( debug.traceback() )
+				end)
+				
+					if not m then
 					log("require failed on mod "..n.."\n"..(err or ""))
 				end
 			end

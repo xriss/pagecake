@@ -288,7 +288,7 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 	
 		local callback=srv.url_base.."callback/facebook/"..wet_html.url_esc(continue)
 		local url="https://www.facebook.com/dialog/oauth?client_id="..
-			(srv.opts("facebook","id")or"").."&scope=email,publish_stream,offline_access&redirect_uri="..wet_html.url_esc(callback)
+			(srv.opts("facebook","id")or"").."&scope=email,offline_access&redirect_uri="..wet_html.url_esc(callback)
 
 --log(continue)
 --log(callback)
@@ -326,7 +326,7 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 
 	srv.set_mimetype("text/html; charset=UTF-8")
 	put("dumid_header",{})
-	put("dumid_choose",{continue=continue,twitter=srv.opts("twitter","key"),facebook=srv.opts("facebook","key")})
+	put("dumid_choose",{continue=continue,twitter=srv.opts("twitter","key"),facebook=srv.opts("facebook","id")})
 	put("dumid_footer",{})
 	
 end

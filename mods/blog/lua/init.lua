@@ -476,7 +476,10 @@ local get,put=make_get_put(srv)
 		else
 			ent=pages.cache_find_by_pubname(srv,group..page)
 		end
-		if ent and ent.cache.layer==LAYER_PUBLISHED and ent.cache.pubdate<srv.time then -- must be published
+		if ent and (
+			srv.is_admin(user,"admin_viewers") or 
+			( ent.cache.layer==LAYER_PUBLISHED and ent.cache.pubdate<srv.time ) 
+			) then -- must be published
 
 			local list_next=pages.list_next(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
 			local list_prev=pages.list_prev(srv,{group=group,layer=LAYER_PUBLISHED,pubdate=ent.cache.pubdate})
@@ -655,6 +658,8 @@ This is the #body of your post and can contain any html you wish.
 					
 					pages.put(srv,ent)
 			
+				elseif posts.submit=="Preview" then
+					return srv.redirect("/blog"..ent.cache.pubname)
 				end
 			end
 			

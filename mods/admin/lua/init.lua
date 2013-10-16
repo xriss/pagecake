@@ -30,7 +30,10 @@ local d_sess =require("dumid.sess")
 -- require all the module sub parts
 local html=require("admin.html")
 
+local waka=require("waka")
 
+
+local dusers=require("dumid.users")
 
 
 module("admin")
@@ -59,7 +62,6 @@ local put=make_put(srv)
 	
 --print(srv.url_slash[ srv.url_slash_idx ])
 	
-
 	if srv.url_slash[ srv.url_slash_idx ]=="cmd" then
 		local cmd=srv.url_slash[ srv.url_slash_idx+1 ]
 		if cmd=="clearcache" then
@@ -79,9 +81,14 @@ local put=make_put(srv)
 		end
 	end
 	
-	
 	if srv.url_slash[ srv.url_slash_idx ]=="api" then
 		return serv_api(srv)
+	end
+
+	local ad=srv.url_slash[ srv.url_slash_idx ]
+	
+	if ad=="users" then
+		return serv_users(srv)	
 	end
 
 	local url=srv.url_base:sub(1,-2) -- lose the trailing /
@@ -107,6 +114,41 @@ local put=make_put(srv)
 	put("admin_edit",{text=lua,sess=sess.cache})
 	
 	put("footer",{})
+end
+
+
+-----------------------------------------------------------------------------
+--
+-- list users
+--
+-----------------------------------------------------------------------------
+function serv_users(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+
+
+	local refined=waka.fill_refined(srv,"admin")
+	html.fill_cake(srv,refined)
+	
+	refined["cake.html.plate"]="{body}"
+
+	refined["body"]="<table>{users}</table>"
+	local l={}
+	for i,v in ipairs( dusers.list(srv,{limit=100}) ) do l[#l+1]=v.cache end
+	
+	l.plate=[[
+	<tr>
+	<td>{it.name}</td>
+	<td><a href="/profile/{it.id}">{it.id}</a></td>
+	<td>{it.ip}</td>
+	<td>{it.email}</td>
+	</tr>
+	]]
+	refined["users"]=l
+
+
+	srv.set_mimetype("text/html; charset=UTF-8")
+	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
+
 end
 
 

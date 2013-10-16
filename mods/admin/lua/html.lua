@@ -12,8 +12,9 @@ local html=require("base.html")
 
 local opts=require("opts")
 
-module("admin.html")
 
+module("admin.html")
+local M=_M
 setmetatable(_M,{__index=html}) -- use a meta table to also return html base 
 
 
@@ -48,10 +49,10 @@ admin_edit=function(d)
 	
 	return replace([[
 <div>
-<p>This install is running {bootstrapp} version {version}</p>
-<p>Visit <a href="http://www.wetgenes.com/bootstrapp.php">http://www.wetgenes.com/bootstrapp.php</a> to upgrade (relax all your site data will remain).</p>
 <p>
 <a href="/admin/console" class="button" >console</a>
+<a href="/admin/users" class="button" >users</a>
+<br/>
 <a href="/data" class="button" >data</a>
 <a href="/!/admin" class="button" >waka</a>
 <a href="/blog/!/admin" class="button" >blog</a>
@@ -74,5 +75,30 @@ admin_edit=function(d)
 </div>
 ]],d)
 
+end
+
+
+
+
+
+
+
+
+
+
+
+function M.fill_cake(srv,refined)
+	local cake=refined.cake or {}
+	refined.cake=cake
+	
+	cake.admin={}
+	
+--{-cake.dimeload.needlogin}
+	cake.admin.user=[[
+{it.name}
+{it.id}
+]]
+
+	return cake
 end
 

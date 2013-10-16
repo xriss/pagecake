@@ -66,11 +66,13 @@ function serv(srv)
 		
 	end
 
-	srv.is_admin = function(user,flavour)
+	srv.is_admin = function(user,minimods)
 		if user and user.cache then
 			if user.cache.admin then return true end -- site admin
-			if flavour then -- check sub admin list
-				--if srv.opts(flavour,user.cache.id)
+			if minimods then -- check named admin list in opts
+				if srv.opts(minimods,user.cache.id) then 
+					return true
+				end
 			end
 		end
 		return false
@@ -208,7 +210,8 @@ fetch.countzero()
 			srv.slash=slash -- the last slash table we looked up
 			
 		elseif type(cmd)=="string" then -- a string so require that module and use its serv func
-		
+
+--log("requiring "..cmd)		
 			local m=require(cmd) -- get module, this may load many other modules files at this point
 			
 			f=m.serv -- get function to call
