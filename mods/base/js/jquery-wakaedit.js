@@ -2,6 +2,7 @@
 // load lots of stuffs before we can do anything
 head.js(
 	head.fs.jquery_js,
+	head.fs.jquery_cookie_js,
 	head.fs.ace_js,
 	function() {
 		
@@ -98,8 +99,11 @@ $.fn.wakaedit=function(opts)
 	};  
 	opts = $.extend(defs, opts); 
 
+		var editor;
+		
 		var edit_textarea=this;
 		var edit_div=$("<div class='field cake_field'></div>");
+		var edit_check=$("<input name=\"useace\" type=\"checkbox\">");
 		var edit_select=$("<select name='chunks' class='cake_wakaedit_chunks'></select>");
 		
 		var text=edit_textarea.val();
@@ -112,12 +116,14 @@ $.fn.wakaedit=function(opts)
 			chunks=split_chunks(text);
 			edit_select.empty();
 			edit_select.append( $("<option value='-1'>Edit All Chunks</option>") );
-			for( var i=0 ; i<chunks.length ; i++ )
+			if(editor)
 			{
-				var v=chunks[i];
-				edit_select.append( $("<option value='"+i+"'>#"+v.name+" "+v.opts+"</option>") );
+				for( var i=0 ; i<chunks.length ; i++ )
+				{
+					var v=chunks[i];
+					edit_select.append( $("<option value='"+i+"'>#"+v.name+" "+v.opts+"</option>") );
+				}
 			}
-			
 		};
 		
 		var done_edit=function(){
@@ -134,69 +140,95 @@ $.fn.wakaedit=function(opts)
 			edit_textarea.val( text );
 		};
 		
-		rechunks();
 		
+		edit_check.bind("change",function() {
+				if($(this).is(':checked')){
+//					console.log("ACE ON")
+					$.cookie("useace","on");
+				}
+				else
+				{
+//					console.log("ACE OFF")
+					$.cookie("useace","off");
+				}
+    		});    		
+
+		edit_textarea.before(edit_select);
+		edit_textarea.before(edit_check);
 		edit_textarea.after(edit_div);
-		edit_textarea.after(edit_select);
 
 		var css={width:opts.width,height:opts.height,position:"relative",margin:"auto",background:"#fff"};
 
 // hide textbox and replace with new editor
 		edit_textarea.css(css);
 		edit_div.css(css);
-		edit_textarea.hide();
 		
-		var editor = ace.edit(edit_div[0]);
-		
-// setup my defaults
-
-		editor.getSession().setUseSoftTabs(false);
-		editor.getSession().setUseWrapMode(true);
-		
-//		var HtmlMode = require("ace/mode/html").Mode;
-//		var CssMode = require("ace/mode/css").Mode;
-//		var JavascriptMode = require("ace/mode/javascript").Mode;
-		
-//		editor.getSession().setMode(new HtmlMode());
-		
-		editor.setBehavioursEnabled(false);
-		
-		editor.getSession().setMode("ace/mode/html");
-	
-		editor.setTheme("ace/theme/eclipse");
-		
-		editor.getSession().setValue(text);
-		
-		window.aceEditor=editor;
-		
-		$(opts.who+" input").click(function(){
-			done_edit();
-			return true;
-		});
-
-		edit_select.bind("change keyup",function() {
+		if($.cookie("useace")=="off")
+		{
+			edit_check.attr('checked', false);
 			
-			var num=Math.floor( edit_select.val()*1 );
+			edit_div.hide();
+		}
+		else
+		{
+			edit_check.attr('checked', true);
+
+			edit_textarea.hide();
 			
-			done_edit();
-			mode=num;
+			editor = ace.edit(edit_div[0]);
 			
-			edit_select.val(mode+"");
-						
-			if(num>=0)
-			{
-				editor.getSession().setValue( chunks[num].lines.join("\n") );
-			}
-			else
-			{
-				editor.getSession().setValue(text);
-			}
+	// setup my defaults
+
+			editor.getSession().setUseSoftTabs(false);
+			editor.getSession().setUseWrapMode(true);
+			
+	//		var HtmlMode = require("ace/mode/html").Mode;
+	//		var CssMode = require("ace/mode/css").Mode;
+	//		var JavascriptMode = require("ace/mode/javascript").Mode;
+			
+	//		editor.getSession().setMode(new HtmlMode());
+			
+			editor.setBehavioursEnabled(false);
+			
+			editor.getSession().setMode("ace/mode/html");
+		
+			editor.setTheme("ace/theme/eclipse");
+			
+			editor.getSession().setValue(text);
+			
+			window.aceEditor=editor;
+			
+			$(opts.who+" input").click(function(){
+				done_edit();
+				return true;
+			});
+
+			edit_select.bind("change keyup",function() {
+				
+				var num=Math.floor( edit_select.val()*1 );
+				
+				done_edit();
+				mode=num;
+				
+				edit_select.val(mode+"");
+							
+				if(num>=0)
+				{
+					editor.getSession().setValue( chunks[num].lines.join("\n") );
+				}
+				else
+				{
+					editor.getSession().setValue(text);
+				}
 
 
-			editor.gotoLine(0);
+				editor.gotoLine(0);
 
-			return true;
-		});
+				return true;
+			});
+		}
+
+		rechunks();
 
 	return this;
 }

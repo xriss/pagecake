@@ -122,12 +122,25 @@ function send(tab)
 	log("mail.send:")
 --	return core.send(...)
 
+--	if tab.to=="admin" then -- send to all admins
+--	end
+	
+	local rcpt={}
+	
+	if type(tab.to)=="string" then
+		rcpt[1]="<"..tab.to..">"
+	elseif type(tab.to)=="table" then
+		for i,v in ipairs(tab.to) do
+			rcpt[#rcpt+1]="<"..v..">"
+		end
+	end
+
 
 
 	local source = smtp.message{ 
       headers = { 
          from = "<"..tab.from..">", 
-         to = "<"..tab.to..">", 
+         to = table.concat(rcpt,","),
          subject = tab.subject,
       }, 
       body = { 
@@ -138,7 +151,7 @@ function send(tab)
 
     r, e = smtp.send{ 
         from = "<"..tab.from..">", 
-        rcpt = "<"..tab.to..">", 
+        rcpt = rcpt, 
         source = source, 
         server = "127.0.0.1", 
         port = 25, 

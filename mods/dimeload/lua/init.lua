@@ -4,7 +4,7 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 local wet_html=require("wetgenes.html")
 local replace=wet_html.replace
 
-local markdown=require("markdown")
+--local markdown=require("markdown")
 
 local sys=require("wetgenes.www.any.sys")
 

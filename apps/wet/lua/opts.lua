@@ -57,26 +57,25 @@ local serialize=wet_string.serialize
 
 local function default_vars(v)
 
-	v.bootstrapp_version=20130201 -- hand bump to todays date on release
+--	v.bootstrapp_version=20130201 -- hand bump to todays date on release
 
-	v.mail={}
-	v.mail.from="spam@wetgenes.com"
+--	v.mail={}
+	v.mail_from="spam@wetgenes.com"
+	v.mail_admin={"notshi@gmail.com","krissd@gmail.com",}
 
-	v.urls={}
+--	v.urls={}
 
-	v.head={} -- stuff to inject into the html header
-	v.head.favicon="/favicon.ico" -- the favicon
-	v.head.extra_css={} -- more css links
-	v.head.extra_js={} -- more js links
-	v.head.extra={} -- more header junk
+--	v.head={} -- stuff to inject into the html header
+--	v.head.favicon="/favicon.ico" -- the favicon
+--	v.head.extra_css={} -- more css links
+--	v.head.extra_js={} -- more js links
+--	v.head.extra={} -- more header junk
 
 	-- need some admin users or we will get nowhere
-	v.users={admin={
-	["2@id.wetgenes.com"]=true,
-	["14@id.wetgenes.com"]=true,
-	["notshi@gmail.com"]=true,
-	["krissd@gmail.com"]=true,
-	}}
+	v.admin={
+		["2@id.wetgenes.com"]=true,
+		["14@id.wetgenes.com"]=true,
+	}
 
 end
 

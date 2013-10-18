@@ -508,6 +508,7 @@ head.fs.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.
 head.fs.jquery_ui_js="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js";
 head.fs.jquery_validate_js="http://ajax.microsoft.com/ajax/jQuery.Validate/1.6/jQuery.Validate.min.js";
 head.fs.jquery_asynch_image_loader_js="/js/base/JqueryAsynchImageLoader-0.8.min.js";
+head.fs.jquery_cookie_js="/js/base/jquery.cookie.js";
 head.fs.jquery_wet_js="/js/base/jquery-wet.js";
 head.fs.jquery_wakaedit_js="/js/base/jquery-wakaedit.js";
 head.fs.swfobject_js="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js";

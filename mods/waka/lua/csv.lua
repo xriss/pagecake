@@ -102,16 +102,17 @@ function chunk_import(srv,chunk)
 					local done=false
 					dat,idx=fromCSV(body,idx)
 --log(tostring(idx)..":"..wstr.dump(dat))
-					if dat then
-						local t={}
+					if dat and dat[1] then
+						local t
 						for n,id in ipairs(ids) do
 							if id and id~="" and dat[n] and dat[n]~="" then
 								if dat[n] then
+									t=t or {}
 									t[id]=dat[n]
 								end
 							end
 						end
-						data[#data+1]=t
+						if t then data[#data+1]=t end
 					else
 						done=true
 					end

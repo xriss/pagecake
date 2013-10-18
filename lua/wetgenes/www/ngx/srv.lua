@@ -124,7 +124,13 @@ function new()
 		end
 	end
 
-	local body	-- pulling the body in is slightly complex
+	srv.gets=ngx.req.get_uri_args()
+
+	local content_type=srv.headers["content-type"]
+--log(wstr.serialize(srv.headers))
+
+	local body	-- pulling the body in is slightly complex, and MUST BE DONE LAST? for some reason
+-- it seems long body uploads break things, you can no longer access ngx.req.get_uri_args afterwards?
 	ngx.req.read_body()
 	local fn=ngx.req.get_body_file()
 	if fn then
@@ -135,14 +141,15 @@ function new()
 		body=ngx.req.get_body_data()
 	end
 
+--if body and body~="" then log("Got body of length "..#body) end
+
 	srv.body=body -- hand the body to the maincode (if we have a body) (probably incoming json)
 	
 	srv.posts={}
 	srv.uploads={}
 	
-	local content_type=srv.headers["content-type"]
---log(wstr.serialize(srv.headers))
-	
+--if body and body~="" then log("body type "..tostring(content_type)) end
+
 	if not content_type then --nothing?
 	
 
@@ -152,11 +159,15 @@ function new()
 	
 	elseif string.find(content_type, "multipart/form-data", 1, true) then
 	
+--if body and body~="" then log("Testing parts") end
+
 		local _,_,boundary = string.find (content_type, "boundary%=(.-)$")
 	  
 		boundary="--"..boundary
 
 		local parts=wstr.split(body,boundary)
+
+--if body and body~="" then log("Got parts "..#parts) end
 	  
 		for i,v in ipairs(parts) do
 		
@@ -198,7 +209,9 @@ function new()
 		end
 	end
 
-	srv.gets=ngx.req.get_uri_args()
+	for i,v in pairs(srv.uploads) do
+		log("upload of "..v.name.." size of "..v.size)
+	end
 
 --print("UPLOADS",wstr.dump(srv.uploads))
 --print("POSTS",wstr.dump(srv.posts))

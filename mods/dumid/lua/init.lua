@@ -609,7 +609,7 @@ function perform_login(srv,tab)
 
 	if tab.email then -- try and load or create a new user by email
 
-		if srv.opts("users","admin",tab.email) then admin=true end -- set admin flag to true for these users
+		if srv.opts("admin",tab.email) then admin=true end -- set admin flag to true for these users
 
 		for retry=1,10 do -- get or create user in database
 			

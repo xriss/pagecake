@@ -51,6 +51,7 @@ default_props=
 	author="", -- the userid of who wrote this comment (can be used to lookup user)
 	url="",    -- the site url for which this is a comment on, site comments relative to root begin with "/"
 	group="0",   -- the id of our parent or 0 if this is a master comment on a url, -1 if it is a meta cache
+	view="public", -- this comment is "public" or maybe not
 	type="ok", -- a type string to filter on
 				-- ok    - this is a valid comment, display it
 				-- spam  - this is pure spam, hidden but not forgotten
@@ -67,6 +68,7 @@ default_props=
 	
 	media=0, -- an associated data.meta id link, 0 if no media,
 				-- so each post can have eg an image associated with it ala 4chan
+
 }
 
 if not ngx then
@@ -408,10 +410,10 @@ function post(srv,tab)
 				]])
 			end
 
-			if #tab.posts.wetnote_comment_text <3 then
+			if #tab.posts.wetnote_comment_text <1 then
 				return([[
 				<div class="wetnote_error">
-				Sorry but your comment was too short (<3 chars) to be accepted.
+				Sorry but your comment was empty.
 				</div>
 				]])
 			end
@@ -589,8 +591,8 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 				d_nags.save(srv,srv.sess,nag)
 
 -- and send an email to admins if enabled?
-				if srv.opts("mail","from") then
-					mail.send{from=srv.opts("mail","from"),to="admin",subject="New comment by "..posted.cache.cache.user.name.." on "..long_url,text=long_url.."\n\n"..c.text}
+				if srv.opts("mail_from") and srv.opts("mail_admin") then
+					mail.send{from=srv.opts("mail_from"),to=srv.opts("mail_admin"),subject="New comment by "..posted.cache.cache.user.name.." on "..srv.url_domain..tab.url,body=long_url.."\n\n"..c.text}
 log(posted.cache.cache.user.name)
 				end
 				
