@@ -322,6 +322,7 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 			cache.put(srv,"oauth_token="..gots.oauth_token,got.body) -- save data for a little while
 			return srv.redirect("https://twitter.com/oauth/authorize?oauth_token="..gots.oauth_token)
 		end
+		
 	end
 
 	srv.set_mimetype("text/html; charset=UTF-8")
@@ -371,7 +372,7 @@ local put=make_put(srv)
 	local flavour
 	local admin=false
 	local authentication={} -- store any values we wish to cache here
-	local info={}
+	local info={} -- extra data we may have also grabed from authenticator
 	
 	local checkopenid=function(url)
 
@@ -569,7 +570,7 @@ local put=make_put(srv)
 		
 		if data.screen_name then -- we got a user
 
---log(tostring(data))
+--log(wstr.dump(data))
 		
 			name=data.screen_name
 			email=data.user_id.."@id.twitter.com"
@@ -581,6 +582,35 @@ local put=make_put(srv)
 				name=data.screen_name,
 				id=data.user_id,
 				}
+
+-- fetch user info
+				local baseurl="https://api.twitter.com/1.1/users/show.json"
+				
+				local vars={}
+				vars.oauth_timestamp , vars.oauth_nonce = oauth.time_nonce("sekrit")
+				vars.oauth_consumer_key = srv.opts("twitter","key")
+				vars.oauth_signature_method="HMAC-SHA1"
+				vars.oauth_version="1.0"
+				vars.oauth_token=authentication.twitter.token
+				vars.screen_name=authentication.twitter.name
+			
+				local k,q = oauth.build(vars,{post="GET",url=baseurl,
+					api_secret=srv.opts("twitter","secret"),tok_secret=authentication.twitter.secret})
+				
+				local got=fetch.get(baseurl.."?"..q) -- simple get from internets		
+--				local data=oauth.decode(got.body or "")
+
+--log(wstr.dump(got.body))
+				if got and got.body then
+					local tmp=json.decode(got.body)
+					if tmp then
+						for i,v in pairs(tmp) do if type(v)~="string" and type(v)~="number" then tmp[i]=nil end end -- kill all the crap crap
+						info=tmp
+					end
+				end
+--log(wstr.dump(tmp))
+		
+		
 		end
 	
 	end

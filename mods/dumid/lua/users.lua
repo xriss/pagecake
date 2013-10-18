@@ -19,6 +19,7 @@ local serialize=wet_string.serialize
 
 local wxml=require("wetgenes.simpxml")
 
+local ngx=ngx
 
 module("dumid.users")
 local _M=require(...)
@@ -201,11 +202,12 @@ end
 --
 -----------------------------------------------------------------------------
 function get_avatar_url(userid,w,h,srv)
+	srv=srv or (ngx and ngx.ctx)
+	
 	local user=nil
 	
 	w=w or 100
 	h=h or 100
-	local url
 	local email=userid
 
 
@@ -217,79 +219,89 @@ function get_avatar_url(userid,w,h,srv)
 	
 	if type(userid)=="string" then userid=userid:lower() end
 	if type(email) =="string" then email = email:lower() end
+	local url="/www.gravatar.com/avatar/"..sys.md5(email):lower().."?s=200&d=identicon&r=x"
 
-	local endings={"@id.wetgenes.com"}
-	for i,v in ipairs(endings) do
-		if string.sub(userid,-#v)==v then
-			url="/thumbcache/"..w.."/"..h.."/www.wetgenes.com/icon/"..string.sub(userid,1,-(#v+1))
-		end
-	end
+	local curl
+	if srv then curl=cache.get(srv,"avatar_from_userid="..userid) end
+	if curl then -- check cache
+		url=curl
+--log("got cache"..curl)
+	else -- build cache
 
-	local endings={"@id.facebook.com"}
-	for i,v in ipairs(endings) do
-		if string.sub(userid,-#v)==v then
-			url="/thumbcache/"..w.."/"..h.."/graph.facebook.com/"..string.sub(userid,1,-(#v+1)).."/picture?type=large"
-		end
-	end
-
-
-	local endings={"@id.twitter.com"}
-	for i,v in ipairs(endings) do
-		if string.sub(userid,-#v)==v then
-
-			local turl="http://www.twitter.com/users/"..string.sub(userid,1,-(#v+1))..".json"
-			local got=fetch.get(turl) -- get twitter infos from internets
-			if type(got.body)=="string" then
---log(wstr.dump(got))
-				local tab=json.decode(got.body)
-				if tab.profile_image_url then
-					url="/thumbcache/"..w.."/"..h.."/"..tab.profile_image_url:sub(8) -- skip "http://"
-				end
+		local endings={"@id.wetgenes.com"}
+		for i,v in ipairs(endings) do
+			if string.sub(userid,-#v)==v then
+				url="/www.wetgenes.com/icon/"..string.sub(userid,1,-(#v+1))
 			end
-
 		end
-	end
 
+		local endings={"@id.facebook.com"}
+		for i,v in ipairs(endings) do
+			if string.sub(userid,-#v)==v then
+				url="/graph.facebook.com/"..string.sub(userid,1,-(#v+1)).."/picture?type=large"
+			end
+		end
 
-	local endings={"@id.steamcommunity.com"}
-	for i,v in ipairs(endings) do
-		if string.sub(userid,-#v)==v then
-
-			local id=userid:sub(1,-#v-1)
-			local got=fetch.get("http://steamcommunity.com/profiles/"..id.."/?xml=1")
-			if type(got.body)=="string" then
-				local x=wxml.parse(got.body)
-				if x then
-					local avatar=wxml.descendent(x,"avatarfull")
-					if avatar then
-						url="/thumbcache/"..w.."/"..h.."/"..(avatar[1]):sub(8) -- skip "http://"
+		local endings={"@id.twitter.com"}
+		for i,v in ipairs(endings) do
+			if string.sub(userid,-#v)==v then
+			
+			if user then
+				if user.info then
+					if user.info.profile_image_url then
+						url="/"..user.info.profile_image_url:sub(8)
+						url=url:gsub("%_normal%.","%_bigger%.") -- needing this is fucking twitarded
 					end
 				end
+	--			log(wstr.dump(user))
 			end
 
+			end
 		end
-	end	
+		
+		local endings={"@id.steamcommunity.com"}
+		for i,v in ipairs(endings) do
+			if string.sub(userid,-#v)==v then
+
+				local id=userid:sub(1,-#v-1)
+				local got=fetch.get("http://steamcommunity.com/profiles/"..id.."/?xml=1")
+				if type(got.body)=="string" then
+					local x=wxml.parse(got.body)
+					if x then
+						local avatar=wxml.descendent(x,"avatarfull")
+						if avatar then
+							url="/"..(avatar[1]):sub(8) -- skip "http://"
+						end
+					end
+				end
+
+			end
+		end	
 
 
-	local endings={"@id.google.com"}
-	for i,v in ipairs(endings) do
-		if string.sub(userid,-#v)==v then
-			local id=userid:sub(1,-#v-1)
-			local icon=nil
-			local hax=fetch.get("https://plus.google.com/"..id.."/about")
-			if type(hax.body=="string") then
-				hax.body:gsub('guidedhelpid="profile_photo"><img src="([^"]+)', function(a,b) icon="http:"..a end , 1)
+		local endings={"@id.google.com"}
+		for i,v in ipairs(endings) do
+			if string.sub(userid,-#v)==v then
+				local id=userid:sub(1,-#v-1)
+				local icon=nil
+				local hax=fetch.get("https://plus.google.com/"..id.."/about")
+				if type(hax.body=="string") then
+					hax.body:gsub('guidedhelpid="profile_photo"><img src="([^"]+)', function(a,b) icon="http:"..a end , 1)
+				end
+				if icon then -- got an image from a public google profile
+					url="/"..(icon):sub(8) -- skip "http://"
+				end
 			end
-			if icon then -- got an image from a public google profile
-				url="/thumbcache/"..w.."/"..h.."/"..(icon):sub(8) -- skip "http://"
-			end
+		end
+		
+		
+		if srv then
+			cache.put(srv,"avatar_from_userid="..userid,url,60*60*24)
+--log("put cache"..url)
 		end
 	end
 
---log(tostring(user))
---log(email)
-
-	url=url or "/thumbcache/"..w.."/"..h.."/www.gravatar.com/avatar/"..sys.md5(email):lower().."?s=200&d=identicon&r=x"
+	url="/thumbcache/"..w.."/"..h..url
 	
 	return url -- return nil if no image found
 end

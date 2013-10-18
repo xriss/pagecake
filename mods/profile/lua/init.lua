@@ -377,37 +377,7 @@ function makechunk_site(content,chunk)
 	elseif chunk.site=="twitter" then
 
 		chunk.site=replace([[
-<script src="http://widgets.twimg.com/j/2/widget.js"></script>
-<script>
-new TWTR.Widget({
-  version: 2,
-  type: 'profile',
-  rpp: 4,
-  interval: 6000,
-  width: 640,
-  height: 200,
-  theme: {
-    shell: {
-      background: '#333333',
-      color: '#ffffff'
-    },
-    tweets: {
-      background: '#000000',
-      color: '#ffffff',
-      links: '#4aed05'
-    }
-  },
-  features: {
-    scrollbar: false,
-    loop: false,
-    live: false,
-    hashtags: true,
-    timestamp: true,
-    avatars: false,
-    behavior: 'all'
-  }
-}).render().setUser('{name}').start();
-</script>
+<a class="twitter-timeline" href="https://twitter.com/{name}" >View twats by @{name}</a>
 ]],d)
 
 	else
