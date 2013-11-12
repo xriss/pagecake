@@ -534,6 +534,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 
 -- close main html chunk of a page
 	cake.html.foot=[[
+{cake.anal}
 </body>
 </html>
 ]]
@@ -547,6 +548,8 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 {cake.html.foot}
 ]]
 
+-- override with your google analytics code or whatever you want injected into the footer
+	cake.anal=""
 	cake.edit=""
 	cake.notes=""
 	cake.comments="{.cake.notes}"

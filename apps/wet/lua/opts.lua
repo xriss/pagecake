@@ -13,7 +13,8 @@ vhosts_map={
 
 	{"miss",		"miss",			"littlemiss.esyou.com",	},			-- any domain with miss in it
 
-	{"gamayo",		"gamayo",		"gamayo.esyou.com",		},			-- any domain with gamayo in it
+	{"ga-ma-yo",	"gamayo",		"ga-ma-yo.com",			},			-- main site
+	{"gamayo",		"gamayo",		"ga-ma-yo.com",			},			-- any domain with gamayo in it
 	{"horror",		"horror",		"horrordriv.esyou.com",	},			-- any domain with horror in it
 
 	{"cello",		"cello",		"cello.esyou.com",		},			-- any domain with play in it

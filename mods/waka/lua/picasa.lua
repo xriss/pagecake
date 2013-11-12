@@ -23,25 +23,15 @@ module("waka.picasa")
 -- build a waka chunk
 function getwaka(srv,opts)
 
-	local s=""
 	local t,err=get(srv,opts)
-	local o={}
 	
 	if t then
-		for i,v in pairs(opts) do t[i]=v end -- copy opts into the return
-		
-		if opts.hook then -- update this stuff?
-			local flag,err=pcall(opts.hook,t)
-			if not flag and err then
-				log("WAKA PICASA HOOK:"..err)
-			end
-		end
-		s=t--wstr.serialize(t)
-	else
-		s=err or "PICASSA IMPORT fail please reload page to try again."
+		for i,v in pairs(t) do
+			opts[i]=v
+		end 
 	end
 
-	return s
+	return opts or err or "PICASSA IMPORT fail please reload page to try again."
 end
 
 --
@@ -49,12 +39,15 @@ end
 --
 function get(srv,opts)
 
+--	opts.limit=opts.limit or 10
+--	opts.offset=opts.offset or 0
+
 -- https://picasaweb.google.com/data/feed/api/user/krissd/album/test?kind=photo&access=public&alt=json&start-index=1&max-results=1
 
-	local tq=(opts.query or "select *").." limit "..opts.limit.." offset "..opts.offset
-	local url
+--	local tq=(opts.query or "select *").." limit "..opts.limit.." offset "..opts.offset
 
-	url="https://picasaweb.google.com/data/feed/api/user/"..opts.user.."/album/"..opts.album.."?kind=photo&alt=json"..(opts.cachebreak or "")
+	local url="https://picasaweb.google.com/data/feed/api/user/"..opts.user.."/album/"..opts.album.."?kind=photo&alt=json"..(opts.cachebreak or "")
+
 --	if opts.offset then url=url.."&start-index="..opts.offset end
 --	if opts.limit then url=url.."&max-results="..opts.limit end
 
@@ -62,14 +55,15 @@ function get(srv,opts)
 
 	local cachename="waka_picasa&"..url_esc(url)
 	local datastr
-	local err
+	local errtq
 	
 	local meta=stash.get(srv,cachename) -- check cache
-	local data=meta.data
-	if meta.updated+(60*60*24) < srv.time then -- cache for 24 hours
-		data=nil
+	local data=meta and meta.data
+	if meta then
+		if meta.updated+(60*60*24) < srv.time then -- cache for 24 hours
+			data=nil
+		end
 	end
-	
 --log(tostring(data))
 	if data then return data end
 	
@@ -118,37 +112,3 @@ function get(srv,opts)
 		
 	return data,err
 end
-
-
---[[
-
-#test form=import
-
-import="picasa"
-
-user="krissd"
-album="test"
---authkey="Gv1sRgCO7k06fj3t6U0QE"
-
-plate="testplate"
-
-hook=function(t)
-	local r={}
-	for i,v in ipairs(t) do
-		r[#r+1]=v
-		local h=200 -- ask for this height
-		v.url=v.src
-		v.src=v.src:gsub("/s0/","/h"..h.."/")
-		v.width=math.floor(h*v.width/v.height)
-		v.height=h
-	end
-	for i=1,#t do t[i]=nil end -- clear all
-	for i,v in ipairs(r) do t[#t+1]=v end -- insert the ones we remembered
-end
-
-#testplate
-
-<a href="{it.url}"><img src="{it.src}" width="{it.width}" height="{it.height}" title="{it.title}" /></a>
-
-
-]]

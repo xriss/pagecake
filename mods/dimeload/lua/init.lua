@@ -447,7 +447,8 @@ local sess,user=d_sess.get_viewer_session(srv)
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
-	local refined=waka.fill_refined(srv,"dl/admin")
+-- admin should be unthemed
+	local refined={title="",body=""}--waka.fill_refined(srv,"dl/admin")
 	html.fill_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"

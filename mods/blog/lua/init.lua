@@ -262,12 +262,12 @@ local get,put=make_get_put(srv)
 		
 		if list[1] then
 			local list_prev=pages.list_prev(srv,{group=opts.group,layer=LAYER_PUBLISHED,pubdate=list[1].cache.pubdate})
-			ret.link_prev="/blog" .. (list_next and list_next.pubname or "")
+			ret.link_prev="/blog" .. (list_prev and list_prev.pubname or "")
 		end
 		
 		if list[#list] then
 			local list_next=pages.list_next(srv,{group=opts.group,layer=LAYER_PUBLISHED,pubdate=list[#list].cache.pubdate})
-			ret.link_next="/blog" .. (list_prev and list_prev.pubname or "")
+			ret.link_next="/blog" .. (list_next and list_next.pubname or "")
 		end
 		
 	end

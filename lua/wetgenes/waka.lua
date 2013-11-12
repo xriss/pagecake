@@ -30,6 +30,8 @@ local setmetatable=setmetatable
 local pcall=pcall
 local error=error
 
+local print=print
+
 -- my string functions
 local str=require("wetgenes.string")
 local sbox=require("wetgenes.sandbox")
@@ -398,7 +400,7 @@ function refine_chunks(srv,chunks,opts)
 -- start by compiling any lua chunks and running its pageopts hook
 	for i,v in ipairs(chunks) do
 	
-		if v.opts.form=="lua" or v.opts.form=="opts" then -- we have some lua code for this page
+		if v.opts.form=="lua" or v.opts.form=="opts" or v.opts.form=="import" then -- we have some lua code for this page
 			local a,b=pcall( function() return sbox.ini(v.text) end )
 			if a then v.env=b end -- success
 			if not a then v.text=b end -- fail, set text to error text
@@ -413,7 +415,8 @@ function refine_chunks(srv,chunks,opts)
 
 	
 	for i,v in ipairs(chunks) do -- do basic process of all of the page chunks into their prefered form 
-		local s=v.env or v.text
+		local s=v.text
+		local e=v.env
 		
 		local format=v.opts.form
 		local trim=v.opts.trim
@@ -426,6 +429,10 @@ function refine_chunks(srv,chunks,opts)
 
 		elseif format=="import" then -- very special import, treat as chunk of lua import opts/code
 		
+			
+---			local a,b=pcall(function() e=sbox.ini(s) end)
+--			if not a then s=b e=nil else s=e v.env=e end -- check error
+--[[
 			local e=sbox.make_env()
 			local f,err=loadstring(s)
 			if f then
@@ -435,9 +442,11 @@ function refine_chunks(srv,chunks,opts)
 			else
 				s=err
 			end
+]]
 
 -- this should be split off into a plugin system...
 			
+		if e then
 			if e.import=="dimeload" then -- include some dimeload info
 			
 				e.hook   	= e.hook 	  or opts.hook
@@ -446,7 +455,7 @@ function refine_chunks(srv,chunks,opts)
 				
 				if not opts.nodimeload then -- prevent recursions
 					local dl=require("dimeload")
-					s=dl.chunk_import(srv,e)
+					e=dl.chunk_import(srv,e)
 				end
 				
 			elseif e.import=="blog" then
@@ -458,7 +467,7 @@ function refine_chunks(srv,chunks,opts)
 				
 				if not opts.noblog then -- prevent recursions
 					local blog=require("blog")
-					s=blog.chunk_import(srv,e)
+					e=blog.chunk_import(srv,e)
 				end
 				
 			elseif e.import=="note" then
@@ -468,7 +477,7 @@ function refine_chunks(srv,chunks,opts)
 				
 				if not opts.nonote then -- prevent recursions
 					local note=require("note")
-					s=note.chunk_import(srv,e)
+					e=note.chunk_import(srv,e)
 				end
 				
 			elseif e.import=="comic" then
@@ -479,7 +488,7 @@ function refine_chunks(srv,chunks,opts)
 				
 				if not opts.nocomic then -- prevent recursions
 					local comic=require("comic")
-					s=comic.chunk_import(srv,e)
+					e=comic.chunk_import(srv,e)
 				end
 				
 			elseif e.import=="gsheet" then -- we need to grab some json from google
@@ -491,7 +500,7 @@ function refine_chunks(srv,chunks,opts)
 				e.plate  = e.plate  or opts.plate
 				e.key    = e.key    or opts.key
 				e.hook   = e.hook   or opts.hook -- callback function to fixup data
-				s=gsheet.getwaka(srv,e) -- get a string
+				e=gsheet.getwaka(srv,e) -- get a string
 				
 			elseif e.import=="csv" then -- we need to grab some spreadsheet data from somewhere
 			
@@ -502,10 +511,10 @@ function refine_chunks(srv,chunks,opts)
 				e.url    = e.url    or opts.url    -- where to get data from
 				e.plate  = e.plate  or opts.plate  -- how to render
 				e.hook   = e.hook   or opts.hook   -- callback function to fixup data
-				s=gsheet.chunk_import(srv,e) -- return a table to render
+				e=gsheet.chunk_import(srv,e) -- return a table to render
 				
 				if e.hook then -- call hook to fix table and return it
-					s=e.hook(s)
+					e=e.hook(e)
 				end
 
 			elseif e.import=="wikipedia" then -- we need to import some xml from wikipedia
@@ -517,7 +526,7 @@ function refine_chunks(srv,chunks,opts)
 				e.search  = e.search  or opts.search -- search for
 				e.hook   = e.hook   or opts.hook -- callback function to fixup data
 				
-				s=wikipedia.getwaka(srv,e) -- get a string
+				e=wikipedia.getwaka(srv,e) -- get a string
 				
 			elseif e.import=="picasa" then -- we need to import some imagedata from picasssa
 			
@@ -527,10 +536,9 @@ function refine_chunks(srv,chunks,opts)
 				e.user  = e.user  or opts.user -- user name
 				e.album  = e.album  or opts.album -- album name
 				e.authkey  = e.authkey  or opts.authkey -- authkey if needed
-				e.hook   = e.hook   or opts.hook -- callback function to fixup data
 				e.plate   = e.plate   or opts.plate -- display plate
 				
-				s=picassa.getwaka(srv,e) -- get a string or tab
+				e=picassa.getwaka(srv,e) -- get a tab
 				
 			elseif e.import=="json" then -- we need to import some json from somewhere
 			
@@ -540,7 +548,7 @@ function refine_chunks(srv,chunks,opts)
 				e.hook   = e.hook   or opts.hook -- callback function to fixup data
 				e.plate   = e.plate   or opts.plate -- display plate
 				
-				s=waka_json.getwaka(srv,e) -- get a string or tab
+				e=waka_json.getwaka(srv,e) -- get a string or tab
 			
 			else -- raw
 			
@@ -553,9 +561,9 @@ function refine_chunks(srv,chunks,opts)
 					end
 				end
 
-				s=e
-			
 			end
+			
+		end
 		
 		elseif format=="waka" then -- basic waka format, html allowed but links are upgraded and line ends are <br/>
 
@@ -573,18 +581,20 @@ function refine_chunks(srv,chunks,opts)
 					refined[v.name][n]=s
 				end
 			end
-		else
-			refined[v.name]=s
+			
+		else -- put result in the refined table
+			refined[v.name]=e or s
 		end
 		
 
 	end
 	
--- end by running any refined lua hooks
+-- finally end by running any refined lua hooks we find
 	for i,v in ipairs(chunks) do
 --		if v.opts.form=="lua" then -- we have some lua code for this page
 		if v.env and v.env.hook_refined then
-			pcall(function() v.env.hook_refined(refined) end) -- update refined data
+--print("refined",tostring(v.env.hook_refined))
+			pcall(function() v.env.hook_refined(refined,v.env) end) -- update refined data
 		end
 --		end
 	end

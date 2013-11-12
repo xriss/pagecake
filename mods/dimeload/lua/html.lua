@@ -18,8 +18,9 @@ setmetatable(M,{__index=html}) -- use a meta table to also return html base
 
 
 function M.fill_cake(srv,refined)
-	local cake=refined.cake or {}
-	refined.cake=cake
+
+	refined.cake=refined.cake or html.fill_cake(srv)
+	local cake=refined.cake
 	
 	cake.dimeload={}
 

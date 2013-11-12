@@ -114,7 +114,7 @@ $.fn.autoembedlink=function(opts)
 		case "image":
 		
 			$(this).before("<a href=\""+link+"\"><img src=\""+link+"\" style=\"max-width:"+opts.width+"px;display:block;\" /></a>");
-			
+			$(this).css("display","none");
 		break;
 		
 		case "art":

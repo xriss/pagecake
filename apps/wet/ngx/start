@@ -1,0 +1,5 @@
+killall nginx
+ngx/bake
+ngx/serv
+ngx/tail
+

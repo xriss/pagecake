@@ -47,7 +47,7 @@ function serv_srv()
 	
 	for i,v in ipairs(opts.vhosts_map or {} ) do
 		srv.vhost=v[2]
-		if ngx.var.host:find(v[1]) then break end
+		if ngx.var.host:find(v[1],1,true) then break end
 	end	
 
 	return srv
@@ -99,8 +99,8 @@ log("REDIRECT:"..t.domain.." FROM "..ngx.var.host)
 					log( debug.traceback() )
 				end)
 				
-					if not m then
-					log("require failed on mod "..n.."\n"..(err or ""))
+				if not m then
+				log("require failed on mod "..tostring(n).."\n"..(err or ""))
 				end
 			end
 		end
