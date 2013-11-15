@@ -300,6 +300,7 @@ local put=H.put
 	end
 	if posts.submit then posts.submit=trim(posts.submit) end
 
+--[[
 	comments.build(H.srv,{
 		url="/hoe/"..H.round.key.id,
 		title="round "..H.round.key.id,
@@ -309,7 +310,7 @@ local put=H.put
 		sess=H.sess,
 		user=H.user,
 		})
-
+]]
 
 
 	put("footer",footer_data)

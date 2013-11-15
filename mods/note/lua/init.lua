@@ -111,7 +111,7 @@ function serv(srv)
 	local refined=waka.fill_refined(srv,"note")
 
 	refined.body="{comments}"	
-	refined.comments=comments.recent_to_html(srv, comments.get_recent(srv,50))
+	refined.comments=comments.recent_refined(srv, comments.get_recent(srv,50))
 
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(wstr.macro_replace("{cake.html.plate}",refined))

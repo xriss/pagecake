@@ -126,7 +126,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
-	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+	waka.build_notes(srv,refined)
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
@@ -425,7 +425,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
---	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+--	waka.build_notes(srv,refined)
 
 	srv.set_mimetype("text/html; charset=UTF-8")
 	srv.put(macro_replace("{cake.html.plate}",refined))
@@ -453,7 +453,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
---	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+--	waka.build_notes(srv,refined)
 	refined.result=""
 
 	if cmd=="hexkeys" then
@@ -879,7 +879,6 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
-	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
 
 --	local refined=wakapages.load(srv,"/dl/"..pname)[0]
 --	refined.pagename="dl/"..pname
@@ -902,6 +901,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		refined.cake.dimeload.post_about=wet_html.esc(refined.cake.dimeload.page.about)
 		refined.cake.dimeload.waka_about=wet_waka.waka_to_html(refined.cake.dimeload.page.about,{escape_html=true})
 		
+		refined.cake.note.url="/"..refined.cake.pagename.."/"..refined.cake.dimeload.page.name
+		refined.cake.note.opts_view="private" -- allow comments but do not publicise them
+		
 		if user and user.cache.id == page.cache.owner then -- owner defaults to sponsor page
 			refined.cake.dimeload.goto="sponsor"
 		else
@@ -912,6 +914,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		refined["cake.dimeload.page.available"]=0
 	end
 	
+	waka.build_notes(srv,refined)
 	
 	if refined.lua and refined.lua.files then
 		refined.cake.dimeload.list={}

@@ -160,7 +160,13 @@ end
 -- comments for pagename, handle post inputs and more
 --
 -----------------------------------------------------------------------------
-function build_notes(srv,pagename,opts)
+function build_notes(srv,refined)
+
+	refined.cake.note.url=refined.cake.note.url or "/"..refined.cake.pagename
+	refined.cake.note.title=refined.cake.note.title or refined.title or refined.cake.note.url
+	comments.build(srv,refined)
+
+--[[
 
 local sess,user=d_sess.get_viewer_session(srv)
 local get=make_get(srv)
@@ -186,6 +192,8 @@ end
 	t.user=user
 	comments.build(srv,t)
 	return table.concat(_tab)
+]]
+--	return ""
 end	
 			
 -----------------------------------------------------------------------------
@@ -380,6 +388,7 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		end
 
 		if refined.opts.flame=="on" then -- add comments to this page
+--[[
 			local _tab={}
 			local _put=function(a,b)
 				local s=get(a,b)
@@ -396,6 +405,10 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 			}
 			comments.build(srv,t)
 			refined.cake.notes=table.concat(_tab)
+]]
+			refined.cake.note.title=refined.title or pagename
+			refined.cake.note.url=srv.url_local
+			comments.build(srv,refined)
 		end
 		
 		srv.set_mimetype("text/html; charset=UTF-8")

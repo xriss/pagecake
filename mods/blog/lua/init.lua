@@ -505,7 +505,7 @@ local get,put=make_get_put(srv)
 				refined.cake.note.title=refined.it.title or pagename
 				refined.cake.note.url=refined.it.link
 				
-				comments.newbuild(srv,refined)
+				comments.build(srv,refined)
 --[[
 				local _tab={}
 				local _put=function(a,b)

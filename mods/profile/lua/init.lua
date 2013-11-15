@@ -102,9 +102,13 @@ local get=make_get(srv)
 		if pusr and phtml then
 
 			local refined=waka.fill_refined(srv,"profile")
-			refined.cake.note.title="profile of "..name
+			refined.cake.note.title="profile of "..pusr.cache.name
 			refined.cake.note.url="/profile/"..name
-			comments.newbuild(srv,refined)
+			
+			refined.cake.note.opts_admin=name
+			refined.cake.note.opts_saveas="status"
+			
+			comments.build(srv,refined)
 
 --			refined.cake.notes=notes
 

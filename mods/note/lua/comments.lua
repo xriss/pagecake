@@ -249,7 +249,7 @@ function list(srv,opts,t)
 		limit=opts.limit or 100,
 		offset=opts.offset or 0,
 	}	
-	dat.build_q_filters(opts,q,{"author","url","group","type","updated","created"})
+	dat.build_q_filters(opts,q,{"author","url","view","group","type","updated","created"})
 	local r=t.query(q)
 		
 	for i=1,#r.list do local v=r.list[i]
@@ -308,8 +308,29 @@ end
 -- also set tab.url to the url
 --
 --------------------------------------------------------------------------------
-function post(srv,tab)
+function post(srv,refined)
 
+	local tab={
+		title=refined.cake.note.title,
+		url=refined.cake.note.url,
+		sess=srv.sess,
+		user=srv.user,
+		posts=srv.posts,
+		}
+		
+	if refined.cake.note.opts_view then -- set to private?
+		tab.view=refined.cake.note.opts_view
+	end
+
+	if refined.cake.note.opts_admin then -- only this user can update
+		tab.admin=refined.cake.note.opts_admin
+		tab.lock="admin"
+		if refined.cake.note.opts_saveas then -- and also update users status?
+			tab.saveas="status"
+		end
+	end
+				
+	
 	local user=(tab.user and tab.user.cache)
 	
 	if tab.posts then
@@ -317,6 +338,17 @@ function post(srv,tab)
 		if user and tab.posts.wetnote_comment_submit then -- add this comment
 		
 			local posted
+			
+			if tab.lock and tab.admin~=user.id then
+				local id=wstr.trim(tab.posts.wetnote_comment_id)
+				if id=="0" then -- main posts blocked, but can still reply
+					return([[
+					<div class="wetnote_error">
+					Sorry but your cannot post here.
+					</div>
+					]])
+				end
+			end
 		
 			if #tab.posts.wetnote_comment_text > 4096 then
 				return([[
@@ -389,6 +421,7 @@ function post(srv,tab)
 			c.author=tab.user.cache.id
 			c.url=tab.url
 			c.group=id
+			
 if not ngx then
 	if tostring(tonumber(id) or 0) == tostring(id) then
 		c.group=tonumber(id)
@@ -396,6 +429,9 @@ if not ngx then
 end
 			c.text=tab.posts.wetnote_comment_text
 			c.title=title
+
+			c.view=tab.view or "public"
+
 			if tab.posts.filedata and tab.posts.filedata.size>0 then -- got a file
 				local dat={}
 				dat.id=0
@@ -408,6 +444,7 @@ end
 
 				c.media=dat.id -- remember id
 			end
+			
 			if tab.image=="force" then -- require image to start thread 
 				if (not c.media) or (c.media==0) then
 					return([[
@@ -418,7 +455,7 @@ end
 				end
 			end
 			
-			if tab.anon and tab.posts.anon then -- may be anonymous
+			if tab.anon and tab.posts.anon then -- may be flagged as anonymous
 				if wstr.trim(tab.posts.anon)=="anon" then -- it is
 					c.type="anon"
 				end
@@ -427,17 +464,20 @@ end
 			if ngx then -- appengine backhax
 				e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
 			end
+			
 			put(srv,e)
 			posted=e
 			tab.modified=true -- flag that caller should update cache
-log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.group)			
+
+log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.group)
+
 			if tostring(id)~="0" then -- this is a comment so apply to master
 			
 				update_reply_cache(srv,tab.url,id)
 		
 			else -- this is a master comment
 			
-				if tab.save_post=="status" then -- we want to save this as user posted status
+				if tab.saveas=="status" then -- we want to save this as a user posted status
 					d_users.update(srv,tab.user,function(srv,ent)
 							ent.cache.comment_status=c.text
 							return true
@@ -509,16 +549,13 @@ end
 -- also set tab.url to the url
 --
 --------------------------------------------------------------------------------
-function newbuild(srv,refined)
+function build(srv,refined)
 
-	post(srv,{
-		title=refined.cake.note.title,
-		url=refined.cake.note.url,
-		sess=srv.sess,
-		user=srv.user,
-		posts=srv.posts,
-		})
-
+	local err=post(srv,refined)
+	if err then
+		refined.cake.notes=err
+		return
+	end
 
 local meta=manifest_meta(srv,refined.cake.note.url)
 --log(refined.cake.note.url,wstr.dump(meta))
@@ -535,6 +572,14 @@ refined.cake.note.tick_items=refined.cake.note.tick_items or recent_refined(srv,
 	it.post_text="{cake.note.post_text}"
 	
 refined.cake.note.post={plate="{-cake.note.item_form}{-cake.note.item_login}",it}
+
+if refined.cake.note.opts_admin then
+	if not srv.user then
+		refined.cake.note.post=""
+	elseif refined.cake.note.opts_admin~=srv.user.cache.id then
+		refined.cake.note.post=""
+	end
+end
 
 if meta.comments[1] then
 	for i,v in ipairs(meta.comments) do

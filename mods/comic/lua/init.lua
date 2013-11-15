@@ -241,7 +241,7 @@ local get,put=make_get_put(srv)
 	{comics}
 ]]
 
-	refined.cake.notes=waka.build_notes(srv,refined.cake.pagename)
+	waka.build_notes(srv,refined)
 
 	srv.set_mimetype("text/html; charset=UTF-8")
 	put(macro_replace("{cake.html.plate}",refined))
