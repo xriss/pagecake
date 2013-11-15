@@ -11,6 +11,8 @@ local opts=require("opts")
 vhosts_map={
 	{"local",		"lo4d",			"host.local",			},			-- test this domain when on localhost or host.local
 
+	{"paint",		"paint",		"paint.lo4d.net",	},				-- any domain with paint in it
+
 	{"miss",		"miss",			"littlemiss.esyou.com",	},			-- any domain with miss in it
 
 	{"ga-ma-yo",	"gamayo",		"ga-ma-yo.com",			},			-- main site

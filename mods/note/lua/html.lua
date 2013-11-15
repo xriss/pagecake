@@ -8,62 +8,121 @@ local url_esc=wet_html.url_esc
 
 local html=require("base.html")
 
-module("note.html")
 
-setmetatable(_M,{__index=html}) -- use a meta table to also return html base 
-
-
-
------------------------------------------------------------------------------
---
--- overload footer
---
------------------------------------------------------------------------------
-footer=function(d)
-	d.mod_name="note"
-	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/note"
-	return html.footer(d)
-end
+--module
+local M={ modname=(...) } ; package.loaded[M.modname]=M
 
 
+setmetatable(M,{__index=html}) -- use a meta table to also return html base
 
------------------------------------------------------------------------------
---
--- atom wrappers
---
------------------------------------------------------------------------------
-note_atom_head=function(d)
-	return replace([[<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-	<title>{title}</title>
-	<link rel="self" href="{srv.url_base}.atom"/>
-	<updated>{updated}</updated>
-	<author>
-		<name>{author_name}</name>
-	</author>
-	<id>{srv.url_base}.atom</id>
-]],d)
+function M.fill_cake(srv,refined)
 
-end
+	refined.cake=refined.cake or html.fill_cake(srv)
+	local cake=refined.cake
 
-note_atom_foot=function(d)
-	return replace([[</feed>
-]],d)
+	cake.note={}
+	cake.note.ticks=[[
+<div class="wetnote_ticker">{-cake.note.tick_items}</div>
+]]
 
-end
-note_atom_item=function(d)
-	d.pubdate=(os.date("%Y-%m-%dT%H:%M:%SZ",d.it.created))
-	d.id=d.link
-	return replace([[
-	<entry>
-		<title type="text">{title}</title>
-		<link href="{link}"/>
-		<id>{id}</id>
-		<updated>{pubdate}</updated>
-		<content type="html">{text}</content>
-	</entry>
-]],d)
+-- need to also fill cake.note.tick_items with the result for instance from recent_refined(srv,50)
 
+	cake.note.tick=[[
+<div class="wetnote_tick">
+{it.age} ago <a href="/profile/{it.user_id}">{it.user_name}</a> commented on <br/> <a href="{it.link}">{it.title}</a>
+</div>
+]]
+	cake.note.js=[[
+<script language="javascript" type="text/javascript">
+	var doit=function(){
+		$(".wetnote_comment_text a").autoembedlink({width:460,height:345});
+	};
+	head.js(head.fs.jquery_js,head.fs.jquery_wet_js,function(){ $(doit); });
+</script>
+]]
+
+
+	cake.note.main=[[
+<div class="wetnote_main">
+	<div class="wetnote_main2">
+		<div class="wetnote_comments">
+			{cake.note.post}
+			{cake.note.comments}
+		</div>
+		{cake.note.ticks}
+	</div>
+</div>
+{cake.note.js}
+]]
+
+	cake.note.post_text="Say something nice"
+	cake.note.reply_text="Reply"
+	
+	cake.note.item_login=[[{it.viewer_none_flag}
+<div class="wetnote_comment_form_div">
+<a href="/dumid/login/?continue={it.url}">Click here to login if you wish to comment.</a>
+</div>
+]]
+
+	cake.note.item_link=[[
+<div class="wetnote_comment_form_div">
+<a href="{it.url}" ">Reply</a>
+</div>
+]]
+
+	cake.note.item_upload=[[
+<div class="wetnote_comment_form_image_div" ><span> Please choose an image! </span><input  class="wetnote_comment_form_image" type="file" name="filedata" /></div>
+]]
+
+	cake.note.item_anon=[[
+<div class="wetnote_comment_form_anon_dic" ><input class="wetnote_comment_form_anon_check" type="checkbox" name="anon" value="anon" {it.checked}/><span>Post anonymously?</span></div>
+]]
+
+	cake.note.item_form=[[
+<div class="wetnote_comment_form_div">
+<a href="#" onclick="$(this).hide(0);$('#wetnote_comment_form_{it.idhash}').show(400);return false;" style="{it.action_style}">Reply</a>
+<form class="wetnote_comment_form" name="wetnote_comment_form" id="wetnote_comment_form_{it.idhash}" action="" method="post" enctype="multipart/form-data" style="{it.form_style}">
+<div class="wetnote_comment_icon" ><a href="/profile/{it.viewer_id}"><img src="{it.viewer_avatar}" width="100" height="100" /></a></div>
+<div class="wetnote_comment_form_div_cont">{-it.upload}{-it.anon}
+<textarea class="wetnote_comment_form_text" name="wetnote_comment_text"></textarea>
+<input name="wetnote_comment_id" type="hidden" value="{it.id}"></input>
+<input class="wetnote_comment_post" name="wetnote_comment_submit" type="submit" value="{it.post_text}"></input>
+</div>
+</form>
+</div>
+]]
+
+	cake.note.item_media=[[
+<a href="/data/{it.media}"><img src="/thumbcache/crop/460/345/data/{it..media}" class="wetnote_comment_img" /></a>
+]]
+
+	cake.note.item_note=[[
+<div class="wetnote_comment_div" id="wetnote{it.idhash}" >
+<div class="wetnote_comment_icon" ><a href="/profile/{it.user_id}"><img src="{it.avatar}" width="100" height="100" /></a></div>
+<div class="wetnote_comment_head" > posted by <a href="/profile/{it.user_id}">{it.user_name}</a> on {it.time} </div>
+<div class="wetnote_comment_text" >{-it.media_div}{.it.html}</div>
+<div class="wetnote_comment_tail" ></div>
+{-it.reply}
+</div>
+]]
+
+	cake.note.item_reply_show=[[
+	<a onclick="$(this).hide(0);$('.wetnote_reply_hidden_{it.grouphash}').show(400);return false;">Show hidden replies.</a>
+]]
+	cake.note.item_reply=[[
+<div class="wetnote_reply_hidden_{it.grouphash}" style="{it.style}">{cake.note.item_note}</div>
+{it.showhide}
+]]
+
+	cake.note.item_thread=[[
+{cake.note.item_note}
+<div class="wetnote_reply_div">
+{-it.replies}
+{-cake.note.item_form}{-cake.note.item_login}
+</div>
+]]
+
+	return cake
 end
 

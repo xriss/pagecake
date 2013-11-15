@@ -201,7 +201,7 @@ end
 -- so cache its result and do not call this multiple times every page render
 --
 -----------------------------------------------------------------------------
-function get_avatar_url(userid,w,h,srv)
+function get_avatar_url(srv,userid,w,h)
 	srv=srv or (ngx and ngx.ctx)
 	
 	local user=nil

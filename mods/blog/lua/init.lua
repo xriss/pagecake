@@ -501,6 +501,12 @@ local get,put=make_get_put(srv)
 			refined.title=refined.it.title
 			
 			if refined.opts.flame=="on" then -- add comments to this page
+
+				refined.cake.note.title=refined.it.title or pagename
+				refined.cake.note.url=refined.it.link
+				
+				comments.newbuild(srv,refined)
+--[[
 				local _tab={}
 				local _put=function(a,b)
 					local s=get(a,b)
@@ -517,6 +523,7 @@ local get,put=make_get_put(srv)
 				}
 				comments.build(srv,t)
 				refined.cake.notes=table.concat(_tab)
+]]
 			end
 
 			srv.set_mimetype("text/html; charset=UTF-8")

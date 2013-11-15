@@ -306,8 +306,8 @@ local escape_html=opts.escape_html or false
 	local esc
 	if escape_html then -- simple html escape
 		esc=function(s) 
-			local escaped = { ['<']='&lt;', ['>']='&gt;', ["&"]='&amp;' , ["\n"]='<br/>\n' }
-			return (s:gsub("[<>&\n]", function(c) return escaped[c] or c end))
+			local escaped = { ['{']='&#123;',['}']='&#125;',['<']='&lt;', ['>']='&gt;', ["&"]='&amp;' , ["\n"]='<br/>\n' }
+			return (s:gsub("[{}<>&\n]", function(c) return escaped[c] or c end))
 		end
 	else -- no escape just convert \n to <br/>
 		esc=function(s) 

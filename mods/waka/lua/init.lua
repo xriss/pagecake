@@ -36,6 +36,7 @@ local edits=require("waka.edits")
 
 local comments=require("note.comments")
 
+local note_html=require("note.html")
 --
 -- Which can be overeiden in the global table opts
 --
@@ -146,8 +147,9 @@ function fill_refined(srv,pagename,refined)
 	refined.cake.pagename=pagename
 	refined.cake.homebar.crumbs=fill_crumbs(srv,pagename)
 	refined.opts=fill_opts(srv,refined.opts)
-	
-	local chunks=pages.load(srv,"/"..pagename,{refined=refined})
+	note_html.fill_cake(srv,refined) -- add note html into the cake
+
+	local chunks=pages.load(srv,"/"..pagename,{refined=refined}) -- this fills in refined
 
 	return refined	
 end

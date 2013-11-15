@@ -18,8 +18,9 @@ function get(data,fmt)
 	
 
 	local gfmt=grd.HINT_PNG
-	if fmt=="jpeg" then gfmt=grd.HINT_JPG end
-	
+	if fmt=="jpeg" or fmt=="image/jpeg" then gfmt=grd.HINT_JPG end
+	if fmt=="gif" or fmt=="image/gif" then gfmt=grd.HINT_GIF end
+
 	local g=grd.create()
 	g:load_data(data,gfmt)
 

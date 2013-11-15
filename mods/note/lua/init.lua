@@ -35,6 +35,7 @@ local d_sess=require("dumid.sess")
 local html=require("note.html")
 local comments=require("note.comments")
 
+local waka=require("waka")
 
 -- opts
 
@@ -43,6 +44,7 @@ module("note")
 
 local forum=require("forum")
 
+--[[
 local function make_get_put(srv)
 	local get=function(a,b)
 		b=b or {}
@@ -51,6 +53,7 @@ local function make_get_put(srv)
 	end
 	return  get , function(a,b) srv.put(get(a,b)) end
 end
+]]
 
 local function make_url(srv)
 	local url=srv.url_base
@@ -102,31 +105,17 @@ function serv(srv)
 		return serv_api(srv)
 	end
 
-local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
+--local sess,user=d_sess.get_viewer_session(srv)
+--local posts=make_posts(srv)
 
-local posts=make_posts(srv)
+	local refined=waka.fill_refined(srv,"note")
 
-	
+	refined.body="{comments}"	
+	refined.comments=comments.recent_to_html(srv, comments.get_recent(srv,50))
+
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title="notes ",H={user=user,sess=sess}})
+	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
 
---	comments.build(srv,{url="/note",posts=posts,get=get,put=put,sess=sess,user=user})
-	
---[[
-	local t=users.email_to_avatar_url("15071645@id.twitter.com")
-	local t=users.email_to_avatar_url("kriss2@xixs.com")
-	put('<img src="{src}">',{src=t})
-]]
-
-	put([[
-<div class="wetnote_ticker">{text}</div>
-]],	{
-		text=comments.recent_to_html(srv, comments.get_recent(srv,50) ),
-	})
-
-	
-	put("footer")
 end
 
 
@@ -138,7 +127,7 @@ end
 function serv_import(srv)
 
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
+--local get,put=make_get_put(srv)
 local posts=make_posts(srv)
 
 	local ext
@@ -169,7 +158,7 @@ local posts=make_posts(srv)
 
 
 	if ext=="atom" then -- head comments only in feed, comments on comments are ignored
-	
+--[=[	
 		local function atom_escape(s)
 
 			return string.gsub(s, "([%&%<])",
@@ -216,14 +205,15 @@ local posts=make_posts(srv)
 					})
 			end
 			put("note_atom_foot",{})
-
+]=]
 	elseif ext=="js" then
+--[=[
 		srv.set_mimetype("text/javascript; charset=UTF-8")
 		
 		local out={}
-		local newput=function(a,b)
-			out[#out+1]=get(a,b)
-		end
+--		local newput=function(a,b)
+--			out[#out+1]=get(a,b)
+--		end
 		local replyonly
 		if srv.gets.wetnote then
 			replyonly=(srv.gets.wetnote)
@@ -276,13 +266,11 @@ if (!document.getElementById('{css}'))
 	str=js_encode(s),
 	css=srv.url_domain.."/css/note/import.css"
 })
-		
+]=]
 	else
 		srv.set_mimetype("text/html; charset=UTF-8")
-		put("header",{title="import notes ",user=user,sess=sess,bar=""})
-		
-
-		put("footer",{about="",report="",bar="",})
+		srv.put("header",{title="import notes ",user=user,sess=sess,bar=""})
+		srv.put("footer",{about="",report="",bar="",})
 	end
 end
 
@@ -295,7 +283,7 @@ end
 function chunk_import(srv,opts)
 opts=opts or {}
 
-local get,put=make_get_put(srv)
+--local get,put=make_get_put(srv)
 
 	local t={}
 	local css=""
@@ -323,7 +311,7 @@ local get,put=make_get_put(srv)
 			c.link=c.url.."?wetnote="..c.id.."#wetnote"..wstr.alpha_munge(c.id)
 			
 			c.author_name=c.cache.user.name
-			c.author_icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(c.cache.user) )		
+			c.author_icon=srv.url_domain..( c.cache.avatar or d_users.get_avatar_url(srv,c.cache.user) )		
 			c.author_link=purl or "http://google.com/search?q="..c.cache.user.name
 			
 			c.date=os.date("%Y-%m-%d %H:%M:%S",c.created)
@@ -352,7 +340,7 @@ end
 function serv_api(srv)
 
 local sess,user=d_sess.get_viewer_session(srv)
-local get,put=make_get_put(srv)
+--local get,put=make_get_put(srv)
 local posts=make_posts(srv)
 
 	if not srv.is_admin(user) then -- adminfail

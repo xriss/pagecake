@@ -552,7 +552,7 @@ head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
 	cake.anal=""
 	cake.edit=""
 	cake.notes=""
-	cake.comments="{.cake.notes}"
+	cake.comments="{-cake.notes}"
 	cake.plate=[[
 <h1>{title}</h1>
 {body}

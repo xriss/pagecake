@@ -94,14 +94,19 @@ local get=make_get(srv)
 	if name then name=name:lower() end -- force to lower
 	
 	if name then -- need to check the name is valid
-		local notes=waka.build_notes(srv,"profile/"..name,{save_post="status"})
+
+
+--		local notes=waka.build_notes(srv,"profile/"..name,{save_post="status"})
 		local pusr=d_users.get(srv,name) -- get user from userid
 		local phtml=get_profile_html(srv,name)
 		if pusr and phtml then
 
 			local refined=waka.fill_refined(srv,"profile")
-			
-			refined.cake.notes=notes
+			refined.cake.note.title="profile of "..name
+			refined.cake.note.url="/profile/"..name
+			comments.newbuild(srv,refined)
+
+--			refined.cake.notes=notes
 
 			if srv.is_admin(user) then
 --				refined.cake.admin="{cake.admin_profile_bar}"
@@ -110,10 +115,10 @@ local get=make_get(srv)
 			
 			refined.cake.profile=phtml
 			refined.body="{.cake.profile}"
-			refined.title=pusr.cache.name.." profile"
+			refined.title="Profile of "..pusr.cache.name
 
 			srv.set_mimetype("text/html; charset=UTF-8")
-			put(macro_replace("{cake.html.plate}",refined))
+			srv.put(macro_replace("{cake.html.plate}",refined))
 
 
 --[[
@@ -311,7 +316,7 @@ function makechunk_name(content,chunk)
 	name=user.name,
 	plink=plink,
 	purl=purl,
-	icon=user.avatar_url or d_users.get_avatar_url(user),
+	icon=user.avatar_url or d_users.get_avatar_url(nil,user),
 	})
 	
 		
@@ -377,7 +382,7 @@ function makechunk_site(content,chunk)
 	elseif chunk.site=="twitter" then
 
 		chunk.site=replace([[
-<a class="twitter-timeline" href="https://twitter.com/{name}" >View twats by @{name}</a>
+<a class="twitter-timeline" href="https://twitter.com/{name}" >View tweets by @{name}</a>
 ]],d)
 
 	else
