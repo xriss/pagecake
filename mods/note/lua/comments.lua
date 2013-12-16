@@ -654,6 +654,8 @@ function recent_refined(srv,tab)
 	end
 	
 	t.plate="{cake.note.tick}"
+	
+	if not t[1] then return "" end -- empty chunk
 
 	return t
 end

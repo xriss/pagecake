@@ -17,12 +17,12 @@ function get(data,fmt)
 --	log("img.get:")
 	
 
-	local gfmt=grd.HINT_PNG
-	if fmt=="jpeg" or fmt=="image/jpeg" then gfmt=grd.HINT_JPG end
-	if fmt=="gif" or fmt=="image/gif" then gfmt=grd.HINT_GIF end
+--	local gfmt=grd.HINT_PNG
+--	if fmt=="jpeg" or fmt=="image/jpeg" then gfmt=grd.HINT_JPG end
+--	if fmt=="gif" or fmt=="image/gif" then gfmt=grd.HINT_GIF end
 
 	local g=grd.create()
-	g:load_data(data,gfmt)
+	g:load_data(data)
 
 	return g
 end

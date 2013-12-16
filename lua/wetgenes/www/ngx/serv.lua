@@ -94,8 +94,8 @@ log("REDIRECT:"..t.domain.." FROM "..ngx.var.host)
 			if type(n)=="string" then
 --				log("require "..n)
 --				local m,err=pcall(require,n)
-				local m,n=xpcall(function() return require(n) end,function(msg,lev)
-					log( msg )
+				local m,err=xpcall(function() return require(n) end,function(eobj)
+					log( "require "..n.." failed" )
 					log( debug.traceback() )
 				end)
 				

@@ -315,6 +315,8 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	refined.cake=html.fill_cake(srv)
 	refined.cake.pagename=pagename
 	refined.cake.homebar.crumbs=crumbs
+	note_html.fill_cake(srv,refined) -- add note html into the cake
+
 	if page_edit then refined.cake.admin_waka_form_text=wet_html.esc(page_edit) end
 	
 	refined.opts=fill_opts(srv)
@@ -388,24 +390,6 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		end
 
 		if refined.opts.flame=="on" then -- add comments to this page
---[[
-			local _tab={}
-			local _put=function(a,b)
-				local s=get(a,b)
-				_tab[#_tab+1]=s
-			end
-			local t={
-				title=refined.title or pagename,
-				url=srv.url_local,
-				posts=posts,
-				get=get,
-				put=_put,
-				sess=sess,
-				user=user,
-			}
-			comments.build(srv,t)
-			refined.cake.notes=table.concat(_tab)
-]]
 			refined.cake.note.title=refined.title or pagename
 			refined.cake.note.url=srv.url_local
 			comments.build(srv,refined)
@@ -413,7 +397,6 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 		
 		srv.set_mimetype("text/html; charset=UTF-8")
 		srv.put(macro_replace("{cake.html.plate}",refined))
-	
 
 	end
 end
