@@ -512,8 +512,8 @@ head.fs.jquery_cookie_js="/js/base/jquery.cookie.js";
 head.fs.jquery_wet_js="/js/base/jquery-wet.js";
 head.fs.jquery_wakaedit_js="/js/base/jquery-wakaedit.js";
 head.fs.swfobject_js="http://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js";
-head.fs.gcf_js="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js";
-head.fs.ace_js="http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js";
+head.fs.codemirror_js="/js/base/codemirror.min.js";
+head.fs.codemirror_css="/css/base/codemirror.css";
 </script>
 ]]
 	

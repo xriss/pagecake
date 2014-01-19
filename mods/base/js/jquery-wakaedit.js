@@ -1,9 +1,10 @@
 
 // load lots of stuffs before we can do anything
+head.load(head.fs.codemirror_css);
 head.js(
 	head.fs.jquery_js,
 	head.fs.jquery_cookie_js,
-	head.fs.ace_js,
+	head.fs.codemirror_js,
 	function() {
 		
 		
@@ -88,7 +89,7 @@ var join_chunks=function(c){
 };
 
 
-// turns a text area into a pure waka editing machine using ace
+// turns a text area into a pure waka editing machine using codemirror
 
 $.fn.wakaedit=function(opts)
 {
@@ -103,7 +104,7 @@ $.fn.wakaedit=function(opts)
 		
 		var edit_textarea=this;
 		var edit_div=$("<div class='field cake_field'></div>");
-		var edit_check=$("<input name=\"useace\" type=\"checkbox\">");
+		var edit_check=$("<input name=\"usecm\" type=\"checkbox\">");
 		var edit_select=$("<select name='chunks' class='cake_wakaedit_chunks'></select>");
 		
 		var text=edit_textarea.val();
@@ -129,12 +130,12 @@ $.fn.wakaedit=function(opts)
 		var done_edit=function(){
 			if(mode==-1) // build all chunks
 			{
-				text=editor.getSession().getValue();
+				text=editor.getValue();
 				rechunks();
 			}
 			else
 			{
-				chunks[mode].lines=editor.getSession().getValue().split("\n");
+				chunks[mode].lines=editor.getValue().split("\n");
 				text=join_chunks(chunks);
 			}
 			edit_textarea.val( text );
@@ -143,13 +144,11 @@ $.fn.wakaedit=function(opts)
 		
 		edit_check.bind("change",function() {
 				if($(this).is(':checked')){
-//					console.log("ACE ON")
-					$.cookie("useace","on");
+					$.cookie("usecm","on");
 				}
 				else
 				{
-//					console.log("ACE OFF")
-					$.cookie("useace","off");
+					$.cookie("usecm","off");
 				}
     		});    		
 
@@ -157,13 +156,13 @@ $.fn.wakaedit=function(opts)
 		edit_textarea.before(edit_check);
 		edit_textarea.after(edit_div);
 
-		var css={width:opts.width,height:opts.height,position:"relative",margin:"auto",background:"#fff"};
+		var css={width:opts.width,height:opts.height};//,position:"relative",margin:"auto",background:"#fff"};
 
 // hide textbox and replace with new editor
 		edit_textarea.css(css);
 		edit_div.css(css);
 		
-		if($.cookie("useace")=="off")
+		if($.cookie("usecm")=="off")
 		{
 			edit_check.attr('checked', false);
 			
@@ -171,36 +170,31 @@ $.fn.wakaedit=function(opts)
 		}
 		else
 		{
-			edit_check.attr('checked', true);
-
+			
+ 			edit_check.attr('checked', true);
+ 			
 			edit_textarea.hide();
-			
-			editor = ace.edit(edit_div[0]);
-			
-	// setup my defaults
 
-			editor.getSession().setUseSoftTabs(false);
-			editor.getSession().setUseWrapMode(true);
+			edit_div.empty();
+			editor = CodeMirror(function(elt) {
+				edit_div.append($(elt).css(css));
+			}, {
+				mode: "htmlmixed",
+				lineNumbers:true,
+				extraKeys: {
+						"F11": function(cm) {
+						cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+					},
+						"Esc": function(cm) {
+						if (cm.getOption("fullScreen")) cm.setOption("fullScreen", false);
+					}
+				},
+   				value: edit_textarea[0].value
+			});
 			
-	//		var HtmlMode = require("ace/mode/html").Mode;
-	//		var CssMode = require("ace/mode/css").Mode;
-	//		var JavascriptMode = require("ace/mode/javascript").Mode;
-			
-	//		editor.getSession().setMode(new HtmlMode());
-			
-			editor.setBehavioursEnabled(false);
-			
-			editor.getSession().setMode("ace/mode/html");
-		
-			editor.setTheme("ace/theme/eclipse");
-			
-			editor.getSession().setValue(text);
-			
-			window.aceEditor=editor;
-			
-			$(opts.who+" input").click(function(){
+			editor.on("change",function(){
+				console.log("changer");
 				done_edit();
-				return true;
 			});
 
 			edit_select.bind("change keyup",function() {
@@ -214,18 +208,18 @@ $.fn.wakaedit=function(opts)
 							
 				if(num>=0)
 				{
-					editor.getSession().setValue( chunks[num].lines.join("\n") );
+					editor.setValue( chunks[num].lines.join("\n") );
 				}
 				else
 				{
-					editor.getSession().setValue(text);
+					editor.setValue(text);
 				}
 
-
-				editor.gotoLine(0);
+				editor.setCursor(0,0);
 
 				return true;
 			});
+
 		}
 
 		rechunks();

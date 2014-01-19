@@ -73,7 +73,7 @@ default_props=
 
 }
 
-if not ngx then
+if not ngx then -- appengine backhax
 	default_props.group=0
 end
 
@@ -244,6 +244,10 @@ function list(srv,opts,t)
 	
 	t=t or dat -- use transaction?
 	
+	if ngx then -- appengine backhax
+		if opts.group then opts.group=tostring(opts.group) end
+	end
+	
 	local q={
 		kind=kind(srv),
 		limit=opts.limit or 100,
@@ -267,7 +271,7 @@ end
 --------------------------------------------------------------------------------
 function update_reply_cache(srv,url,id)
 
-if not ngx then
+if not ngx then -- appengine backhax
 	id=tonumber(id)
 end
 
@@ -422,7 +426,7 @@ function post(srv,refined)
 			c.url=tab.url
 			c.group=id
 			
-if not ngx then
+if not ngx then -- appengine backhax
 	if tostring(tonumber(id) or 0) == tostring(id) then
 		c.group=tonumber(id)
 	end

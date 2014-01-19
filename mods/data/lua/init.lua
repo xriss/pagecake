@@ -111,7 +111,9 @@ function serv(srv)
 		if m then
 --log("stash got "..stash_id)
 			srv.set_mimetype( m.mime )
+			srv.set_header("Access-Control-Allow-Origin","*")
 			srv.set_header("Cache-Control","public") -- allow caching of page
+			srv.set_header("Content-Length",#m.data)
 			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 			srv.put(m.data)
 			return
@@ -123,7 +125,9 @@ function serv(srv)
 		if m then
 --log("stash got "..stash_group)
 			srv.set_mimetype( m.mime )
+			srv.set_header("Access-Control-Allow-Origin","*")
 			srv.set_header("Cache-Control","public") -- allow caching of page
+			srv.set_header("Content-Length",#data)
 			srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 			srv.put(m.data)
 			return
@@ -174,7 +178,9 @@ local get,put=make_get_put(srv)
 								group="data&"..tostring(num),
 							}
 						srv.set_mimetype( mime )
+						srv.set_header("Access-Control-Allow-Origin","*")
 						srv.set_header("Cache-Control","public") -- allow caching of page
+						srv.set_header("Content-Length",#data)
 						srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 						srv.put(data)
 --log("stash put "..stash_id)
@@ -213,7 +219,9 @@ local get,put=make_get_put(srv)
 				local ef=file.cache_get_data(srv,em.cache.filekey)
 				
 				srv.set_mimetype( (srv.vars.mime or em.cache.mimetype).."; charset=UTF-8")				
+				srv.set_header("Access-Control-Allow-Origin","*")
 				srv.set_header("Cache-Control","public") -- allow caching of page
+				srv.set_header("Content-Length",em.cache.size)
 				srv.set_header("Expires",os.date("%a, %d %b %Y %H:%M:%S GMT",os.time()+(60*60))) -- one hour cache
 				
 				while true do
