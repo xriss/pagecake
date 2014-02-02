@@ -144,11 +144,11 @@ $.fn.wakaedit=function(opts)
 		
 		edit_check.bind("change",function() {
 				if($(this).is(':checked')){
-					$.cookie("usecm","on");
+					$.cookie("editor","on");
 				}
 				else
 				{
-					$.cookie("usecm","off");
+					$.cookie("editor","off");
 				}
     		});    		
 
@@ -162,7 +162,7 @@ $.fn.wakaedit=function(opts)
 		edit_textarea.css(css);
 		edit_div.css(css);
 		
-		if($.cookie("usecm")=="off")
+		if($.cookie("editor")=="off")
 		{
 			edit_check.attr('checked', false);
 			
@@ -181,6 +181,10 @@ $.fn.wakaedit=function(opts)
 			}, {
 				mode: "htmlmixed",
 				lineNumbers:true,
+				indentUnit:4,
+				indentWithTabs:true,
+				electricChars:false,
+				lineWrapping:true,
 				extraKeys: {
 						"F11": function(cm) {
 						cm.setOption("fullScreen", !cm.getOption("fullScreen"));
@@ -193,7 +197,6 @@ $.fn.wakaedit=function(opts)
 			});
 			
 			editor.on("change",function(){
-				console.log("changer");
 				done_edit();
 			});
 
