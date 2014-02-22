@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"lo4d",			"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
 
 	{"paint",		"paint",		"paint.lo4d.net",	},				-- any domain with paint in it
 
@@ -225,6 +225,10 @@ setup=function()
 			elseif n=="cake" then -- extra site setup
 
 				add_map(v.map,"dice")
+				
+			elseif n=="paint" then -- extra site setup
+
+				add_map(v.map,"paint","paint")
 				
 			end
 						

@@ -3,3 +3,4 @@ syntax: glob
 .ngx
 php/log.txt
 import/cache*
+apps/wet/public/host.local/*

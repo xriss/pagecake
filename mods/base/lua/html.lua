@@ -641,7 +641,7 @@ head.js(head.fs.jquery_wakaedit_js);
 	cake.userbar={}
 	cake.userbar.hello="Hello {cake.userbar.profile},"
 
-	if srv.user and srv.sess then -- a user is logged i and viewing
+	if srv.user and srv.sess then -- a user is logged in and viewing
 		local user=srv.user
 		local hash=srv.sess and srv.sess.key and srv.sess.key.id
 

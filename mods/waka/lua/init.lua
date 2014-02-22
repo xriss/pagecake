@@ -140,7 +140,7 @@ end
 -- including the cake and opts also bubble up the chunks
 --
 -----------------------------------------------------------------------------
-function fill_refined(srv,pagename,refined)
+function fill_refined(srv,pagename,refined,usehtml)
 
 	local refined=refined or {}
 	refined.cake=html.fill_cake(srv)
