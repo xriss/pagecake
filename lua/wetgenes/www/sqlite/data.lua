@@ -339,6 +339,9 @@ function build_q_filters(...)
 	return wdatadef.build_q_filters(...)
 end
 
+function build_qq_filters(...)
+	return wdatadef.build_qq_filters(...)
+end
 
 function setup_db(env,srv)
 	if opts and opts.vhosts and ngx and ngx.ctx then

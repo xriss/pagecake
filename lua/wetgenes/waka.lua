@@ -447,7 +447,18 @@ function refine_chunks(srv,chunks,opts)
 -- this should be split off into a plugin system...
 			
 		if e then
-			if e.import=="dimeload" then -- include some dimeload info
+			if e.import=="paint" then -- include some paint info
+			
+				e.hook   	= e.hook 	  or opts.hook
+				e.command   = e.command   or opts.command
+				e.plate  	= e.plate 	  or opts.plate
+				
+				if not opts.nopaint then -- prevent recursions
+					local dl=require("paint")
+					e=dl.chunk_import(srv,e)
+				end
+				
+			elseif e.import=="dimeload" then -- include some dimeload info
 			
 				e.hook   	= e.hook 	  or opts.hook
 				e.command   = e.command   or opts.command

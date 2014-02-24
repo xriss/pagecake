@@ -18,6 +18,7 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wstring=require("wetgenes.string")
+local wstr=wstring
 
 local wet_string=require("wetgenes.string")
 local str_split=wet_string.str_split
@@ -40,31 +41,34 @@ M.default_props=
 
 -- the key is user/day so you only get one image upload per user per day
 
-	user="",		-- the user this image belongs to
-	day=0,			-- the day this image belongs to (days since 1970)
-	title="",		-- the title (challenge) for this day
-	rank=0,			-- a ranking metric for sorting (-1 to hide)
+	userid="",			-- the userid this image belongs to
+	day=0,				-- the day this image belongs to (days since 1970)
+	rank=0,				-- a ranking metric for sorting, higher is better (and -1 causes this image to be hidden)
 
-	pix_data="",	-- the image data	(<256k enforced limit)
-	pix_mime="",	-- the mime type of image
-	pix_width=0,	-- width
-	pix_height=0,	-- height
-	pix_depth=0,	-- number of frames
+	pix_id="",			-- the image data key (image is actually stored in main data table)
+	pix_mimetype="",	-- the mime type of image
+	pix_width=0,		-- width
+	pix_height=0,		-- height
+	pix_depth=0,		-- number of frames
 
-	fat_data="",	-- the image data	(<256k enforced limit)
-	fat_mime="",	-- the mime type of image
-	fat_width=0,	-- width
-	fat_height=0,	-- height
-	fat_depth=0,	-- number of frames
+	fat_id="",			-- the image data key (image is actually stored in main data table)
+	fat_mimetype="",	-- the mime type of image
+	fat_width=0,		-- width
+	fat_height=0,		-- height
+	fat_depth=0,		-- number of frames
 }
 
 M.default_cache=
 {
+	user_name="",		-- the user name this image belongs to
+	title="",			-- the title (challenge) for this day
 }
 
 function M.kind(srv)
-	local f=srv.flavour or "" ; if f=="paint" then f="" end
-	return f..".paint.image"
+	local n="paint.images"
+	local f=srv and srv.flavour or ""
+	if f=="paint" then f="" end
+	if f=="" then return n else return f.."."..n end
 end
 
 
@@ -126,6 +130,35 @@ function M.delete(srv,id)
 	end
 
 end
+
+
+--------------------------------------------------------------------------------
+--
+-- list pages
+--
+--------------------------------------------------------------------------------
+function M.list(srv,opts,t)
+	opts=opts or {} -- stop opts from being nil
+	
+	t=t or dat -- use transaction?
+	
+	local q={
+		kind=M.kind(srv),
+		limit=opts.limit or 100,
+		offset=opts.offset or 0,
+	}
+	
+	dat.build_qq_filters(opts,q,{"userid","day","rank"})
+
+	local r=t.query(q)
+		
+	for i=1,#r.list do local v=r.list[i]
+		dat.build_cache(v)
+	end
+
+	return r.list
+end
+
 
 
 

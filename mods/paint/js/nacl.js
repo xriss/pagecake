@@ -73,14 +73,39 @@ function handleMessage(message_event) {
 			console.log(dat);
 		}
 		else
-		if(m.cmd=="png")
+		if(m.cmd=="pix")
 		{
-			$("#imgpng").attr("src","data:image/png;base64,"+dat);
+			$("#img_pix").attr("src","data:image/png;base64,"+dat);
 		}
 		else
-		if(m.cmd=="fatpng")
+		if(m.cmd=="fat")
 		{
-			$("#imgfatpng").attr("src","data:image/png;base64,"+dat);
+			$("#img_fat").attr("src","data:image/png;base64,"+dat);
+			
+			var d={}
+			
+			d.pix=$("#img_pix").attr("src");
+			d.fat=$("#img_fat").attr("src");
+			d.day=Math.floor((new Date()).getTime()/(1000*60*60*24));
+			
+			var uploaded=function(dat){
+				console.log(dat);
+				$("#img_status").html(dat.status);
+				if( dat.status != "OK" )
+				{
+					$("#img_pix").attr("src","");
+					$("#img_fat").attr("src","");
+				}
+			};
+			
+			$.ajax({
+				type: "POST",
+				url: "/paint/upload",
+				data: d,
+				success: uploaded,
+				dataType: "json"
+			});
+
 		}
 		else
 		if(m.cmd=="loading") // loading progress
@@ -88,8 +113,7 @@ function handleMessage(message_event) {
 			$("#progress_zip").attr("value",Number(m.progress)/Number(m.total));
 			if(m.progress==m.total)
 			{
-				$("#progress_nacl").hide();
-				$("#progress_zip").hide();
+				$("#progress_all").hide();
 			}
 		}
 		else
@@ -109,10 +133,10 @@ function luaimg() {
 		'local images=oven.rebake(oven.modname..".images")\n'+
 		'local grd=images[images.idx].grd\n'+
 		'local s=mime.b64( (grd:save({fmt="png"})) )\n'+
-		'win.js_post("cmd=png\\n"..s)'+
+		'win.js_post("cmd=pix\\n"..s)'+
 		'local grd=images[images.idx].export_grd().g\n'+
 		'local s=mime.b64( (grd:save({fmt="png"})) )\n'+
-		'win.js_post("cmd=fatpng\\n"..s)'+
+		'win.js_post("cmd=fat\\n"..s)'+
 		'\n');
 //	console.log(t);
 }
@@ -123,7 +147,7 @@ function luasetup() {
 		'local win=require("wetgenes.win")\n'+
 		'return win.\n'+
 		'nacl_start({\n'+
-		'zips={"swpaint.zip"},progress=function(t,p) win.js_post("cmd=loading&total="..t.."&progress="..p.."\\n") end\n'+
+		'zips={"/swpaint.zip"},progress=function(t,p) win.js_post("cmd=loading&total="..t.."&progress="..p.."\\n") end\n'+
 		'})\n');
 
 	var requestAnimationFrame = function(callback,element){

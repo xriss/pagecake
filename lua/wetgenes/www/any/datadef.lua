@@ -3,6 +3,7 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 
 local log=require("wetgenes.www.any.log").log
 local json=require("wetgenes.json")
+local wstr=require("wetgenes.string")
 
 
 module("wetgenes.www.any.datadef")
@@ -356,6 +357,55 @@ function build_q_filters(opts,q,names)
 			elseif d=="-" then d="DESC"
 			end
 			q[#q+1]={"sort",vf,d}
+		end
+	end
+	return q
+end
+
+
+
+
+-----------------------------------------------------------------------------
+--
+-- all new better filters system :)
+--
+-----------------------------------------------------------------------------
+function build_qq_filters(opts,q,names)
+	for i,v in ipairs(names) do
+		for j,c in pairs({"","_eq","_gt","_lt","_gt_eq","_lt_eq","_nt_eq"}) do
+			local d=opts[v..c]
+			if d then
+				local t=type(d)
+				if t=="string" or t=="number" then
+					if c=="_gt" then
+						q[#q+1]={"filter",v,">",d}
+					elseif c=="_lt"  then
+						q[#q+1]={"filter",v,"<",d}
+					elseif c=="_gt_eq"  then
+						q[#q+1]={"filter",v,">=",d}
+					elseif c=="_lt_eq"  then
+						q[#q+1]={"filter",v,"<=",d}
+					elseif c=="_nt_eq"  then
+						q[#q+1]={"filter",v,"!=",d}
+					else
+						q[#q+1]={"filter",v,"==",d}
+					end
+				else
+					if t=="table" then
+						q[#q+1]={"filter",v,"in",d}
+					end
+				end
+			end
+		end
+	end
+	if opts.sort then
+		for j,s in ipairs( wstr.split(opts.sort,",") ) do
+			for i,v in ipairs(names) do
+				if          s==v then q[#q+1]={"sort",v,"ASC"}
+				elseif s.."+"==v then q[#q+1]={"sort",v,"ASC"}
+				elseif s.."-"==v then q[#q+1]={"sort",v,"DESC"}
+				end
+			end
 		end
 	end
 	return q
