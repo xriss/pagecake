@@ -147,7 +147,7 @@ function luasetup() {
 		'local win=require("wetgenes.win")\n'+
 		'return win.\n'+
 		'nacl_start({\n'+
-		'zips={"/swpaint.zip"},progress=function(t,p) win.js_post("cmd=loading&total="..t.."&progress="..p.."\\n") end\n'+
+		'zips={"'+head.fs.swankypaint_zip+'"},progress=function(t,p) win.js_post("cmd=loading&total="..t.."&progress="..p.."\\n") end\n'+
 		'})\n');
 
 	var requestAnimationFrame = function(callback,element){
