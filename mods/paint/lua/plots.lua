@@ -16,6 +16,7 @@ local fetch=require("wetgenes.www.any.fetch")
 local img=require("wetgenes.www.any.img")
 
 
+
 --local ngx=ngx
 
 --module
@@ -25,33 +26,28 @@ local M={ modname=(...) } ; package.loaded[M.modname]=M
 M.default_props=
 {
 
--- the key is user/day so you only get one image upload per user per day
+-- the key is just the day, so you only get one plot per day
 
-	userid="",			-- the userid this image belongs to
-	day=0,				-- the day this image belongs to (days since 1970)
-	rank=0,				-- a ranking metric for sorting, higher is better (and -1 causes this image to be hidden)
+	day=0,				-- the day this plot belongs to (days since 1970)
 
-	pix_id="",			-- the image data key (image is actually stored in main data table)
-	pix_mimetype="",	-- the mime type of image
 	pix_width=0,		-- width
 	pix_height=0,		-- height
 	pix_depth=0,		-- number of frames
 
-	fat_id="",			-- the image data key (image is actually stored in main data table)
-	fat_mimetype="",	-- the mime type of image
-	fat_width=0,		-- width
-	fat_height=0,		-- height
-	fat_depth=0,		-- number of frames
+	pix_name,			-- code name for resolution of image
+	pal_name,			-- code name for palette of image
+	fat_name,			-- code name for fat style of image eg "3x3,bloom++","4x,escher"
+	
 }
 
 M.default_cache=
 {
-	user_name="",		-- the user name this image belongs to
+	style="",			-- json style settings that we squirt across to the client, size,fat,pal 
 	title="",			-- the title (challenge) for this day
 }
 
 function M.kind(srv)
-	local n="paint.images"
+	local n="paint.plots"
 	local f=srv and srv.flavour or ""
 	if f=="paint" then f="" end
 	if f=="" then return n else return f.."."..n end
