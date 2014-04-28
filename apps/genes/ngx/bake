@@ -8,7 +8,7 @@ local bake_ngx=require("wetgenes.bake.ngx")
 
 local tab={}
 tab.arg={...}
-tab.ngx_listen="*:8888"
+tab.ngx_listen="*:1408"
 
 bake_ngx.build(tab)
 

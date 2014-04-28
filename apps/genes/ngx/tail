@@ -1,0 +1,1 @@
+tail -f .ngx/logs/error.log

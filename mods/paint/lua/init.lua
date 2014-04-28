@@ -161,9 +161,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 	if not pix then
 		ret.status="bad pix image"
-	end
-	
-	if not fat then
+	elseif not fat then
 		ret.status="bad fat image"
 	end
 		
@@ -182,7 +180,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 		})
 
 		if not dpix then
-			ret.status="bad pix image"
+			ret.status="bad pix data upload"
 		end
 
 		local dfat=data.upload(srv,{
@@ -195,7 +193,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 		})
 		
 		if not dfat then
-			ret.status="bad fat image"
+			ret.status="bad fat data upload"
 		end
 
 

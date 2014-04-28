@@ -9,36 +9,8 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
-
-	{"poop",		"poop",			"poop.lo4d.net",	},				-- any domain with poop in it
-
-	{"paint",		"paint",		"paint.lo4d.net",	},				-- any domain with paint in it
-
-	{"miss",		"miss",			"littlemiss.esyou.com",	},			-- any domain with miss in it
-
-	{"ga-ma-yo",	"gamayo",		"ga-ma-yo.com",			},			-- main site
-	{"gamayo",		"gamayo",		"ga-ma-yo.com",			},			-- any domain with gamayo in it
-	{"horror",		"horror",		"horrordriv.esyou.com",	},			-- any domain with horror in it
-
-	{"cello",		"cello",		"cello.esyou.com",		},			-- any domain with play in it
-
-	{"play",		"play",			"play.4lfa.com",		},			-- any domain with play in it
-
-	{"cake",		"cake",			"cake.4lfa.com",		},			-- any domain with cake in it
-	{"catch",		"catch",		"catch.4lfa.com",		},			-- any domain with catch in it
-
-	{"cog",			"cog",			"cog.4lfa.com",			},			-- any domain with cog in it
-	{"hoe",			"hoe",			"hoe.4lfa.com",			},			-- any domain with hoe in it
-
-	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",		},			-- any domain with bulbaceous in it
-
-	{"wet",			"wetgenes",		"wet.genes.pw",	},			-- any domain with wet in it
-	
-	{"xixs",		"xixs",			"xixs.com",				},			-- any domain with xixs in it
-	{"esyou",		"esyou",		"esyou.com",			},			-- any domain with esyou in it
-	{"lo4d",		"lo4d",			"dime.lo4d.net",		},			-- any domain with lo4d in it
-	{"4lfa",		"4lfa",			"4lfa.com",				},			-- any domain with 4lfa in it (the last vhost is also the default)
+	{"local",		"genes",		"host.local",		},			-- test this domain when on localhost or host.local
+	{"genes",		"genes",		"wetgenes.com",		},			-- any domain with genes in it
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do
@@ -142,13 +114,6 @@ local function default_map()
 	["#opts"]		=	{
 							url="/",
 						},
-											
---[[
-	["wiki"]		=	{			-- redirect
-							["#redirect"]	=	"/", 		-- remap this *old* wiki url to the root
-						},
-]]
-
 	}
 	add_map(map,"admin")
 	add_map(map.admin,"console")["#opts"].input=
@@ -216,29 +181,9 @@ setup=function()
 
 			v.map=default_map()
 
-			if n=="4lfa" then -- extra site setup
-			
-				add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
-				
-			elseif n=="hoe" then -- extra site setup
+			if n=="genes" then -- extra site setup
 
-				add_map(v.map,"hoe")
-
-			elseif n=="lo4d" then -- extra site setup
-
-				add_map(v.map,"dimeload","dl")
-
-			elseif n=="play" then -- extra site setup
-
-				add_map(v.map,"shadow")
-
-			elseif n=="cake" then -- extra site setup
-
-				add_map(v.map,"dice")
-				
-			elseif n=="paint" then -- extra site setup
-
-				add_map(v.map,"paint","paint")
+				add_map(v.map,"genes","genes")
 				
 			end
 						

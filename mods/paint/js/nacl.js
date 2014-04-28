@@ -4,6 +4,9 @@ console.log("OK");
 naclmod = null;  // Global application object.
 statusText = 'NO-STATUS';
 
+var image_src_pix;
+var image_src_fat;
+
 // Indicate success when the NaCl module has loaded.
 function moduleDidLoad(event) {
 	$("#progress_nacl").attr("value",1);
@@ -75,17 +78,19 @@ function handleMessage(message_event) {
 		else
 		if(m.cmd=="pix")
 		{
-			$("#img_pix").attr("src","data:image/png;base64,"+dat);
+			image_src_pix="data:image/png;base64,"+dat;
+			$("#img_pix").attr("src",image_src_pix);
 		}
 		else
 		if(m.cmd=="fat")
 		{
-			$("#img_fat").attr("src","data:image/png;base64,"+dat);
+			image_src_fat="data:image/png;base64,"+dat;
+			$("#img_fat").attr("src",image_src_fat);
 			
 			var d={}
 			
-			d.pix=$("#img_pix").attr("src");
-			d.fat=$("#img_fat").attr("src");
+			d.pix=image_src_pix;
+			d.fat=image_src_fat;
 			d.day=Math.floor((new Date()).getTime()/(1000*60*60*24));
 			
 			var uploaded=function(dat){
