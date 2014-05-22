@@ -82,7 +82,7 @@ function M.cache_get_data(srv,id)
 	if ret then -- got cach
 		return ret
 	else
-		ent=get(srv,id)
+		ent=M.get(srv,id)
 		ret={cache=ent.cache}
 		cache.put(srv,ck,ret,60*60)
 		return ret
@@ -130,7 +130,9 @@ function M.list(srv,opts,t)
 		offset=opts.offset or 0,
 	}
 	
-	dat.build_qq_filters(opts,q,{"userid","day","rank"})
+	dat.build_qq_filters(opts,q,{"day",
+		"pix_width","pix_height","pix_depth",
+		"pix_name","pal_name","fat_name"})
 
 	local r=t.query(q)
 		
@@ -141,15 +143,19 @@ function M.list(srv,opts,t)
 	return r.list
 end
 
+--------------------------------------------------------------------------------
+--
+-- fetch todays plot, if it does not exist then a random one will be created and saved.
+--
+--------------------------------------------------------------------------------
+function M.get_today(srv)
 
+	local d=math.floor( os.time() / (60*60*24) ) -- today
+
+
+end
 
 
 dat.set_defs(M) -- create basic data handling funcs
-
-if not ngx then
-	function M.cache_key(srv,id) -- disable cache, we have gae binary problems...
-		return nil
-	end
-end
 
 dat.setup_db(M) -- make sure DB exists and is ready

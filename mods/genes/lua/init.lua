@@ -105,7 +105,7 @@ function serv(srv)
 			end
 		end
 		
-		ngx.say("no icon")
+		ngx.redirect("http://www.wetgenes.com/forum/images/custom_avatars/12.png")
 		
 		return
 	end

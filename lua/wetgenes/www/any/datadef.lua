@@ -400,10 +400,11 @@ function build_qq_filters(opts,q,names)
 	end
 	if opts.sort then
 		for j,s in ipairs( wstr.split(opts.sort,",") ) do
+
 			for i,v in ipairs(names) do
-				if          s==v then q[#q+1]={"sort",v,"ASC"}
-				elseif s.."+"==v then q[#q+1]={"sort",v,"ASC"}
-				elseif s.."-"==v then q[#q+1]={"sort",v,"DESC"}
+				if     s==v      then q[#q+1]={"sort",v,"ASC"}
+				elseif s==v.."+" then q[#q+1]={"sort",v,"ASC"}
+				elseif s==v.."-" then q[#q+1]={"sort",v,"DESC"}
 				end
 			end
 		end

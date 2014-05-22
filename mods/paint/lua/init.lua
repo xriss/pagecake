@@ -60,6 +60,11 @@ function M.serv(srv)
 	local cmds={
 		test=		M.serv_test,
 		upload=		M.serv_upload,
+--[[
+		list=		M.serv_list,
+		view=		M.serv_view,
+		draw=		M.serv_draw,
+]]
 	}
 	local f=cmds[ string.lower(cmd or "") ]
 	if f then return f(srv) end
@@ -243,22 +248,33 @@ end
 function M.chunk_import(srv,opts)
 opts=opts or {}
 
-	local list=pimages.list(srv,opts)
-
 	local ret={}
 	for i,v in pairs(opts) do ret[i]=v end -- copy opts into the return
-	
-	for i,v in ipairs(list) do
-	
-		local c=v.cache
-		
-		c.date=os.date("%Y-%m-%d %H:%M:%S",c.updated)
 
-		if type(opts.hook) == "function" then -- fix up each item?
-			opts.hook(v,{class="image"})
-		end
+	if opts.paint=="today" then
+	
+		local p=require("paint.plots_data")
+		local d=p.get()
+		for i,v in pairs(d) do ret[i]=v end -- copy opts into the return
 		
-		ret[#ret+1]=c
+	elseif opts.paint=="day" then
+	elseif opts.paint=="list" then
+
+		local list=pimages.list(srv,opts)
+
+		
+		for i,v in ipairs(list) do
+		
+			local c=v.cache
+			
+			c.date=os.date("%Y-%m-%d %H:%M:%S",c.updated)
+
+			if type(opts.hook) == "function" then -- fix up each item?
+				opts.hook(v,{class="image"})
+			end
+			
+			ret[#ret+1]=c
+		end
 	end
 	
 	return ret		
