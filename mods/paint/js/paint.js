@@ -15,12 +15,14 @@ var msg_hook=function(msg,dat)
 	{
 		image_src_pix="data:image/png;base64,"+dat;
 		$("#img_pix").attr("src",image_src_pix);
+		$("#img_pix").show();
 	}
 	else
 	if(msg.cmd=="fat")
 	{
 		image_src_fat="data:image/png;base64,"+dat;
 		$("#img_fat").attr("src",image_src_fat);
+		$("#img_fat").show();
 		
 		var d={}
 		
@@ -35,6 +37,8 @@ var msg_hook=function(msg,dat)
 			{
 				$("#img_pix").attr("src","");
 				$("#img_fat").attr("src","");
+				$("#img_pix").hide();
+				$("#img_fat").hide();
 			}
 		};
 		
@@ -72,6 +76,8 @@ var loaded_hook=function()
 				{
 					window.paint_set_image(src);
 //					console.log("SRC : "+src);
+					$("#img_pix").show();
+					$("#img_fat").show();
 				}
 			});
 		}
@@ -198,6 +204,8 @@ var xhr = new XMLHttpRequest();
 	xhr.send();
 }
 
+	$("#img_pix").hide(); // show them later if they are valid images
+	$("#img_fat").hide();
 	var gamecake=gamecake_loader({div:"#paint_draw",cakefile:head.fs.swpaint_cake,msg_hook:msg_hook,loaded_hook:loaded_hook});
 
 });

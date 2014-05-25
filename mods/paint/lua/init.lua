@@ -239,14 +239,23 @@ local sess,user=d_sess.get_viewer_session(srv)
 	else
 		refined.it={}
 		local c=refined.it
-		c.pix_id=("paint_pix_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
-		c.fat_id=("paint_fat_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
+		for n,v in pairs(refined.today) do c[n]=v end
 		c.title=refined.today.title
 		c.userid=user.cache.id
 		c.user_name=user.cache.name
 		c.day=refined.today.day
 		c.palette=refined.today.pal.name
 		c.shader=refined.today.fat.name
+
+		c.pix_id=("paint_pix_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
+		c.pix_width=refined.today.pix.width
+		c.pix_height=refined.today.pix.height
+		c.pix_depth=refined.today.pix.depth
+
+		c.fat_id=("paint_fat_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
+		c.fat_width=refined.today.fat.width
+		c.fat_height=refined.today.fat.height
+		c.fat_depth=refined.today.fat.depth
 
 	end
 	
@@ -453,7 +462,6 @@ end
 --
 -----------------------------------------------------------------------------
 function M.get_today(srv,num)
-
 	local today=math.floor( os.time() / (60*60*24) ) -- today	
 	local day=num or today
 
@@ -465,12 +473,12 @@ function M.get_today(srv,num)
 		local p=require("paint.plots_data")
 		local d=p.get(e.cache)
 		d.day=day
+		for n,v in pairs(d) do e.cache[n]=v end -- copy
 		plots.put(srv,e)
 	end
 
 	local plot=plots.get(srv,day)
 	if plot then return plot.cache end
-
 end
 
 -----------------------------------------------------------------------------
