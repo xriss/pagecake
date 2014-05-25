@@ -69,50 +69,6 @@ function M.check(srv,ent)
 	return ent
 end
 
---------------------------------------------------------------------------------
---
--- like find but with as much cache as we can use so ( no transactions available )
---
---------------------------------------------------------------------------------
-function M.cache_get_data(srv,id)
-
-	local ck="type=ent.paint&paint.image="..id
-	local ret=cache.get(srv,ck)
-	
-	if ret then -- got cach
-		return ret
-	else
-		ent=M.get(srv,id)
-		ret={cache=ent.cache}
-		cache.put(srv,ck,ret,60*60)
-		return ret
-	end
-end
-
-
-
---------------------------------------------------------------------------------
---
--- delete this id and its linked data
---
---------------------------------------------------------------------------------
-function M.delete(srv,id)
-
-	if id==0 then return end -- nothing to do
-
-	local mc={}
-	
-	mc[ "type=ent.paint&paint.image="..id ]=true
-	
-	local e=get(srv,id) -- get entity first
-	if e then
-		cache_what(srv,e,mc) -- the new values
-		dat.del(e.key) -- delete first chunk
-		cache_fix(srv,mc) -- change any memcached values we just adjusted
-	end
-
-end
-
 
 --------------------------------------------------------------------------------
 --
@@ -141,18 +97,6 @@ function M.list(srv,opts,t)
 	end
 
 	return r.list
-end
-
---------------------------------------------------------------------------------
---
--- fetch todays plot, if it does not exist then a random one will be created and saved.
---
---------------------------------------------------------------------------------
-function M.get_today(srv)
-
-	local d=math.floor( os.time() / (60*60*24) ) -- today
-
-
 end
 
 

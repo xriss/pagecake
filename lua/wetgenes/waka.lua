@@ -105,6 +105,9 @@ end
 -----------------------------------------------------------------------------
 function text_to_chunks(text,chunks)
 
+--todo, rewrite this so it becomes a flatter table of text ad the opts live in an __opts table
+--also #=^ special char change, useful for CSS where lines often start with a #
+
 local chunkend -- special end of chunk test
 
 	chunks=chunks or {}

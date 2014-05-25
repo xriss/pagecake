@@ -1,6 +1,8 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
+local ngx=ngx
+
 local wet_html=require("wetgenes.html")
 
 local sys=require("wetgenes.www.any.sys")
@@ -244,12 +246,19 @@ local get,put=make_get_put(srv)
 		
 	end
 	
-	
-	
+-- should we error?
+	do
+		local t=srv.url_slash[srv.url_slash_idx+0] -- request id or name
+		if t and (t~="") then -- it was a bad request so return missing file
+		
+			ngx.exit( ngx.HTTP_NOT_FOUND )
+		end
+	end
+
+-- demand admin from this point on	
 	if not srv.is_admin(user) then -- adminfail
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
-
 
 --	put(tostring(user and user.cache),{H=H})
 	if srv.is_admin(user) then -- admin
@@ -349,7 +358,7 @@ local get,put=make_get_put(srv)
 		if page.size<1 then page.show=1 end	-- no small sizes
 		if page.show<0 then page.show=0 end	-- no negative offsets
 		
-		local t=meta.list(srv,{sort="usedate",limit=page.size,offset=page.show})
+		local t=meta.list(srv,{sort="usedate",limit=page.size,offset=page.show,group="/"})
 
 		page.next=page.show+page.size
 		page.prev=page.show-page.size
@@ -448,6 +457,7 @@ end
 --
 -- id = numerical datakey, pass in 0 or nil to create a new one, otherwise we update the given
 -- mimetype = mimetype to use when serving, we try to guess this from the name if not supplied
+-- group = group this data, eg by where it comes from, default it "/"
 --
 -- return values are
 --
@@ -496,6 +506,7 @@ local emc
 		
 		emc.size=dat.size
 		emc.owner=dat.owner
+		emc.group=dat.group or emc.group or "/"
 							
 		if not emc.id or emc.id==0 or emc.id=="" then
 			meta.put(srv,em)  -- write once to get an id for the meta

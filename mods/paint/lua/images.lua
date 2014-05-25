@@ -42,6 +42,9 @@ M.default_props=
 	fat_width=0,		-- width
 	fat_height=0,		-- height
 	fat_depth=0,		-- number of frames
+	
+	palette="",			-- name of pallete used
+	shader="",			-- name of shader used
 }
 
 M.default_cache=
@@ -75,28 +78,6 @@ end
 
 --------------------------------------------------------------------------------
 --
--- like find but with as much cache as we can use so ( no transactions available )
---
---------------------------------------------------------------------------------
-function M.cache_get_data(srv,id)
-
-	local ck="type=ent.paint&paint.image="..id
-	local ret=cache.get(srv,ck)
-	
-	if ret then -- got cach
-		return ret
-	else
-		ent=M.get(srv,id)
-		ret={cache=ent.cache}
-		cache.put(srv,ck,ret,60*60)
-		return ret
-	end
-end
-
-
-
---------------------------------------------------------------------------------
---
 -- delete this id and its linked data
 --
 --------------------------------------------------------------------------------
@@ -106,13 +87,15 @@ function M.delete(srv,id)
 
 	local mc={}
 	
-	mc[ "type=ent.paint&paint.image="..id ]=true
-	
 	local e=M.get(srv,id) -- get entity first
 	if e then
 		cache_what(srv,e,mc) -- the new values
 		dat.del(e.key) -- delete first chunk
 		cache_fix(srv,mc) -- change any memcached values we just adjusted
+
+		data.delete(srv,{id=e.cache.pix_id}) -- remove images from data
+		data.delete(srv,{id=e.cache.fat_id})
+
 	end
 
 end
@@ -135,8 +118,6 @@ function M.list(srv,opts,t)
 	}
 	
 	dat.build_qq_filters(opts,q,{"userid","day","rank","created"})
-print(wstr.dump(opts))
-print(wstr.dump(q))
 
 	local r=t.query(q)
 		

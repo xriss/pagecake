@@ -144,13 +144,15 @@ function fill_refined(srv,pagename,refined,usehtml)
 
 	local refined=refined or {}
 	refined.cake=html.fill_cake(srv)
-	refined.cake.pagename=pagename
-	refined.cake.homebar.crumbs=fill_crumbs(srv,pagename)
 	refined.opts=fill_opts(srv,refined.opts)
 	note_html.fill_cake(srv,refined) -- add note html into the cake
 
-	local chunks=pages.load(srv,"/"..pagename,{refined=refined}) -- this fills in refined
-
+	if pagename then
+		refined.cake.pagename=pagename
+		refined.cake.homebar.crumbs=fill_crumbs(srv,pagename)
+		local chunks=pages.load(srv,"/"..pagename,{refined=refined}) -- this fills in refined
+	end
+	
 	return refined	
 end
 

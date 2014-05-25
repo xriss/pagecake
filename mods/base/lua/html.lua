@@ -492,7 +492,7 @@ function fill_cake(srv)
 	cake.url_base=srv.url_base
 
 	cake.html={}
-	cake.html.css="{-css}" -- use css chunk
+	cake.html.css="{css}" -- use css chunk
 	cake.html.title="{-title}" -- empty title
 	cake.html.extra="" -- squirt this into the head
 	
@@ -581,6 +581,9 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 	</form>
 </div>
 ]]
+	cake.admin_blog_bar_edit=[[
+		<a href="/blog/!/admin/edit/$hash/{it.id}" class="cake_button" > EditPost </a>
+]]
 	cake.admin_comic_bar=[[
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
@@ -619,9 +622,7 @@ head.js(head.fs.jquery_wakaedit_js);
 
 </div>
 ]]
-	cake.admin_blog_bar_edit=[[
-		<a href="/blog/!/admin/edit/$hash/{it.id}" class="cake_button" > EditPost </a>
-]]
+
 
 	cake.admin_blog_item=[[
 <div>

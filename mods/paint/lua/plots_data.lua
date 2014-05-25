@@ -49,8 +49,8 @@ end
 
 -- get a random full data,
 -- in the future we could use a fixed seed so we get the same "random"
-M.get=function()
-	local ret=deepcopy(M.default)
+M.get=function(ret)
+	ret=deepcopy(M.default,ret)
 
 	local pix={random_pair( M.pixs )}
 	local pal={random_pair( M.pals )}

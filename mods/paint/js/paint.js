@@ -49,12 +49,32 @@ var msg_hook=function(msg,dat)
 	}
 }
 
+function IsValidImageUrl(url) {
+}
+
+
 var loaded_hook=function()
 {
 	var lson=$("#paint_configure");
 	if(lson)
 	{
 		window.paint_configure(lson.text());
+	}
+	var pix=$("#img_pix");
+	if(pix)
+	{
+		var src=pix.attr("src");
+		if(src)
+		{
+			$("<img>", {
+				src: src,
+				load: function()
+				{
+					window.paint_set_image(src);
+//					console.log("SRC : "+src);
+				}
+			});
+		}
 	}
 }
 
@@ -66,23 +86,31 @@ window.paint_configure=function(lson) {
 		'local win=require("wetgenes.win")\n'+
 		'local oven=win.oven\n'+
 		'local paint=oven.rebake(oven.modname..".main_paint")\n'+
+		'paint.quicksave_hook=function()\n'+
+		' local images=oven.rebake(oven.modname..".images")\n'+
+		' local mime=require("mime")\n'+
+		' local grd=images.get().grd\n'+
+		' local s=mime.b64( (grd:save({fmt="png"})) )\n'+
+		' win.js_post("cmd=pix\\n"..s)'+
+		' local grd=images.get().export_grd().g\n'+
+		' local s=mime.b64( (grd:save({fmt="png"})) )\n'+
+		' win.js_post("cmd=fat\\n"..s)\n'+
+		' images.set_modified(false)\n'+
+		'end\n'+
 		'paint.configure( [==['+lson+']==] )\n');
 }
 
 // images will be sent to the msg hook
 window.paint_get_images=function() {
+
+	$("#img_status").html("");
+
 	var t=gamecake.post_message(
 		'cmd=lua\n'+
-		'local mime=require("mime")\n'+
 		'local win=require("wetgenes.win")\n'+
 		'local oven=win.oven\n'+
-		'local images=oven.rebake(oven.modname..".images")\n'+
-		'local grd=images.get().grd\n'+
-		'local s=mime.b64( (grd:save({fmt="png"})) )\n'+
-		'win.js_post("cmd=pix\\n"..s)'+
-		'local grd=images.get().export_grd().g\n'+
-		'local s=mime.b64( (grd:save({fmt="png"})) )\n'+
-		'win.js_post("cmd=fat\\n"..s)'+
+		'local paint=oven.rebake(oven.modname..".main_paint")\n'+
+		'paint.quicksave_hook()\n'+
 		'\n');
 //	console.log(t);
 }
@@ -155,9 +183,14 @@ var xhr = new XMLHttpRequest();
 				'local win=require("wetgenes.win")\n'+
 				'local oven=win.oven\n'+
 				'local images=oven.rebake(oven.modname..".images")\n'+
+				'local paint=oven.rebake(oven.modname..".main_paint")\n'+
 				'local image=images.get()\n'+
 				'local x=mime.unb64([==['+x+']==])\n'+
+				'if paint.done_setup then\n'+
 				'image.load_grd( {data=x} )\n'+
+				'else\n'+
+				'paint.setup_load_this_img={data=x}\n'+
+				'end\n'+
 				'\n');
 
 		}
@@ -165,7 +198,7 @@ var xhr = new XMLHttpRequest();
 	xhr.send();
 }
 
-	var gamecake=gamecake_loader({cakefile:head.fs.swpaint_cake,msg_hook:msg_hook,loaded_hook:loaded_hook});
+	var gamecake=gamecake_loader({div:"#paint_draw",cakefile:head.fs.swpaint_cake,msg_hook:msg_hook,loaded_hook:loaded_hook});
 
 });
 
