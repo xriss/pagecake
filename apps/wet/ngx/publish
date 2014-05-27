@@ -1,3 +1,4 @@
+./ngx/install
 cd ../../../www
 ./publish
 

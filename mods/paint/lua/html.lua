@@ -27,7 +27,8 @@ function M.fill_cake(srv,refined)
 	cake.paint.admin_bar=[[
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
-		<a href="/?cmd=edit&page=paint" class="cake_button" > EditWaka </a>
+		<a href="/?cmd=edit&page=paint" class="cake_button" > Edit paint </a>
+		<a href="/?cmd=edit&page={cake.pagename}" class="cake_button" > Edit {cake.pagename} </a>
 	</form>
 </div>
 ]]
