@@ -27,7 +27,8 @@ end
 local random_count=function(tab)
 	local count=0
 	for i,v in pairs(tab) do
-		count=count+1
+		if v.pickme then count=count+v.pickme
+		else count=count+1 end
 	end
 	return count
 end
@@ -38,7 +39,8 @@ local random_pair=function(tab,idx)
 	end
 	local count=0
 	for i,v in pairs(tab) do
-		count=count+1
+		if v.pickme then count=count+v.pickme
+		else count=count+1 end
 		if idx<=count then return i,v end
 	end
 end
@@ -85,21 +87,25 @@ M.pixs={
 		width=64,
 		height=64,
 		depth=1,
+		pickme=1,
 	},
 	pix48x48={
 		width=48,
 		height=48,
 		depth=1,
+		pickme=3,
 	},
 	pix32x32={
 		width=32,
 		height=32,
 		depth=1,
+		pickme=2,
 	},
 	pix16x16={
 		width=16,
 		height=16,
 		depth=1,
+		pickme=1,
 	},
 }
 for n,v in pairs(M.pixs) do v.name=n end
@@ -110,30 +116,35 @@ M.pals={
 		0xFF663388,0xFF558844,0xFF332277,0xFFbbcc77,
 		0xFF664422,0xFF443300,0xFF996655,0xFF444444,
 		0xFF666666,0xFF99DD88,0xFF6655BB,0xFF999999,
+		pickme=8,
 	},
 	EGA={
 		0xff000000,0xff0000aa,0xff00aa00,0xff00aaaa,
 		0xffaa0000,0xffaa00aa,0xffaa5500,0xffaaaaaa,
 		0xff555555,0xff5555ff,0xff55ff55,0xff55ffff,
 		0xffff5555,0xffff55ff,0xffffff55,0xffffffff,
+		pickme=1,
 	},
 	Spectrum={
 		0xff000000,0xff0000ff,0xffff0000,0xffff00ff,
 		0xff00ff00,0xff00ffff,0xffffff00,0xffffffff,
 		0xff000000,0xff0000bb,0xffbb0000,0xffbb00bb,
 		0xff00bb00,0xff00bbbb,0xffbbbb00,0xffbbbbbb,
+		pickme=1,
 	},
 	MSX={
 		0x00000000,0xff000000,0xff33bb44,0xff77dd77,
 		0xff5555ee,0xff8877ff,0xffbb5555,0xff66ddee,
 		0xffdd6655,0xffff8877,0xffcccc55,0xffdddd88,
 		0xff33aa44,0xffbb66bb,0xffcccccc,0xffffffff,
+		pickme=1,
 	},
 	AppleII={
 		0xff000000,0xff662244,0xff443377,0xffdd33ee,
 		0xff115544,0xff888888,0xff2299ee,0xffbbbbff,
 		0xff444400,0xffdd6600,0xff888888,0xffeeaabb,
 		0xff22cc11,0xffbbcc88,0xff99ddbb,0xffffffff,
+		pickme=1,
 	},
 	NES={
 		0xff7C7C7C,0xff0000FC,0xff0000BC,0xff4428BC,
@@ -152,47 +163,60 @@ M.pals={
 		0xffF8B8F8,0xffF8A4C0,0xffF0D0B0,0xffFCE0A8,
 		0xffF8D878,0xffD8F878,0xffB8F8B8,0xffB8F8D8,
 		0xff00FCFC,0xffF8D8F8,0xff000000,0xff000000,
+		pickme=4,
+	},
+	GameBoy={
+		0xff004433,0xff557733,0xffaacc44,0xffddee99,
+		pickme=2,
 	},
 }
 for n,v in pairs(M.pals) do v.name=n end
 
 M.fats={
---[[
 	flat3x3={
-		width=4,
-		height=4,
+		width=3,
+		height=3,
 		bloom=0,
 	},
 	flat6x6={
-		width=8,
-		height=8,
+		width=6,
+		height=6,
 		bloom=0,
 	},
-]]
+	flat9x9={
+		width=9,
+		height=9,
+		bloom=0,
+	},
 	bloom3x3={
 		width=3,
 		height=3,
 		bloom=1.5,
+		pickme=2,
 	},
 	bloom6x6={
 		width=6,
 		height=6,
 		bloom=1.5,
+		pickme=4,
 	},
 	bloom9x9={
 		width=9,
 		height=9,
 		bloom=1.5,
+		pickme=2,
 	},
 	bloom6x3={
 		width=6,
 		height=3,
 		bloom=1.5,
+		pickme=1,
 	},
 	bloom3x6={
 		width=3,
 		height=6,
 		bloom=1.5,
+		pickme=1,
 	},
 --[[
 	bloom6x6hexen={

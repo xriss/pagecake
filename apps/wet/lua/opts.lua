@@ -9,7 +9,9 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"artcrawl",		"host.local",			},			-- test this domain when on localhost or host.local
+
+	{"artcrawl",	"artcrawl",		"artcrawl.4lfa.com",	},			-- any domain with artcrawl in it
 
 	{"poop",		"poop",			"poop.lo4d.net",	},				-- any domain with poop in it
 
@@ -239,6 +241,10 @@ setup=function()
 			elseif n=="paint" then -- extra site setup
 
 				add_map(v.map,"paint","paint")
+				
+			elseif n=="artcrawl" then -- extra site setup
+
+				add_map(v.map,"artcrawl","artcrawl")
 				
 			end
 						

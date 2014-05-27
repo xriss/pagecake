@@ -148,15 +148,16 @@ function send(tab)
         [1] = { body = mime.eol(0, tab.body) }, 
       } 
     } 
-
-    r, e = smtp.send{ 
+    
+-- broken mail :/
+    r, e = nil,nil smtp.send{ 
         from = "<"..tab.from..">", 
         rcpt = rcpt, 
         source = source, 
         server = "127.0.0.1", 
         port = 25, 
         create=create,
-    } 
+    }
 
     if not r then 
         log("failed to send: ", e) 

@@ -81,8 +81,10 @@ end
 --
 -----------------------------------------------------------------------------
 function M.fill_refined(srv,name)
+local sess,user=d_sess.get_viewer_session(srv)
 
-	local refined=waka.fill_refined(srv,name)
+	local refined=waka.fill_refined(srv,name) -- basic root page and setup
+	M.fill_cake(srv,refined) -- more local setup
 
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.paint.admin_bar}"
