@@ -16,6 +16,7 @@ local fetch=require("wetgenes.www.any.fetch")
 local img=require("wetgenes.www.any.img")
 
 
+
 --local ngx=ngx
 
 --module
@@ -23,42 +24,21 @@ local M={ modname=(...) } ; package.loaded[M.modname]=M
 
 
 M.default_props=
-{
+{	
+	id="",		-- name of the art (part of art page url)
 
--- the key is user/day so you only get one image upload per user per day
+	lat=0,			-- precise location
+	lng=0,
+	siz=0,			-- pics within this radius of lat,lng is considered this art
 
-	userid="",			-- the userid this image belongs to
-	day=0,				-- the day this image belongs to (days since 1970)
-	hot=0,				-- a hot ranking metric for sorting, higher is better
-	bad=0,				-- a bad ranking metric for sorting, higher is worse
-
-	pix_id="",			-- the image data key (image is actually stored in main data table)
-	pix_mimetype="",	-- the mime type of image
-	pix_width=0,		-- width
-	pix_height=0,		-- height
-	pix_depth=0,		-- number of frames
-
-	fat_id="",			-- the image data key (image is actually stored in main data table)
-	fat_mimetype="",	-- the mime type of image
-	fat_width=0,		-- width
-	fat_height=0,		-- height
-	fat_depth=0,		-- number of frames
-	
-	palette="",			-- name of pallete used
-	shader="",			-- name of shader used
 }
 
 M.default_cache=
 {
-	user_name="",		-- the user name this image belongs to
-	title="",			-- the title (challenge) for this day
 }
 
 function M.kind(srv)
-	local n="paint.images"
-	local f=srv and srv.flavour or ""
-	if f=="paint" then f="" end
-	if f=="" then return n else return f.."."..n end
+	return "artcrawl.arts"
 end
 
 
@@ -72,40 +52,9 @@ function M.check(srv,ent)
 
 	local ok=true
 
--- added some fields, patch them up
-	local p=ent.props
-	p.hot=p.hot or 0
-	p.bad=p.bad or 0
-
 	local c=ent.cache
-	c.hot=c.hot or 0
-	c.bad=c.bad or 0
-
+			
 	return ent
-end
-
---------------------------------------------------------------------------------
---
--- delete this id and its linked data
---
---------------------------------------------------------------------------------
-function M.delete(srv,id)
-
-	if id==0 then return end -- nothing to do
-
-	local mc={}
-	
-	local e=M.get(srv,id) -- get entity first
-	if e then
-		cache_what(srv,e,mc) -- the new values
-		dat.del(e.key) -- delete first chunk
-		cache_fix(srv,mc) -- change any memcached values we just adjusted
-
-		data.delete(srv,{id=e.cache.pix_id}) -- remove images from data
-		data.delete(srv,{id=e.cache.fat_id})
-
-	end
-
 end
 
 
@@ -125,19 +74,16 @@ function M.list(srv,opts,t)
 		offset=opts.offset or 0,
 	}
 	
-	dat.build_qq_filters(opts,q,{"userid","day","hot","bad","created"})
+	dat.build_qq_filters(opts,q,{"lat","lng","name"})
 
 	local r=t.query(q)
 		
 	for i=1,#r.list do local v=r.list[i]
 		dat.build_cache(v)
-		M.check(srv,v)
 	end
 
 	return r.list
 end
-
-
 
 
 dat.set_defs(M) -- create basic data handling funcs

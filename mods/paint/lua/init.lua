@@ -89,7 +89,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.paint.admin_bar}"
 	end
-	refined.today=M.get_today()
+	refined.today=M.get_today(srv)
 	
 	if refined.opts.flame=="on" then -- add comments to this page
 		refined.cake.note.title=refined.it and refined.it.title or "swanky"
@@ -114,14 +114,213 @@ local sess,user=d_sess.get_viewer_session(srv)
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
-	refined.title="admin"
+	local posts={} -- remove any gunk from the posts input
+	-- check if this post probably came from this page before allowing any post params
+	if srv.method=="POST" and srv:check_referer() then
+		for i,v in pairs(srv.posts) do
+			posts[i]=v
+		end
+	end
+	
+	if posts.cmd=="update images" then
+	
+		local its=posts.refresh_checked if type(its)~="table" then its={its} end
+		for _,n in ipairs(its) do
+print("update:"..n)
+			pimages.update(srv,n,function(srv,e)
+				e.cache.bad=0
+				return true
+			end)
+		end
 
-	refined.body="testting?"
+		local its=posts.bad_checked if type(its)~="table" then its={its} end
+		for _,n in ipairs(its) do
+print("bad:"..n)
+			pimages.update(srv,n,function(srv,e)
+				e.cache.bad=1
+				return true
+			end)
+		end
+
+		return srv.redirect(srv.url) -- display nothing		
+
+	elseif posts.cmd=="random" then
+	
+		posts.day=posts.day and tonumber(posts.day)
+		
+		if posts.title and posts.day then
+
+			local e=plots.get(srv,posts.day)
+			e.cache.title=posts.title
+			plots.put(srv,e)
+			return srv.redirect(srv.url) -- turn from a post to a get
+
+		elseif posts.day then
+
+			local e=plots.create(srv,posts.day)
+			local p=require("paint.plots_data")
+			local d=p.get(e.cache)
+			d.day=posts.day
+			for n,v in pairs(d) do e.cache[n]=v end -- copy
+			plots.put(srv,e)
+			return srv.redirect(srv.url) -- turn from a post to a get
+
+		end
+
+	end
+
+	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]
+
+	if cmd=="images" then
+	
+		refined.list_limit=tonumber(srv.gets.limit or 100)
+		refined.list_offset=tonumber(srv.gets.offset or 0)
+		refined.list_next=refined.list_offset+100
+		refined.list_prev=refined.list_offset-100
+		if refined.list_offset<0 then refined.list_offset=0 end
+		if refined.list_prev<0   then refined.list_prev=0 end
+
+		refined.list={}
+		local list=pimages.list(srv,{sort="created-",offset=refined.list_offset,limit=refined.list_limit})
+		for i,v in ipairs(list) do local c=v.cache			
+			c.date=os.date("%Y-%m-%d",c.created)
+			if c.bad>0 then c.bad_checked="checked" end
+			refined.list[#refined.list+1]=c
+		end
+		refined.list_plate=[[
+			<tr>
+				<td><input type="checkbox" name="refresh_checked" value="{it.id}" /></td>
+				<td>{it.day}</td>
+				<td>{it.userid}</td>
+				<td>{it.hot}</td>
+				<td>{it.bad}<input type="checkbox" name="bad_checked" value="{it.id}" {it.bad_checked} /></td>
+				<td><img src="/data/{it.pix_id}" /></td>
+			</tr>
+		]]
+		refined.list_table=[[
+		<a href="?offset={list_prev}">prev</a> <a href="?offset={list_next}">next</a>
+		<form action="" method="POST">
+		<input name="cmd" type="submit" value="update images" />
+		<style>
+			td {border:3px solid #eee;}
+		</style>
+		<table>
+			<tr>
+				<td><input type="checkbox" id="refresh_checked_all" /></td>
+				<td>day</td>
+				<td>user</td>
+				<td>hot</td>
+				<td>bad</td>
+			</tr>
+			{list:list_plate}
+		</table>
+		</form>
+		<a href="?offset={list_prev}">prev</a> <a href="?offset={list_next}">next</a>
+		<script>
+
+head.js( head.fs.jquery_js, function(){ $(function(){
+    $("#refresh_checked_all").toggle(
+        function() {
+            $("input[name='refresh_checked']").attr("checked","checked");
+        },
+        function() {
+            $("input[name='refresh_checked']").removeAttr('checked');
+        }
+    );
+});});
+
+		</script>
+		]]
+		refined.body="{list_table}"
+		srv.set_mimetype("text/html; charset=UTF-8")
+		srv.put(macro_replace("{cake.html.plate}",refined))
+
+	elseif cmd=="days" then
+	
+		refined.title="admin"
+		refined.body="testting?"
+
+		local today=math.floor( os.time() / (60*60*24) ) -- today
+		
+		local t=plots.list(srv,{
+			["day_gt"]=today-10,
+			["day_lt"]=today+10,
+		})
+		for i,v in ipairs(t) do t[i]=v.cache end
+		local bb={}
+		for i=1,20 do
+			bb[i]={day=today-11+i}
+			for _,v in ipairs(t) do
+				if v.day==bb[i].day then bb[i]=v end
+			end
+			if bb[i].day>=today then
+				bb[i].click="{click}"
+				bb[i].change="{change}"
+			end
+		end
+		
+	--dprint(t)
+
+		refined.click=[[
+		
+		<form action="" method="POST" style="display:inline-block">
+		<input name="day" type="submit" value="{it.day}" style="display:inline-block"/>
+		<input name="cmd" type="hidden" value="random" />
+		</form>
+		
+		]]
+		
+		refined.change=[[
+		
+		<form action="" method="POST" style="display:inline-block">
+		<input name="title" type="text" size="40" value="{-it.title}" />
+		<input name="day" type="hidden" value="{it.day}" />
+		<input name="cmd" type="hidden" value="random" />
+		</form>
+		
+		]]
+
+		refined.list=bb
+		refined.list_plate=[[
+		<div>{-it.click} : {it.day} : {-it.pal.name} : {-it.fat.name} : {-it.pix.width}x{-it.pix.height} : {-it.title} : {-it.change}
+		</div>
+		]]
+		refined.body="{list:list_plate}"
 
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
 
+
+		srv.set_mimetype("text/html; charset=UTF-8")
+		srv.put(macro_replace("{cake.html.plate}",refined))
+		
+	else
+
+		refined.list={
+			{cmd="images",desc="Edit images"},
+			{cmd="days",desc="Edit days"},
+		}
+		refined.list_plate=[[
+			<tr>
+				<td><a href="/paint/admin/{it.cmd}">{it.cmd}</a></td>
+				<td>{it.desc}</td>
+			</tr>
+		]]
+		refined.list_table=[[
+		<table>
+			<tr>
+				<td>link</td>
+				<td>description</td>
+			</tr>
+			{list:list_plate}
+		</table>
+		]]
+		refined.body="{list_table}"
+		srv.set_mimetype("text/html; charset=UTF-8")
+		srv.put(macro_replace("{cake.html.plate}",refined))
+	end
+	
+	
+	
 end
 
 -----------------------------------------------------------------------------
@@ -137,7 +336,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local id_str=srv.url_slash[ srv.url_slash_idx+1 ] if id_str=="" then id_str=nil end
 	local id_num=tonumber(id_str or "") if tostring(id_num)~=id_str then id_num=nil end
 
-	local opts={sort="created-"}
+	local opts={sort="created-",bad=0}
 	
 	if id_num then
 		opts.day=id_num
@@ -247,6 +446,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 		c.user_name=user.cache.name
 		c.day=refined.today.day
 		c.palette=refined.today.pal.name
+		c.palette_count=refined.today.pal.count
 		c.shader=refined.today.fat.name
 
 		c.pix_id=("paint_pix_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
@@ -427,6 +627,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 				c.day=day.day
 				c.title=day.title
 				c.palette=day.pal.name
+				c.palette_count=day.pal.count
 				c.shader=day.fat.name
 				c.rank=0
 				
@@ -496,7 +697,7 @@ opts=opts or {}
 
 	if opts.paint=="today" then
 	
-		local d=M.get_today()
+		local d=M.get_today(srv)
 		for i,v in pairs(d) do ret[i]=v end -- copy opts into the return
 		
 	elseif opts.paint=="day" then
@@ -518,6 +719,8 @@ opts=opts or {}
 			ret[#ret+1]=c
 		end
 	end
+
+print(#ret)
 	
 	return ret		
 end

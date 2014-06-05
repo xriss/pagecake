@@ -67,7 +67,7 @@ end
 --
 --------------------------------------------------------------------------------
 function check(srv,ent)
-	if not ent then return nil,false end
+	if (not ent) or (not ent.cache) then return nil,false end
 	
 	local ok=true
 

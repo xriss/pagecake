@@ -358,7 +358,18 @@ function refine_chunks(srv,chunks,opts)
 -- this should be split off into a plugin system...
 			
 		if e then
-			if e.import=="paint" then -- include some paint info
+			if e.import=="artcrawl" then -- include some artcrawl info
+			
+				e.hook   	= e.hook 	  or opts.hook
+				e.command   = e.command   or opts.command
+				e.plate  	= e.plate 	  or opts.plate
+				
+				if not opts.noartcrawl then -- prevent recursions
+					local dl=require("artcrawl")
+					e=dl.chunk_import(srv,e)
+				end
+				
+			elseif e.import=="paint" then -- include some paint info
 			
 				e.hook   	= e.hook 	  or opts.hook
 				e.command   = e.command   or opts.command

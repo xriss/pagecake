@@ -110,7 +110,7 @@ function serv(srv)
 	
 	if stash_id then
 		local m=stash.get(srv,"data&"..stash_id)
-		if m then
+		if m and m.data then
 --log("stash got "..stash_id)
 			srv.set_mimetype( m.mime )
 			srv.set_header("Access-Control-Allow-Origin","*")
@@ -264,7 +264,7 @@ local get,put=make_get_put(srv)
 	if srv.is_admin(user) then -- admin
 	
 		local posts={} -- remove any gunk from the posts input
-		if srv.method=="POST" and srv:check_referer(url) then
+		if srv.method=="POST" and srv:check_referer() then
 			for i,v in pairs(srv.posts) do
 				posts[i]=v
 			end
@@ -345,9 +345,11 @@ local get,put=make_get_put(srv)
 -- upload / list for admin
 
 		srv.set_mimetype("text/html; charset=UTF-8")
+--[[
 		put("header",{title="data : ",
 			H={sess=sess,user=user},
 			})
+]]
 	
 		put("data_upload_form",d)
 		
@@ -374,7 +376,6 @@ local get,put=make_get_put(srv)
 		end
 		put("data_list_foot",{H=H,page=page})
 		
-		put("footer")
 		
 	end
 	

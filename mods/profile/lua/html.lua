@@ -15,19 +15,6 @@ module("profile.html")
 setmetatable(_M,{__index=html}) -- use a meta table to also return html base 
 
 
-
------------------------------------------------------------------------------
---
--- overload footer
---
------------------------------------------------------------------------------
-footer=function(d)
-	d.mod_name="profile"
-	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/profile"
-	return html.footer(d)
-end
-
-
 -----------------------------------------------------------------------------
 --
 -- table layout, grab all the previously built bits and spit them out
@@ -43,7 +30,7 @@ profile_layout=function(d)
 		end
 	end
 
-	local p=get_plate("profile_layout",[[
+	local p=[[
 <div class="profile_layout">
 <div class="profile_layout_head">
 {head}
@@ -60,7 +47,7 @@ profile_layout=function(d)
 {foot}
 </div>
 </div>
-]])
+]]
 	return replace(p,d)
 end
 

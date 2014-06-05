@@ -15,21 +15,6 @@ setmetatable(_M,{__index=html}) -- use a meta table to also return html base
 
 
 
-
-
-
------------------------------------------------------------------------------
---
--- overload footer
---
------------------------------------------------------------------------------
-footer=function(d)
-	d.mod_name="data"
-	d.mod_link="https://bitbucket.org/xixs/pagecake/src/tip/mods/data"
-	return html.footer(d)
-end
-
-
 -----------------------------------------------------------------------------
 --
 -- data form

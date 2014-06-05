@@ -29,19 +29,6 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 function serv_fail(srv)
 
 	srv.exit(404)
-	
---[=[
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put([[
-	
-PAGE MISSING<br/>
-<br/>
-<a href="/">return to the homepage?</a><br/>
-
-]])
-
-]=]
-
 
 end
 
@@ -75,6 +62,11 @@ function serv(srv)
 				end
 			end
 		end
+		return false
+	end
+	
+	srv.is_local=function()
+		if srv.ip=="127.0.0.1" then return true end
 		return false
 	end
 
@@ -239,22 +231,16 @@ end
 --is it safe to accept data for this url from this referer?
 function check_referer(srv,url,referer)
 
-	local referer=referer or srv.headers.referer -- use header
-
-	-- for unknown reasons the port bit goes missing sometimes on debug servers so remove it...
-	function remove_port(a)
-		local a1=str_split("/",a or "")
-		local a2=str_split(":",a1[3] or "")
-		a1[3]=a2[1]
-		return table.concat(a1,"/")
+	if not url then
+		-- by default just check domain of default referer
+		local a1=str_split("/",srv.url_base or "")
+		for i=#a1,4,-1 do a1[i]=nil end -- remove everything after the domain
+		url=table.concat(a1,"/")
 	end
 
-	referer=remove_port(referer)
-	url=remove_port(url)
-	
---log(referer.."=="..url )
+	referer=referer or srv.headers.referer -- use referer from header
 
-	if string.sub(referer,1,string.len(url))==url then return true end
+	if string.sub(referer,1,#url)==url then return true end
 
 	return false
 end

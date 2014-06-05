@@ -380,6 +380,9 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 	else -- new pagecake way
 	
 		if srv.is_admin(user) then
+
+--			refined.isadmin=user.cache.id	-- can add to forms included with {-form} to make them only exist for admins
+			
 			if refined.cake.admin_waka_form_text then
 				refined.cake.admin=refined.cake.admin.."{cake.admin_waka_form}"
 			else

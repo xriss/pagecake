@@ -8,6 +8,7 @@ head.load(head.fs.jquery_js,head.fs.gamecake_loader,function(){
 	
 var image_src_pix;
 var image_src_fat;
+var image_day=window.image_day || Math.floor((new Date()).getTime()/(1000*60*60*24)); // remember load time
 
 var msg_hook=function(msg,dat)
 {
@@ -28,7 +29,7 @@ var msg_hook=function(msg,dat)
 		
 		d.pix=image_src_pix;
 		d.fat=image_src_fat;
-		d.day=Math.floor((new Date()).getTime()/(1000*60*60*24));
+		d.day=image_day; // use loadtime
 		
 		var uploaded=function(dat){
 			console.log(dat);

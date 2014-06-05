@@ -23,9 +23,9 @@ function M.fill_cake(srv,refined)
 	refined.cake=refined.cake or html.fill_cake(srv)
 	local cake=refined.cake
 	
-	cake.port={}
+	cake.artcrawl={}
 
-	cake.port.admin_bar=[[
+	cake.artcrawl.admin_bar=[[
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
 		<a href="/?cmd=edit&page={cake.pagename}" class="cake_button" > Edit {cake.pagename} </a>

@@ -198,31 +198,31 @@ M.fats={
 	bloom3x3={
 		width=3,
 		height=3,
-		bloom=1.5,
+		bloom=1.0,
 		pickme=2,
 	},
 	bloom6x6={
 		width=6,
 		height=6,
-		bloom=1.5,
+		bloom=1.0,
 		pickme=4,
 	},
 	bloom9x9={
 		width=9,
 		height=9,
-		bloom=1.5,
+		bloom=1.0,
 		pickme=2,
 	},
 	bloom6x3={
 		width=6,
 		height=3,
-		bloom=1.5,
+		bloom=1.0,
 		pickme=1,
 	},
 	bloom3x6={
 		width=3,
 		height=6,
-		bloom=1.5,
+		bloom=1.0,
 		pickme=1,
 	},
 --[[

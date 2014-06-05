@@ -9,9 +9,9 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"artcrawl",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
 
-	{"artcrawl",	"artcrawl",		"artcrawl.4lfa.com",	},			-- any domain with artcrawl in it
+	{"artcrawl",	"artcrawl",		"artcrawl.leedsdatamill.org",	},	-- any domain with artcrawl in it
 
 	{"poop",		"poop",			"poop.lo4d.net",	},				-- any domain with poop in it
 
@@ -35,7 +35,7 @@ vhosts_map={
 
 	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",		},			-- any domain with bulbaceous in it
 
-	{"wet",			"wetgenes",		"wet.genes.pw",	},			-- any domain with wet in it
+	{"wet",			"wetgenes",		"wet.genes.pw",			},			-- any domain with wet in it
 	
 	{"xixs",		"xixs",			"xixs.com",				},			-- any domain with xixs in it
 	{"esyou",		"esyou",		"esyou.com",			},			-- any domain with esyou in it
@@ -197,6 +197,8 @@ mods=find_mods(map) -- build mods pointers from the map for default app
 setup=function()
 	setup=nil -- can only run once
 	
+	math.randomseed( os.time() ) -- try and randomise a little bit better
+
 	if ngx then
 	
 
@@ -245,6 +247,7 @@ setup=function()
 			elseif n=="artcrawl" then -- extra site setup
 
 				add_map(v.map,"artcrawl","artcrawl")
+				add_map(v.map,"port","port")
 				
 			end
 						

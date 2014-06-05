@@ -36,6 +36,8 @@ local loadstring=loadstring
 
 module(...)
 
+function b64(d) return sys.bin_encode("base64",d) end
+
 -----------------------------------------------------------------------------
 --
 -- The escape function for oauth must be exactly this, RFC3986
@@ -91,7 +93,7 @@ end
 -- opts contains extra options:
 --  post should be set to GET if we do not intend to use POST
 --  url should be the oauth server url for this request
---  secret should be the token secret provided by the oauth server or nil for initial signin
+--  tok_secret should be the token secret provided by the oauth server or nil for initial signin
 --  api_secret should be your special api/consumer secret
 -- these opts are used to build a request string from the vars and sign it so that
 -- the oauth server will be happy with it
