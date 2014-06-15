@@ -114,12 +114,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 
-	local posts={} -- remove any gunk from the posts input
-	-- check if this post probably came from this page before allowing any post params
-	if srv.method=="POST" and srv:check_referer() then
-		for i,v in pairs(srv.posts) do
-			posts[i]=v
-		end
+	local posts=srv.posts
+	if srv.method=="POST" and not srv:check_referer() then
+			return srv.redirect(srv.url) -- bad referer
 	end
 	
 	if posts.cmd=="update images" then

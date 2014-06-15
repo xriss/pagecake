@@ -79,8 +79,12 @@ function M.check(srv,ent)
 
 	local ok=true
 
-	local c=ent.cache
+-- added some fields, patch them up
+	local p=ent.props
+	p.hot=p.hot or 0
+	p.bad=p.bad or 0
 
+	local c=ent.cache
 	c.hot=c.hot or 0
 	c.bad=c.bad or 0
 			
@@ -104,12 +108,13 @@ function M.list(srv,opts,t)
 		offset=opts.offset or 0,
 	}
 	
-	dat.build_qq_filters(opts,q,{"valid","day","twat_time","lat","lng","art","userid","hashtag"})
+	dat.build_qq_filters(opts,q,{"valid","day","twat_time","lat","lng","art","userid","hashtag","hot","bad","created"})
 
 	local r=t.query(q)
 		
 	for i=1,#r.list do local v=r.list[i]
 		dat.build_cache(v)
+		M.check(srv,v)
 	end
 
 	return r.list
