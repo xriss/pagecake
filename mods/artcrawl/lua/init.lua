@@ -52,7 +52,10 @@ function M.serv(srv)
 
 	local cmd=srv.url_slash[ srv.url_slash_idx+0 ]	
 	local cmds={
-		test=		M.serv_test,
+		pic=		M.serv_pic,
+		art=		M.serv_art,
+		day=		M.serv_day,
+		user=		M.serv_user,
 		cron=		M.serv_cron,
 		admin=		M.serv_admin,
 	}
@@ -105,7 +108,7 @@ end
 function M.serv_admin(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 	
-	local refined=M.get(srv,"artcrawl/admin")
+	local refined
 
 	if not srv.is_admin(user) then
 		return srv.redirect("/dumid?continue="..srv.url)
@@ -143,6 +146,7 @@ print("bad:"..n)
 	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]
 
 	if cmd=="pics" then
+		refined=M.get(srv,"artcrawl/admin/pics")
 	
 		refined.list_limit=tonumber(srv.gets.limit or 100)
 		refined.list_offset=tonumber(srv.gets.offset or 0)
@@ -161,10 +165,12 @@ print("bad:"..n)
 		refined.list_plate=[[
 			<tr>
 				<td><input type="checkbox" name="refresh_checked" value="{it.id}" /></td>
-				<td>{it.day}</td>
-				<td>{it.userid}</td>
-				<td>{it.hot}</td>
+				<td><a href="/artcrawl/day/{it.day}">{it.day}</a></td>
+				<td><a href="/artcrawl/pic/{it.id}">{it.id}</a></td>
+				<td><a href="/artcrawl/user/{it.userid}">{it.userid}</a></td>
 				<td>{it.bad}<input type="checkbox" name="bad_checked" value="{it.id}" {it.bad_checked} /></td>
+				<td>{it.hot}</td>
+				<td>{it.valid}</td>
 				<td><img src="{it.pic_url}" style="max-height:64px;"/></td>
 			</tr>
 		]]
@@ -179,9 +185,11 @@ print("bad:"..n)
 			<tr>
 				<td><input type="checkbox" id="refresh_checked_all" /></td>
 				<td>day</td>
+				<td>id</td>
 				<td>user</td>
-				<td>hot</td>
 				<td>bad</td>
+				<td>hot</td>
+				<td>flags</td>
 			</tr>
 			{list:list_plate}
 		</table>
@@ -205,6 +213,7 @@ head.js( head.fs.jquery_js, function(){ $(function(){
 		refined.body="{list_table}"
 		M.put(srv)
 	else
+		refined=M.get(srv,"artcrawl/admin")
 
 		refined.list={
 			{cmd="pics",desc="Edit pics"},
@@ -250,6 +259,130 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local refined=M.get(srv,"artcrawl/cron")
 	
 	refined.body=pics.twat_search(srv,{hashtag="#leedsartcrawl"})
+
+	M.put(srv)
+end
+
+
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function M.serv_user(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+	
+	local userid=srv.url_slash[ srv.url_slash_idx+1 ]
+
+	local refined=M.get(srv,"artcrawl/user")
+	
+	refined.list_limit=tonumber(srv.gets.limit or 100)
+	refined.list_offset=tonumber(srv.gets.offset or 0)
+	refined.list_next=refined.list_offset+100
+	refined.list_prev=refined.list_offset-100
+	if refined.list_offset<0 then refined.list_offset=0 end
+	if refined.list_prev<0   then refined.list_prev=0 end
+
+	refined.pics={}
+	local list=pics.list(srv,{sort="created-",valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl",userid=userid})
+	for i,v in ipairs(list) do local c=v.cache			
+		c.date=os.date("%Y-%m-%d",c.created)
+		refined.pics[#refined.pics+1]=c
+	end
+	
+	local user=d_users.get(srv,userid) -- get user from userid
+	refined.user=user and user.cache
+	
+	refined.example=[[
+		<pre> { user } ={user}</pre>
+		<pre> { pics } ={pics}</pre>
+]]
+	if wstr.trim(refined.body) == "MISSING CONTENT<br/>" then
+		refined.body="{example}"
+	end
+	
+-- redirect to root on bad user, must have logged in or posted pics
+	if not refined.user and not refined.pics[1] then
+		return srv.redirect("/")
+	end
+
+	M.put(srv)
+end
+
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function M.serv_day(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+
+	local day=math.floor( tonumber( srv.url_slash[ srv.url_slash_idx+1 ] or 0 ) or 0 )
+	if (day==0) or (day~=day) then
+		return srv.redirect("/")
+	end
+
+	local refined=M.get(srv,"artcrawl/day")
+
+	refined.list_limit=tonumber(srv.gets.limit or 100)
+	refined.list_offset=tonumber(srv.gets.offset or 0)
+	refined.list_next=refined.list_offset+100
+	refined.list_prev=refined.list_offset-100
+	if refined.list_offset<0 then refined.list_offset=0 end
+	if refined.list_prev<0   then refined.list_prev=0 end
+
+	refined.pics={}
+	local list=pics.list(srv,{sort="created-",valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl",day=day})
+	for i,v in ipairs(list) do local c=v.cache			
+		c.date=os.date("%Y-%m-%d",c.created)
+		refined.pics[#refined.pics+1]=c
+	end
+	
+	refined.example=[[
+		<pre> { pics } ={pics}</pre>
+]]
+	if wstr.trim(refined.body) == "MISSING CONTENT<br/>" then
+		refined.body="{example}"
+	end
+	
+-- redirect to root on bad day, must have some pics
+	if not refined.pics[1] then
+		return srv.redirect("/")
+	end
+
+	M.put(srv)
+end
+
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function M.serv_pic(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+	
+	local id=srv.url_slash[ srv.url_slash_idx+1 ]
+	
+	local pic=pics.get(srv,id)
+	if not pic then
+		return srv.redirect("/")
+	end
+	
+	local refined=M.get(srv,"artcrawl/pic")
+	
+	refined.pic=pic.cache
+
+	refined.example=[[
+		<pre> { pic } ={pic}</pre>
+]]
+	if wstr.trim(refined.body) == "MISSING CONTENT<br/>" then
+		refined.body="{example}"
+	end
+	
+	M.put(srv)
+end
+
+-----------------------------------------------------------------------------
+--
+-----------------------------------------------------------------------------
+function M.serv_art(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+	
+	local refined=M.get(srv,"artcrawl/art")
 
 	M.put(srv)
 end

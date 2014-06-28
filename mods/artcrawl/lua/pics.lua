@@ -215,6 +215,10 @@ function M.twat_save(srv,twat,hashtag)
 		c.art=""
 		c.valid=c.valid+2
 	end
+	
+	if twat.retweeted_status then -- flag as retweeted (ignore if this flag is set)
+		c.valid=c.valid+4
+	end
 
 	c.text=twat.text
 	c.twat=twat -- full twat for later

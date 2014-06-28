@@ -94,7 +94,7 @@ local put=make_put(srv)
 	local url=srv.url_base:sub(1,-2) -- lose the trailing /
 
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{})
+--	put("header",{})
 	
 	local posts={} -- remove any gunk from the posts input
 	-- check if this post probably came from this page before allowing post params
@@ -113,7 +113,7 @@ local put=make_put(srv)
 	local lua=ae_opts.get_dat("lua") or ""
 	put("admin_edit",{text=lua,sess=sess.cache})
 	
-	put("footer",{})
+--	put("footer",{})
 end
 
 

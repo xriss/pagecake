@@ -148,6 +148,43 @@ end
 
 -----------------------------------------------------------------------------
 --
+-- please enter email
+--
+-----------------------------------------------------------------------------
+dumid_wetgenes=function(d)
+
+	d.continue=url_esc(d.continue)
+
+	return replace([[
+<div class="dum-genes_txt">
+
+	Please enter your wetgenes username and password to log in.
+
+	<br/><br/>
+
+	If you do no have a wetgenes user account and wish to create one 
+	then please also enter the email address you wish to link your 
+	account to. A verification email will be sent to this email 
+	address to finish the creation of the account.
+
+</div>
+<div class="dum-genes_form">
+
+<form action="{srv.url_base}token/send/?continue={continue}" method="get">
+<input type="text" name="username" value="" maxlength="128" style="width:80%" class="txt"/>
+<input type="text" name="password" value="" maxlength="128" style="width:80%" class="txt"/>
+<input type="text" name="email"    value="" maxlength="128" style="width:80%" class="txt"/>
+<input type="submit" value="Send" class="form"/>
+</form>
+
+</div>
+]]
+,d)
+
+end
+
+-----------------------------------------------------------------------------
+--
 -- please enter token
 --
 -----------------------------------------------------------------------------

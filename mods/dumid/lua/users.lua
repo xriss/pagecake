@@ -250,7 +250,8 @@ function get_avatar_url(srv,userid,w,h)
 				if user.info then
 					if user.info.profile_image_url then
 						url="/"..user.info.profile_image_url:sub(8)
-						url=url:gsub("%_normal%.","%_bigger%.") -- needing this is fucking twitarded
+						url=url:gsub("%_normal%.","%.") -- needing this is fucking twitarded
+						url=url:gsub("%_bigger%.","%.") -- needing this is fucking twitarded
 					end
 				end
 	--			log(wstr.dump(user))
