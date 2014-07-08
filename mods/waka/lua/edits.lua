@@ -269,6 +269,7 @@ end
 -- list edits
 --
 --------------------------------------------------------------------------------
+--[[
 function list(srv,opts,t)
 	opts=opts or {} -- stop opts from being nil
 	
@@ -284,6 +285,35 @@ function list(srv,opts,t)
 		
 	for i=1,#r.list do local v=r.list[i]
 		dat.build_cache(v)
+	end
+
+	return r.list
+end
+]]
+
+--------------------------------------------------------------------------------
+--
+-- list pages
+--
+--------------------------------------------------------------------------------
+function list(srv,opts,t)
+	opts=opts or {} -- stop opts from being nil
+	
+	t=t or dat -- use transaction?
+	
+	local q={
+		kind=_M.kind(srv),
+		limit=opts.limit or 100,
+		offset=opts.offset or 0,
+	}
+	
+	dat.build_qq_filters(opts,q,{"page","author","time","created"})
+
+	local r=t.query(q)
+		
+	for i=1,#r.list do local v=r.list[i]
+		dat.build_cache(v)
+		_M.check(srv,v)
 	end
 
 	return r.list

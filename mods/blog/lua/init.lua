@@ -456,10 +456,9 @@ local get,put=make_get_put(srv)
 			end
 			refined.it=posts[1]
 			
-			posts.plate="{cake.blog_list}"
 			
 			refined.cake.blog=posts
-			refined.body="{cake.blog}{cake.blog_bar}"
+			refined.body="{cake.blog:cake.blog_list}{cake.blog_bar}"
 			
 			refined.opts.link_next="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_next
 			refined.opts.link_prev="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_prev
@@ -496,9 +495,8 @@ local get,put=make_get_put(srv)
 				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
 			end
 	
-			refined.it=chunk_prepare(srv,ent,opts)			
-			refined.cake.blog={refined.it,plate="{cake.blog_page}"}
-			refined.body="{cake.blog}{cake.blog_bar}"
+			refined.cake.blog=chunk_prepare(srv,ent,opts)			
+			refined.body="{cake.blog:cake.blog_page}{cake.blog_bar}"
 			refined.title=refined.it.title
 			
 			if refined.opts.flame=="on" then -- add comments to this page
@@ -723,7 +721,7 @@ This is the #body of your post and can contain any html you wish.
 				nag.url=long_url
 				nag.short_url=short_url
 				
-				local s=blog_text
+				local s=blog_text or "" --todo missing body
 				s=s:gsub("(%b<>)","") -- kill any html tags
 				s=s:gsub("%s+"," ") -- replace any range of whitespace with a single space
 				s=wet_string.trim(s)

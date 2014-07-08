@@ -26,6 +26,8 @@ local trim=wet_string.trim
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
+local wet_diff=require("wetgenes.diff")
+
 local wet_waka=require("wetgenes.waka")
 local d_sess =require("dumid.sess")
 
@@ -33,6 +35,7 @@ local d_sess =require("dumid.sess")
 local html=require("waka.html")
 local pages=require("waka.pages")
 local edits=require("waka.edits")
+
 
 local comments=require("note.comments")
 
@@ -275,7 +278,23 @@ local ext
 	if posts.submit then posts.submit=trim(posts.submit) end
 	
 	local page=pages.manifest(srv,pagename)
+	
 	local page_edit
+	
+	if srv.vars.history then
+		local n=tonumber(srv.vars.history)
+		if n<0 then
+			local ls=edits.list(srv,{limit=-n,page=pagename,sort="time-"})
+--			log(wstr.dump(ls))
+			page_edit=page.cache.text
+--			log(page_edit)
+			for i,v in ipairs(ls) do
+				page_edit=wet_diff.patch(page_edit,v.cache.diff,true) -- undo patches
+			end
+--			log(page_edit)
+		end
+	end
+
 	if posts.text or posts.submit or (srv.vars.cmd and srv.vars.cmd=="edit") then
 	
 		if posts.submit=="Cancel" then
@@ -306,7 +325,7 @@ local ext
 --todo, remove since the new way does not need
 display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 
-				page_edit=page.cache.text
+				page_edit=page_edit or page.cache.text
 				if (srv.vars.cmd and srv.vars.cmd=="edit") then display_edit_only=true end
 			end
 			
@@ -426,7 +445,7 @@ local get=make_get(srv)
 	
 	
 	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",{title="waka : admin"})
+--	put("header",{title="waka : admin"})
 
 	put("waka_bar",{})
 
@@ -486,6 +505,6 @@ local get=make_get(srv)
 	end
 	
 
-	put("footer")
+--	put("footer")
 	
 end

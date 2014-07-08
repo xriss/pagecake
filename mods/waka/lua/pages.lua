@@ -167,7 +167,7 @@ local c=e.cache
 	local edit
 	
 	if c.last then -- find old edit
-		local old=edits.find(srv,{page=e.key.id,from=c.last.from,time=c.last.time})
+		local old=edits.find(srv,{page=e.cache.id,from=c.last.from,time=c.last.time})
 		if not old then fulltext=true end -- mising last edit 
 	else
 		fulltext=true -- flag a full text dump
@@ -175,7 +175,7 @@ local c=e.cache
 	
 	if c.edit then -- what to save
 		edit=edits.create(srv)
-		edit.cache.page=e.key.id
+		edit.cache.page=e.cache.id
 		edit.cache.group=e.cache.group
 		edit.cache.layer=e.cache.layer
 		edit.cache.from=c.edit.from
