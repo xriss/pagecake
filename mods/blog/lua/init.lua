@@ -199,7 +199,7 @@ opts=opts or {}
 	c.title=macro_replace("{title}",refined) -- build title
 	c.body=macro_replace("{body}",refined) -- and body from the blogs chunks only
 	
-	c.media=""
+	c.media=c.media or ""
 
 	c.link="/blog" .. c.pubname
 	
@@ -424,7 +424,7 @@ local get,put=make_get_put(srv)
 				c.title=atom_escape(c.title) -- fix & junk chars in titles
 				local text=get(macro_replace(--[[ c[opts.plate or ""] or c.plate_post or ]] "{body}",c))
 				text=text..[[<script type="text/javascript" src="]]..srv.url_domain..[[/note/import/blog]]..v.cache.pubname..[[.js"></script>]]
-				put("blog_atom_item",{it=v.cache,refined=c,text=atom_escape(text)})
+				put("blog_atom_item",{it=c,refined=c,text=atom_escape(text)})
 			end
 			put("blog_atom_foot",{})
 			
@@ -497,12 +497,12 @@ local get,put=make_get_put(srv)
 	
 			refined.cake.blog=chunk_prepare(srv,ent,opts)			
 			refined.body="{cake.blog:cake.blog_page}{cake.blog_bar}"
-			refined.title=refined.it.title
+			refined.title=refined.cake.blog.title
 			
 			if refined.opts.flame=="on" then -- add comments to this page
 
-				refined.cake.note.title=refined.it.title or pagename
-				refined.cake.note.url=refined.it.link
+				refined.cake.note.title=refined.cake.blog.title or pagename
+				refined.cake.note.url=refined.cake.blog.link
 				
 				comments.build(srv,refined)
 --[[

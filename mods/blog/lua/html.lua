@@ -148,10 +148,15 @@ blog_atom_item=function(d)
 	d.pubdate=(os.date("%Y-%m-%dT%H:%M:%SZ",d.it.pubdate))
 	d.link=d.srv.url_base..d.it.pubname:sub(2)
 	d.id=d.link
+	d.media_link=""
+	if d.it and d.it.media and d.it.media~="" then
+		d.media_link="<link rel=\"enclosure\" href=\""..d.it.media.."\"/>"
+	end
 	return replace([[
 	<entry>
 		<title type="text">{refined.title}</title>
 		<link href="{link}"/>
+		{media_link}
 		<id>{id}</id>
 		<published>{pubdate}</published>
 		<updated>{pubdate}</updated>
