@@ -156,7 +156,7 @@ print("bad:"..n)
 		if refined.list_prev<0   then refined.list_prev=0 end
 
 		refined.list={}
-		local list=pics.list(srv,{sort="created-",valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl"})
+		local list=pics.list(srv,{sort="created-",offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl"})
 		for i,v in ipairs(list) do local c=v.cache			
 			c.date=os.date("%Y-%m-%d",c.created)
 			if c.bad>0 then c.bad_checked="checked" end
@@ -282,7 +282,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if refined.list_prev<0   then refined.list_prev=0 end
 
 	refined.pics={}
-	local list=pics.list(srv,{sort="created-",valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl",userid=userid})
+	local list=pics.list(srv,{sort="created-",bad=0,valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl",userid=userid})
 	for i,v in ipairs(list) do local c=v.cache			
 		c.date=os.date("%Y-%m-%d",c.created)
 		refined.pics[#refined.pics+1]=c
@@ -328,7 +328,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if refined.list_prev<0   then refined.list_prev=0 end
 
 	refined.pics={}
-	local list=pics.list(srv,{sort="created-",valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl",day=day})
+	local list=pics.list(srv,{sort="created-",bad=0,valid={1,3},offset=refined.list_offset,limit=refined.list_limit,hashtag="#leedsartcrawl",day=day})
 	for i,v in ipairs(list) do local c=v.cache			
 		c.date=os.date("%Y-%m-%d",c.created)
 		refined.pics[#refined.pics+1]=c
@@ -414,7 +414,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 --	refined.list=pics.twat_search(srv,{hashtag="#leedsartcrawl"})
 	
-	local le=pics.list(srv,{hashtag="#leedsartcrawl",valid={1,3},sort="twat_time-"})
+	local le=pics.list(srv,{hashtag="#leedsartcrawl",bad=0,valid={1,3},sort="twat_time-"})
 	local l={}
 	for i,v in ipairs(le) do
 		local c=v.cache
