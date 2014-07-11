@@ -177,8 +177,8 @@ function serv(srv)
 
 				if image and image.width>0 and image.height>0 then				
 						
+					-- adjust image
 					if mode=="crop" then
-
 						local sx=width
 						local sy=height
 						if (ix/iy) > (sx/sy) then -- widthcrop
@@ -190,19 +190,18 @@ function serv(srv)
 						end
 
 					end
-
 					image=img.composite({
 						format="DEFAULT",
 						width=ix,
 						height=iy,
-						color=0xffffffff, -- white, does not work?
+--						color=0xffffffff, -- white, does not work?
 						{image,px,py},
 					}) -- and force it to a JPEG with a white? background
 
-					image=img.resize(image,width,height) -- for somereason jpeg breaks locally, so this removes the errors
+					image=img.resize(image,width,height) -- scale to desired size (keeps aspect ratio)
 
 					if img.memsave then
-						img.memsave(image,"jpeg")
+						img.memsave(image,"png")
 					else
 						image.body=image.data -- rename raw file from data to body
 					end
@@ -213,7 +212,7 @@ function serv(srv)
 				
 			if not image then -- return empty image
 				image=img.composite({width=hx or 100,height=hy or 100})
-				img.memsave(image,"jpeg")
+				img.memsave(image,"png")
 			end
 				
 			if usecache then

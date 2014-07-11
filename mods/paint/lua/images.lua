@@ -82,11 +82,11 @@ function M.check(srv,ent)
 	c.bad=c.bad or 0
 
 -- minimum size is pix size...
-	c.min_width=pix_width
-	c.min_height=pix_height
+	c.min_width=c.pix_width
+	c.min_height=c.pix_height
 -- ...with fixed aspect	
-	if     c.fat_width >c.fat.height then c.min_width =math.floor(c.min_width *c.fat_width/ c.fat_height)
-	elseif c.fat_height>c.fat.width  then c.min_height=math.floor(c.min_height*c.fat_height/c.fat_width)
+	if     c.fat_width >c.fat_height then c.min_width =math.floor(c.min_width *c.fat_width/ c.fat_height)
+	elseif c.fat_height>c.fat_width  then c.min_height=math.floor(c.min_height*c.fat_height/c.fat_width)
 	end
 
 	return ent

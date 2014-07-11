@@ -454,10 +454,9 @@ local get,put=make_get_put(srv)
 			for i,v in ipairs(list) do
 				posts[i]=chunk_prepare(srv,v,opts)
 			end
-			refined.it=posts[1]
-			
 			
 			refined.cake.blog=posts
+			refined.it=refined.cake.blog and refined.cake.blog[1]
 			refined.body="{cake.blog:cake.blog_list}{cake.blog_bar}"
 			
 			refined.opts.link_next="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_next
@@ -496,6 +495,7 @@ local get,put=make_get_put(srv)
 			end
 	
 			refined.cake.blog=chunk_prepare(srv,ent,opts)			
+			refined.it=refined.cake.blog
 			refined.body="{cake.blog:cake.blog_page}{cake.blog_bar}"
 			refined.title=refined.cake.blog.title
 			
@@ -505,24 +505,7 @@ local get,put=make_get_put(srv)
 				refined.cake.note.url=refined.cake.blog.link
 				
 				comments.build(srv,refined)
---[[
-				local _tab={}
-				local _put=function(a,b)
-					local s=get(a,b)
-					_tab[#_tab+1]=s
-				end
-				local t={
-					title=refined.it.title or pagename,
-					url=refined.it.link,
-					posts=posts,
-					get=get,
-					put=_put,
-					sess=sess,
-					user=user,
-				}
-				comments.build(srv,t)
-				refined.cake.notes=table.concat(_tab)
-]]
+				
 			end
 
 			srv.set_mimetype("text/html; charset=UTF-8")
