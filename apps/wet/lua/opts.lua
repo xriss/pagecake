@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"artcrawl",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
 
 	{"artcrawl",	"artcrawl",		"leeds.artcrawl.club",	},			-- any domain with artcrawl in it
 

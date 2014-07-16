@@ -204,32 +204,17 @@ M.fats={
 		width=3,
 		height=3,
 		bloom=0,
+		pickme=1,
 	},
 	flat6x6={
 		width=6,
 		height=6,
 		bloom=0,
-	},
-	flat9x9={
-		width=9,
-		height=9,
-		bloom=0,
+		pickme=1,
 	},
 	bloom3x3={
 		width=3,
 		height=3,
-		bloom=1.0,
-		pickme=2,
-	},
-	bloom6x6={
-		width=6,
-		height=6,
-		bloom=1.0,
-		pickme=4,
-	},
-	bloom9x9={
-		width=9,
-		height=9,
 		bloom=1.0,
 		pickme=2,
 	},
@@ -245,14 +230,26 @@ M.fats={
 		bloom=1.0,
 		pickme=1,
 	},
---[[
-	bloom6x6hexen={
+	bloom6x6={
 		width=6,
 		height=6,
-		bloom=1.5,
-		escher=2,
+		bloom=1.0,
+		pickme=4,
 	},
-]]
+	bloom6x6trixel={
+		width=6,
+		height=6,
+		bloom=1,
+		escher="trixel",
+		pickme=1,
+	},
+	bloom6x6escher={
+		width=6,
+		height=6,
+		bloom=1,
+		escher="escher",
+		pickme=1,
+	},
 }
 for n,v in pairs(M.fats) do v.name=n end
 
