@@ -205,9 +205,9 @@ local get,put=make_get_put(srv)
 
 	local refined	
 	if comicname then 
-		refined=waka.fill_refined(srv,"comic/"..comicname)
+		refined=waka.prepare_refined(srv,"comic/"..comicname)
 	else
-		refined=waka.fill_refined(srv,"comic")
+		refined=waka.prepare_refined(srv,"comic")
 	end
 
 	
@@ -243,8 +243,9 @@ local get,put=make_get_put(srv)
 
 	waka.build_notes(srv,refined)
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	put(macro_replace("{cake.html.plate}",refined))
 
 
 --[[	

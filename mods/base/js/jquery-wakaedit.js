@@ -96,7 +96,8 @@ $.fn.wakaedit=function(opts)
 	var defs = { 
 		who: "#wakaedit",
 		width:  960,
-		height: 480
+		height: 480,
+		show_buttons:true
 	};  
 	opts = $.extend(defs, opts); 
 
@@ -152,8 +153,11 @@ $.fn.wakaedit=function(opts)
 				}
     		});    		
 
+if(opts.show_buttons)
+{
 		edit_textarea.before(edit_select);
 		edit_textarea.before(edit_check);
+}
 		edit_textarea.after(edit_div);
 
 		var css={width:opts.width,height:opts.height};//,position:"relative",margin:"auto",background:"#fff"};

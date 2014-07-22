@@ -121,15 +121,16 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 
-	local refined=waka.fill_refined(srv,"dl")
+	local refined=waka.prepare_refined(srv,"dl")
 	html.fill_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 	waka.build_notes(srv,refined)
 	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 
@@ -179,7 +180,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	end
 
 
-	local refined=waka.fill_refined(srv,"dl/0x")
+	local refined=waka.prepare_refined(srv,"dl/0x")
 	html.fill_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
@@ -279,8 +280,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 	end
 	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 end
 
 -----------------------------------------------------------------------------
@@ -332,7 +334,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	
-	local refined=waka.fill_refined(srv,"dl/paypal")
+	local refined=waka.prepare_refined(srv,"dl/paypal")
 	html.fill_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
@@ -345,8 +347,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	refined.paylist=dl_paypal.paylist(srv,{custom=user.cache.id})
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 
@@ -388,7 +391,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local url=srv.url_base
 	if url:sub(-1)=="/" then url=url:sub(1,-2) end -- trim any trailing /
 	
-	local refined=waka.fill_refined(srv,"dl/bitcoin")
+	local refined=waka.prepare_refined(srv,"dl/bitcoin")
 	html.fill_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
@@ -401,8 +404,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	refined.value200=math.ceil(1000*200/refined.bitcoin_dimes)/1000
 	refined.paylist=dl_bitcoin.paylist(srv,{dumid=user.cache.id})
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 
@@ -420,15 +424,16 @@ local sess,user=d_sess.get_viewer_session(srv)
 		return srv.redirect("/dumid?continue="..srv.url)
 	end
 	
-	local refined=waka.fill_refined(srv,"dl/user")
+	local refined=waka.prepare_refined(srv,"dl/user")
 	html.fill_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
 --	waka.build_notes(srv,refined)
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 	return
 end
 
@@ -448,8 +453,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	end
 
 -- admin should be unthemed
-	local refined={title="",body=""}--waka.fill_refined(srv,"dl/admin")
-	html.fill_cake(srv,refined)
+	local refined=waka.prepare_refined(srv)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
@@ -716,8 +720,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	end
 		
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 	return
 end
 
@@ -825,8 +830,9 @@ function refined_project_sponsor(srv,refined)
 		end
 	end
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 	return
 end
 
@@ -875,7 +881,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 	local posts=make_posts(srv)		
 
 	local refined=waka.fill_refined(srv,"dl/"..pname)
-	html.fill_cake(srv,refined)
+	html.prepare_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
 	end
@@ -1010,8 +1016,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		
 	end
 	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 

@@ -90,8 +90,9 @@ function M.put(srv)
 		srv.refined.cake.note.url=srv.url_local
 		comments.build(srv,srv.refined)
 	end
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(wstr.macro_replace("{cake.html.plate}",srv.refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(wstr.macro_replace("{cake.html.plate}",srv.refined))
 end
 
 

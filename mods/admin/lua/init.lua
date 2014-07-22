@@ -126,7 +126,7 @@ function serv_users(srv)
 local sess,user=d_sess.get_viewer_session(srv)
 
 
-	local refined=waka.fill_refined(srv,"admin")
+	local refined=waka.prepare_refined(srv)
 	html.fill_cake(srv,refined)
 	
 	refined["cake.html.plate"]="{body}"
@@ -146,8 +146,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	refined["users"]=l
 
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
 
 end
 

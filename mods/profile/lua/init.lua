@@ -101,7 +101,7 @@ local get=make_get(srv)
 		local phtml=get_profile_html(srv,name)
 		if pusr and phtml then
 
-			local refined=waka.fill_refined(srv,"profile")
+			local refined=waka.prepare_refined(srv,"profile")
 			refined.cake.note.title="profile of "..pusr.cache.name
 			refined.cake.note.url="/profile/"..name
 			
@@ -121,8 +121,9 @@ local get=make_get(srv)
 			refined.body="{.cake.profile}"
 			refined.title="Profile of "..pusr.cache.name
 
-			srv.set_mimetype("text/html; charset=UTF-8")
-			srv.put(macro_replace("{cake.html.plate}",refined))
+			waka.display_refined(srv,refined)	
+--			srv.set_mimetype("text/html; charset=UTF-8")
+--			srv.put(macro_replace("{cake.html.plate}",refined))
 
 
 --[[

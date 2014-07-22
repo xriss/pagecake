@@ -229,8 +229,9 @@ head.js( head.fs.jquery_js, function(){ $(function(){
 		</script>
 		]]
 		refined.body="{list_table}"
-		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put(macro_replace("{cake.html.plate}",refined))
+		waka.display_refined(srv,refined)	
+--		srv.set_mimetype("text/html; charset=UTF-8")
+--		srv.put(macro_replace("{cake.html.plate}",refined))
 
 	elseif cmd=="days" then
 	
@@ -287,8 +288,9 @@ head.js( head.fs.jquery_js, function(){ $(function(){
 
 
 
-		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put(macro_replace("{cake.html.plate}",refined))
+		waka.display_refined(srv,refined)	
+--		srv.set_mimetype("text/html; charset=UTF-8")
+--		srv.put(macro_replace("{cake.html.plate}",refined))
 		
 	else
 
@@ -312,8 +314,9 @@ head.js( head.fs.jquery_js, function(){ $(function(){
 		</table>
 		]]
 		refined.body="{list_table}"
-		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put(macro_replace("{cake.html.plate}",refined))
+		waka.display_refined(srv,refined)	
+--		srv.set_mimetype("text/html; charset=UTF-8")
+--		srv.put(macro_replace("{cake.html.plate}",refined))
 	end
 	
 	
@@ -366,8 +369,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	{-list:example_plate}
 	]]
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 
@@ -409,8 +413,9 @@ local sess,user=d_sess.get_viewer_session(srv)
 	]]
 
 		
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 
@@ -496,9 +501,9 @@ Draw {today.title} using the {today.pal.name} palette In {today.pix.width} x {to
 
 	]]
 
-
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 	
 end
 

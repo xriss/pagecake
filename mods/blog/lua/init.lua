@@ -431,7 +431,7 @@ local get,put=make_get_put(srv)
 		
 		else
 
-			local refined=waka.fill_refined(srv,"blog/list")
+			local refined=waka.prepare_refined(srv,"blog/list")
 
 			if srv.is_admin(user) then
 				refined.cake.admin=refined.cake.admin.."{cake.admin_blog_bar}"
@@ -462,8 +462,9 @@ local get,put=make_get_put(srv)
 			refined.opts.link_next="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_next
 			refined.opts.link_prev="/blog?limit="..refined.opts.limit.."&offset="..refined.opts.offset_prev
 
-			srv.set_mimetype("text/html; charset=UTF-8")
-			srv.put(macro_replace("{cake.html.plate}",refined))
+			waka.display_refined(srv,refined)	
+--			srv.set_mimetype("text/html; charset=UTF-8")
+--			srv.put(macro_replace("{cake.html.plate}",refined))
 
 		end
 		
@@ -487,7 +488,7 @@ local get,put=make_get_put(srv)
 			if list_next and list_next.pubname then link_next="/blog" .. (list_next and list_next.pubname ) end
 			if list_prev and list_prev.pubname then link_prev="/blog" .. (list_prev and list_prev.pubname ) end
 
-			local refined=waka.fill_refined(srv,"blog"..ent.cache.pubname,
+			local refined=waka.prepare_refined(srv,"blog"..ent.cache.pubname,
 				{opts={link_next=link_next,link_prev=link_prev}})
 
 			if srv.is_admin(user) then
@@ -508,8 +509,9 @@ local get,put=make_get_put(srv)
 				
 			end
 
-			srv.set_mimetype("text/html; charset=UTF-8")
-			srv.put(macro_replace("{cake.html.plate}",refined))
+			waka.display_refined(srv,refined)	
+--			srv.set_mimetype("text/html; charset=UTF-8")
+--			srv.put(macro_replace("{cake.html.plate}",refined))
 		else -- bad page, redirect to blog
 			return srv.redirect(srv.url_base)
 		end		
@@ -560,7 +562,7 @@ local output_que={} -- delayed page content
 
 	if cmd=="pages" then
 	
-		local refined=waka.fill_refined(srv,"blog/!/admin/pages")
+		local refined=waka.prepare_refined(srv,"blog/!/admin/pages")
 
 		local list=pages.list(srv,{sort_updated="-"})
 		
@@ -580,8 +582,9 @@ local output_que={} -- delayed page content
 		</form>
 ]]
 
-		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put(macro_replace("{cake.html.plate}",refined))
+		waka.display_refined(srv,refined)	
+--		srv.set_mimetype("text/html; charset=UTF-8")
+--		srv.put(macro_replace("{cake.html.plate}",refined))
 		
 		return
 
@@ -657,7 +660,7 @@ This is the #body of your post and can contain any html you wish.
 		local publish="Publish"
 		if ent.cache.layer==LAYER_PUBLISHED then publish="UnPublish" end
 		
-		local refined=waka.fill_refined(srv,"blog"..ent.cache.pubname)
+		local refined=waka.prepare_refined(srv,"blog"..ent.cache.pubname)
 		
 		refined.it=ent.cache
 		refined.it.publish=publish
@@ -665,8 +668,10 @@ This is the #body of your post and can contain any html you wish.
 		refined.it.pubdates=os.date("%Y-%m-%d %H:%M:%S",refined.it.pubdate)
 			
 		refined.body="<h1>Blog Admin</h1>{cake.blog_edit_form}"
-		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put(macro_replace("{cake.html.plate}",refined))
+
+		waka.display_refined(srv,refined)	
+--		srv.set_mimetype("text/html; charset=UTF-8")
+--		srv.put(macro_replace("{cake.html.plate}",refined))
 --[[		
 		que("blog_edit_form",{it=ent.cache,publish=publish,url=url})
 		
@@ -723,10 +728,12 @@ This is the #body of your post and can contain any html you wish.
 
 	end
 
-	local refined=waka.fill_refined(srv,"blog/!/admin")
+	local refined=waka.prepare_refined(srv,"blog/!/admin")
 	refined.body="<h1>Blog Admin</h1>"
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 	
 	return
 

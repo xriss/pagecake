@@ -26,7 +26,7 @@ function M.fill_cake(srv)
 	cake.html.title="{-title}" -- empty title
 	cake.html.extra="" -- squirt this into the head
 	
--- for example add an atom link using cake.html.custom
+-- for example add an atom link using cake.html.extra
 -- <link rel="alternate" type="application/atom+xml" title="{blogtitle}" href="{blogurl}" />
 
 
@@ -53,7 +53,9 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 ]]
-	cake.html.head=[[
+
+	cake.html.mimetype="text/html; charset=UTF-8"
+	cake.html.head=[[<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8"/>
@@ -206,7 +208,7 @@ head.js(head.fs.jquery_wakaedit_js);
 	cake.blog_page=[[{cake.blog_item}]]
 	cake.blog_list=[[{cake.blog_item}]]
 
-	cake.blog_bar=[[<div class="cake_blog_bar"><a href="{-opts.link_next}">NEXT<a> <a href="{-opts.link_prev}">PREV<a></div>]]
+	cake.blog_bar=[[<div class="cake_blog_bar"><a href="{-opts.link_next}" class="cake_blog_bar_next" >NEXT</a> <a href="{-opts.link_prev}"  class="cake_blog_bar_prev" >PREV</a></div>]]
 
 	cake.blog_edit_form=[[
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">

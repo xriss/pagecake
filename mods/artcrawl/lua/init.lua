@@ -75,7 +75,7 @@ end
 function M.get(srv,name)
 local sess,user=d_sess.get_viewer_session(srv)
 
-	srv.refined=waka.fill_refined(srv,name) -- basic root page and setup
+	srv.refined=waka.prepare_refined(srv,name) -- basic root page and setup
 	html.fill_cake(srv) -- more local setup
 
 	if srv.is_admin(user) then
@@ -96,8 +96,9 @@ function M.put(srv)
 		srv.refined.cake.note.url=srv.url_local
 		comments.build(srv,srv.refined)
 	end
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(wstr.macro_replace("{cake.html.plate}",srv.refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(wstr.macro_replace("{cake.html.plate}",srv.refined))
 end
 
 -----------------------------------------------------------------------------

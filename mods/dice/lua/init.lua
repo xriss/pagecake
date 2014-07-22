@@ -49,7 +49,7 @@ end
 
 
 -- need the base wiki page, its kind of the main site everything
-	local refined=waka.fill_refined(srv,"dice")
+	local refined=waka.prepare_refined(srv,"dice")
 
 	refined.title="Dice"
 	local body=""
@@ -130,8 +130,9 @@ end
 	
 	refined.body=body
 	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(macro_replace("{cake.html.plate}",refined))
 
 end
 

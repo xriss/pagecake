@@ -143,11 +143,12 @@ end
 -- including the cake and opts also bubble up the chunks
 --
 -----------------------------------------------------------------------------
-function fill_refined(srv,pagename,refined,usehtml)
+function prepare_refined(srv,pagename,refined,usehtml)
 
 	local refined=refined or {}
 	refined.cake=html.fill_cake(srv)
 	refined.opts=fill_opts(srv,refined.opts)
+
 	note_html.fill_cake(srv,refined) -- add note html into the cake
 
 	if pagename then
@@ -158,6 +159,14 @@ function fill_refined(srv,pagename,refined,usehtml)
 	
 	return refined	
 end
+
+function display_refined(srv,refined)
+
+	srv.set_mimetype(macro_replace("{cake.html.mimetype}",refined))
+	srv.put(macro_replace("{cake.html.plate}",refined))
+
+end
+
 
 
 -----------------------------------------------------------------------------
@@ -323,7 +332,7 @@ local ext
 			if posts.submit~="Save" then -- keep editing
 
 --todo, remove since the new way does not need
-display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
+--display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 
 				page_edit=page_edit or page.cache.text
 				if (srv.vars.cmd and srv.vars.cmd=="edit") then display_edit_only=true end
@@ -419,8 +428,9 @@ display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
 			comments.build(srv,refined)
 		end
 		
-		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put(macro_replace("{cake.html.plate}",refined))
+		display_refined(srv,refined)	
+--		srv.set_mimetype("text/html; charset=UTF-8")
+--		srv.put(macro_replace("{cake.html.plate}",refined))
 
 	end
 end
@@ -444,13 +454,12 @@ local get=make_get(srv)
 	local cmd= srv.url_slash[ srv.url_slash_idx+2]
 	
 	
-	srv.set_mimetype("text/html; charset=UTF-8")
---	put("header",{title="waka : admin"})
-
-	put("waka_bar",{})
-
+--[=[
 	if cmd=="pages" then
 	
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("waka_bar",{})
+		
 		local list=pages.list(srv,{})
 		
 		for i=1,#list do local v=list[i]
@@ -472,6 +481,9 @@ local get=make_get(srv)
 	
 	elseif cmd=="edits" then
 	
+		srv.set_mimetype("text/html; charset=UTF-8")
+		put("waka_bar",{})
+
 		local list=edits.list(srv,{})
 		
 		for i=1,#list do local v=list[i]
@@ -490,21 +502,81 @@ local get=make_get(srv)
 </a>]],dat)
 
 		end
+		
 	else
-	
-			put([[
-			<br/>
-			<a href="{srv.url_base}?cmd=edit"> Edit root of all pages </a><br/>
-			<br/>
-			<a href="{srv.url_base}!/admin/pages"> view all pages </a><br/>
-			<br/>
-			<a href="{srv.url_base}!/admin/edits"> view all edits </a><br/>
-			<br/>
-]],{})
+]=]
+		local refined=prepare_refined(srv)
 
-	end
+		refined.cake.admin_waka_form_text=""
+
+		refined.cake.html.plate=[[
+{cake.html.head}
+{cake.plate}
+{cake.html.foot}
+]]
+
+		refined.cake.plate=[[
+<div style="width:100%;height:100%">
+<div style="width:25%;height:99%;position:absolute;top:0px;left:0px;"><div style="padding:10px;">{body1}</div></div>
+<div style="width:75%;height:99%;position:absolute;top:0px;left:25%;">{body2}</div>
+</div>
+]]
+		
+		refined.body1=[[
+			<a href="/?cmd=edit"> Edit root of all pages </a><br/>
+			<br/>
+			<a href="/!/admin/pages"> view all pages </a><br/>
+			<br/>
+			<a href="/!/admin/edits"> view all edits </a><br/>
+		]]
+
+		refined.body2=[[
+<div class="cake_wakaedit" style="height:100%;">
+<form name="post" action="{cake.qurl}" method="post" enctype="multipart/form-data" style="height:100%;">
+<!--
+	<div class="cake_wakaedit_bar">
+		<input type="submit" name="submit" value="Save" class="cake_button" />
+		<input type="submit" name="submit" value="Save and Edit" class="cake_button" />
+		<input type="submit" name="submit" value="Preview" class="cake_button" />
+		<input type="submit" name="submit" value="Cancel" class="cake_button" />
+	</div>
+-->
+	<textarea name="text" class="cake_field cake_wakaedit_field">{.cake.admin_waka_form_text}</textarea>
+</form>
+
+<script>
+window.auto_wakaedit={who:".cake_wakaedit",width:"100%",height:"100%",show_buttons:false};
+head.js(head.fs.jquery_wakaedit_js);
+</script>
+
+</div>
+]]
+		
+		local list=pages.list(srv,{})
+		local pages={}
+		for i=1,#list do local v=list[i]
+			local dat={
+				page=v.cache,
+				page_name=v.cache.id,
+--				url_base=srv.url_base:sub(1,-2),
+				time=os.date("%Y/%m/%d %H:%M:%S",v.cache.updated),
+				author=( (v.cache.edit and v.cache.edit.author) or "")
+				}
+			pages[i]=dat
+		end
+		table.sort(pages,function(a,b) if a.page_name < b.page_name then return true end end)
+		refined.pages=pages
+		refined.pages_plate=[[
+<a href="{it.url_base}{it.page_name}">{it.page_name}</a><br/>
+]]
+		refined.body1=[[
+			{pages:pages_plate}
+		]]
+		
+		display_refined(srv,refined)
+
+--	end
 	
 
---	put("footer")
 	
 end

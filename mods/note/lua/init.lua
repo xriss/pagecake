@@ -108,13 +108,14 @@ function serv(srv)
 --local sess,user=d_sess.get_viewer_session(srv)
 --local posts=make_posts(srv)
 
-	local refined=waka.fill_refined(srv,"note")
+	local refined=waka.prepare_refined(srv,"note")
 
 	refined.body="{comments}"	
 	refined.comments=comments.recent_refined(srv, comments.get_recent(srv,50))
 
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)	
+--	srv.set_mimetype("text/html; charset=UTF-8")
+--	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
 
 end
 
@@ -269,8 +270,8 @@ if (!document.getElementById('{css}'))
 ]=]
 	else
 		srv.set_mimetype("text/html; charset=UTF-8")
-		srv.put("header",{title="import notes ",user=user,sess=sess,bar=""})
-		srv.put("footer",{about="",report="",bar="",})
+--		srv.put("header",{title="import notes ",user=user,sess=sess,bar=""})
+--		srv.put("footer",{about="",report="",bar="",})
 	end
 end
 
