@@ -103,17 +103,23 @@ function serv(srv)
 		return serv_import(srv)
 	elseif cmd=="api" then
 		return serv_api(srv)
+	elseif cmd=="admin" then
+		return serv_admin(srv)
 	end
+
+	return serv_admin(srv)
 
 --local sess,user=d_sess.get_viewer_session(srv)
 --local posts=make_posts(srv)
 
-	local refined=waka.prepare_refined(srv,"note")
 
+--[[
+	local refined=waka.prepare_refined(srv,"note")
 	refined.body="{comments}"	
 	refined.comments=comments.recent_refined(srv, comments.get_recent(srv,50))
-
 	waka.display_refined(srv,refined)	
+]]
+
 --	srv.set_mimetype("text/html; charset=UTF-8")
 --	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
 
@@ -439,4 +445,38 @@ print( head.url.."/"..master.key.id .." "..id )
 	srv.set_mimetype("text/html; charset=UTF-8")
 --	put("Testing 123")
 
+end
+
+
+function serv_admin(srv)
+
+	local sess,user=d_sess.get_viewer_session(srv)
+	if not srv.is_admin(user) then -- adminfail
+		return false
+	end
+
+
+	local refined=waka.prepare_refined(srv)
+
+	refined.cake.admin_waka_form_text=""
+
+	local list=comments.list(srv,{csortdate="DESC",group="0"}) -- get all comments
+	for i=1,#list do local v=list[i]
+		local dat={
+			url=v.cache.url,
+			author=( (v.cache.edit and v.cache.edit.author) or ""),
+			time=os.date("%Y/%m/%d %H:%M:%S",v.cache.updated),
+			}
+		list[i]=dat
+	end
+	refined.list=list
+	refined.list_plate=[[
+<a href="{it.url}">{it.author}</a><br/>
+]]
+	refined.body=[[
+		{list:list_plate}
+	]]
+	
+	waka.display_refined(srv,refined)
+		
 end

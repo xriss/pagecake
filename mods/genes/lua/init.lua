@@ -114,7 +114,7 @@ function serv(srv)
 
 --[=[
 -- need the base wiki page, its kind of the main site everything
-	local refined=waka.fill_refined(srv,"genes")
+	local refined=waka.prepare_refined(srv,"genes")
 
 	refined.body="this is a genes test"
 

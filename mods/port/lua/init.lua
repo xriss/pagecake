@@ -69,7 +69,7 @@ end
 function M.get(srv,name)
 local sess,user=d_sess.get_viewer_session(srv)
 
-	srv.refined=waka.fill_refined(srv,name) -- basic root page and setup
+	srv.refined=waka.prepare_refined(srv,name) -- basic root page and setup
 	html.fill_cake(srv) -- more local setup
 
 	if srv.is_admin(user) then

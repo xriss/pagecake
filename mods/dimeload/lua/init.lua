@@ -880,7 +880,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 
 	local posts=make_posts(srv)		
 
-	local refined=waka.fill_refined(srv,"dl/"..pname)
+	local refined=waka.prepare_refined(srv,"dl/"..pname)
 	html.prepare_cake(srv,refined)
 	if srv.is_admin(user) then
 		refined.cake.admin="{cake.admin_dimeload_bar}"
