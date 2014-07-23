@@ -39,6 +39,7 @@ local waka=require("waka")
 
 -- opts
 
+local dprint=function(...) log(wstr.dump(...)) end
 
 module("note")
 
@@ -454,27 +455,76 @@ function serv_admin(srv)
 	if not srv.is_admin(user) then -- adminfail
 		return false
 	end
+	if srv.method=="POST" and not srv:check_referer() then
+		return srv.redirect(srv.url) -- bad referer
+	end
+
+	if srv.posts.cmd=="update" then
+	
+		local change=srv.posts.change if type(change)~="table" then change={change} end
+		local spam  =srv.posts.spam   if type(spam)  ~="table" then spam  ={spam}   end
+		
+		for _,n in ipairs(change) do
+print("change:"..n)
+			comments.update(srv,n,function(srv,e)
+				e.cache.type="ok"
+				return true
+			end)
+		end
+
+		for _,n in ipairs(spam) do
+print("spam:"..n)
+			comments.update(srv,n,function(srv,e)
+				e.cache.type="spam"
+				return true
+			end)
+		end
+
+		return srv.redirect(srv.url) -- display nothing		
+	end
+
 
 
 	local refined=waka.prepare_refined(srv)
 
-	refined.cake.admin_waka_form_text=""
-
-	local list=comments.list(srv,{csortdate="DESC",group="0"}) -- get all comments
-	for i=1,#list do local v=list[i]
-		local dat={
-			url=v.cache.url,
-			author=( (v.cache.edit and v.cache.edit.author) or ""),
-			time=os.date("%Y/%m/%d %H:%M:%S",v.cache.updated),
-			}
-		list[i]=dat
+	local list=comments.list(srv,{sort_created="DESC"}) -- get all comments
+--dprint(list)
+	for i=1,#list do
+		local c=list[i].cache
+		c.time=os.date("%Y/%m/%d %H:%M:%S",c.created)
+		c.text=wet_html.esc(c.text)
+		list[i]=c
 	end
 	refined.list=list
-	refined.list_plate=[[
-<a href="{it.url}">{it.author}</a><br/>
+	refined.list_head=[[
+<tr>
+<td>not</td>
+<td>spam</td>
+<td>url</td>
+<td>author</td>
+<td>text</td>
+</tr>
+]]
+	refined.list_item=[[
+<tr>
+<td><input type="checkbox" name="change" value="{it.id}" /></td>
+<td><input type="checkbox" name="spam" value="{it.id}" />{it.type}</td>
+<td><a href="{it.url}">{it.url}</a></td>
+<td>{it.author}</td>
+<td>{it.text}</td>
+</tr>
 ]]
 	refined.body=[[
-		{list:list_plate}
+		<form action="" method="POST">
+		<input name="cmd" type="submit" value="update" />
+		<table class="admin_note">
+		{list_head}
+		{list:list_item}
+		</table>
+		</form>
+		<style>
+		.admin_note td { max-width:200px; overflow:hidden; padding:0px 4px 0px 4px ; white-space:nowrap; }
+		</style>
 	]]
 	
 	waka.display_refined(srv,refined)

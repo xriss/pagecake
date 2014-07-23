@@ -59,7 +59,7 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 <html>
 <head>
 <meta charset="UTF-8"/>
-<title>{cake.html.title}</title>
+<title>{-cake.html.title}</title>
 <link rel="stylesheet" type="text/css" href="/css/base/pagecake.css" />
 {-cake.html.extra}
 {cake.html.js}
@@ -90,8 +90,8 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 	cake.notes=""
 	cake.comments="{-cake.notes}"
 	cake.plate=[[
-<h1>{title}</h1>
-{body}
+<h1>{-title}</h1>
+{-body}
 {-cake.comments}
 ]]
 

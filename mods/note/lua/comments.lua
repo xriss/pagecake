@@ -177,7 +177,7 @@ function update_meta_cache(srv,url)
 	local count=0
 
 -- build meta cache			
-	local cs=list(srv,{sort_updated="DESC",url=url,group="0"}) -- get all top comments
+	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type="ok"}) -- get all top comments
 	local comments={}
 	local newtime=0
 	for i,v in ipairs(cs) do -- and build comment cache
@@ -277,7 +277,7 @@ end
 
 local update=nil
 
-	local rs=list(srv,{sort_updated="ASC",url=url,group=id}) -- get all replies
+	local rs=list(srv,{sort_updated="ASC",type="ok",url=url,group=id}) -- get all replies
 	local replies={}
 	for i,v in ipairs(rs) do -- and build reply cache
 		local c=v.cache
