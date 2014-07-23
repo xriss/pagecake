@@ -530,7 +530,7 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 log(posted.cache.cache.user.name)
 				end
 				
-				return
+				return srv.redirect(srv.url) -- unpost
 			end
 
 		end

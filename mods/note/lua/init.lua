@@ -487,7 +487,14 @@ print("spam:"..n)
 
 	local refined=waka.prepare_refined(srv)
 
-	local list=comments.list(srv,{sort_created="DESC"}) -- get all comments
+	refined.list_limit=tonumber(srv.gets.limit or 100)
+	refined.list_offset=tonumber(srv.gets.offset or 0)
+	refined.list_next=refined.list_offset+100
+	refined.list_prev=refined.list_offset-100
+	if refined.list_offset<0 then refined.list_offset=0 end
+	if refined.list_prev<0   then refined.list_prev=0 end
+
+	local list=comments.list(srv,{sort_created="DESC",offset=refined.list_offset,limit=refined.list_limit}) -- get all comments
 --dprint(list)
 	for i=1,#list do
 		local c=list[i].cache
@@ -515,8 +522,10 @@ print("spam:"..n)
 </tr>
 ]]
 	refined.body=[[
+		<a href="?offset={list_prev}">prev</a> <a href="?offset={list_next}">next</a>
 		<form action="" method="POST">
 		<input name="cmd" type="submit" value="update" />
+		<a href="/admin/cmd/clearstash">clear stash</a>
 		<table class="admin_note">
 		{list_head}
 		{list:list_item}
