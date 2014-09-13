@@ -99,8 +99,7 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 	cake.admin_waka_bar=[[
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
-		<button type="submit" name="submit" value="edit" class="cake_button" > Edit </button>
-		<a href="?cmd=edit&page={-cake.pagename}" class="cake_button" > EditOnly </a>
+		<a href="/!?cmd=edit&page={-cake.pagename}" class="cake_button" target="_BLANK" > Edit </a>
 		<a href="/!/admin" class="cake_button" > Admin </a>
 	</form>
 </div>
@@ -142,12 +141,6 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 	cake.admin_waka_form=[[
 <div class="cake_wakaedit">
 <form name="post" action="{cake.qurl}" method="post" enctype="multipart/form-data">
-	<div class="cake_wakaedit_bar">
-		<input type="submit" name="submit" value="Save" class="cake_button" />
-		<input type="submit" name="submit" value="Save and Edit" class="cake_button" />
-		<input type="submit" name="submit" value="Preview" class="cake_button" />
-		<input type="submit" name="submit" value="Cancel" class="cake_button" />
-	</div>
 	<textarea name="text" class="cake_field cake_wakaedit_field">{.cake.admin_waka_form_text}</textarea>
 </form>
 
@@ -208,7 +201,7 @@ head.js(head.fs.jquery_wakaedit_js);
 	cake.blog_page=[[{cake.blog_item}]]
 	cake.blog_list=[[{cake.blog_item}]]
 
-	cake.blog_bar=[[<div class="cake_blog_bar"><a href="{-opts.link_next}" class="cake_blog_bar_next" >NEXT</a> <a href="{-opts.link_prev}"  class="cake_blog_bar_prev" >PREV</a></div>]]
+	cake.blog_bar=[[<div class="cake_blog_bar"><a href="{-opts.link_prev}"  class="cake_blog_bar_prev" >PREV</a><a href="{-opts.link_next}" class="cake_blog_bar_next" >NEXT</a></div>]]
 
 	cake.blog_edit_form=[[
 <form name="post" id="post" action="" method="post" enctype="multipart/form-data">

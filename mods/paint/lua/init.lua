@@ -336,7 +336,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	local id_str=srv.url_slash[ srv.url_slash_idx+1 ] if id_str=="" then id_str=nil end
 	local id_num=tonumber(id_str or "") if tostring(id_num)~=id_str then id_num=nil end
 
-	local opts={sort="created-",bad=0}
+	local opts={sort="created-",bad=0,limit=1000}
 	
 	if id_num then
 		opts.day=id_num

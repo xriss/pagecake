@@ -100,13 +100,27 @@ $.fn.wakaedit=function(opts)
 		show_buttons:true
 	};  
 	opts = $.extend(defs, opts); 
+	
+		var qq = {};
+		$.each(document.location.search.substr(1).split('&'),function(c,q){
+			var i = q.split('=');
+			qq[i[0].toString()] = i[1].toString();
+		});
+
+		var page=qq.page;
 
 		var editor;
-		
-		var edit_textarea=this;
+
+
+		var edit_textarea=$(this).find("textarea");
 		var edit_div=$("<div class='field cake_field'></div>");
 		var edit_check=$("<input name=\"usecm\" type=\"checkbox\">");
 		var edit_select=$("<select name='chunks' class='cake_wakaedit_chunks'></select>");
+
+		var edit_result=$("<span>...</span>");
+		var edit_title=$("<span>"+page+"</span>");
+		var edit_button_save=$("<a class=\"cake_button\" >Save</a>");
+		var edit_button_view=$("<a class=\"cake_button\" href=\""+page+"\" target=\"_blank\" >View</a>");
 		
 		var text=edit_textarea.val();
 		
@@ -158,6 +172,10 @@ if(opts.show_buttons)
 		edit_textarea.before(edit_select);
 		edit_textarea.before(edit_check);
 }
+		edit_textarea.before(edit_button_save);
+		edit_textarea.before(edit_result);
+		edit_textarea.before(edit_button_view);
+		edit_textarea.before(edit_title);
 		edit_textarea.after(edit_div);
 
 		var css={width:opts.width,height:opts.height};//,position:"relative",margin:"auto",background:"#fff"};
@@ -231,6 +249,26 @@ if(opts.show_buttons)
 
 		rechunks();
 
+		
+		edit_button_save.click(function() {
+			var data={};
+			var page="test";
+			data.submit="Save";
+			data.text=edit_textarea.val();
+			edit_result.html("...");
+			$.ajax({
+				type: "POST",
+				url: "",
+				data: data,
+				success: function(data) {
+					edit_result.html("Save OK");
+				},
+				error: function(data) {
+					edit_result.html("Save ERROR");
+				}
+			});
+		});
+		
 	return this;
 }
 
@@ -238,7 +276,7 @@ if(opts.show_buttons)
 	if(window.auto_wakaedit ){
 		var opts=window.auto_wakaedit;
 		window.auto_wakaedit=undefined; // clear to flag as done
-		$(opts.who+" textarea").wakaedit(opts);
+		$(opts.who).wakaedit(opts);
 	}
 
 })(jQuery);

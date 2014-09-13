@@ -11,9 +11,11 @@ local opts=require("opts")
 vhosts_map={
 	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
 
+	{"roadee",		"roadee",		"roadee.lo4d.net",	},				-- any domain with roadee in it
+
 	{"artcrawl",	"artcrawl",		"leeds.artcrawl.club",	},			-- any domain with artcrawl in it
 
-	{"itstuff",		"itstuff",		"itstuff.lo4d.net",	},				-- any domain with itstuff in it
+	{"itstuff",		"itstuff",		"itstuff.org.uk",	},				-- any domain with itstuff in it
 	{"poop",		"poop",			"poop.lo4d.net",	},				-- any domain with poop in it
 
 	{"paint",		"paint",		"paint.lo4d.net",	},				-- any domain with paint in it

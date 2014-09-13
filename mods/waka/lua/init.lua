@@ -1,7 +1,9 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
-local wet_html=require("wetgenes.html")
+local dprint=function(s) print(require("wetgenes.string").dump(s)) end
+
+local whtml=require("wetgenes.html")
 
 local sys=require("wetgenes.www.any.sys")
 
@@ -17,6 +19,8 @@ local img=require("wetgenes.www.any.img")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local wet_sandbox=require("wetgenes.sandbox")
+
+
 
 local wet_string=require("wetgenes.string")
 local wstr=wet_string
@@ -51,14 +55,14 @@ local function make_put(srv)
 	return function(a,b)
 		b=b or {}
 		b.srv=srv
-		srv.put(wet_html.get(html,a,b))
+		srv.put(whtml.get(html,a,b))
 	end
 end
 local function make_get(srv)
 	return function(a,b)
 		b=b or {}
 		b.srv=srv
-		return wet_html.get(html,a,b)
+		return whtml.get(html,a,b)
 	end
 end
 
@@ -315,7 +319,7 @@ local ext
 		end
 		
 		if srv.is_admin(user) then -- admin
-			if posts.submit=="Save" or posts.submit=="Save and Edit" then -- save page to database
+			if posts.submit=="Save" or posts.submit=="Save and View" then -- save page to database
 				if posts.text then
 					local chunks=wet_waka.text_to_chunks(posts.text)
 					local e=pages.edit(srv,pagename,
@@ -329,7 +333,7 @@ local ext
 				end
 			end
 			
-			if posts.submit~="Save" then -- keep editing
+			if posts.submit~="Save and View" then -- keep editing
 
 --todo, remove since the new way does not need
 --display_edit=get("waka_edit_form",{text=page.cache.text}) -- still editing
@@ -347,7 +351,7 @@ local ext
 	refined.cake.homebar.crumbs=crumbs
 	note_html.fill_cake(srv,refined) -- add note html into the cake
 
-	if page_edit then refined.cake.admin_waka_form_text=wet_html.esc(page_edit) end
+	if page_edit then refined.cake.admin_waka_form_text=whtml.esc(page_edit) end
 	
 	refined.opts=fill_opts(srv)
 	
@@ -453,7 +457,96 @@ local get=make_get(srv)
 
 	local cmd= srv.url_slash[ srv.url_slash_idx+2]
 	
+	local refined=prepare_refined(srv)
+
+
+	if cmd=="edit" then
+
+		refined.cake.admin_waka_form_text=""
+
+		refined.cake.html.plate=[[
+{cake.html.head}
+{cake.plate}
+{cake.html.foot}
+]]
+
+		refined.cake.plate=[[
+<div style="width:100%;height:100%">
+<div style="width:25%;height:99%;position:absolute;top:0px;left:0px;"><div style="padding:10px;">{body1}</div></div>
+<div style="width:75%;height:99%;position:absolute;top:0px;left:25%;">{body2}</div>
+</div>
+]]
+		
+		refined.body2=[[
+<iframe style="height:100%;width:100%;" name="frame" src="/?cmd=edit&page=/" >
+</iframe>
+]]
+
+
+		local list=pages.list(srv,{})
+		local pages={}
+		for i=1,#list do local v=list[i]
+			local dat={
+				page=v.cache,
+				page_name=v.cache.id,
+--				url_base=srv.url_base:sub(1,-2),
+				time=os.date("%Y/%m/%d %H:%M:%S",v.cache.updated),
+				author=( (v.cache.edit and v.cache.edit.author) or "")
+				}
+			pages[i]=dat
+		end
+		table.sort(pages,function(a,b) if a.page_name < b.page_name then return true end end)
+		refined.pages=pages
+		refined.pages_plate=[[
+<a href="/?cmd=edit&page={it.page_name}" target="frame">{it.page_name}</a><br/>
+]]
+		refined.body1=[[
+			{pages:pages_plate}
+		]]
+		
+		
+		return display_refined(srv,refined)
+	end
 	
+	if cmd=="chunks" then
+		local b={}
+		local p=function(s) b[#b+1]=s end
+		local f
+		f=function(t,r)
+			r=r or ""
+			for n,v in pairs(t) do
+				if type(v)=="table" then
+					f(v,r..n..".")
+				else
+					p("#"..r..n.."\n\n")
+					p(v.."\n\n")
+				end
+			end
+		end
+		f(refined)
+		refined.body=[[{.body2}]]
+		refined.body2="<pre>"..
+			whtml.esc(table.concat(b,""))
+			.."</pre>"
+
+		
+		return display_refined(srv,refined)
+	end
+	
+	refined.body=[[
+		<a href="/!/admin/edit"> edit all pages using a file browser/editor </a><br/>
+		<br/>
+		<a href="/!/admin/chunks"> view all builtin chunks </a><br/>
+<!--
+		<br/>
+		<a href="/!/admin/pages"> list all pages </a><br/>
+		<br/>
+		<a href="/!/admin/edits"> list all edits </a><br/>
+-->
+	]]
+	
+	return display_refined(srv,refined)
+
 --[=[
 	if cmd=="pages" then
 	
@@ -505,76 +598,6 @@ local get=make_get(srv)
 		
 	else
 ]=]
-		local refined=prepare_refined(srv)
-
-		refined.cake.admin_waka_form_text=""
-
-		refined.cake.html.plate=[[
-{cake.html.head}
-{cake.plate}
-{cake.html.foot}
-]]
-
-		refined.cake.plate=[[
-<div style="width:100%;height:100%">
-<div style="width:25%;height:99%;position:absolute;top:0px;left:0px;"><div style="padding:10px;">{body1}</div></div>
-<div style="width:75%;height:99%;position:absolute;top:0px;left:25%;">{body2}</div>
-</div>
-]]
-		
-		refined.body1=[[
-			<a href="/?cmd=edit"> Edit root of all pages </a><br/>
-			<br/>
-			<a href="/!/admin/pages"> view all pages </a><br/>
-			<br/>
-			<a href="/!/admin/edits"> view all edits </a><br/>
-		]]
-
-		refined.body2=[[
-<div class="cake_wakaedit" style="height:100%;">
-<form name="post" action="{cake.qurl}" method="post" enctype="multipart/form-data" style="height:100%;">
-<!--
-	<div class="cake_wakaedit_bar">
-		<input type="submit" name="submit" value="Save" class="cake_button" />
-		<input type="submit" name="submit" value="Save and Edit" class="cake_button" />
-		<input type="submit" name="submit" value="Preview" class="cake_button" />
-		<input type="submit" name="submit" value="Cancel" class="cake_button" />
-	</div>
--->
-	<textarea name="text" class="cake_field cake_wakaedit_field">{.cake.admin_waka_form_text}</textarea>
-</form>
-
-<script>
-window.auto_wakaedit={who:".cake_wakaedit",width:"100%",height:"100%",show_buttons:false};
-head.js(head.fs.jquery_wakaedit_js);
-</script>
-
-</div>
-]]
-		
-		local list=pages.list(srv,{})
-		local pages={}
-		for i=1,#list do local v=list[i]
-			local dat={
-				page=v.cache,
-				page_name=v.cache.id,
---				url_base=srv.url_base:sub(1,-2),
-				time=os.date("%Y/%m/%d %H:%M:%S",v.cache.updated),
-				author=( (v.cache.edit and v.cache.edit.author) or "")
-				}
-			pages[i]=dat
-		end
-		table.sort(pages,function(a,b) if a.page_name < b.page_name then return true end end)
-		refined.pages=pages
-		refined.pages_plate=[[
-<a href="{it.url_base}{it.page_name}">{it.page_name}</a><br/>
-]]
-		refined.body1=[[
-			{pages:pages_plate}
-		]]
-		
-		display_refined(srv,refined)
-
 --	end
 	
 
