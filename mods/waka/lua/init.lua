@@ -478,8 +478,9 @@ local get=make_get(srv)
 ]]
 		
 		refined.body2=[[
-<iframe style="height:100%;width:100%;" name="frame" id="frame" src="/?cmd=edit&page=/" >
-</iframe>
+<div id="frames" style="height:100%;width:100%;" >
+<iframe style="height:100%;width:100%;" name="frame" id="frame" src="/?cmd=edit&page=/" ></iframe>
+</div>
 <script>
 head.js(head.fs.jquery_js,function(){
 	var src=location.hash.substring(1);
@@ -515,6 +516,21 @@ head.js(head.fs.jquery_js,function(){
 		var url=$(this).attr('href');
 		var page=url.split("page=")[1];
 		location.hash="#"+page;
+		var url="/?cmd=edit&page="+page;
+		var f=$("#frames").find("[src=\""+url+"\"]");
+		$("#frames iframe").hide(); // hide all
+
+		if(f.length==1)
+		{
+			f.show();
+		}
+		else
+		{
+			var f=$("<iframe style=\"height:100%;width:100%;\" ></iframe>");
+			f.attr("src",url);
+			$("#frames").append(f);
+		}
+		return false;
 	});
 });
 </script>
