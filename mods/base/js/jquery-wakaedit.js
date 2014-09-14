@@ -154,6 +154,7 @@ $.fn.wakaedit=function(opts)
 				text=join_chunks(chunks);
 			}
 			edit_textarea.val( text );
+			edit_result.html("changed");
 		};
 		
 		
