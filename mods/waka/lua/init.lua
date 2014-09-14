@@ -478,8 +478,15 @@ local get=make_get(srv)
 ]]
 		
 		refined.body2=[[
-<iframe style="height:100%;width:100%;" name="frame" src="/?cmd=edit&page=/" >
+<iframe style="height:100%;width:100%;" name="frame" id="frame" src="/?cmd=edit&page=/" >
 </iframe>
+<script>
+head.js(head.fs.jquery_js,function(){
+	var src=location.hash.substring(1);
+	if(src=="") { src="/"; }
+	$("#frame").attr("src","/?cmd=edit&page="+src);
+});
+</script>
 ]]
 
 
@@ -498,10 +505,19 @@ local get=make_get(srv)
 		table.sort(pages,function(a,b) if a.page_name < b.page_name then return true end end)
 		refined.pages=pages
 		refined.pages_plate=[[
-<a href="/?cmd=edit&page={it.page_name}" target="frame">{it.page_name}</a><br/>
+<a href="/?cmd=edit&page={it.page_name}" target="frame" class="edit_link">{it.page_name}</a><br/>
 ]]
 		refined.body1=[[
 			{pages:pages_plate}
+<script>
+head.js(head.fs.jquery_js,function(){
+	$(".edit_link").click(function(){
+		var url=$(this).attr('href');
+		var page=url.split("page=")[1];
+		location.hash="#"+page;
+	});
+});
+</script>
 		]]
 		
 		

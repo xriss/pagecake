@@ -99,7 +99,7 @@ function render(srv,sess)
 				local dellit_and_twatit=dellit.."&continue="..wet_string.url_encode(twatit)
 				local dellit_and_continue=dellit.."&continue="..wet_string.url_encode(srv.url)
 out[#out+1]=[[
-<div class="aelua_nag">Post "<a target="_BLANK" href="]]..dellit_and_twatit..[[">]]..n.c140..[[</a>" to twitter! or
+<div class="aelua_nag">Post "<a target="_blank" href="]]..dellit_and_twatit..[[">]]..n.c140..[[</a>" to twitter! or
 <a href="]]..dellit_and_continue..[[">Cancel!</a></div>
 ]]			
 			end

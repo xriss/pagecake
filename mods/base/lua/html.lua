@@ -99,7 +99,7 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 	cake.admin_waka_bar=[[
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
-		<a href="/!?cmd=edit&page={-cake.pagename}" class="cake_button" target="_BLANK" > Edit </a>
+		<a href="/!/admin/edit#{-cake.pagename}" class="cake_button" target="_blank" > Edit </a>
 		<a href="/!/admin" class="cake_button" > Admin </a>
 	</form>
 </div>
