@@ -472,7 +472,7 @@ local get=make_get(srv)
 
 		refined.cake.plate=[[
 <div style="width:100%;height:100%">
-<div style="width:25%;height:99%;position:absolute;top:0px;left:0px;"><div style="padding:10px;">{body1}</div></div>
+<div style="width:25%;height:99%;position:absolute;top:0px;left:0px;overflow:scroll;"><div style="padding:10px;">{body1}</div></div>
 <div style="width:75%;height:99%;position:absolute;top:0px;left:25%;">{body2}</div>
 </div>
 ]]

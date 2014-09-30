@@ -584,7 +584,19 @@ local sess,user=d_sess.get_viewer_session(srv)
 	elseif not fat then
 		ret.status="bad fat image"
 	end
-		
+
+-- basic size check
+
+	if not ret.status and pix.width ~=day.pix.width		then ret.status="bad pix image width" end
+	if not ret.status and pix.height~=day.pix.height	then ret.status="bad pix image height" end
+	if not ret.status and pix.depth ~=day.pix.depth		then ret.status="bad pix image depth" end
+	
+	if not ret.status and fat.width ~=day.pix.width *day.fat.width	then ret.status="bad fat image width" end
+	if not ret.status and fat.height~=day.pix.height*day.fat.height	then ret.status="bad fat image height" end
+	if not ret.status and fat.depth ~=day.pix.depth					then ret.status="bad fat image depth" end
+
+-- we should check the pal here as well? 
+
 	if not ret.status then -- nothing failed the above checks
 	
 		local pix_id=("paint_pix_"..user.cache.id.."_"..posts.day):gsub("([^%w]+)","_")
