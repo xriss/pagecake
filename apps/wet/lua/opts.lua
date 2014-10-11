@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"paint",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"roadee",		"host.local",			},			-- test this domain when on localhost or host.local
 
 	{"roadee",		"roadee",		"roadee.lo4d.net",	},				-- any domain with roadee in it
 
@@ -252,6 +252,10 @@ setup=function()
 				add_map(v.map,"artcrawl","artcrawl")
 				add_map(v.map,"port","port")
 				
+			elseif n=="roadee" then -- extra site setup
+
+				add_map(v.map,"roadee","roadee")
+
 			end
 						
 			dat.setup_db(ae_opts)

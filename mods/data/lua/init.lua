@@ -38,16 +38,6 @@ local html=require("data.html")
 local meta=require("data.meta")
 local file=require("data.file")
 
-
-
--- our options
-
-
-
-local LAYER_PUBLISHED = 0
-local LAYER_DRAFT     = 1
-local LAYER_SHADOW    = 2
-
 module("data")
 local comments=require("note.comments")
 
@@ -360,7 +350,7 @@ local get,put=make_get_put(srv)
 		if page.size<1 then page.show=1 end	-- no small sizes
 		if page.show<0 then page.show=0 end	-- no negative offsets
 		
-		local t=meta.list(srv,{sort="usedate",limit=page.size,offset=page.show,group="/"})
+		local t=meta.list(srv,{sort="usedate",limit=page.size,offset=page.show,group=srv.gets.group or "/"})
 
 		page.next=page.show+page.size
 		page.prev=page.show-page.size

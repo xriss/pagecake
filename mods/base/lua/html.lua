@@ -34,7 +34,8 @@ function M.fill_cake(srv)
 <script src="/js/base/head.min.js"></script>
 <script>
 head.fs={};
-head.fs.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js";
+//head.fs.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js";
+head.fs.jquery_js="/js/base/jquery-1.4.3.js";
 head.fs.jquery_ui_js="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/jquery-ui.min.js";
 head.fs.jquery_validate_js="http://ajax.microsoft.com/ajax/jQuery.Validate/1.6/jQuery.Validate.min.js";
 head.fs.jquery_asynch_image_loader_js="/js/base/JqueryAsynchImageLoader-0.8.min.js";
@@ -91,7 +92,7 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 	cake.comments="{-cake.notes}"
 	cake.plate=[[
 <h1>{-title}</h1>
-{-body}
+{body}
 {-cake.comments}
 ]]
 

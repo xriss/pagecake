@@ -1,10 +1,26 @@
 
 // load lots of stuffs before we can do anything
-head.load(head.fs.codemirror_css);
+head.load(
+	"/js/base/codemirror/addon/dialog/dialog.css",
+	"/js/base/codemirror/addon/search/match-highlighter.css",
+	"/js/base/codemirror/codemirror.css"
+);
 head.js(
 	head.fs.jquery_js,
 	head.fs.jquery_cookie_js,
-	head.fs.codemirror_js,
+	"/js/base/codemirror/codemirror.js",
+	"/js/base/codemirror/addon/dialog/dialog.js",
+	"/js/base/codemirror/addon/search/search.js",
+	"/js/base/codemirror/addon/search/searchcursor.js",
+	"/js/base/codemirror/addon/search/match-highlighter.js",
+	"/js/base/codemirror/addon/edit/matchbrackets.js",
+	"/js/base/codemirror/addon/edit/matchtags.js",
+	"/js/base/codemirror/addon/fold/xml-fold.js",
+	"/js/base/codemirror/mode/xml/xml.js",
+	"/js/base/codemirror/mode/javascript/javascript.js",
+	"/js/base/codemirror/mode/css/css.js",
+	"/js/base/codemirror/mode/vbscript/vbscript.js",
+	"/js/base/codemirror/mode/htmlmixed/htmlmixed.js",
 	function() {
 		
 		
@@ -202,6 +218,10 @@ if(opts.show_buttons)
 			editor = CodeMirror(function(elt) {
 				edit_div.append($(elt).css(css));
 			}, {
+				highlightSelectionMatches: true,
+				matchBrackets: true,
+				matchTags: true,
+				keyMap:"default",
 				mode: "htmlmixed",
 				lineNumbers:true,
 				indentUnit:4,

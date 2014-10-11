@@ -163,7 +163,7 @@ function new()
 
 		local _,_,boundary = string.find (content_type, "boundary%=(.-)$")
 	  
-		boundary="--"..boundary
+		boundary="--"..(boundary or "") -- malformed boundary?
 
 		local parts=wstr.split(body,boundary)
 

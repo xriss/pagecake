@@ -1,0 +1,3 @@
+curl -F "submit=Upload" -F "data=@/home/kriss/Downloads/swpaint.zip" http://host.local:8888/roadee/upload
+echo
+
