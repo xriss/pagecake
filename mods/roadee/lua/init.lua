@@ -112,7 +112,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if not refined.list[1] then refined.list=nil end
 	
 	refined.example_plate=[[
-	<a href="/data/{it.data_id}/" />/data/{it.data_id}/<br/>
+	<a href="/data/{it.data_id}/" />/data/{it.data_id}/</a> <a href="/data/{it.data_id}/{it.data_id}.zip">download</a><br/>
 	]]
 	refined.example=[[
 	{-list:example_plate}
@@ -151,7 +151,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 		local t
 
-		repeat -- fake break loop
+		repeat -- this is not a repeat
 		
 			if type(posts.data)~="table" then
 				ret.status="missing file upload"
@@ -170,11 +170,11 @@ local sess,user=d_sess.get_viewer_session(srv)
 			end
 
 			if #t~=2 then
-				ret.status="zip must contain only 2 files"
+				ret.status="zip must contain only 2 files ("..#t..")"
 				break
 			end
 	
-		until true
+		until true -- this never repeats
 
 	else
 		ret.status="unknown command"
@@ -186,7 +186,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 		local dd=data.upload(srv,{
 			id=id,
-			name=posts.data.name,
+			name=id..".zip",
 			owner=0,
 			data=posts.data.data,
 			size=#posts.data.data,
