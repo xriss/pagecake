@@ -9,8 +9,8 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"genes",		"host.local",		},			-- test this domain when on localhost or host.local
-	{"genes",		"genes",		"wetgenes.com",		},			-- any domain with genes in it
+	{"local",		"genes",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"genes",		"genes",		"api.wetgenes.com",		},			-- any domain with genes in it
 }
 vhosts={}
 for i,v in ipairs(vhosts_map) do

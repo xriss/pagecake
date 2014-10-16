@@ -111,10 +111,10 @@ local sess,user=d_sess.get_viewer_session(srv)
 	end
 	if not refined.list[1] then refined.list=nil end
 	
-	refined.example_plate=[[
+	refined.example_plate=refined.example_plate or [[
 	<a href="/data/{it.data_id}/" />/data/{it.data_id}/</a> <a href="/data/{it.data_id}/{it.data_id}.zip">download</a><br/>
 	]]
-	refined.example=[[
+	refined.example=refined.example or [[
 	{-list:example_plate}
 	]]
 
