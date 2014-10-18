@@ -42,9 +42,12 @@ function new()
 --		log("srv.set_mimetype:",v)
 	end
 	
+	srv.set_cookies={}
 	srv.set_cookie=function(t)
 --		log("srv.set_cookie:",t.name,"=",t.value)		
-		ngx.header["Set-Cookie"]=t.name.."="..t.value.."; Domain="..t.domain.."; Path="..t.path..";  Expires="..ngx.cookie_time(t.live)
+		table.insert(srv.set_cookies,
+			t.name.."="..t.value.."; Domain="..t.domain.."; Path="..t.path..";  Expires="..ngx.cookie_time(t.live))
+		ngx.header["Set-Cookie"]=srv.set_cookies
 	end
 
 	srv.redirect=function(url)

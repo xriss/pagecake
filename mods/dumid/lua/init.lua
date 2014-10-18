@@ -476,7 +476,11 @@ local put=make_put(srv)
 	elseif data=="wetgenes" then
 	
 		if srv.gets.confirm then
-		
+
+			if srv.gets.S then -- remember fud cookie
+				srv.set_cookie{name="fud_session",value=wet_html.url_esc(srv.gets.S),domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}		
+			end
+
 			local hash=wet_html.url_esc(srv.gets.confirm)
 			
 			local callback=srv.url_base.."callback/wetgenes/?continue="..wet_html.url_esc(continue)
@@ -689,9 +693,10 @@ function perform_login(srv,tab)
 		-- create a new session for this user
 		local hash=sys.md5( "session"..(user.cache.ip)..math.random()..os.time() )
 		local sess=d_sess.fill(srv,nil,{user=user,hash=hash})
-		d_users.put(srv,sess) -- dump the session
 		srv.set_cookie{name="wet_session",value=hash,domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
-		
+		if srv.gets.S then
+			srv.set_cookie{name="fud_session",value=wet_html.url_esc(srv.gets.S),domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}		
+		end
 	end
 
 	return srv.redirect( tab.continue )
