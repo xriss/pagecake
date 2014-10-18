@@ -692,11 +692,15 @@ function perform_login(srv,tab)
 	
 		-- create a new session for this user
 		local hash=sys.md5( "session"..(user.cache.ip)..math.random()..os.time() )
+
 		local sess=d_sess.fill(srv,nil,{user=user,hash=hash})
-		srv.set_cookie{name="wet_session",value=hash,domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
+
+		d_sess.put(srv,sess)
+
 		if srv.gets.S then
 			srv.set_cookie{name="fud_session",value=wet_html.url_esc(srv.gets.S),domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}		
 		end
+		srv.set_cookie{name="wet_session",value=hash,domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
 	end
 
 	return srv.redirect( tab.continue )

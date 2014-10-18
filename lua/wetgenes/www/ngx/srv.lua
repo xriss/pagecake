@@ -119,10 +119,10 @@ function new()
 	else
 		cs=srv.headers.cookie
 	end
---	log(srv.headers.cookie)
 	for i,s in ipairs(cs or {}) do
 		local n,v=wstr.split_equal(wstr.trim(s))
 		if n and v then -- cookies can be malformed?
+--			log(n.."="..v)
 			srv.cookies[n]=v
 		end
 	end

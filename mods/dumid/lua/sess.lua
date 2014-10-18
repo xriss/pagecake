@@ -133,13 +133,18 @@ function get_viewer_session(srv)
 	
 	if srv.cookies.wet_session then -- we have a cookie session to check
 	
+log("session code "..tostring(srv.cookies.wet_session))
+
 		sess=get(srv,srv.cookies.wet_session) -- this is probably a cache get
 		
+log("session got "..tostring(sess))
+
 		if sess then -- need to validate
 			if sess.cache.ip ~= srv.ip then -- ip must match, this makes stealing sessions a local affair.
 				sess=nil
 			end
 		end
+log("session check "..tostring(sess))
 	end
 	
 	srv.sess=sess
@@ -155,6 +160,9 @@ function get_viewer_session(srv)
 	if srv.user and srv.user.cache and srv.user.cache.admin then -- do not ratelimit admins ips
 		iplog.mark_as_admin(srv.ip)
 	end
+
+log("session is "..tostring(srv.user).." = "..tostring(sess and sess.cache and sess.cache.userid))
+
 
 	return srv.sess,srv.user -- return sess , user
 	
