@@ -1,4 +1,2 @@
 cd .ngx
 ../../../../bin/exe/nginx -s quit -p .
-
-

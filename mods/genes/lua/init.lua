@@ -1,6 +1,8 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
+local lash=require("lash")
+
 local wet_html=require("wetgenes.html")
 
 local sys=require("wetgenes.www.any.sys")
@@ -13,17 +15,29 @@ local img=require("wetgenes.www.any.img")
 
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
+local iplog=require("wetgenes.www.any.iplog")
+
 local wstr=require("wetgenes.string")
 local str_split=wstr.str_split
 local serialize=wstr.serialize
 local macro_replace=wstr.macro_replace
 
+local json=require("wetgenes.json")
+
 local waka=require("waka")
 
--- require all the module sub parts
---local html=require("dice.html")
+local cache=require("wetgenes.www.any.cache")
+local mail=require("wetgenes.www.any.mail")
 
 
+local clean_username=function(s)
+	local r=s or ""
+	r=r:gsub("[^0-9a-zA-Z]+", "_" ) -- only allow numbers/letters in usernames, everything else becomes a _
+	r=r:gsub("[_]+", "_" ) -- do not allow multiple _ in usernames
+	if r:sub(1,1)=="_" then r=r:sub(2) end -- do not allow starting _
+	if r:sub(-1)=="_" then r=r:sub(1,-2) end -- do not allow ending _
+	return r
+end
 
 local ngx=require("ngx")
 
@@ -57,8 +71,22 @@ local connect=function(srv,database_name)
 	return db
 end
 
-local query=function(db,q)
-	local res, err, errno, sqlstate = db:query(q)
+local qreplace=function(q,a)
+	return q:gsub("$(%d+)",function(v)
+		local t=a[tonumber(v) or 0]
+		if     type(t)=="number" then
+			return tostring(t)
+		elseif type(t)=="string" then
+			return ngx.quote_sql_str(t)
+		else
+			return "NULL"
+		end
+	end)
+end
+
+local query=function(db,q,...)
+	local a={...}
+	local res, err, errno, sqlstate = db:query(qreplace(q,a))
 	if not res then
 		return nil , "bad result: "..err..": "..errno..": "..sqlstate.."."
 	end
@@ -76,57 +104,285 @@ function serv(srv)
 
 	local cmd=srv.url_slash[srv.url_slash_idx+0]
 
-	if cmd=="avatar" then
-		local name=srv.url_slash[srv.url_slash_idx+1] or ""
+	if     cmd=="avatar" then
+		serv_avatar(srv)
+	elseif cmd=="user" then
+		serv_user(srv)
+	end
+end
+
+-----------------------------------------------------------------------------
+--
+-- api to create / login / update a WETGENES user and user password
+--
+-- need to be careful not to leak user info here and to slow down any
+-- attacks
+--
+-----------------------------------------------------------------------------
+function serv_user(srv)
+
+	local put_json=function(j)
+		srv.set_mimetype("application/json; charset=UTF-8")
+		srv.put(json.encode(j) or "{}")
+	end
+
+	local cmd=srv.url_slash[srv.url_slash_idx+1]
+
+	if     cmd=="create" then
+
+		if not srv.vars["name"] then
+			return put_json{error="name is missing"}
+		end
+
+		if not srv.vars["pass"] then
+			return put_json{error="pass is missing"}
+		end
+
+		if not srv.vars["email"] then
+			return put_json{error="email is missing"}
+		end
+
+
+		local name=clean_username(srv.vars["name"])
+		local pass=srv.vars["pass"]
+		local email=srv.vars["email"]
 		
+		if name~=srv.vars["name"] then
+			return put_json{error="name is invalid",name=name}
+		end
+
+		if #name<3 then
+			return put_json{error="name is too short",name=name}
+		end
+
+		if #name>30 then
+			return put_json{error="name is too long",name=name}
+		end
+
+		local db = assert(connect(srv))	
+	
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where login=$1 limit 1]],name
+		))[1]
+
+		if user then
+			return put_json{error="name is already taken",name=name}
+		end
+
+		iplog.ratelimit(srv.ip,10)	-- only slow down fishing of this API for emails, not choosing a valid name
+		
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where email=$1 limit 1]],email
+		))[1]
+
+		if user then
+			return put_json{error="email is already taken",email=email}
+		end
+
+-- create a half hour secret token, which can be mailed or smsed etc
+-- to confirm that you are the one who owns this identity
+-- once you return we consider that email/phone valid
+
+		local token=sys.md5( "signup"..(srv.ip)..math.random()..os.time() )
+		cache.put(srv,"genes_ip_token="..srv.ip , json.encode{
+			token=token,
+			name=name,
+			pass=pass,
+			email=email,
+			command="create",
+			time=os.time(),
+			} , 60*30 )
+
+		local tokenurl="http://host.local:1408/genes/user/token?token="..token
+		local domain=srv.domain
+		mail.send{
+			from="ignoreme@"..domain,
+			to=email,
+			subject="Please confirm this account creation at "..domain.." from "..srv.ip,
+			body=[[
+Why hello there,
+
+
+Someone from ]]..srv.ip..[[ is trying to create an account at ]]..domain..[[ using this email address ( ]]..email..[[ ).
+
+if this was not you then I am really sorry! Please just ignore this email.
+
+
+Your token is : ]]..token..[[ 
+
+To complete this account creation please visit the following url within the next 30 minutes.
+
+]]..tokenurl..[[ 
+
+Thank you for your cooperation.
+
+
+				]],
+			}
+
+log("CREATE USER TOKEN = "..token)
+
+		return put_json{token="sent to "..email}
+
+	elseif cmd=="token" then
+
+		if not srv.vars["token"] then
+			return put_json{error="token is missing"}
+		end
+
+		local token=srv.vars["token"]
+
+		local d=cache.get(srv,"genes_ip_token="..srv.ip) -- A hacker can only fish for data sent from their IP
+		if not d then
+			return put_json{error="invalid token"} -- generic error, do not leak info
+		end
+		d=json.decode(d)
+		if d.token~=token then
+			return put_json{error="invalid token"} -- generic error, do not leak info
+		end
+		if (d.time+(60*30))<os.time() then
+			return put_json{error="invalid token"} -- generic error, do not leak info
+		end
+		cache.del(srv,"genes_ip_token="..srv.ip) -- Token can only be used once, so delete it now
+
+-- so at this point we consider the email confirmed and can create a new user from the cached data
+
 		local db = assert(connect(srv))
 		
-		local res
+		local name=clean_username(d.name)
+		local pass=d.pass
+		local email=d.email
+		local salt=token:sub(1,10)
+		local passhash=lash.SHA1.string2hex( salt .. lash.SHA1.string2hex(pass) )
 		
-		if name:sub(1,1)=="$" then
-			local num = tonumber(name:sub(2) or 0 ) or 0
-			res=assert(query(db,[[
-				select id,login,avatar_loc from fud26_users
-				where id=]]..num..[[ limit 1]]
-			))
-		else
-			res=assert(query(db,[[
-				select id,login,avatar_loc from fud26_users
-				where login=]]..ngx.quote_sql_str(name)..[[ limit 1]]
-			))
+-- check user and email again before we try and create a new user
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where login=$1 limit 1]],name
+		))[1]
+		if user then
+			return put_json{error="name is already taken",name=name}
+		end		
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where email=$1 limit 1]],email
+		))[1]
+		if user then
+			return put_json{error="email is already taken",email=email}
 		end
-			
-		if res and res[1] then
-			if type(res[1].avatar_loc) == "string" then
-				local url=string.gmatch(res[1].avatar_loc,"src=\"([^\"]*)")()
-				if url then
-					ngx.redirect(url)
-				end
+	
+		local done=assert(query(db,[[
+			INSERT INTO fud26_users (login,alias,name,email,passwd,salt,join_date,registration_ip,users_opt) VALUES ( $1,$1,$1,$2,$3,$4,$5,$6,$7)]],name,email,passhash,salt,os.time(),srv.ip,
+			4+16+32+128+256+512+2048+4096+8192+16384+131072+4194304
+		))
+		local userid=done and done.insert_id
+		if not userid then
+			return put_json{error="failed to create user"}
+		end
+				
+		return put_json({id=userid,name=name,email=email}) -- success
+		
+	elseif cmd=="login" then
+
+		if not srv.vars["name"] then
+			return put_json{error="name is missing"}
+		end
+
+		if not srv.vars["pass"] then
+			return put_json{error="pass is missing"}
+		end
+
+		local name=srv.vars["name"]
+		local pass=srv.vars["pass"]
+
+		iplog.ratelimit(srv.ip,10)	-- slow down fishing of this API
+		local db = assert(connect(srv))	
+
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where login=$1 OR email=$1 limit 1]],name
+		))[1]
+
+		if user then
+
+			local passOK=false -- set to true if the password is correct
+			if user.salt then
+			 	passOK = ( user.passwd == lash.SHA1.string2hex( user.salt .. lash.SHA1.string2hex(pass) ) )
+			else
+				passOK = ( user.passwd == lash.MD5.string2hex(pass) )
 			end
+
+			if passOK then -- authentication is a success, create a session and return it
+
+				local session
+
+				assert(query(db,[[
+					DELETE FROM fud26_ses WHERE user_id=$1]],user.id
+				))
+				
+				repeat
+					session=lash.MD5.string2hex(user.id..user.login..user.email..os.time())
+					local session_id=assert(query(db,[[
+						INSERT INTO fud26_ses (ses_id, time_sec, sys_id, user_id,ip_addr) VALUES ($1,$2,$3,$4,$5);
+						]],session,os.time(),"",user.id,srv.ip
+					))
+				until session_id -- until session does not clash
+
+				return put_json{session=session,name=user.login,email=user.email} -- return session (ip locked)
+				-- for this session to work on the forum then multiple logins must be allowed.
+			end
+			
+			return put_json{error="name and pass do not match"} -- generic error, do not leak email connection
+		else
+			return put_json{error="name and pass do not match"} -- generic error, do not leak email connection
 		end
+
+		return put_json{error="FAIL"}
+
+	elseif cmd=="update" then
+	elseif cmd=="confirm" then
+	end
+end
+
+-----------------------------------------------------------------------------
+--
+-- redirect to an image/avatar for this user name/id
+--
+-- any problems and we redirect to a default avatar
+--
+-----------------------------------------------------------------------------
+function serv_avatar(srv)
+
+	local name=srv.url_slash[srv.url_slash_idx+1] or ""
+	
+	local db = assert(connect(srv))
+	
+	local res
+	
+	if name:sub(1,1)=="$" then -- by number
+		local num = tonumber(name:sub(2) or 0 ) or 0
+		res=assert(query(db,[[
+			select id,login,avatar_loc from fud26_users
+			where id=$1 limit 1]],num
+		))[1]
+	else -- by login name
+		res=assert(query(db,[[
+			select id,login,avatar_loc from fud26_users
+			where login=$1 limit 1]],ngx.quote_sql_str(name)
+		))[1]
+	end
 		
-		ngx.redirect("http://www.wetgenes.com/forum/images/custom_avatars/12.png")
-		
-		return
+	if res and type(res.avatar_loc) == "string"then
+		local url=string.gmatch(res.avatar_loc,"src=\"([^\"]*)")()
+		if url then
+			ngx.redirect(url)
+		end
 	end
 	
+	ngx.redirect("http://www.wetgenes.com/forum/images/custom_avatars/12.png")
+	
 	return
-
---[=[
--- need the base wiki page, its kind of the main site everything
-	local refined=waka.prepare_refined(srv,"genes")
-
-	refined.body="this is a genes test"
-
-	refined.body=refined.body.."CONECTED"
-
-	local res=assert(query([[select id,login,avatar_loc from fud26_users where login="xix" order by id asc limit 100]]))
-
-	refined.body=string.gsub( wstr.dump(res) , "\n" , "<br/>\n" )
-    refined.body=refined.body.."<br/>\n#"..#res
-
-	srv.set_mimetype("text/html; charset=UTF-8")
-	srv.put(macro_replace("{cake.html.plate}",refined))
-]=]
-
 end
+	

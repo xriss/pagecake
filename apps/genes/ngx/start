@@ -1,4 +1,4 @@
-killall nginx
+killall pagecake.x64
 ngx/bake
 ngx/serv
 ngx/tail

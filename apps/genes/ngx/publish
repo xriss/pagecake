@@ -1,5 +1,5 @@
-cd ../../../wetgenes
-hg addremove
-hg ci -m.
-./publish
-ssh web "su wet -c \"hg/wetgenes/ngx/restart\""
+#cd ../../../wetgenes
+#hg addremove
+#hg ci -m.
+#./publish
+#ssh web "su wet -c \"hg/wetgenes/ngx/restart\""

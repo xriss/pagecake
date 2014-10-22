@@ -142,12 +142,26 @@ end
 function html_info(ip)
 	local it=manifest(ip)
 
+	local pm=math.floor(100*it.mhd[1][1]/200)
+	local ph=math.floor(100*it.mhd[1][2]/2000)
+	local pd=math.floor(100*it.mhd[1][3]/20000)
+
+	local ws="a little while"
+
+	if pd>=100 then
+		ws="a day"
+	elseif ph>=100 then
+		ws="an hour"
+	elseif pm>=100 then
+		ws="a minute"
+	end
+	
 	return wstr.replace([[
 <html> <title> Too Many Requests ( RATE LIMITED ) </title>
 <body>
 <center>
 <h1>Your ip {ip} is being RATE LIMITED</h1>
-<h3>You must wait a little while to access this server again.</h3>
+<h3>You must wait {ws} to access this server again.</h3>
 <hr/>
 <br/>
 You have used {pm}% of your quota per minute.<br/>
@@ -162,9 +176,10 @@ You have used {pd}% of your quota per day.<br/>
 </html>
 	]],{
 		ip=ip,
-		pm=math.floor(100*it.mhd[1][1]/200),
-		ph=math.floor(100*it.mhd[1][2]/2000),
-		pd=math.floor(100*it.mhd[1][3]/20000),
+		pm=pm,
+		ph=ph,
+		pd=pd,
+		ws=ws,
 	})
 end
 

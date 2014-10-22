@@ -149,8 +149,8 @@ function send(tab)
       } 
     } 
     
--- broken mail :/
-    r, e = nil,nil smtp.send{ 
+-- send mail
+    r, e = smtp.send{ 
         from = "<"..tab.from..">", 
         rcpt = rcpt, 
         source = source, 
@@ -163,8 +163,7 @@ function send(tab)
         log("failed to send: ", e) 
     end 
     
-    log(wstr.dump(r))
-
-    log("done!") 
+--    log(wstr.dump(r))
+--    log("done!") 
     
 end

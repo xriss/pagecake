@@ -1,0 +1,37 @@
+.wetjoin * {
+border: 0 none;
+outline: 0;
+padding: 0;
+margin: 0;
+}
+.cake_top100 { width:100%; height:100%; }
+
+.wetjoin {
+  font-family: 'Bitstream Vera Sans', sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  text-shadow: none;
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0em;
+  word-spacing: 0em;
+  line-height: 1.2;
+  word-wrap: break-word;
+}
+.wetjoin a , .wetjoin a:link , .wetjoin a:visited	{text-decoration: none;}
+.wetjoin a:hover , .wetjoin a:focus		{text-decoration: underline;}
+
+.wetjoin{
+	width: 320px;
+	height: 100%;
+	position: relative;
+	margin: auto;
+	background-color: black;
+	color: white;
+	z-index:1;
+}
+
+.hover{
+color:#fff;
+}
