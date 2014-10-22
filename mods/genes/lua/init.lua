@@ -247,42 +247,78 @@ log("CREATE USER TOKEN = "..token)
 		end
 		cache.del(srv,"genes_ip_token="..srv.ip) -- Token can only be used once, so delete it now
 
--- so at this point we consider the email confirmed and can create a new user from the cached data
+-- so at this point we consider the email confirmed and can create or update a user from the cached data
 
-		local db = assert(connect(srv))
+		if d.command=="update" then -- modify a users, eg new password
+
+			local db = assert(connect(srv))
+
+			local name=clean_username(d.name)
+			local pass=d.pass
+			local email=d.email
+			local salt=token:sub(1,10)
+			local passhash=lash.SHA1.string2hex( salt .. lash.SHA1.string2hex(pass) )
+
+			local user=assert(query(db,[[
+				select * from fud26_users
+				where email=$1 limit 1]],email
+			))[1]
+			if not user then
+				return put_json{error="user does not exist"}
+			end
+			
+			if name:lower()~=user.login:lower() then -- can *only* change case
+				name=user.login
+			end
+
+			local done=assert(query(db,[[
+				UPDATE fud26_users SET login=$1 , alias=$1 , name=$1 , passwd=$2 , salt=$3 WHERE id=$4]],name,passhash,salt,tonumber(user.id)
+			))
+			local affected_rows=done and done.affected_rows
+			if affected_rows~=1 then
+				return put_json{error="failed to update user",name=name,email=email}
+			end
+
+			return put_json{name=name,email=email}
+			
+		elseif d.command=="create" then -- new user
+
+			local db = assert(connect(srv))
+			
+			local name=clean_username(d.name)
+			local pass=d.pass
+			local email=d.email
+			local salt=token:sub(1,10)
+			local passhash=lash.SHA1.string2hex( salt .. lash.SHA1.string2hex(pass) )
+			
+			-- check user and email again before we try and create a new user
+			local user=assert(query(db,[[
+				select * from fud26_users
+				where login=$1 limit 1]],name
+			))[1]
+			if user then
+				return put_json{error="name is already taken",name=name}
+			end		
+			local user=assert(query(db,[[
+				select * from fud26_users
+				where email=$1 limit 1]],email
+			))[1]
+			if user then
+				return put_json{error="email is already taken",email=email}
+			end
 		
-		local name=clean_username(d.name)
-		local pass=d.pass
-		local email=d.email
-		local salt=token:sub(1,10)
-		local passhash=lash.SHA1.string2hex( salt .. lash.SHA1.string2hex(pass) )
-		
--- check user and email again before we try and create a new user
-		local user=assert(query(db,[[
-			select * from fud26_users
-			where login=$1 limit 1]],name
-		))[1]
-		if user then
-			return put_json{error="name is already taken",name=name}
-		end		
-		local user=assert(query(db,[[
-			select * from fud26_users
-			where email=$1 limit 1]],email
-		))[1]
-		if user then
-			return put_json{error="email is already taken",email=email}
+			local done=assert(query(db,[[
+				INSERT INTO fud26_users (login,alias,name,email,passwd,salt,join_date,registration_ip,users_opt) VALUES ( $1,$1,$1,$2,$3,$4,$5,$6,$7)]],name,email,passhash,salt,os.time(),srv.ip,
+				4+16+32+128+256+512+2048+4096+8192+16384+131072+4194304
+			))
+			local userid=done and done.insert_id
+			if not userid then
+				return put_json{error="failed to create user"}
+			end
+					
+			return put_json({id=userid,name=name,email=email}) -- success
+			
 		end
-	
-		local done=assert(query(db,[[
-			INSERT INTO fud26_users (login,alias,name,email,passwd,salt,join_date,registration_ip,users_opt) VALUES ( $1,$1,$1,$2,$3,$4,$5,$6,$7)]],name,email,passhash,salt,os.time(),srv.ip,
-			4+16+32+128+256+512+2048+4096+8192+16384+131072+4194304
-		))
-		local userid=done and done.insert_id
-		if not userid then
-			return put_json{error="failed to create user"}
-		end
-				
-		return put_json({id=userid,name=name,email=email}) -- success
 		
 	elseif cmd=="login" then
 
@@ -342,7 +378,80 @@ log("CREATE USER TOKEN = "..token)
 		return put_json{error="FAIL"}
 
 	elseif cmd=="update" then
-	elseif cmd=="confirm" then
+
+		if not srv.vars["pass"] then
+			return put_json{error="pass is missing"}
+		end
+
+		if not srv.vars["email"] then
+			return put_json{error="email is missing"}
+		end
+
+		local name=clean_username(srv.vars["name"]) -- optional, may be ignored
+		local pass=srv.vars["pass"]
+		local email=srv.vars["email"]
+		
+		iplog.ratelimit(srv.ip,100)	-- really slow down abuse of this API
+		
+		local db = assert(connect(srv))	
+	
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where login=$1 OR email=$2 limit 1]],name,email
+		))[1]
+		if not user then
+			return put_json{error="user does not exist"}
+		end
+		
+		email=user.email -- use this official email
+
+-- create a half hour secret token, which can be mailed or smsed etc
+-- to confirm that you are the one who owns this identity
+-- once you return we consider that email/phone valid
+
+		local token=sys.md5( "signup"..(srv.ip)..math.random()..os.time() )
+		cache.put(srv,"genes_ip_token="..srv.ip , json.encode{
+			token=token,
+			name=name,
+			pass=pass,
+			email=email,
+			command="update",
+			time=os.time(),
+			} , 60*30 )
+
+		local tokenurl="http://"..srv.domainport.."/genes/user/token?token="..token
+		local domain=srv.domain
+		mail.send{
+			from="ignoreme@"..domain,
+			to=email,
+			subject="Please confirm account modification of "..name.." at "..domain.." from "..srv.ip,
+			body=[[
+Why hello there,
+
+
+Someone from ]]..srv.ip..[[ is trying to change the password of your account at ]]..domain..[[ using this email address ( ]]..email..[[ ).
+
+This has triggered a confirmation email to you as a verification step.
+
+if this was not you then I am really sorry! Please just ignore this email.
+
+
+Your token is : ]]..token..[[ 
+
+To complete this account modification please visit the following url within the next 30 minutes.
+
+]]..tokenurl..[[ 
+
+Thank you for your cooperation.
+
+
+				]],
+			}
+
+log("UPDATE USER TOKEN = "..token)
+
+		return put_json{token="sent to your registered email address"}
+
 	end
 end
 
