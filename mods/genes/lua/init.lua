@@ -122,6 +122,7 @@ end
 function serv_user(srv)
 
 	local put_json=function(j)
+		srv.set_header("Access-Control-Allow-Origin","*")
 		srv.set_mimetype("application/json; charset=UTF-8")
 		srv.put(json.encode(j) or "{}")
 	end
@@ -157,6 +158,10 @@ function serv_user(srv)
 
 		if #name>30 then
 			return put_json{error="name is too long",name=name}
+		end
+
+		if #pass<3 then
+			return put_json{error="pass is too short"}
 		end
 
 		local db = assert(connect(srv))	
@@ -195,7 +200,7 @@ function serv_user(srv)
 			time=os.time(),
 			} , 60*30 )
 
-		local tokenurl="http://host.local:1408/genes/user/token?token="..token
+		local tokenurl="http://"..srv.domainport.."/genes/user/token?token="..token
 		local domain=srv.domain
 		mail.send{
 			from="ignoreme@"..domain,
@@ -207,10 +212,10 @@ Why hello there,
 
 Someone from ]]..srv.ip..[[ is trying to create an account at ]]..domain..[[ using this email address ( ]]..email..[[ ).
 
-if this was not you then I am really sorry! Please just ignore this email.
+If this was not you then all you have to do to cancel the request is ignore this email.
 
 
-Your token is : ]]..token..[[ 
+Your token is : ]]..token..[[ bound to ]]..srv.ip..[[
 
 To complete this account creation please visit the following url within the next 30 minutes.
 
@@ -326,11 +331,16 @@ log("CREATE USER TOKEN = "..token)
 			return put_json{error="name is missing"}
 		end
 
+		if not srv.vars["email"] then
+			return put_json{error="email is missing"}
+		end
+
 		if not srv.vars["pass"] then
 			return put_json{error="pass is missing"}
 		end
 
 		local name=srv.vars["name"]
+		local email=srv.vars["email"]
 		local pass=srv.vars["pass"]
 
 		iplog.ratelimit(srv.ip,10)	-- slow down fishing of this API
@@ -338,7 +348,7 @@ log("CREATE USER TOKEN = "..token)
 
 		local user=assert(query(db,[[
 			select * from fud26_users
-			where login=$1 OR email=$1 limit 1]],name
+			where login=$1 OR email=$2 limit 1]],name,email
 		))[1]
 
 		if user then
@@ -386,10 +396,14 @@ log("CREATE USER TOKEN = "..token)
 		if not srv.vars["email"] then
 			return put_json{error="email is missing"}
 		end
-
+		
 		local name=clean_username(srv.vars["name"]) -- optional, may be ignored
 		local pass=srv.vars["pass"]
 		local email=srv.vars["email"]
+
+		if #pass<3 then
+			return put_json{error="pass is too short"}
+		end
 		
 		iplog.ratelimit(srv.ip,100)	-- really slow down abuse of this API
 		
@@ -433,12 +447,12 @@ Someone from ]]..srv.ip..[[ is trying to change the password of your account at 
 
 This has triggered a confirmation email to you as a verification step.
 
-if this was not you then I am really sorry! Please just ignore this email.
+If this was not you then all you have to do to cancel the request is ignore this email.
 
 
-Your token is : ]]..token..[[ 
+Your token is : ]]..token..[[ bound to ]]..srv.ip..[[
 
-To complete this account modification please visit the following url within the next 30 minutes.
+To complete this account creation please visit the following url within the next 30 minutes.
 
 ]]..tokenurl..[[ 
 
