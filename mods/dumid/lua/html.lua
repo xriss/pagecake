@@ -105,8 +105,7 @@ more=more..[[
 	return replace([[
 <div class="dum-head">Login with</div>
 <div class="dum-butts">
-	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/genes/?continue={continue}">Genes</a></div>
-	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/wetgenes/?continue={continue}">Wetgenes</a></div>
+	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/genes/?continue={continue}">Wetgenes</a></div>
 	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/steam/?continue={continue}">Steam</a></div>
 	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/google/?continue={continue}">Google</a></div>
 ]]..more..

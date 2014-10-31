@@ -350,7 +350,7 @@ log("CREATE USER TOKEN = "..token)
 		if user then
 
 			local passOK=false -- set to true if the password is correct
-			if user.salt then
+			if type(user.salt)=="string" then
 			 	passOK = ( user.passwd == lash.SHA1.string2hex( user.salt .. lash.SHA1.string2hex(pass) ) )
 			else
 				passOK = ( user.passwd == lash.MD5.string2hex(pass) )
@@ -474,13 +474,13 @@ log("UPDATE USER TOKEN = "..token)
 			SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
 		))[1]
 
-		if not session then return put_json{error="invalid session"} end
+		if not session then return put_json{error="invalid session1"} end
 
 		local ip=srv.vars["ip"] or srv.ip -- can check an alternative IP against the session
 		
 		if session.ip_addr~=ip then
 			iplog.ratelimit(srv.ip,10)	-- slow down abuse of this API
-			return put_json{error="invalid session"}
+			return put_json{error="invalid session2"}
 		end
 
 		local user=assert(query(db,[[
@@ -488,7 +488,7 @@ log("UPDATE USER TOKEN = "..token)
 			where id=$1 limit 1]],session.user_id
 		))[1]
 
-		if not user then return put_json{error="invalid session"} end
+		if not user then return put_json{error="invalid session3"} end
 
 		return put_json{name=user.login,id=user.id}
 
