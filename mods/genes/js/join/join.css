@@ -23,9 +23,9 @@ b				{font-weight:bold;}
 a.wetjoin_submit	{padding:20px 30px; color:#fff;}
 a.wetjoin_submit:hover	{color:#1D5768;}
 
-.wetjoin_art	{width:210px; height:210px; border-radius:500px; background:url('/media/translogo.png') center center; background-color:#00FFCF; margin:auto; border:10px solid #1A1A1A;}
+.wetjoin_art	{width:210px; height:210px; border-radius:500px; background:url('media/translogo.png') center center; background-color:#00FFCF; margin:auto; border:10px solid #1A1A1A;}
 
-.wetlogo		{position:absolute; top:0; left:-75px; width:350px; height:300px; background:url('/media/translogo.png') center center;}
+.wetlogo		{position:absolute; top:0; left:-75px; width:350px; height:300px; background:url('media/translogo.png') center center;}
 .hexagon		{position:relative; width:200px; height:300px; margin:0 auto; background-color:#00FFCF;}
 .dia, .dia.r	{width:0; height:0; border:75px solid transparent; border-bottom:150px solid #09E8BE; position:relative; pointer-events:none;}
 .dia			{top:-75px; left:-75px;}
