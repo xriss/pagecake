@@ -476,13 +476,6 @@ local get,put=make_get_put(srv)
 		else
 			ent=pages.cache_find_by_pubname(srv,group..page)
 		end
-		if ent then
-		
-log("ADMIN   : "..tostring(srv.is_admin(user,"admin_viewers")) )
-log("LAYER   : "..ent.cache.layer)
-log("PUBDATE : "..ent.cache.pubdate)
-log("TIME    : "..srv.time)
-		end
 		
 		if ent and (
 			srv.is_admin(user,"admin_viewers") or 
