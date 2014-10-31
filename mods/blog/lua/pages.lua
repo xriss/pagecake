@@ -70,8 +70,9 @@ end
 -- what key name should we use to cache an entity?
 --
 --------------------------------------------------------------------------------
-function cache_key(srv,pubname)
-	return "type=ent&blog="..pubname
+function cache_key(srv,id)
+	if type(id)=="table" then id=id.cache.pubname end -- can turn an entity into an id
+	return "type=ent&blog="..id
 end
 
 --------------------------------------------------------------------------------

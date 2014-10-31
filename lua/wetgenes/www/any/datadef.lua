@@ -87,7 +87,7 @@ function def_get(env,srv,id,tt)
 		ent.key.id=id
 	end
 	
-	local ck=env.cache_key(srv,ent.key.id)
+	local ck=env.cache_key(srv,ent)
 	if not tt and ck then -- can try for cached value outside of transactions
 		local ent=cache.get(srv,ck)
 		if ent then return env.check(srv,--[[json.decode]](ent)) end -- Yay, we got a cached value
@@ -129,7 +129,7 @@ function def_del(env,srv,id,tt)
 	local t=tt or wdata -- use transaction?
 	t.del(ent)
 
-	local ck=env.cache_key(srv,ent.key.id)
+	local ck=env.cache_key(srv,ent)
 	cache.del(srv,ck)
 		
 end
@@ -272,7 +272,7 @@ end
 function def_cache_what(env,srv,ent,mc)
 	local mc=mc or {} -- can supply your own result table for merges	
 	
-	local ck=env.cache_key(srv,ent.key.id)
+	local ck=env.cache_key(srv,ent)
 	if ck then
 		mc[ ck ] = true
 	end
