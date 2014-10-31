@@ -284,7 +284,7 @@ log("CREATE USER TOKEN = "..token)
 				return put_json{error="failed to update user",name=name,email=email}
 			end
 
-			return put_json{name=name,email=email}
+			return put_json{command="update",name=name,email=email}
 			
 		elseif d.command=="create" then -- new user
 
@@ -321,7 +321,7 @@ log("CREATE USER TOKEN = "..token)
 				return put_json{error="failed to create user"}
 			end
 					
-			return put_json({id=userid,name=name,email=email}) -- success
+			return put_json({command="create",id=userid,name=name,email=email}) -- success
 			
 		end
 		
@@ -331,16 +331,12 @@ log("CREATE USER TOKEN = "..token)
 			return put_json{error="name is missing"}
 		end
 
-		if not srv.vars["email"] then
-			return put_json{error="email is missing"}
-		end
-
 		if not srv.vars["pass"] then
 			return put_json{error="pass is missing"}
 		end
 
 		local name=srv.vars["name"]
-		local email=srv.vars["email"]
+		local email=srv.vars["email"] or srv.vars["name"]
 		local pass=srv.vars["pass"]
 
 		iplog.ratelimit(srv.ip,10)	-- slow down fishing of this API
@@ -348,7 +344,7 @@ log("CREATE USER TOKEN = "..token)
 
 		local user=assert(query(db,[[
 			select * from fud26_users
-			where login=$1 OR email=$2 limit 1]],name,email
+			where login=$1 OR email=$2 or login=$2 OR email=$1 limit 1]],name,email
 		))[1]
 
 		if user then
@@ -397,7 +393,7 @@ log("CREATE USER TOKEN = "..token)
 			return put_json{error="email is missing"}
 		end
 		
-		local name=clean_username(srv.vars["name"]) -- optional, may be ignored
+		local name=clean_username(srv.vars["name"] or srv.vars["email"]) -- optional, may be ignored
 		local pass=srv.vars["pass"]
 		local email=srv.vars["email"]
 
@@ -465,6 +461,36 @@ Thank you for your cooperation.
 log("UPDATE USER TOKEN = "..token)
 
 		return put_json{token="sent to your registered email address"}
+
+	elseif cmd=="session" then
+
+		if not srv.vars["session"] then
+			return put_json{error="session is missing"}
+		end
+
+		local db = assert(connect(srv))	
+
+		local session=assert(query(db,[[
+			SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
+		))[1]
+
+		if not session then return put_json{error="invalid session"} end
+
+		local ip=srv.vars["ip"] or srv.ip -- can check an alternative IP against the session
+		
+		if session.ip_addr~=ip then
+			iplog.ratelimit(srv.ip,10)	-- slow down abuse of this API
+			return put_json{error="invalid session"}
+		end
+
+		local user=assert(query(db,[[
+			select * from fud26_users
+			where id=$1 limit 1]],session.user_id
+		))[1]
+
+		if not user then return put_json{error="invalid session"} end
+
+		return put_json{name=user.login,id=user.id}
 
 	end
 end

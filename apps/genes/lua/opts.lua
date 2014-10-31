@@ -9,6 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
+	{"127.0.0.1",		"genes",		"127.0.0.1",			},			-- test this domain when on 127.0.0.1
 	{"local",		"genes",		"host.local",			},			-- test this domain when on localhost or host.local
 	{"genes",		"genes",		"api.wetgenes.com",		},			-- any domain with genes in it
 }

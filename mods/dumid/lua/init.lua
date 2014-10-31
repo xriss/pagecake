@@ -284,6 +284,11 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 --		if srv.url_slash[3]=="host.local:8080" then tld="local" end
 		return srv.redirect("http://lua.wetgenes."..tld.."/dumid.lua?continue="..wet_html.url_esc(callback))
 		
+	elseif dat=="genes" then
+	
+		local callback=srv.url_base.."callback/genes/?continue="..wet_html.url_esc(continue)
+		return srv.redirect("http://api.wetgenes.com:1408/js/genes/join/join.html?dumid="..wet_html.url_esc(callback))
+
 	elseif dat=="facebook" then
 	
 		local callback=srv.url_base.."callback/facebook/"..wet_html.url_esc(continue)
@@ -471,6 +476,26 @@ local put=make_put(srv)
 
 			end
 
+		end
+
+	elseif data=="genes" then
+
+		if srv.gets.confirm then
+				srv.set_cookie{name="fud_session",value=wet_html.url_esc(srv.gets.confirm),domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
+
+			local s="http://api.wetgenes.com:1408/genes/user/session?session="..srv.gets.confirm.."&ip="..srv.ip
+--log(s)
+			local got=fetch.get(s) -- check the session for the ip talking to us
+			if got and type(got.body=="string") then
+--log("BODY:"..got.body)			
+				got=json.decode(got.body)
+				if got and got.id then -- we now know who they are
+					name=got.name
+					email=got.id.."@id.wetgenes.com"
+					flavour="wetgenes"
+				end
+			end
+		
 		end
 
 	elseif data=="wetgenes" then

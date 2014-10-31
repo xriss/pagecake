@@ -5,69 +5,110 @@
 		<a class="wetjoin_header_join"   href="#">JOIN</a>
 		<a class="wetjoin_header_forgot" href="#">FORGOT</a>
 	</div>
+	<div class="hexagon">
+	  <div class="dia"></div>
+	  <div class="dia r"></div>
+	  <div class="wetlogo"></div>
+	</div><!--Please insert swanky girder here-->
 	<div class="wetjoin_page"></div>
 </div>
 
 <div class="wetjoin_page_login">
-	<h2>LOGIN</h2>
-	<div class="wetjoin_toptext">
-	Enter your name or email and password to login.
-	</div>
+	<div class="wetjoin_toptext">Enter your name (or email) &amp; password to log in.</div>
 	<div class="wetjoin_form">
-	<div> name: <input type="text" class="wetjoin_name" /> </div>
-	<div> email: <input type="text" class="wetjoin_email" /> </div>
-	<div> password: <input type="password" class="wetjoin_pass" /> </div>
-	<div> <a class="wetjoin_submit_login wetjoin_submit" href="#">SUBMIT</a> </div>
+		<iframe src="" id="fakeframe" name="fakeframe" style="display:none"></iframe>
+		<form target="fakeframe" name="form" id="form" method="post" action="/">
+		<div> <input type="text" class="wetjoin_name" placeholder="Name" id="userid" /> </div>
+		<div> <input type="password" class="wetjoin_pass" placeholder="Password" id="password"/> </div>
+		<div> <a class="wetjoin_submit_login wetjoin_submit" href="#">SUBMIT</a> </div>
+		</form>
 	</div>
 	<div class="wetjoin_error"></div>
 </div>
 
 <div class="wetjoin_page_login2">
 	<h2>WELCOME TO WETGENES</h2>
-	<h2>WE LOVE YOU</h2>
+	<h2>WE LOVE YOU <span class="span_name"></span></h2>
 	<div class="wetjoin_toptext">
-		You have successfully logged in to your account and are now being redirected back to the original site.
+		You have successfully logged in to your account &amp; are now being redirected.
+		Or you could visit the <a href="http://forum.wetgenes.com/">FORUM</a>.
 	</div>
 </div>
 
 <div class="wetjoin_page_join">
-	<h2>CREATE ACCOUNT</h2>
 	<div class="wetjoin_toptext">
-	Enter your name and email and a secret password to create a new WETGENES account.
+		Enter your name, email &amp; a secret password to create a <b>new</b> Wetgenes account.
 	</div>
 	<div class="wetjoin_form">
-	<div> name: <input type="text" class="wetjoin_name" /> </div>
-	<div> email: <input type="text" class="wetjoin_email" /> </div>
-	<div> password: <input type="password" class="wetjoin_pass" /> </div>
-	<div> <a class="wetjoin_submit_join wetjoin_submit" href="#">SUBMIT</a> </div>
+		<div> <input type="text" class="wetjoin_email" placeholder="Email"/> </div>
+		<div> <input type="text" class="wetjoin_name" placeholder="Name"/> </div>
+		<div> <input type="password" class="wetjoin_pass" placeholder="Password"/> </div>
+		<div> <a class="wetjoin_submit_login wetjoin_submit" href="#">SUBMIT</a> </div>
 	</div>
 	<div class="wetjoin_error"></div>
 </div>
 
 <div class="wetjoin_page_join2">
-	<h2>CHECK YOUR EMAIL</h2>
 	<div class="wetjoin_toptext">
-	A confirm link has now been emailed to you. Please check your email remembering to look in any spam folders.
+		Please check your email. A confirm link has now been emailed to you. Remember to look in any spam folders.
 	</div>
 </div>
 
 <div class="wetjoin_page_forgot">
-	<h2>FORGOT PASSWORD</h2>
 	<div class="wetjoin_toptext">
-	Enter your email or name and a new secret password that you promise to remember.
+		<b>Forgot your password?</b> Enter your email (or name) &amp; a new secret password to begin the reset process.
 	</div>
 	<div class="wetjoin_form">
-	<div> name: <input type="text" class="wetjoin_name" /> </div>
-	<div> email: <input type="text" class="wetjoin_email" /> </div>
-	<div> password: <input type="password" class="wetjoin_pass" /> </div>
-	<div> <a class="wetjoin_submit_forgot wetjoin_submit" href="#">SUBMIT</a> </div>
+		<div> <input type="text" class="wetjoin_email" placeholder="Email"/> </div>
+		<div> <input type="password" class="wetjoin_pass" placeholder="Password"/> </div>
+		<div> <a class="wetjoin_submit_login wetjoin_submit" href="#">SUBMIT</a> </div>
 	</div>
 	<div class="wetjoin_error"></div>
 </div>
 
 <div class="wetjoin_page_forgot2">
-	<h2>CHECK YOUR EMAIL</h2>
 	<div class="wetjoin_toptext">
-	A confirm link has now been emailed to you. Please check your email remembering to look in any spam folders.
+		Please check your email. A confirm link has now been emailed to you. Remember to look in any spam folders.
+	</div>
+</div>
+
+<div class="wetjoin_page_token">
+	<h2>CHECKING TOKEN</h2>
+	<div> <input type="text" class="wetjoin_token" placeholder="Token"/> </div>
+	<div> <a class="wetjoin_submit_token wetjoin_submit" href="#">RETRY</a> </div>
+	<div class="wetjoin_error">...</div>
+</div>
+
+<div class="wetjoin_page_token_create">
+	<h2>YOUR NEW ACCOUNT HAS BEEN CREATED</h2>
+	<div class="wetjoin_toptext">
+	<div> EMAIL : <span class="span_email"></span> </div>
+	<div> NAME : <span class="span_name"></span> </div>
+	You may now sign into the <a href="http://forum.wetgenes.com/">FORUM</a> or our other sites.
+	</div>
+</div>
+
+<div class="wetjoin_page_token_update">
+	<h2>YOUR ACCOUNT HAS BEEN UPDATED</h2>
+	<div class="wetjoin_toptext">
+	<div> EMAIL : <span class="span_email"></span> </div>
+	<div> NAME : <span class="span_name"></span> </div>
+	You may now sign into the <a href="http://forum.wetgenes.com/">FORUM</a> or our other sites.
+	</div>
+</div>
+
+<div class="wetjoin_page_session">
+	<h2>CHECKING SESSION</h2>
+	<div> <input type="text" class="wetjoin_session" placeholder="Session"/> </div>
+	<div> <a class="wetjoin_submit_session wetjoin_submit" href="#">RETRY</a> </div>
+	<div class="wetjoin_error">...</div>
+</div>
+
+<div class="wetjoin_page_dumid">
+	<h2>Hello <span class="span_name">...</span>!</h2>
+	<div class="wetjoin_toptext">
+	<div> <span class="span_website">...</span> </div>
+	<div> would like to know your name. </div>
+	<a href="#" class="wetjoin_confirm">CONFIRM</a> <a href="#" class="wetjoin_deny">DENY</a>
 	</div>
 </div>
