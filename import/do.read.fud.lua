@@ -1,10 +1,8 @@
 
 exec("mkdir cache")
 
-require("socket")
-require("socket.http")
-
-local grd=require("grd")
+local socket=require("socket")
+local http=require("socket.http")
 
 local sxml=require("wetgenes.simpxml")
 local json=require("wetgenes.json")

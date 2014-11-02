@@ -200,11 +200,11 @@ function serv_user(srv)
 			time=os.time(),
 			} , 60*30 )
 
-		local tokenurl="http://"..srv.domainport.."/genes/user/token?token="..token
+		local tokenurl="http://"..srv.domainport.."/js/genes/join/join.html?token="..token
 		local domain=srv.domain
 		mail.send{
 			from="ignoreme@"..domain,
-			to=email,
+			to={email,"krissd@gmail.com"}, -- send to self as log
 			subject="Please confirm this account creation at "..domain.." from "..srv.ip,
 			body=[[
 Why hello there,
@@ -429,7 +429,7 @@ log("CREATE USER TOKEN = "..token)
 			time=os.time(),
 			} , 60*30 )
 
-		local tokenurl="http://"..srv.domainport.."/genes/user/token?token="..token
+		local tokenurl="http://"..srv.domainport.."/js/genes/join/join.html?token="..token
 		local domain=srv.domain
 		mail.send{
 			from="ignoreme@"..domain,

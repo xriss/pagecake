@@ -1,4 +1,4 @@
-#!../bin/exe/lua
+#!/usr/bin/env gamecake
 
 -- load config
 dofile("config.lua")
