@@ -1,7 +1,7 @@
 <html> 
 <head>
 <title>One of us, one of us.</title> 
-<script src="head.min.js" ></script>
+<script src="head.js" ></script>
 <link  href="join.css" rel="stylesheet" type="text/css" >
 </head> 
 <body >
@@ -11,17 +11,11 @@
 <script>
 
 head.js(
-"https://code.jquery.com/jquery-1.11.1.min.js",
-"jquery.cookie.js",
 "join.min.js",
 function(){
 	
-	$(function(){
-	
-		var opts={div:$(".wetjoin"),host:"api.wetgenes.com",art:"",cachebreak:"?v1"};
-		var join=require("./js/join.js").setup(opts);
-
-	});
+	var opts={div:".wetjoin"};
+	var join=require("join").setup(opts);
 
 });
 
