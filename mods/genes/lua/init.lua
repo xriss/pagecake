@@ -474,13 +474,13 @@ log("UPDATE USER TOKEN = "..token)
 			SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
 		))[1]
 
-		if not session then return put_json{error="invalid session1"} end
+		if not session then return put_json{error="invalid session"} end
 
 		local ip=srv.vars["ip"] or srv.ip -- can check an alternative IP against the session
 		
 		if session.ip_addr~=ip then
 			iplog.ratelimit(srv.ip,10)	-- slow down abuse of this API
-			return put_json{error="invalid session2"}
+			return put_json{error="invalid session"}
 		end
 
 		local user=assert(query(db,[[
@@ -488,7 +488,7 @@ log("UPDATE USER TOKEN = "..token)
 			where id=$1 limit 1]],session.user_id
 		))[1]
 
-		if not user then return put_json{error="invalid session3"} end
+		if not user then return put_json{error="invalid session"} end
 
 		return put_json{name=user.login,id=user.id}
 

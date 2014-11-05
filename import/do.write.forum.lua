@@ -19,10 +19,10 @@ put("uploading to http://"..dest.."/ using wet_session "..sess.."\n")
 
 local lfs=require("lfs")
 
-require("ltn12")
-require("mime")
-require("socket")
-require("socket.http")
+local ltn12=require("ltn12")
+local mime=require("mime")
+local socket=require("socket")
+local http=require("socket.http")
 
 local sxml=require("wetgenes.simpxml")
 local json=require("wetgenes.json")

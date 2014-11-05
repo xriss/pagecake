@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
---	{"local",		"genes",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"genes",		"host.local",			},			-- test this domain when on localhost or host.local
 	{"genes",		"genes",		"api.wetgenes.com",		},			-- any domain with genes in it
 }
 vhosts={}
@@ -52,6 +52,7 @@ local function default_vars(v)
 	v.admin={
 		["2@id.wetgenes.com"]=true,
 		["14@id.wetgenes.com"]=true,
+		["109440170884180647149@id.google.com"]=true,
 	}
 -- possible user ids are, these are unique number ids I'm afraid so its not always easy to get the numbers from the sites
 

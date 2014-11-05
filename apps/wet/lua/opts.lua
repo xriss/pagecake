@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"roadee",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"xixs",		"host.local",			},			-- test this domain when on localhost or host.local
 
 	{"roadee",		"roadee",		"roadee.lo4d.net",	},				-- any domain with roadee in it
 
@@ -85,6 +85,7 @@ local function default_vars(v)
 	v.admin={
 		["2@id.wetgenes.com"]=true,
 		["14@id.wetgenes.com"]=true,
+		["109440170884180647149@id.google.com"]=true,
 	}
 -- possible user ids are, these are unique number ids I'm afraid so its not always easy to get the numbers from the sites
 
@@ -255,6 +256,10 @@ setup=function()
 			elseif n=="roadee" then -- extra site setup
 
 				add_map(v.map,"roadee","roadee")
+
+			elseif n=="xixs" then -- extra site setup
+
+				add_map(v.map,"forum","forum") -- test forum
 
 			end
 						

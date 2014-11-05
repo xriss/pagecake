@@ -38,6 +38,8 @@ elseif cmd=="write" then
 		dofile("do.write.blog.lua")
 	elseif form=="data" then
 		dofile("do.write.data.lua")
+	elseif form=="forum" then
+		dofile("do.write.forum.lua")
 	end
 	
 elseif cmd=="clear" then
@@ -50,18 +52,21 @@ Please choose one of the following to perform
 
 clear -- clear all data in the local cache do this at the start unless you want to merge sites
 read -- read data from a site into the local cache
+write -- write data to a site from the local cache
+
 read blog -- read blog data
 read waka -- read waka data
 read note -- read note data
 read data -- read data data
 read 4lfa -- my comic data (obsolete)
-read fud -- my forum data, uses a fud forum xml feed (old)
-write -- write data to a site from the local cache
+read fud  -- my forum data, uses a fud forum xml feed (old)
+
 write comic -- upload some comics
-write note -- upload notes/comments
-write data -- upload data
-write waka -- upload waka
-write blog -- upload blog
+write note  -- upload notes/comments
+write data  -- upload data
+write waka  -- upload waka
+write blog  -- upload blog
+write forum -- upload forum
 ]])
 
 end

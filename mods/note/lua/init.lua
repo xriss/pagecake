@@ -398,13 +398,11 @@ end
 		
 		for i=2,#thread do local v=thread[i]
 		
-			local group="0"
-			if v.parent then group=idlookup[v.parent] or "0" end
+			local group=0
+			if v.parent then group=idlookup[v.parent] or 0 end
 			
 			replyids[group]=true
-if not ngx then
-	if group=="0" then group=0 end
-end			
+
 			local com=comments.manifest_uid(srv , v.uid , function(srv,e)
 				local c=e.cache
 				c.created=v.created
@@ -420,7 +418,7 @@ end
 				return true
 			end)
 			
-			idlookup[com.cache.uid]=com.key.id
+			idlookup[com.cache.uid]=tonumber(com.key.id)
 		end
 		
 -- we should come back and fix these cache values later, these should be minimal
