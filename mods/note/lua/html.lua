@@ -23,20 +23,20 @@ function M.fill_cake(srv,refined)
 
 	cake.note={}
 	cake.note.ticks=[[
-<div class="wetnote_ticker">{-cake.note.tick_items}</div>
+<div class="wetnote_ticker"><!--{-cake.note.tick_items}--></div>
 ]]
 
 -- need to also fill cake.note.tick_items with the result for instance from recent_refined(srv,50)
 
 	cake.note.tick=[[
-<div class="wetnote_tick">
-{it.age} ago <a href="/profile/{it.user_id}">{it.user_name}</a> commented on <br/> <a href="{it.link}">{it.title}</a>
-</div>
+--><div class="wetnote_tick">
+{it.age} ago <a href="/profile/{it.user_id}">{it.user_name}</a> commented on <a href="{it.link}">{it.title}</a>
+</div><!--
 ]]
 	cake.note.js=[[
 <script language="javascript" type="text/javascript">
 	var doit=function(){
-		$(".wetnote_comment_text a").autoembedlink({width:460,height:345});
+		$(".wetnote_comment_text a").autoembedlink({width:800,height:600});
 	};
 	head.js(head.fs.jquery_js,head.fs.jquery_wet_js,function(){ $(doit); });
 </script>
@@ -50,8 +50,8 @@ function M.fill_cake(srv,refined)
 			{cake.note.post}
 			{cake.note.comments}
 		</div>
-		{cake.note.ticks}
 	</div>
+	{cake.note.ticks}
 </div>
 {cake.note.js}
 ]]
@@ -94,7 +94,7 @@ function M.fill_cake(srv,refined)
 ]]
 
 	cake.note.item_media=[[
-<a href="/data/{it.media}"><img src="/thumbcache/crop/460/345/data/{it..media}" class="wetnote_comment_img" /></a>
+<a href="/data/{it.media}"><img src="/thumbcache/crop/800/600/data/{it..media}" class="wetnote_comment_img" /></a>
 ]]
 
 	cake.note.item_note=[[

@@ -71,8 +71,20 @@ end
 --
 --------------------------------------------------------------------------------
 function cache_key(srv,id)
-	if type(id)=="table" then id=id.cache.pubname end -- can turn an entity into an id
-	return "type=ent&blog="..id
+	if type(id)=="table" and id.cache and id.cache.pubname~="" then -- turn an entity into an id
+		id=id.cache.pubname
+	else
+		if type(id)=="table" then
+			id=nil
+		end
+	end
+	
+	if type(id)=="string" then
+		return "type=ent&blog="..id
+	else
+		return nil
+	end
+	
 end
 
 --------------------------------------------------------------------------------

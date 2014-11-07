@@ -7,6 +7,7 @@ local http=require("socket.http")
 local sxml=require("wetgenes.simpxml")
 local json=require("wetgenes.json")
 local wetstring=require("wetgenes.string")
+local wstr=wetstring
 
 local ssplit=wetstring.str_split
 
@@ -66,6 +67,7 @@ local groups={
 		name="Shadow-News",
 		id=15,
 	},
+--[[
 	{
 		name="Shadow-Active",
 		id=16,
@@ -74,6 +76,7 @@ local groups={
 		name="Shadow-Archive",
 		id=19,
 	},
+]]
 	{
 		name="Wet-Bugs",
 		id=13,
@@ -86,10 +89,12 @@ local groups={
 		name="Wet-Requests-Done",
 		id=21,
 	},
+--[[
 	{
 		name="Wet-Test",
 		id=2,
 	},
+]]
 	{
 		name="Wet-Flash",
 		id=8,
@@ -98,10 +103,12 @@ local groups={
 		name="Wet-Wank",
 		id=22,
 	},
+--[[
 	{
 		name="Trash",
 		id=30,
 	},
+]]
 }
 
 -- small test
@@ -247,11 +254,22 @@ body = <br />
 		
 -- unescape a few entities
 
+		v.text=v.text:gsub("&#(%d+);",function(n) n=tonumber(n) if n>255 then return "" end return string.char(n) end)
 		v.text=v.text:gsub("&gt;",">")
 		v.text=v.text:gsub("&lt;","<")
 		v.text=v.text:gsub("&amp;","&")
 		v.text=v.text:gsub("&quot;","\"")
-		v.text=v.text:gsub("&#(%d+);",function(n) n=tonumber(n) if n>255 then n=32 end return string.char(n) end)
+		
+		local t=wstr.split_whitespace(v.text)
+		for i=1,#t do
+			if #t[i] == 60 then -- FUD has been munging the text of long links, try to undo it
+				if t[i+1]==" " and t[i+2] then
+					t[i+1]=""
+					print("fixing:"..t[i].." "..t[i+2])
+				end
+			end
+		end
+		v.text=table.concat(t,"")
 
 --print(v.text)
 

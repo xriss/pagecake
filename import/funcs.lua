@@ -237,7 +237,7 @@ getcache=function(name)
 end
 
 putcache=function(name,tab)
-	local s=json.encode(tab)
+	local s=json.encode(tab,{pretty=true})
 	local fp=io.open(name,"w")
 	fp:write(s)
 	fp:close()

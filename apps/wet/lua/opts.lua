@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"xixs",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"wetgenes",		"host.local",			},			-- test this domain when on localhost or host.local
 
 	{"roadee",		"roadee",		"roadee.lo4d.net",	},				-- any domain with roadee in it
 
@@ -257,7 +257,7 @@ setup=function()
 
 				add_map(v.map,"roadee","roadee")
 
-			elseif n=="xixs" then -- extra site setup
+			elseif n=="wetgenes" then -- extra site setup
 
 				add_map(v.map,"forum","forum") -- test forum
 

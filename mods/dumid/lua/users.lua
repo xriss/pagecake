@@ -69,13 +69,13 @@ end
 -- Make sure this userid exists (with limited info)
 --
 -----------------------------------------------------------------------------
-function manifest_userid(srv,userid)
+function manifest_userid(srv,userid,name,flavour)
 
 	set(srv,userid,function(srv,e)
 	
-		if not e.key.notsaved then return false end -- already exists so we do nothing
+		if not e.key.notsaved then return true end -- already exists so we do nothing
 		
-		fill(srv,e,{userid=userid}) -- setup some rather dumb defaults
+		fill(srv,e,{userid=userid,name=name,flavour=flavour}) -- setup some rather dumb defaults
 		
 		return true
 	end)
@@ -231,7 +231,7 @@ function get_avatar_url(srv,userid,w,h)
 		local endings={"@id.wetgenes.com"}
 		for i,v in ipairs(endings) do
 			if string.sub(userid,-#v)==v then
-				url="/www.wetgenes.com/icon/"..string.sub(userid,1,-(#v+1))
+				url="/api.wetgenes.com:1408/genes/avatar/$"..string.sub(userid,1,-(#v+1))
 			end
 		end
 

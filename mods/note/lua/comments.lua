@@ -28,7 +28,6 @@ local goo=require("port.goo")
 
 local wstr=require("wetgenes.string")
 local log=require("wetgenes.www.any.log").log -- grab the func from the package
-local DBG=function(...)log(wstr.dump(...))end
 
 local str_split=wstr.str_split
 local replace  =wstr.replace
@@ -52,23 +51,22 @@ default_props=
 		
 	author="", -- the userid of who wrote this comment (can be used to lookup user)
 	url="",    -- the site url for which this is a comment on, site comments relative to root begin with "/"
-	group="0",   -- the id of our parent or 0 if this is a master comment on a url, -1 if it is a meta cache
+	group="0",   -- the id of our parent or 0 if this is a master comment on a url
 	view="public", -- this comment is "public" or maybe not
 	type="ok", -- a type string to filter on
 				-- ok    - this is a valid comment, display it
 				-- spam  - this is pure spam, hidden but not forgotten
-				-- meta  - use on fake comments that only contain cached info of other comments
 				-- anon  -- anonymous, should not show up in user searches
 
 	count=0,       -- number of replies to this comment (could be good to sort by)
-	pagecount=0,   -- number of pagecomments to this comment (this comment is treated as its own page)
+--	pagecount=0,   -- number of pagecomments to this comment (this comment is treated as its own page)
 
 -- track some simple vote numbers, to be enabled later?
 
 	good=0, -- number of good content "votes"
 	spam=0, -- number of spam "votes"
 	
-	media=0, -- an associated data.meta id link, 0 if no media,
+	media=0, -- an associated data.media id link, 0 if no media,
 				-- so each post can have eg an image associated with it ala 4chan
 
 }
@@ -244,9 +242,7 @@ function list(srv,opts,t)
 	
 	t=t or dat -- use transaction?
 	
-	if ngx then -- appengine backhax
-		if opts.group then opts.group=tostring(opts.group) end
-	end
+	if opts.group then opts.group=tostring(opts.group) end
 	
 	local q={
 		kind=kind(srv),
@@ -255,7 +251,7 @@ function list(srv,opts,t)
 	}	
 	dat.build_q_filters(opts,q,{"author","url","view","group","type","updated","created"})
 	local r=t.query(q)
-		
+
 	for i=1,#r.list do local v=r.list[i]
 		dat.build_cache(v)
 	end
@@ -271,14 +267,14 @@ end
 --------------------------------------------------------------------------------
 function update_reply_cache(srv,url,id)
 
-if not ngx then -- appengine backhax
-	id=tonumber(id)
-end
+local updated=nil
 
-local update=nil
+	id=tonumber(id)
 
 	local rs=list(srv,{sort_updated="ASC",type="ok",url=url,group=id}) -- get all replies
+
 	local replies={}
+
 	for i,v in ipairs(rs) do -- and build reply cache
 		local c=v.cache
 		replies[i]=c
@@ -286,14 +282,15 @@ local update=nil
 	end
 	
 -- the reply cache may lose one if multiple people reply at the same time
--- an older cache may get saved, very unlikley but possible
+-- an older cache may get saved, unlikley but possible and it will auto
+-- fix itself on the next reply or stash clear
 
-	set(srv,id,function(srv,e)
+	update(srv,id,function(srv,e)
 		e.cache.updated=updated -- adjust the updated stamp?
 		e.cache.replies=replies -- save new reply cache
 		e.cache.count=#replies -- a number to sort by
 		e.cache.reply_updated=srv.time
-		return e
+		return true
 	end)
 
 --log("updated replies ",id," : ",#replies)	
@@ -586,8 +583,30 @@ if refined.cake.note.opts_admin then
 end
 
 if meta.comments[1] then
+
+--[[
+	if  #meta.comments>10  then
+		local r={}
+		for i=1,10 do
+			r[i]=meta.comments[#meta.comments-10+i]
+		end
+		meta.comments=r
+	end
+]]
+
 	for i,v in ipairs(meta.comments) do
 		fix_comment_item(srv,v)
+
+--[[
+		if  #v.replies>3  then
+			local r={}
+			for i=1,3 do
+				r[i]=v.replies[#v.replies-3+i]
+			end
+			v.replies=r
+		end
+]]
+
 		if v.replies then
 			for i,c in ipairs(v.replies) do
 				fix_comment_item(srv,c)

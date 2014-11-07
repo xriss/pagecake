@@ -12,6 +12,7 @@ local dat=require("wetgenes.www.any.data")
 local users=require("wetgenes.www.any.users")
 
 local fetch=require("wetgenes.www.any.fetch")
+local stash=require("wetgenes.www.any.stash")
 
 local img=require("wetgenes.www.any.img")
 
@@ -366,7 +367,6 @@ local posts=make_posts(srv)
 	
 		local thread=posts.json.thread
 		
-	
 		local head=thread[1]
 --log("note api start thread")
 --log(tostring(head))
@@ -381,68 +381,45 @@ local posts=make_posts(srv)
 			c.uid=head.uid
 			c.text=head.text
 			c.author=head.author
-			c.name=head.name
-if ngx then
 			c.group="0"
-else
-			c.group=0
-end
+			c.avatar=d_users.get_avatar_url(srv,head.author)
+			c.cache.user={id=head.author,name=head.name} -- fake user
 --c.url="/forum/spam"
 			return true
 		end)
 
 -- and these are applied to that master
-
-		local idlookup={}
-		local replyids={}
-		
 		for i=2,#thread do local v=thread[i]
-		
-			local group=0
-			if v.parent then group=idlookup[v.parent] or 0 end
-			
-			replyids[group]=true
-
+					
+			local usr=d_users.manifest_userid(srv,v.author,v.name,"wetgenes") -- make sure user exists
+					
 			local com=comments.manifest_uid(srv , v.uid , function(srv,e)
 				local c=e.cache
 				c.created=v.created
 				c.updated=v.updated
-				c.url=head.url.."/"..master.key.id
+				c.url=head.url --.."/"..master.key.id
 				c.uid=v.uid
 				c.text=v.text
 				c.author=v.author
-				c.name=v.name
-				c.group=group
+				c.group=tostring(master.key.id)
 				c.reply_updated=srv.time -- fake this flag as we force rebuild later
+				c.avatar=d_users.get_avatar_url(srv,v.author)
+				c.cache.user={id=v.author,name=v.name} -- fake user
 --c.url="/forum/spam/"..master.key.id
 				return true
 			end)
 			
-			idlookup[com.cache.uid]=tonumber(com.key.id)
 		end
 		
--- we should come back and fix these cache values later, these should be minimal
-
-		for id,b in pairs(replyids) do -- fix any reply caches
-			if id>0 then
-print( head.url.."/"..master.key.id .." "..id )
-				comments.update_reply_cache(srv, head.url.."/"..master.key.id , id)
-			end
-		end
-
---[[
-		
-		comments.update_meta_cache(srv,head.url.."/"..master.key.id)
-		
-		forum.rebuild_cache( srv , head.url,master.key.id , #thread-1 )
-		
-		comments.update_meta_cache(srv,head.url)
-]]	
+		comments.update_reply_cache(srv, head.url, master.key.id)
+--		comments.update_meta_cache(srv,head.url)
 	
 	end
 
+	stash.clear(srv) -- force a rebuild of the meta cache on next view
+
 	srv.set_mimetype("text/html; charset=UTF-8")
---	put("Testing 123")
+--	put("OK")
 
 end
 
