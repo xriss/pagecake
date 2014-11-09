@@ -42,9 +42,41 @@ local M={ modname=(...) } ; package.loaded[M.modname]=M
 -----------------------------------------------------------------------------
 function M.serv(srv)
 	local sess,user=d_sess.get_viewer_session(srv)
-	local refined=M.fill_refined(srv)
 
-	return waka.display_refined(srv,refined)	
+
+	local board_name=srv.url_slash[srv.url_slash_idx+0]
+	if board_name then
+
+		local refined=M.fill_refined(srv,"forum/"..board_name)
+		local board
+		if refined.lua and refined.lua.forums and board_name then
+			for i,v in ipairs(refined.lua.forums) do
+				if v.name:lower()==board_name:lower() then
+					board=v
+					break
+				end
+			end
+		end
+		if not board then
+			return srv.redirect("/forum")
+		end
+		refined.body=board.body or "{title}"
+		refined.title=board.title or board.name
+		
+		refined.cake.note.title=refined.title or "forum"
+		refined.cake.note.url=srv.url_local
+		comments.build(srv,refined)
+		
+		return waka.display_refined(srv,refined)
+	else
+
+		local refined=M.fill_refined(srv,"forum")
+		refined.cake.notes=""
+		refined.cake.note.tick_items=refined.cake.note.tick_items or comments.recent_refined(srv,comments.get_recent(srv,48))
+
+		return waka.display_refined(srv,refined)	
+	end
+	
 end
 
 

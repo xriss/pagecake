@@ -134,7 +134,7 @@ function fix_comment_item(srv,c)
 	c.form_style="display:none;"
 	c.post_text="{cake.note.reply_text}"
 
-	c.html=wet_waka.waka_to_html(c.text or "",{base_url="/",escape_html=true})
+	c.html=wet_waka.waka_to_html(c.text or "",{base_url="/",escape_html=true,no_slash_links=true})
 
 	if c.media~=0 then -- include a media embed
 		c.media_div="{cake.note.item_media}"
@@ -175,7 +175,7 @@ function update_meta_cache(srv,url)
 	local count=0
 
 -- build meta cache			
-	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type="ok"}) -- get all top comments
+	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type="ok",limit=10}) -- get last 10 comments only
 	local comments={}
 	local newtime=0
 	for i,v in ipairs(cs) do -- and build comment cache
@@ -269,15 +269,13 @@ function update_reply_cache(srv,url,id)
 
 local updated=nil
 
-	id=tonumber(id)
-
-	local rs=list(srv,{sort_updated="ASC",type="ok",url=url,group=id}) -- get all replies
+	local rs=list(srv,{sort_updated="DESC",type="ok",url=url,group=id,limit=3}) -- get last 3 replies
 
 	local replies={}
 
-	for i,v in ipairs(rs) do -- and build reply cache
-		local c=v.cache
-		replies[i]=c
+	for i=#rs,1,-1 do -- reverse order
+		local c=rs[i].cache
+		replies[#replies+1]=c
 		if not updated or c.updated > updated then updated=c.updated end
 	end
 	
@@ -318,7 +316,13 @@ function post(srv,refined)
 		user=srv.user,
 		posts=srv.posts,
 		}
-		
+	
+	if not tab.url then
+		if refined.cake.note.meta and refined.cake.note.meta.comments and refined.cake.note.meta.comments[1] then
+			tab.url=refined.cake.note.meta.comments[1].url
+		end
+	end
+	
 	if refined.cake.note.opts_view then -- set to private?
 		tab.view=refined.cake.note.opts_view
 	end
@@ -330,7 +334,6 @@ function post(srv,refined)
 			tab.saveas="status"
 		end
 	end
-				
 	
 	local user=(tab.user and tab.user.cache)
 	
@@ -422,12 +425,6 @@ function post(srv,refined)
 			c.author=tab.user.cache.id
 			c.url=tab.url
 			c.group=id
-			
-if not ngx then -- appengine backhax
-	if tostring(tonumber(id) or 0) == tostring(id) then
-		c.group=tonumber(id)
-	end
-end
 			c.text=tab.posts.wetnote_comment_text
 			c.title=title
 
@@ -462,9 +459,7 @@ end
 				end
 			end
 			
-			if ngx then -- appengine backhax
-				e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
-			end
+			e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
 			
 			put(srv,e)
 			posted=e
@@ -472,7 +467,7 @@ end
 
 log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.group)
 
-			if tostring(id)~="0" then -- this is a comment so apply to master
+			if id~="0" then -- this is a comment so apply to master
 			
 				update_reply_cache(srv,tab.url,id)
 		
@@ -550,7 +545,48 @@ end
 -- also set tab.url to the url
 --
 --------------------------------------------------------------------------------
-function build(srv,refined)
+function build(srv,refined,opts)
+	local opts=opts or {}
+
+	local meta
+
+	if opts.offset or opts.limit then -- build live paged views
+	
+		if refined.cake.note.group then -- a single thread
+
+			local cn=get(srv,refined.cake.note.group)
+			local cs=list(srv,{sort_updated="ASC",group=refined.cake.note.group})
+			if cn then
+				refined.cake.note.url=cn.cache.url -- get url from comment
+				meta={comments={cn.cache}}
+				local replies={}
+				for i,v in ipairs(cs) do -- replies
+					replies[i]=v.cache
+				end
+				meta.comments[1].replies=replies
+			else
+				meta={}
+			end
+			
+			
+		else
+			
+			local cs=list(srv,{sort_updated="DESC",url=refined.cake.note.url,group="0",type="ok",limit=opts.limit or 10,offset=opts.offset or 0})
+			local comments={}
+			for i,v in ipairs(cs) do -- and build comment cache
+				comments[i]=v.cache
+			end
+			meta={comments=comments}
+			
+		end
+
+	else -- standard first page
+
+		meta=manifest_meta(srv,refined.cake.note.url)
+
+	end
+	
+	refined.cake.note.meta=meta
 
 	local err=post(srv,refined)
 	if err then
@@ -558,10 +594,8 @@ function build(srv,refined)
 		return
 	end
 
-local meta=manifest_meta(srv,refined.cake.note.url)
---log(refined.cake.note.url,wstr.dump(meta))
-refined.cake.note.tick_items=refined.cake.note.tick_items or recent_refined(srv,get_recent(srv,50))
 
+	refined.cake.note.tick_items=refined.cake.note.tick_items or recent_refined(srv,get_recent(srv,opts.ticks or 50))
 
 
 	local it={}
@@ -584,40 +618,19 @@ end
 
 if meta.comments[1] then
 
---[[
-	if  #meta.comments>10  then
-		local r={}
-		for i=1,10 do
-			r[i]=meta.comments[#meta.comments-10+i]
-		end
-		meta.comments=r
-	end
-]]
-
 	for i,v in ipairs(meta.comments) do
 		fix_comment_item(srv,v)
-
---[[
-		if  #v.replies>3  then
-			local r={}
-			for i=1,3 do
-				r[i]=v.replies[#v.replies-3+i]
-			end
-			v.replies=r
-		end
-]]
-
 		if v.replies then
 			for i,c in ipairs(v.replies) do
 				fix_comment_item(srv,c)
 				c.style=""
 				c.showhide=""
-				if i<#v.replies-3 then -- only show last 5?
-					c.style="display:none"
-				elseif i==#v.replies-3 then -- last one is a button
-					c.style="display:none"
-					c.showhide="{cake.note.item_reply_show}"
-				end
+--				if i<#v.replies-3 then -- only show last 5?
+--					c.style="display:none"
+--				elseif i==#v.replies-3 then -- last one is a button
+--					c.style="display:none"
+--					c.showhide="{cake.note.item_reply_show}"
+--				end
 			end
 			if v.replies[1] then
 				v.replies.plate="{cake.note.item_reply}"

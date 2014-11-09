@@ -253,12 +253,6 @@ body = <br />
 		v.text=v.text:gsub("<.->","") -- remove any markup tags
 		
 -- unescape a few entities
-
-		v.text=v.text:gsub("&#(%d+);",function(n) n=tonumber(n) if n>255 then return "" end return string.char(n) end)
-		v.text=v.text:gsub("&gt;",">")
-		v.text=v.text:gsub("&lt;","<")
-		v.text=v.text:gsub("&amp;","&")
-		v.text=v.text:gsub("&quot;","\"")
 		
 		local t=wstr.split_whitespace(v.text)
 		for i=1,#t do
@@ -270,6 +264,13 @@ body = <br />
 			end
 		end
 		v.text=table.concat(t,"")
+
+		v.text=v.text:gsub("&#(%d+);",function(n) n=tonumber(n) if n>255 then return "" end return string.char(n) end)
+		v.text=v.text:gsub("&gt;",">")
+		v.text=v.text:gsub("&lt;","<")
+		v.text=v.text:gsub("&amp;","&")
+		v.text=v.text:gsub("&quot;","\"")
+
 
 --print(v.text)
 

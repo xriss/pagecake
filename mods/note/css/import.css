@@ -47,8 +47,10 @@
 	padding-left: 20px;
 }
 
-.wetnote_comment_div {
-	background: rgba(0,0,0,0.0625);
+.wetnote_reply_div .wetnote_comment_div {
+	background: #eee;
+/*	background: rgba(0,0,0,0.0625);
+*/
 }
 
 .wetnote_comment_icon {

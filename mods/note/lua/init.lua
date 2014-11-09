@@ -43,6 +43,7 @@ local waka=require("waka")
 local dprint=function(...) log(wstr.dump(...)) end
 
 module("note")
+local M=require("note")
 
 local forum=require("forum")
 
@@ -91,8 +92,94 @@ function add_posted_hook(pat,func)
 end
 
 
+-----------------------------------------------------------------------------
+--
+-- all views fill in this stuff
+--
+-----------------------------------------------------------------------------
+function M.fill_refined(srv,page,notes,group)
+	local sess,user=d_sess.get_viewer_session(srv)
 
+	local refined=waka.prepare_refined(srv,page) -- basic root page and setup
+	html.fill_cake(srv,refined) -- more local setup
 
+	if srv.is_admin(user) then
+--		refined.cake.admin="{cake.note.admin_bar}"
+	end
+	
+	refined.opts.flame="on"
+
+	refined.opts.limit=math.floor(tonumber(srv.vars.limit or 50) or 50)
+--	if refined.opts.limit<1 then refined.opts.limit=1 end
+	
+	refined.opts.offset=math.floor(tonumber(srv.vars.offset or 0) or 0)
+	if refined.opts.offset<0 then refined.opts.offset=0 end
+	
+	refined.opts.offset_next=refined.opts.offset+refined.opts.limit
+	refined.opts.offset_prev=refined.opts.offset-refined.opts.limit
+	if refined.opts.offset_prev<0 then refined.opts.offset_prev=0 end
+	
+	if group then
+	
+		refined.cake.note.group=group
+
+	else
+
+		refined.cake.note.title=notes
+		refined.cake.note.url=notes
+		
+	end
+	
+
+	comments.build(srv,refined,refined.opts) -- simple page system
+
+	refined.cake.note.post="" -- no commenting here, just replying to comments
+
+	return refined
+end
+
+-----------------------------------------------------------------------------
+--
+-- the serv function, where the action happens.
+--
+-----------------------------------------------------------------------------
+function M.serv_posts(srv)
+	local sess,user=d_sess.get_viewer_session(srv)
+
+	local tt={""}
+	for i=srv.url_slash_idx+1,#srv.url_slash do
+		tt[#tt+1]=srv.url_slash[i]
+	end
+	local page=table.concat(tt,"/")
+
+	local refined=M.fill_refined(srv,"note/posts",page,nil)
+
+	refined.cake.note.posts_link=""
+
+	refined.title="{cake.note.posts_title}"
+	refined.body="{cake.note.posts_body}"
+
+	return waka.display_refined(srv,refined)	
+	
+end
+-----------------------------------------------------------------------------
+--
+-- the serv function, where the action happens.
+--
+-----------------------------------------------------------------------------
+function M.serv_thread(srv)
+	local sess,user=d_sess.get_viewer_session(srv)
+
+	local refined=M.fill_refined(srv,"note/thread",nil,(srv.url_slash[srv.url_slash_idx+1]))
+	
+	refined.cake.note.thread_link=""
+
+	refined.title="{cake.note.thread_title}"
+	refined.body="{cake.note.thread_body}"
+
+	return waka.display_refined(srv,refined)	
+	
+end
 -----------------------------------------------------------------------------
 --
 -- the serv function, where the action happens.
@@ -107,6 +194,10 @@ function serv(srv)
 		return serv_api(srv)
 	elseif cmd=="admin" then
 		return serv_admin(srv)
+	elseif cmd=="posts" then
+		return serv_posts(srv)
+	elseif cmd=="thread" then
+		return serv_thread(srv)
 	end
 
 	return serv_admin(srv)
@@ -384,6 +475,8 @@ local posts=make_posts(srv)
 			c.group="0"
 			c.avatar=d_users.get_avatar_url(srv,head.author)
 			c.cache.user={id=head.author,name=head.name} -- fake user
+			c.id=c.author.."*"..string.format("%1.3f",c.created) -- special forced "unique" id
+			e.key.id=c.id
 --c.url="/forum/spam"
 			return true
 		end)
@@ -406,6 +499,8 @@ local posts=make_posts(srv)
 				c.avatar=d_users.get_avatar_url(srv,v.author)
 				c.cache.user={id=v.author,name=v.name} -- fake user
 --c.url="/forum/spam/"..master.key.id
+				c.id=c.author.."*"..string.format("%1.3f",c.created) -- special forced "unique" id
+				e.key.id=c.id
 				return true
 			end)
 			

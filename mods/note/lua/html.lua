@@ -22,6 +22,8 @@ function M.fill_cake(srv,refined)
 	local cake=refined.cake
 
 	cake.note={}
+	cake.note.embed_width=800
+	cake.note.embed_height=600
 	cake.note.ticks=[[
 <div class="wetnote_ticker"><!--{-cake.note.tick_items}--></div>
 ]]
@@ -36,7 +38,7 @@ function M.fill_cake(srv,refined)
 	cake.note.js=[[
 <script language="javascript" type="text/javascript">
 	var doit=function(){
-		$(".wetnote_comment_text a").autoembedlink({width:800,height:600});
+		$(".wetnote_comment_text a").autoembedlink({width:{cake.note.embed_width},height:{cake.note.embed_height}});
 	};
 	head.js(head.fs.jquery_js,head.fs.jquery_wet_js,function(){ $(doit); });
 </script>
@@ -48,7 +50,9 @@ function M.fill_cake(srv,refined)
 	<div class="wetnote_main2">
 		<div class="wetnote_comments">
 			{cake.note.post}
+			{cake.note.posts_link}
 			{cake.note.comments}
+			{cake.note.posts_link}
 		</div>
 	</div>
 	{cake.note.ticks}
@@ -65,9 +69,28 @@ function M.fill_cake(srv,refined)
 </div>
 ]]
 
+	cake.note.posts_title=[[Posts from {cake.note.url}]]
+	cake.note.posts_body=[[<a href="{cake.note.url}">View {cake.note.url}</a><br/><br/>]]
+
+
+	cake.note.posts_link=[[
+<div class="wetnote_comment_posts_div">
+<a href="/note/posts{cake.note.url}?limit=-1">View all posts.</a>
+</div>
+]]
+
+	cake.note.thread_title=[[A thread from {cake.note.url}]]
+	cake.note.thread_body=[[<a href="{cake.note.url}">View {cake.note.url}</a><br/><br/>]]
+
+	cake.note.thread_link=[[
+<div class="wetnote_comment_thread_div">
+<a href="/note/thread/{it.id}?limit=-1">View thread.</a>
+</div>
+]]
+
 	cake.note.item_link=[[
 <div class="wetnote_comment_form_div">
-<a href="{it.url}" ">Reply</a>
+<a href="{it.url}">Reply</a>
 </div>
 ]]
 
@@ -94,13 +117,13 @@ function M.fill_cake(srv,refined)
 ]]
 
 	cake.note.item_media=[[
-<a href="/data/{it.media}"><img src="/thumbcache/crop/800/600/data/{it..media}" class="wetnote_comment_img" /></a>
+<a href="/data/{it.media}"><img src="/thumbcache/crop/{cake.note.embed_width}/{cake.note.embed_height}/data/{it..media}" class="wetnote_comment_img" /></a>
 ]]
 
 	cake.note.item_note=[[
 <div class="wetnote_comment_div" id="wetnote{it.idhash}" >
 <div class="wetnote_comment_icon" ><a href="/profile/{it.user_id}"><img src="{it.avatar}" width="100" height="100" /></a></div>
-<div class="wetnote_comment_head" > posted by <a href="/profile/{it.user_id}">{it.user_name}</a> on {it.time} </div>
+<div class="wetnote_comment_head" > posted by <a href="/profile/{it.user_id}">{it.user_name}</a> on {it.time} ({it.age} ago)</div>
 <div class="wetnote_comment_text" >{-it.media_div}{.it.html}</div>
 <div class="wetnote_comment_tail" ></div>
 {-it.reply}
@@ -118,6 +141,7 @@ function M.fill_cake(srv,refined)
 	cake.note.item_thread=[[
 {cake.note.item_note}
 <div class="wetnote_reply_div">
+{cake.note.thread_link}
 {-it.replies}
 {-cake.note.item_form}{-cake.note.item_login}
 </div>
