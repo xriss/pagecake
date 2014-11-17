@@ -243,32 +243,8 @@ local get,put=make_get_put(srv)
 
 	waka.build_notes(srv,refined)
 
-	waka.display_refined(srv,refined)	
---	srv.set_mimetype("text/html; charset=UTF-8")
---	put(macro_replace("{cake.html.plate}",refined))
+	waka.display_refined(srv,refined)
 
-
---[[	
-	srv.set_mimetype("text/html; charset=UTF-8")
-	put("header",refined)
-	put("comic_bar",refined)
-
-	if refined then
-
-		refined.body=table.concat(ss)
-		
-		put(macro_replace(refined.plate or "{body}",refined))
-
-	end
-
-	if pageopts.flame=="on" then -- add comments to this page
-		comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user})
-	elseif pageopts.flame=="anon" then -- add *anonymous* comments to this page
-		comments.build(srv,{title=refined.title,url=url_local,posts=posts,get=get,put=put,sess=sess,user=user,anon="default"})
-	end
-
-	put("footer",refined)
-]]
 
 end
 

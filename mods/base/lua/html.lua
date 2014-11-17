@@ -167,7 +167,7 @@ head.js(head.fs.jquery_wakaedit_js);
 ]]
 
 	cake.bars=[[
-<div class="cake_bars">{cake.homebar.div}{cake.userbar.div}</div>
+<div class="cake_bars_wrap"><div class="cake_bars">{cake.homebar.div}{cake.userbar.div}</div></div>
 ]]
 	cake.userbar={}
 	cake.userbar.hello="Hello {cake.userbar.profile},"
