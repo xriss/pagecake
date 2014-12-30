@@ -11,14 +11,19 @@ local opts=require("opts")
 vhosts_map={
 	{"local",		"genes",		"host.local",			},			-- test this domain when on localhost or host.local
 	{"genes",		"genes",		"api.wetgenes.com",		},			-- any domain with genes in it
-}
+} --(the last vhost is the default)
 vhosts={}
 for i,v in ipairs(vhosts_map) do
+-- setup one table per website (which may have multiple search strings above)
 	local t={}
---	setmetatable(t,{__index=opts})
-	vhosts[ v[2] ]=t
-	
-	t.domain=v[3] -- force redirect to this domain
+	vhosts[ v[2] ]=vhosts[ v[2] ] or t
+	t.search=t.search or {}
+	t.domains=t.domains or {}
+-- options
+	t.search[v[1]]=v -- valid list search strings that match this domain
+	t.domain=v[3] -- force a redirect to this domain if domain is invalid (last entry overrides first)
+	t.domains[t.domain]=true -- valid list of domains we will serve from
+	t.subdomain=t.subdomain or v.subdomain -- flag subdomains as valid eg anything.4lfa.com is a valid 4lfa.com domain
 end
 
 

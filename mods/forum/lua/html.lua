@@ -27,8 +27,8 @@ function M.fill_cake(srv,refined)
 	cake.forum.admin_bar=[[
 <div class="cake_admin_bar">
 	<form action="{cake.qurl}" method="POST" enctype="multipart/form-data">
-		<a href="/?cmd=edit&page=forum" class="cake_button" > Edit forum </a>
-		<a href="/?cmd=edit&page={cake.pagename}" class="cake_button" > Edit {cake.pagename} </a>
+		<a href="/!/admin/edit#/forum" class="cake_button" > Edit forum </a>
+		<a href="/!/admin/edit#/{cake.pagename}" class="cake_button" > Edit {cake.pagename} </a>
 	</form>
 </div>
 ]]

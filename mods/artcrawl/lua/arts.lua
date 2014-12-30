@@ -25,6 +25,8 @@ local M={ modname=(...) } ; package.loaded[M.modname]=M
 
 M.default_props=
 {	
+	hashtag="",		-- what crawl we belong to eg leeds
+	
 	id="",		-- name of the art (part of art page url)
 
 	lat=0,			-- precise location
@@ -74,7 +76,7 @@ function M.list(srv,opts,t)
 		offset=opts.offset or 0,
 	}
 	
-	dat.build_qq_filters(opts,q,{"lat","lng","name"})
+	dat.build_qq_filters(opts,q,{"lat","lng","name","tag"})
 
 	local r=t.query(q)
 		

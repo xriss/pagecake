@@ -60,15 +60,32 @@ function serv2()
 	local srv=serv_srv()
 
 -- force redirect to a standard domain if it is set in opts
-	if ngx.var.host~="host.local" then -- allow testing on this domain only
-		local t=opts.vhosts[srv.vhost] or opts
-		if t.domain then
-			if ngx.var.host~=t.domain then -- redirect to standard domain
+
+	local t=opts.vhosts[srv.vhost] or opts
+	local domain=ngx.var.host:lower()
+	if t.subdomain then -- allow subdomains
+		local s,e=domain:find("^[^.]+%.") -- get subdomain
+		if s then
+			srv.subdomain=domain:sub(1,e-1) -- got a subdomain
+			domain=domain:sub(e+1):lower()
+		end
+	end
+
+	if t.domain and t.domain~=domain then
+		if not t.domains[domain] then -- bad base domain
+			if srv.subdomain then -- maybe not a subdomain, put it back and try again
+				domain=srv.subdomain.."."..domain
+				srv.subdomain=nil
+			end
+			if not t.domains[domain] then -- redirect to a standard base domain
 log("REDIRECT:"..t.domain.." FROM "..ngx.var.host)
-				ngx.redirect( ngx.var.scheme.."://"..t.domain..ngx.var.uri )
+				local colonport=(ngx.var.server_port and ngx.var.server_port~="80") and (":"..ngx.var.server_port) or ""
+				ngx.redirect( ngx.var.scheme.."://"..t.domain..colonport..ngx.var.uri )
 			end
 		end
 	end
+--log("domain",":",domain,":",srv.subdomain)
+	
 	
 --	if srv.vhost then log("VHOST = "..srv.vhost) end
 	

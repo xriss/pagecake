@@ -20,6 +20,7 @@ function M.fill_cake(srv)
 	cake.urlesc=whtml.url_esc(srv.url)
 	cake.qurl=srv.qurl
 	cake.url_base=srv.url_base
+	cake.subdomain=srv.subdomain
 
 	cake.html={}
 	cake.html.css="{css}" -- use css chunk

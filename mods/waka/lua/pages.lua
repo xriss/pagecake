@@ -258,9 +258,15 @@ function load(srv,id,opts)
 	if id~="/" then -- if asking for root then no need to look for anything else
 		while string.find(name,"/") do -- whilst there are still / in the name	
 			name=string.gsub(name,"/[^/]*$","") -- remove the tail from the string			
-			if name~="" then -- skip empty
+			if name~="" then -- skip last empty one
+				if srv.subdomain then -- special subdomain access
+					pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/.subdomain/"..srv.subdomain.."/"..name).cache.text )
+				end
 				pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,name).cache.text )
 			end
+		end
+		if srv.subdomain then -- special subdomain access
+			pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/.subdomain/"..srv.subdomain).cache.text )
 		end
 		pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/").cache.text ) -- finally always include root
 	end

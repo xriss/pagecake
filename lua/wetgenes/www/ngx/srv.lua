@@ -84,20 +84,12 @@ function new()
 
 	local scheme=ngx.var.scheme			-- http or https
 	local domain=ngx.var.host
-	local port=ngx.var.server_port
+	local colonport=(ngx.var.server_port and ngx.var.server_port~="80") and (":"..ngx.var.server_port) or ""
 	local uri=ngx.var.uri				-- begins with /
 	
 	srv.url_local=uri --local url begins with / and without any query params
 
-	if port and port~="80" then
-	
-		srv.url=scheme.."://"..domain..":"..port..uri -- the url requested (not including any query string)
-
-	else
-
-		srv.url=scheme.."://"..domain..uri -- the url requested (not including any query string)
-
-	end
+	srv.url=scheme.."://"..domain..colonport..uri -- the url requested (not including any query string)
 	
 	srv.query=ngx.var.args -- the query string
 --log(srv.query)

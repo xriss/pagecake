@@ -481,11 +481,10 @@ local put=make_put(srv)
 	elseif data=="genes" then
 
 		if srv.gets.confirm then
-
 			srv.set_cookie{name="fud_session",value=wet_html.url_esc(srv.gets.confirm),domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
 
 			local s="http://api.wetgenes.com:1408/genes/user/session?session="..srv.gets.confirm.."&ip="..srv.ip
-			local got=fetch.get(s) -- check the session for the ip talking to us
+			local got=fetch.get(s) -- check the session for the ip talking to us (wont work on host.local)
 			if got and type(got.body=="string") then
 				got=json.decode(got.body)
 				if got and got.id then -- we now know who they are

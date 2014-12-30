@@ -9,49 +9,42 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"wetgenes",		"host.local",			},			-- test this domain when on localhost or host.local
+	{"local",		"artcrawl",		"host.local",			subdomain=true,	},	-- test this domain
+	{"roadee",		"roadee",		"roadee.lo4d.net",						},	-- any domain containing roadee
+	{"artcrawl",	"artcrawl",		"artcrawl.club",		subdomain=true, },	-- any domain containing artcrawl
+	{"itstuff",		"itstuff",		"itstuff.org.uk",						},	-- any domain containing itstuff
+	{"poop",		"poop",			"poop.lo4d.net",						},	-- any domain containing poop
+	{"paint",		"paint",		"paint.lo4d.net",						},	-- any domain containing paint
+	{"littlemiss",	"miss",			"littlemiss.esyou.com",					},	-- any domain containing littlemiss
+	{"ga-ma-yo",	"gamayo",		"ga-ma-yo.com",							},	-- any domain containing ga-ma-yo
+	{"gamayo",		"gamayo",		"ga-ma-yo.com",							},	-- any domain containing gamayo
+	{"horror",		"horror",		"horrordriv.esyou.com",					},	-- any domain containing horror
+	{"cello",		"cello",		"cello.esyou.com",						},	-- any domain containing cello
+	{"play",		"play",			"play.4lfa.com",						},	-- any domain containing play
+	{"cake",		"cake",			"cake.4lfa.com",						},	-- any domain containing cake
+	{"catch",		"catch",		"catch.4lfa.com",						},	-- any domain containing catch
+	{"cog",			"cog",			"cog.4lfa.com",							},	-- any domain containing cog
+	{"hoe",			"hoe",			"hoe.4lfa.com",							},	-- any domain containing hoe
+	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",						},	-- any domain containing bulbaceous
+	{"wet",			"wetgenes",		"wet.genes.pw",							},	-- any domain containing wet
+	{"xixs",		"xixs",			"xixs.com",								},	-- any domain containing xixs
+	{"esyou",		"esyou",		"esyou.com",							},	-- any domain containing esyou
+	{"lo4d",		"lo4d",			"lo4d.net",				subdomain=true,	},	-- any domain containing lo4d
+	{"4lfa",		"4lfa",			"4lfa.com",								},	-- any domain containing 4lfa
+} --(the last vhost is the default)
 
-	{"roadee",		"roadee",		"roadee.lo4d.net",	},				-- any domain with roadee in it
-
-	{"artcrawl",	"artcrawl",		"leeds.artcrawl.club",	},			-- any domain with artcrawl in it
-
-	{"itstuff",		"itstuff",		"itstuff.org.uk",	},				-- any domain with itstuff in it
-	{"poop",		"poop",			"poop.lo4d.net",	},				-- any domain with poop in it
-
-	{"paint",		"paint",		"paint.lo4d.net",	},				-- any domain with paint in it
-
-	{"miss",		"miss",			"littlemiss.esyou.com",	},			-- any domain with miss in it
-
-	{"ga-ma-yo",	"gamayo",		"ga-ma-yo.com",			},			-- main site
-	{"gamayo",		"gamayo",		"ga-ma-yo.com",			},			-- any domain with gamayo in it
-	{"horror",		"horror",		"horrordriv.esyou.com",	},			-- any domain with horror in it
-
-	{"cello",		"cello",		"cello.esyou.com",		},			-- any domain with play in it
-
-	{"play",		"play",			"play.4lfa.com",		},			-- any domain with play in it
-
-	{"cake",		"cake",			"cake.4lfa.com",		},			-- any domain with cake in it
-	{"catch",		"catch",		"catch.4lfa.com",		},			-- any domain with catch in it
-
-	{"cog",			"cog",			"cog.4lfa.com",			},			-- any domain with cog in it
-	{"hoe",			"hoe",			"hoe.4lfa.com",			},			-- any domain with hoe in it
-
-	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",		},			-- any domain with bulbaceous in it
-
-	{"wet",			"wetgenes",		"wet.genes.pw",			},			-- any domain with wet in it
-	
-	{"xixs",		"xixs",			"xixs.com",				},			-- any domain with xixs in it
-	{"esyou",		"esyou",		"esyou.com",			},			-- any domain with esyou in it
-	{"lo4d",		"lo4d",			"dime.lo4d.net",		},			-- any domain with lo4d in it
-	{"4lfa",		"4lfa",			"4lfa.com",				},			-- any domain with 4lfa in it (the last vhost is also the default)
-}
 vhosts={}
 for i,v in ipairs(vhosts_map) do
+-- setup one table per website (which may have multiple search strings above)
 	local t={}
---	setmetatable(t,{__index=opts})
-	vhosts[ v[2] ]=t
-	
-	t.domain=v[3] -- force redirect to this domain
+	vhosts[ v[2] ]=vhosts[ v[2] ] or t
+	t.search=t.search or {}
+	t.domains=t.domains or {}
+-- options
+	t.search[v[1]]=v -- valid list search strings that match this domain
+	t.domain=v[3] -- force a redirect to this domain if domain is invalid (last entry overrides first)
+	t.domains[t.domain]=true -- valid list of domains we will serve from
+	t.subdomain=t.subdomain or v.subdomain -- flag subdomains as valid eg anything.4lfa.com is a valid 4lfa.com domain
 end
 
 

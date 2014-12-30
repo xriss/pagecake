@@ -17,6 +17,12 @@ local img=require("wetgenes.www.any.img")
 
 local ptwat=require("port.twat")
 
+local crawls={
+	"leeds",
+	"bradford",
+	"dublin",
+}
+
 -- debug functions
 local dprint=function(...)print(wstr.dump(...))end
 local log=require("wetgenes.www.any.log").log
@@ -56,7 +62,8 @@ M.default_props=
 	
 	text="",		-- actual text of tweet
 
-	hashtag="",		-- hashtag, so we can search for test images with a different tag
+	hashtag="",		-- hashtag, not technically the hashtag, but the subhashtag eg leeds or dublin
+					-- as the man hashtag is always artcrawl
 }
 
 M.default_cache=
@@ -128,34 +135,42 @@ end
 --------------------------------------------------------------------------------
 function M.twat_search(srv,opts,t)
 	opts=opts or {} -- stop opts from being nil
-	opts.hashtag=opts.hashtag or "#leedsartcrawl"
+	opts.hashtag="artcrawl OR leedsartcrawl OR @artcrawl" -- force artcrawl search
 	
 	local q={q=opts.hashtag,result_type="recent"}
 	
 	q.count=opts.count or 100
+	q.since_id=opts.since_id
 	
 	local d=""
 	if q.since_id or q.max_id then -- already limited use "0" for since ID to disable limits
 		d=d.."Searching for twats "..tostring(q.since_id).."<->"..tostring(q.since_id)
 	else
-		q.since_id=M.twat_since_id(srv,opts.hashtag)	-- use the last id we read as a limiter
+		q.since_id=M.twat_since_id(srv)	-- use the last id we read as a limiter
 		d=d.."Searching for twats since "..tostring(q.since_id)
 	end
+--	q.since_id=0
 	
 	
 	local r=ptwat.search(srv,q)
 	d=d.." found "..#r.statuses
 	
 	local ret={}
+	local tags={}
 	for _,twat in ipairs(r.statuses) do
-		local c=M.twat_save(srv,twat,opts.hashtag)
+		local c=M.twat_save(srv,twat)
 		if c.valid==3 then -- only valid
 			c.twat=nil -- less junk
 			ret[#ret+1]=c
+			if c.hashtag then
+				tags[c.hashtag]=(tags[c.hashtag] or 0) +1
+			end
+			log(c.text)
 		end
 	end
-	d=d.." of which "..#ret.." are good."
+	d=d.." of which "..#ret.." are good. ";
 	log(d)
+	log(wstr.dump(tags))
 	
 	return d
 end
@@ -165,13 +180,34 @@ end
 -- get last or first twat id, for later requests
 --
 --------------------------------------------------------------------------------
-function M.twat_since_id(srv,hashtag)
-	local r=M.list(srv,{hashtag=hashtag,sort="twat_time-",limit=1})
+function M.twat_since_id(srv)
+	local r=M.list(srv,{sort="twat_time-",limit=1})
 	if r[1] then return r[1].cache.id end
 end
-function M.twat_max_id(srv,hashtag)
-	local r=M.list(srv,{hashtag=hashtag,sort="twat_time+",limit=1})
+function M.twat_max_id(srv)
+	local r=M.list(srv,{sort="twat_time+",limit=1})
 	if r[1] then return r[1].cache.id end
+end
+
+
+function M.twat_fix_all(srv)
+	local r=M.list(srv,{sort="twat_time-",limit=-1})
+	for i=1,#r do
+		if r[i] then
+			M.update(srv,r[i],function(srv,e)
+				local c=e.cache
+				local t=c.text:lower()
+				for i,v in ipairs(crawls) do
+					if t:find(v) then
+						c.hashtag=v
+						log(c.hashtag.." : "..t)
+						break
+					end		
+				end					
+				return true
+			end)
+		end
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -180,8 +216,7 @@ end
 -- the twat 
 --
 --------------------------------------------------------------------------------
-function M.twat_save(srv,twat,hashtag)
-	hashtag=hashtag or "#leedsartcrawl"
+function M.twat_save(srv,twat)
 
 	local e=M.create(srv,twat.id_str)
 	local c=e.cache
@@ -200,7 +235,14 @@ function M.twat_save(srv,twat,hashtag)
 	
 	c.day=math.floor(c.twat_time/(24*60*60))
 	
-	c.hashtag=hashtag
+	c.hashtag="" -- save sub hashtag here, search tweet for valid words
+	local t=twat.text:lower()
+	for i,v in ipairs(crawls) do
+		if t:find(v) then
+			c.hashtag=v
+			break
+		end		
+	end
 	
 	c.valid=0
 	if type(twat.entities)=="table" and type(twat.entities.media)=="table" and twat.entities.media[1] and twat.entities.media[1].type=="photo" then
