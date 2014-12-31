@@ -17,10 +17,11 @@ local img=require("wetgenes.www.any.img")
 
 local ptwat=require("port.twat")
 
+-- http://www.latlong.net/
 local crawls={
-	"leeds",
-	"bradford",
-	"dublin",
+	{	tag="leeds",		lat=53.800755,	lng=-1.549077},
+	{	tag="bradford",		lat=53.795984,	lng=-1.759398},
+	{	tag="dublin",		lat=53.349805,	lng=-6.260310},
 }
 
 -- debug functions
@@ -190,26 +191,43 @@ function M.twat_max_id(srv)
 end
 
 
-function M.twat_fix_all(srv)
-	local r=M.list(srv,{sort="twat_time-",limit=-1})
-	for i=1,#r do
-		if r[i] then
-			M.update(srv,r[i],function(srv,e)
-				local c=e.cache
-				local t=c.text:lower()
-				for i,v in ipairs(crawls) do
-					if t:find(v) then
-						c.hashtag=v
-						log(c.hashtag.." : "..t)
-						break
-					end		
-				end					
-				return true
-			end)
+function M.get_hashtag(srv,c)
+
+	local hashtag="#" -- notag
+	
+	local dist
+	local best
+
+	local t=c.text:lower()
+	for i,v in ipairs(crawls) do
+		if t:find(v.tag) then
+			hashtag=v.tag
+			break
+		end		
+	end					
+	
+	if hashtag=="#" then
+		if c.valid==2 or c.valid==3 or c.valid==6 or c.valid==7 then -- can use lng lat only if we have it
+		
+			for i,v in ipairs(crawls) do
+			
+				local d1=v.lat-c.lat
+				local d2=v.lng-c.lng
+				local dd=d1*d1 + d2*d2 -- very dumb distance check, but it will do
+				
+				if not dist or dist > dd then
+					dist=dd
+					best=v.tag
+				end
+				
+			end
+			
+			return best
 		end
 	end
-end
 
+	return hashtag
+end
 --------------------------------------------------------------------------------
 --
 -- save this twat that we probably got in a search, or maybe from a read/write cycle
@@ -235,14 +253,7 @@ function M.twat_save(srv,twat)
 	
 	c.day=math.floor(c.twat_time/(24*60*60))
 	
-	c.hashtag="" -- save sub hashtag here, search tweet for valid words
-	local t=twat.text:lower()
-	for i,v in ipairs(crawls) do
-		if t:find(v) then
-			c.hashtag=v
-			break
-		end		
-	end
+	c.hashtag=M.get_hashtag(srv,c)
 	
 	c.valid=0
 	if type(twat.entities)=="table" and type(twat.entities.media)=="table" and twat.entities.media[1] and twat.entities.media[1].type=="photo" then

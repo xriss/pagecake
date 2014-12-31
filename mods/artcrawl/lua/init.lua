@@ -146,7 +146,41 @@ print("bad:"..n)
 
 	local cmd=srv.url_slash[ srv.url_slash_idx+1 ]
 
-	if cmd=="pics" then
+	if cmd=="recheck" then
+		refined=M.get(srv,"artcrawl/admin/recheck")
+	
+		refined.list={}
+		local list=pics.list(srv,{sort="created+",offset=0,limit=-1})
+		for i,v in ipairs(list) do local c=v.cache			
+			c.date=os.date("%Y-%m-%d",c.created)
+			if c.bad>0 then c.bad_checked="checked" end
+			refined.list[#refined.list+1]=c
+			c.newhashtag=pics.get_hashtag(srv,c)
+			if c.newhashtag ~= c.hashtag then -- update
+				pics.update(srv,c.id,function(srv,e)
+					e.cache.hashtag=c.newhashtag
+					return true
+				end)
+			end
+		end
+		refined.list_plate=[[
+			<tr>
+				<td>{it.hashtag}</td>
+				<td>{it.newhashtag}</td>
+				<td>{it.valid}</td>
+				<td>{it.text}</td>
+			</tr>
+		]]
+
+		refined.list_table=[[
+		<table>
+			{list:list_plate}
+		</table>
+		]]
+		refined.body="{list_table}"
+		M.put(srv)
+
+	elseif cmd=="pics" then
 		refined=M.get(srv,"artcrawl/admin/pics")
 	
 		refined.list_limit=tonumber(srv.gets.limit or 100)
@@ -218,6 +252,7 @@ head.js( head.fs.jquery_js, function(){ $(function(){
 
 		refined.list={
 			{cmd="pics",desc="Edit pics"},
+			{cmd="recheck",desc="Recheck cached tweets"},
 		}
 		refined.list_plate=[[
 			<tr>
