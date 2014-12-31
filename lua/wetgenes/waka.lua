@@ -312,7 +312,7 @@ function refine_chunks(srv,chunks,opts)
 	for i,v in ipairs(chunks) do
 	
 		if v.opts.form=="lua" or v.opts.form=="opts" or v.opts.form=="import" then -- we have some lua code for this page
-			local a,b=pcall( function() return sbox.ini(v.text) end )
+			local a,b=pcall( function() return sbox.ini(v.text,{srv=srv}) end )
 			if a then v.env=b end -- success
 			if not a then v.text=b end -- fail, set text to error text
 	

@@ -293,8 +293,6 @@ local sess,user=d_sess.get_viewer_session(srv)
 ]]
 	
 	local refined=M.get(srv,"artcrawl/cron")
-
-	pics.twat_fix_all(srv) -- fix all twats
 	
 	refined.body=pics.twat_search(srv,{})
 

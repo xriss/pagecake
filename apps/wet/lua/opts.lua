@@ -36,17 +36,16 @@ vhosts_map={
 vhosts={}
 for i,v in ipairs(vhosts_map) do
 -- setup one table per website (which may have multiple search strings above)
-	local t={}
-	vhosts[ v[2] ]=vhosts[ v[2] ] or t
+	local t=vhosts[ v[2] ] or {}
+	vhosts[ v[2] ]=t
 	t.search=t.search or {}
 	t.domains=t.domains or {}
 -- options
-	t.search[v[1]]=v -- valid list search strings that match this domain
+	t.search[v[1]]=true -- valid list search strings that match this domain
 	t.domain=v[3] -- force a redirect to this domain if domain is invalid (last entry overrides first)
 	t.domains[t.domain]=true -- valid list of domains we will serve from
 	t.subdomain=t.subdomain or v.subdomain -- flag subdomains as valid eg anything.4lfa.com is a valid 4lfa.com domain
 end
-
 
 local ae_opts=require("wetgenes.www.any.opts")
 local dat=require("wetgenes.www.any.data")
@@ -57,6 +56,7 @@ local wstr=wet_string
 local str_split=wet_string.str_split
 local serialize=wet_string.serialize
 
+log(wstr.dump(vhosts))
 
 local function default_vars(v)
 

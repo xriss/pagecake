@@ -19,9 +19,9 @@ local ptwat=require("port.twat")
 
 -- http://www.latlong.net/
 local crawls={
-	{	tag="leeds",		lat=53.800755,	lng=-1.549077},
-	{	tag="bradford",		lat=53.795984,	lng=-1.759398},
 	{	tag="dublin",		lat=53.349805,	lng=-6.260310},
+	{	tag="bradford",		lat=53.795984,	lng=-1.759398},
+	{	tag="leeds",		lat=53.800755,	lng=-1.549077},
 }
 
 -- debug functions

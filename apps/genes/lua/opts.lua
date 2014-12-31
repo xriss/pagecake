@@ -15,8 +15,8 @@ vhosts_map={
 vhosts={}
 for i,v in ipairs(vhosts_map) do
 -- setup one table per website (which may have multiple search strings above)
-	local t={}
-	vhosts[ v[2] ]=vhosts[ v[2] ] or t
+	local t=vhosts[ v[2] ] or {}
+	vhosts[ v[2] ]=t
 	t.search=t.search or {}
 	t.domains=t.domains or {}
 -- options
