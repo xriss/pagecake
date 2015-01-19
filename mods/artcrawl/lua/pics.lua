@@ -34,6 +34,8 @@ local log=require("wetgenes.www.any.log").log
 --module
 local M={ modname=(...) } ; package.loaded[M.modname]=M
 
+M.crawls=crawls -- expose
+
 
 M.default_props=
 {
@@ -136,7 +138,7 @@ end
 --------------------------------------------------------------------------------
 function M.twat_search(srv,opts,t)
 	opts=opts or {} -- stop opts from being nil
-	opts.hashtag="artcrawl OR leedsartcrawl OR @artcrawl" -- force artcrawl search
+	opts.hashtag="#artcrawl OR #leedsartcrawl OR @leedsartcrawl" -- force artcrawl search
 	
 	local q={q=opts.hashtag,result_type="recent"}
 	
@@ -195,7 +197,7 @@ function M.get_hashtag(srv,c)
 
 	local hashtag="#" -- notag
 	
-	local dist
+	local dist=2*2 -- keep within a radius of 2 which is around 100 miles
 	local best
 
 	local t=c.text:lower()
@@ -215,14 +217,14 @@ function M.get_hashtag(srv,c)
 				local d2=v.lng-c.lng
 				local dd=d1*d1 + d2*d2 -- very dumb distance check, but it will do
 				
-				if not dist or dist > dd then
+				if dist > dd then
 					dist=dd
 					best=v.tag
 				end
 				
 			end
 			
-			return best
+			return best or hashtag
 		end
 	end
 
@@ -253,7 +255,6 @@ function M.twat_save(srv,twat)
 	
 	c.day=math.floor(c.twat_time/(24*60*60))
 	
-	c.hashtag=M.get_hashtag(srv,c)
 	
 	c.valid=0
 	if type(twat.entities)=="table" and type(twat.entities.media)=="table" and twat.entities.media[1] and twat.entities.media[1].type=="photo" then
@@ -275,6 +276,8 @@ function M.twat_save(srv,twat)
 
 	c.text=twat.text
 	c.twat=twat -- full twat for later
+
+	c.hashtag=M.get_hashtag(srv,c)
 	
 	M.put(srv,e)
 	

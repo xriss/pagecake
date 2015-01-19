@@ -206,6 +206,7 @@ print("bad:"..n)
 				<td>{it.bad}<input type="checkbox" name="bad_checked" value="{it.id}" {it.bad_checked} /></td>
 				<td>{it.hot}</td>
 				<td>{it.valid}</td>
+				<td>{it.hashtag}</td>
 				<td><img src="{it.pic_url}" style="max-height:64px;"/></td>
 			</tr>
 		]]
@@ -225,6 +226,7 @@ print("bad:"..n)
 				<td>bad</td>
 				<td>hot</td>
 				<td>flags</td>
+				<td>tag</td>
 			</tr>
 			{list:list_plate}
 		</table>

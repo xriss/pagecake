@@ -535,7 +535,7 @@ function serv_admin(srv)
 		local spam  =srv.posts.spam   if type(spam)  ~="table" then spam  ={spam}   end
 		
 		for _,n in ipairs(change) do
-print("change:"..n)
+--log("change:"..n)
 			comments.update(srv,n,function(srv,e)
 				e.cache.type="ok"
 				return true
@@ -543,7 +543,7 @@ print("change:"..n)
 		end
 
 		for _,n in ipairs(spam) do
-print("spam:"..n)
+--log("spam:"..n)
 			comments.update(srv,n,function(srv,e)
 				e.cache.type="spam"
 				return true

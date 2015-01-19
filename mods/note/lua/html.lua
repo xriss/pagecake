@@ -130,7 +130,7 @@ function M.fill_cake(srv,refined)
 ]]
 
 	cake.note.item_note=[[
-<div class="wetnote_comment_div" id="wetnote{it.idhash}" >
+<div class="wetnote_comment_div wetnote_comment_type_{it.type}"  id="wetnote{it.idhash}" >
 <div class="wetnote_comment_icon" ><a href="/profile/{it.user_id}"><img src="{it.avatar}" width="100" height="100" /></a></div>
 <div class="wetnote_comment_head" > posted by <a href="/profile/{it.user_id}">{it.user_name}</a> on {it.time} ({it.age} ago)</div>
 <div class="wetnote_comment_text" >{-it.media_div}{.it.html}</div>

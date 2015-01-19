@@ -81,6 +81,7 @@ function check(srv,ent)
 		c.group=group
 	end
 	
+--[[
 	if c.text=="" then -- change empty value only
 		local title=c.id or ""
 		title=string.gsub(title,"/"," ")
@@ -88,6 +89,7 @@ function check(srv,ent)
 		
 		c.text="#title\n"..title.."\n#body\n".."MISSING CONTENT\n"
 	end
+]]
 		
 	return ent
 end
@@ -254,21 +256,28 @@ function load(srv,id,opts)
 	local chunks
 	local name=id
 	
-	pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,name).cache.text ) -- start with main page	
+	if srv.subdomain then
+		pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/.subdomain/"..srv.subdomain..name).cache.text )
+	end
+	pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,name).cache.text ) -- start with main page
+	
 	if id~="/" then -- if asking for root then no need to look for anything else
+
 		while string.find(name,"/") do -- whilst there are still / in the name	
 			name=string.gsub(name,"/[^/]*$","") -- remove the tail from the string			
 			if name~="" then -- skip last empty one
-				if srv.subdomain then -- special subdomain access
-					pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/.subdomain/"..srv.subdomain.."/"..name).cache.text )
+				if srv.subdomain then
+					pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/.subdomain/"..srv.subdomain..name).cache.text )
 				end
 				pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,name).cache.text )
 			end
 		end
-		if srv.subdomain then -- special subdomain access
+
+		if srv.subdomain then
 			pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/.subdomain/"..srv.subdomain).cache.text )
 		end
 		pages[#pages+1]=wet_waka.text_to_chunks( manifest(srv,"/").cache.text ) -- finally always include root
+
 	end
 	
 -- merge all pages

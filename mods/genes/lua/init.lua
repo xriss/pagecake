@@ -519,19 +519,17 @@ function serv_avatar(srv)
 	else -- by login name
 		res=assert(query(db,[[
 			select id,login,avatar_loc from fud26_users
-			where login=$1 limit 1]],ngx.quote_sql_str(name)
+			where login=$1 limit 1]],name
 		))[1]
 	end
 		
 	if res and type(res.avatar_loc) == "string"then
 		local url=string.gmatch(res.avatar_loc,"src=\"([^\"]*)")()
 		if url then
-			ngx.redirect(url)
+			return ngx.redirect(url)
 		end
 	end
 	
-	ngx.redirect("http://www.wetgenes.com/forum/images/custom_avatars/12.png")
-	
-	return
+	return ngx.redirect("http://www.wetgenes.com/forum/images/custom_avatars/12.png")
 end
 	

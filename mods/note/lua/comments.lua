@@ -158,7 +158,9 @@ end
 --------------------------------------------------------------------------------
 function manifest_meta(srv,url)
 	local r=stash.get(srv,"note.comments.meta&"..url)
-	if r and r.updated+(60*60*24*1) < srv.time then r=nil end -- check age is less than one day
+log( "manifest cache for "..(url or "").." : "..srv.time )
+log(wstr.dump(r))
+	if r and r.build_time and r.build_time+(60*60*24*1) < srv.time then r=nil end -- check build age is less than one day
 	if not r then
 		r=update_meta_cache(srv,url)
 	end
@@ -172,20 +174,23 @@ end
 --------------------------------------------------------------------------------
 function update_meta_cache(srv,url)
 
+log( "building new comments cache for "..(url or "") )
+
 	local count=0
 
 -- build meta cache			
-	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type="ok",limit=10}) -- get last 10 comments only
+	local cs=list(srv,{sort_created="DESC",url=url,group="0",type="ok",limit=10}) -- get last 10 comments only
 	local comments={}
-	local newtime=0
+	local post_time=0
 	for i,v in ipairs(cs) do -- and build comment cache
 		local c=v.cache
-		if c.created>newtime then newtime=c.created end
+		if c.created>post_time then post_time=c.created end
 		comments[i]=c
 		count=count+1+v.cache.count
+		c.replies=update_reply_cache(srv,url,c.id) -- make sure replies are correct
 	end
-	if newtime==0 then newtime=srv.time end
-	local meta={comments=comments,count=count,updated=newtime}
+	if post_time==0 then post_time=srv.time end
+	local meta={comments=comments,count=count,build_time=srv.time,post_time=posttime}
 	stash.put(srv,"note.comments.meta&"..url,meta)
 
 	return meta
@@ -269,7 +274,7 @@ function update_reply_cache(srv,url,id)
 
 local updated=nil
 
-	local rs=list(srv,{sort_updated="DESC",type="ok",url=url,group=id,limit=3}) -- get last 3 replies
+	local rs=list(srv,{sort_created="DESC",type="ok",url=url,group=id,limit=3}) -- get last 3 replies
 
 	local replies={}
 
@@ -519,7 +524,7 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 -- and send an email to admins if enabled?
 				if srv.opts("mail_from") and srv.opts("mail_admin") then
 					mail.send{from=srv.opts("mail_from"),to=srv.opts("mail_admin"),subject="New comment by "..posted.cache.cache.user.name.." on "..srv.url_domain..tab.url,body=long_url.."\n\n"..c.text}
-log(posted.cache.cache.user.name)
+--log(posted.cache.cache.user.name)
 				end
 				
 				return srv.redirect(srv.url) -- unpost
@@ -555,7 +560,7 @@ function build(srv,refined,opts)
 		if refined.cake.note.group then -- a single thread
 
 			local cn=get(srv,refined.cake.note.group)
-			local cs=list(srv,{sort_updated="ASC",group=refined.cake.note.group})
+			local cs=list(srv,{sort_created="ASC",group=refined.cake.note.group,type="ok"})
 			if cn then
 				refined.cake.note.url=cn.cache.url -- get url from comment
 				meta={comments={cn.cache}}
@@ -569,9 +574,9 @@ function build(srv,refined,opts)
 			end
 			
 			
-		else
+		else -- all posts on a page
 			
-			local cs=list(srv,{sort_updated="DESC",url=refined.cake.note.url,group="0",type="ok",limit=opts.limit or 10,offset=opts.offset or 0})
+			local cs=list(srv,{sort_created="DESC",url=refined.cake.note.url,group="0",type="ok",limit=opts.limit or 10,offset=opts.offset or 0})
 			local comments={}
 			for i,v in ipairs(cs) do -- and build comment cache
 				comments[i]=v.cache
@@ -625,12 +630,6 @@ if meta.comments[1] then
 				fix_comment_item(srv,c)
 				c.style=""
 				c.showhide=""
---				if i<#v.replies-3 then -- only show last 5?
---					c.style="display:none"
---				elseif i==#v.replies-3 then -- last one is a button
---					c.style="display:none"
---					c.showhide="{cake.note.item_reply_show}"
---				end
 			end
 			if v.replies[1] then
 				v.replies.plate="{cake.note.item_reply}"

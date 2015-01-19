@@ -45,6 +45,7 @@ end
 function delgroup(srv,group)
 	repeat
 		local list=stashdata.list(srv,{group=group})
+log("deleting stash for "..#list.." items")
 		for i,v in ipairs(list) do
 			del(srv,v.cache.id)
 		end
@@ -83,7 +84,7 @@ end
 --
 -----------------------------------------------------------------------------
 function get(srv,id)
-	local c=cache.get(srv,id) -- try cache
+	local c=cache.get(srv,id) -- try cache first
 	if c then return c end
 	local e=stashdata.get(srv,id)
 	if e then
