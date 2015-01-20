@@ -157,7 +157,7 @@ end
 --
 --------------------------------------------------------------------------------
 function manifest_meta_comments(srv,url)
-	local r=stash.get(srv,"note.comments.meta&"..url)
+	local r=stash.get(srv,"note.comments.meta&"..url..(srv.spam and "&spam" or ""))
 	if r and r.build_time and r.build_time+(60*60*24*1) < srv.time then r=nil end -- check build age is less than one day
 	if not r then
 		r=update_meta_comments(srv,url)
@@ -175,7 +175,7 @@ function update_meta_comments(srv,url)
 --log( "building new comments cache for "..(url or "") )
 
 -- build meta cache			
-	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type="ok",limit=10}) -- get last 10 comments only
+	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type=not srv.spam and "ok",limit=10}) -- get last 10 comments only
 	local comments={}
 	local post_time=0
 	for i,v in ipairs(cs) do -- and build comment cache
@@ -186,7 +186,7 @@ function update_meta_comments(srv,url)
 	end
 	if post_time==0 then post_time=srv.time end
 	local meta={comments=comments,build_time=srv.time,post_time=post_time}
-	stash.put(srv,"note.comments.meta&"..url,meta)
+	stash.put(srv,"note.comments.meta&"..url..(srv.spam and "&spam" or ""),meta)
 
 	return meta
 end
@@ -197,7 +197,7 @@ end
 --
 --------------------------------------------------------------------------------
 function manifest_meta_replies(srv,url,id)
-	local r=stash.get(srv,"note.replies.meta&"..url.."&"..id)
+	local r=stash.get(srv,"note.replies.meta&"..url.."&"..id..(srv.spam and "&spam" or ""))
 	if r and r.build_time and r.build_time+(60*60*24*1) < srv.time then r=nil end -- check build age is less than one day
 	if not r then
 		r=update_meta_replies(srv,url,id)
@@ -214,7 +214,7 @@ function update_meta_replies(srv,url,id)
 
 --log( "building new replies cache for "..(url or "") )
 
-	local rs=list(srv,{sort_created="DESC",type="ok",url=url,group=id,limit=3}) -- get last 3 replies
+	local rs=list(srv,{sort_created="DESC",type=not srv.spam and "ok",url=url,group=id,limit=3}) -- get last 3 replies
 
 	local replies={}
 	local post_time=0
@@ -225,7 +225,7 @@ function update_meta_replies(srv,url,id)
 	end
 	if post_time==0 then post_time=srv.time end
 	local meta={replies=replies,build_time=srv.time,post_time=post_time}
-	stash.put(srv,"note.replies.meta&"..url.."&"..id,meta)
+	stash.put(srv,"note.replies.meta&"..url.."&"..id..(srv.spam and "&spam" or ""),meta)
 
 	return meta
 end
@@ -483,7 +483,7 @@ function post(srv,refined)
 			end
 			
 			e.key.id=e.cache.author.."*"..string.format("%1.3f",e.props.created) -- special forced "unique" id
-			
+			e.cache.type=srv.spam and "spam" or "ok" -- auto mark as spam
 			put(srv,e)
 			posted=e
 			tab.modified=true -- flag that caller should update cache
@@ -540,7 +540,7 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 				d_nags.save(srv,srv.sess,nag)
 
 -- and send an email to admins if enabled?
-				if srv.opts("mail_from") and srv.opts("mail_admin") then
+				if srv.opts("mail_from") and srv.opts("mail_admin") and not srv.spam then
 					mail.send{from=srv.opts("mail_from"),to=srv.opts("mail_admin"),subject="New comment by "..posted.cache.cache.user.name.." on "..srv.url_domain..tab.url,body=long_url.."\n\n"..c.text}
 --log(posted.cache.cache.user.name)
 				end
@@ -578,7 +578,7 @@ function build(srv,refined,opts)
 		if refined.cake.note.group then -- a single thread
 
 			local cn=get(srv,refined.cake.note.group)
-			local cs=list(srv,{sort_created="ASC",group=refined.cake.note.group,type="ok"})
+			local cs=list(srv,{sort_created="ASC",group=refined.cake.note.group,type=not srv.spam and "ok"})
 			if cn then
 				refined.cake.note.url=cn.cache.url -- get url from comment
 				meta={comments={cn.cache}}
@@ -594,9 +594,10 @@ function build(srv,refined,opts)
 			
 		else -- all posts on a page
 			
-			local cs=list(srv,{sort_created="DESC",url=refined.cake.note.url,group="0",type="ok",limit=opts.limit or 10,offset=opts.offset or 0})
+			local cs=list(srv,{sort_created="DESC",url=refined.cake.note.url,group="0",type=not srv.spam and "ok",limit=opts.limit or 10,offset=opts.offset or 0})
 			local comments={}
 			for i,v in ipairs(cs) do -- and build comment cache
+				v.cache.replies=manifest_meta_replies(srv,refined.cake.note.url,v.cache.id).replies
 				comments[i]=v.cache
 			end
 			meta={comments=comments}
@@ -676,7 +677,7 @@ end
 function get_recent(srv,num)
 
 	-- a unique keyname for this query
-	local cachekey="kind="..kind(H).."&find=recent&limit="..num
+	local cachekey="kind="..kind(H).."&find=recent&limit="..num..(srv.spam and "&spam" or "")
 	
 	local r=cache.get(srv,cachekey) -- do we already know the answer?
 
@@ -684,7 +685,7 @@ function get_recent(srv,num)
 		return r
 	end
 
-	local recent=list(srv,{limit=num,type="ok",view="public",sort_created="DESC"})
+	local recent=list(srv,{limit=num,type=not srv.spam and "ok",view="public",sort_created="DESC"})
 
 	cache.put(srv,cachekey,recent,2*60) -- save this in cache for 2 minutes
 	

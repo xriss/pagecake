@@ -49,6 +49,8 @@ function serv_srv()
 		srv.vhost=v[2]
 		if ngx.var.host:find(v[1],1,true) then break end
 	end	
+	
+--	srv.spam=true -- spam test
 
 	return srv
 	
