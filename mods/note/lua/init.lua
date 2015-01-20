@@ -506,7 +506,7 @@ local posts=make_posts(srv)
 			
 		end
 		
-		comments.update_reply_cache(srv, head.url, master.key.id)
+--		comments.update_reply_cache(srv, head.url, master.key.id)
 --		comments.update_meta_cache(srv,head.url)
 	
 	end

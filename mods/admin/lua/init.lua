@@ -209,9 +209,9 @@ local put=make_put(srv)
 				
 				call_hooks_changed=function(srv,id,e)
 					if tostring(e.props.group=="0") then
-						d.update_reply_cache(srv,e.props.url,e.key.id) -- find and fix any replies to us
+--						d.update_reply_cache(srv,e.props.url,e.key.id) -- find and fix any replies to us
 					else
-						d.update_reply_cache(srv,e.props.url,e.props.group) -- find and fix master we are a reply to
+--						d.update_reply_cache(srv,e.props.url,e.props.group) -- find and fix master we are a reply to
 					end
 					
 					require("dumid.users").manifest_userid(srv,e.props.author)

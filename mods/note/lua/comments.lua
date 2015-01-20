@@ -156,13 +156,11 @@ end
 -- manifest a meta comment cache for the given url, one will be built if we must
 --
 --------------------------------------------------------------------------------
-function manifest_meta(srv,url)
+function manifest_meta_comments(srv,url)
 	local r=stash.get(srv,"note.comments.meta&"..url)
-log( "manifest cache for "..(url or "").." : "..srv.time )
-log(wstr.dump(r))
 	if r and r.build_time and r.build_time+(60*60*24*1) < srv.time then r=nil end -- check build age is less than one day
 	if not r then
-		r=update_meta_cache(srv,url)
+		r=update_meta_comments(srv,url)
 	end
 	return r
 end
@@ -172,26 +170,62 @@ end
 -- update and return the meta cache
 --
 --------------------------------------------------------------------------------
-function update_meta_cache(srv,url)
+function update_meta_comments(srv,url)
 
-log( "building new comments cache for "..(url or "") )
-
-	local count=0
+--log( "building new comments cache for "..(url or "") )
 
 -- build meta cache			
-	local cs=list(srv,{sort_created="DESC",url=url,group="0",type="ok",limit=10}) -- get last 10 comments only
+	local cs=list(srv,{sort_updated="DESC",url=url,group="0",type="ok",limit=10}) -- get last 10 comments only
 	local comments={}
 	local post_time=0
 	for i,v in ipairs(cs) do -- and build comment cache
 		local c=v.cache
 		if c.created>post_time then post_time=c.created end
 		comments[i]=c
-		count=count+1+v.cache.count
-		c.replies=update_reply_cache(srv,url,c.id) -- make sure replies are correct
+		c.replies=manifest_meta_replies(srv,url,c.id).replies -- make sure replies are correct
 	end
 	if post_time==0 then post_time=srv.time end
-	local meta={comments=comments,count=count,build_time=srv.time,post_time=posttime}
+	local meta={comments=comments,build_time=srv.time,post_time=post_time}
 	stash.put(srv,"note.comments.meta&"..url,meta)
+
+	return meta
+end
+
+--------------------------------------------------------------------------------
+--
+-- manifest a meta comment cache for the given url, one will be built if we must
+--
+--------------------------------------------------------------------------------
+function manifest_meta_replies(srv,url,id)
+	local r=stash.get(srv,"note.replies.meta&"..url.."&"..id)
+	if r and r.build_time and r.build_time+(60*60*24*1) < srv.time then r=nil end -- check build age is less than one day
+	if not r then
+		r=update_meta_replies(srv,url,id)
+	end
+	return r
+end
+
+--------------------------------------------------------------------------------
+--
+-- update and return the meta cache
+--
+--------------------------------------------------------------------------------
+function update_meta_replies(srv,url,id)
+
+--log( "building new replies cache for "..(url or "") )
+
+	local rs=list(srv,{sort_created="DESC",type="ok",url=url,group=id,limit=3}) -- get last 3 replies
+
+	local replies={}
+	local post_time=0
+	for i=#rs,1,-1 do -- reverse order
+		local c=rs[i].cache
+		replies[#replies+1]=c
+		if c.created > post_time then post_time=c.created end
+	end
+	if post_time==0 then post_time=srv.time end
+	local meta={replies=replies,build_time=srv.time,post_time=post_time}
+	stash.put(srv,"note.replies.meta&"..url.."&"..id,meta)
 
 	return meta
 end
@@ -272,32 +306,16 @@ end
 --------------------------------------------------------------------------------
 function update_reply_cache(srv,url,id)
 
-local updated=nil
-
-	local rs=list(srv,{sort_created="DESC",type="ok",url=url,group=id,limit=3}) -- get last 3 replies
-
-	local replies={}
-
-	for i=#rs,1,-1 do -- reverse order
-		local c=rs[i].cache
-		replies[#replies+1]=c
-		if not updated or c.updated > updated then updated=c.updated end
-	end
-	
--- the reply cache may lose one if multiple people reply at the same time
--- an older cache may get saved, unlikley but possible and it will auto
--- fix itself on the next reply or stash clear
-
 	update(srv,id,function(srv,e)
-		e.cache.updated=updated -- adjust the updated stamp?
-		e.cache.replies=replies -- save new reply cache
-		e.cache.count=#replies -- a number to sort by
+		e.cache.updated=srv.time 		-- adjust the updated stamp?
+		e.cache.replies=nil 			-- save new reply cache
+		e.cache.count=0 				-- a number to sort by
 		e.cache.reply_updated=srv.time
 		return true
 	end)
+	
+	update_meta_replies(srv,url,id)
 
---log("updated replies ",id," : ",#replies)	
-	return replies
 end
 				
 
@@ -487,7 +505,7 @@ log("note post "..(e.key.id).." group "..type(e.props.group).." : "..e.props.gro
 
 			end
 
-			tab.meta=update_meta_cache(srv,tab.url)
+			tab.meta=update_meta_comments(srv,tab.url)
 
 			if posted and posted.cache then -- redirect to our new post
 			
@@ -587,7 +605,7 @@ function build(srv,refined,opts)
 
 	else -- standard first page
 
-		meta=manifest_meta(srv,refined.cake.note.url)
+		meta=manifest_meta_comments(srv,refined.cake.note.url)
 
 	end
 	
