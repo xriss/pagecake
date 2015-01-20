@@ -156,6 +156,11 @@ function get_viewer_session(srv)
 		iplog.mark_as_admin(srv.ip)
 	end
 
+	if srv.user and srv.user.cache and srv.user.cache.type=="spam" then
+		srv.spam=true
+--		iplog.mark_as_spam(srv.ip)
+	end
+
 	return srv.sess,srv.user -- return sess , user
 	
 end

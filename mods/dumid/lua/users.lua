@@ -31,6 +31,7 @@ default_props=
 	name   ="",
 	parent ="", -- set to a parent userid for linked accounts
 	ip="", -- last known ip or blank if unknown
+	type="ok", -- flag as spam if spammer
 }
 
 default_cache=
@@ -118,7 +119,7 @@ end
 
 --------------------------------------------------------------------------------
 --
--- Load a list of active visible projects
+-- Load a list of users
 --
 --------------------------------------------------------------------------------
 function list(srv,opts)
@@ -130,9 +131,10 @@ opts=opts or {}
 	local q={
 		kind=kind(srv),
 		limit=opts.limit or 10,
-		offset=0,
-		}
-	q[#q+1]={"sort","updated","DESC"}
+		offset=opts.offset or 0,
+		}	
+	dat.build_qq_filters(opts,q,{"flavour","email","name","parent","ip","type","updated","created"})
+--	q[#q+1]={"sort","updated","DESC"}
 		
 	local ret=dat.query(q)
 		

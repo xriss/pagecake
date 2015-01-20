@@ -35,6 +35,8 @@ local waka=require("waka")
 
 local dusers=require("dumid.users")
 
+local dprint=function(...) log(wstr.dump(...)) end
+
 
 module("admin")
 local function make_put(srv)
@@ -124,7 +126,95 @@ end
 -----------------------------------------------------------------------------
 function serv_users(srv)
 local sess,user=d_sess.get_viewer_session(srv)
+	if not srv.is_admin(user) then -- adminfail
+		return false
+	end
+	if srv.method=="POST" and not srv:check_referer() then
+		return srv.redirect(srv.url) -- bad referer
+	end
 
+	if srv.posts.cmd=="update" then
+	
+		local change=srv.posts.change if type(change)~="table" then change={change} end
+		local spam  =srv.posts.spam   if type(spam)  ~="table" then spam  ={spam}   end
+		
+		for _,n in ipairs(change) do
+--log("change:"..n)
+			dusers.update(srv,n,function(srv,e)
+				e.cache.type="ok"
+				return true
+			end)
+		end
+
+		for _,n in ipairs(spam) do
+--log("spam:"..n)
+			dusers.update(srv,n,function(srv,e)
+				e.cache.type="spam"
+				return true
+			end)
+		end
+
+		return srv.redirect(srv.url) -- display nothing		
+	end
+
+
+
+	local refined=waka.prepare_refined(srv)
+
+	refined.list_limit=tonumber(srv.gets.limit or 100)
+	refined.list_offset=tonumber(srv.gets.offset or 0)
+	refined.list_next=refined.list_offset+100
+	refined.list_prev=refined.list_offset-100
+	if refined.list_offset<0 then refined.list_offset=0 end
+	if refined.list_prev<0   then refined.list_prev=0 end
+
+	local list=dusers.list(srv,{sort="updated-",offset=refined.list_offset,limit=refined.list_limit})
+--dprint(list)
+
+	for i=1,#list do
+		local c=list[i].cache
+		c.time=os.date("%Y/%m/%d %H:%M:%S",c.created)
+		list[i]=c
+	end
+	refined.list=list
+	refined.list_head=[[
+<tr>
+<td>not</td>
+<td>spam</td>
+<td>name</td>
+<td>id</td>
+<td>ip</td>
+<td>email</td>
+</tr>
+]]
+	refined.list_item=[[
+<tr>
+<td><input type="checkbox" name="change" value="{it.id}" /></td>
+<td><input type="checkbox" name="spam" value="{it.id}" />{-it.type}</td>
+<td>{it.name}</td>
+<td><a href="/profile/{it.id}">{it.id}</a></td>
+<td>{it.ip}</td>
+<td>{it.email}</td>
+</tr>
+]]
+	refined.body=[[
+		<a href="?offset={list_prev}">prev</a> <a href="?offset={list_next}">next</a>
+		<form action="" method="POST">
+		<input name="cmd" type="submit" value="update" />
+		<a href="/admin/cmd/clearstash">clear stash</a>
+		<table class="admin_user">
+		{list_head}
+		{list:list_item}
+		</table>
+		</form>
+		<style>
+		.admin_user td { max-width:200px; overflow:hidden; padding:0px 4px 0px 4px ; white-space:nowrap; }
+		</style>
+	]]
+	
+	waka.display_refined(srv,refined)
+
+--[=[
 
 	local refined=waka.prepare_refined(srv)
 	html.fill_cake(srv,refined)
@@ -133,7 +223,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 
 	refined["body"]="<table>{users}</table>"
 	local l={}
-	for i,v in ipairs( dusers.list(srv,{limit=100}) ) do l[#l+1]=v.cache end
+	for i,v in ipairs( dusers.list(srv,{limit=1000}) ) do l[#l+1]=v.cache end
 	
 	l.plate=[[
 	<tr>
@@ -149,6 +239,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	waka.display_refined(srv,refined)	
 --	srv.set_mimetype("text/html; charset=UTF-8")
 --	srv.put(wstr.macro_replace("{cake.html.plate}",refined))
+]=]
 
 end
 
