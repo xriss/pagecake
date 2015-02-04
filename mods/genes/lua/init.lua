@@ -526,10 +526,11 @@ function serv_avatar(srv)
 	if res and type(res.avatar_loc) == "string"then
 		local url=string.gmatch(res.avatar_loc,"src=\"([^\"]*)")()
 		if url then
+			url=string.gsub(url,"www.wetgenes.com","wet.genes.pw") -- hack to new domain so we can remove old server sometime
 			return ngx.redirect(url)
 		end
 	end
 	
-	return ngx.redirect("http://www.wetgenes.com/forum/images/custom_avatars/12.png")
+	return ngx.redirect("http://wet.genes.pw/forum/images/custom_avatars/12.png")
 end
 	

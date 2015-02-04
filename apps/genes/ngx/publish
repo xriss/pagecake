@@ -1,3 +1,4 @@
+ngx/install
 cd ../../../wetgenes
 hg addremove
 hg ci -m.
