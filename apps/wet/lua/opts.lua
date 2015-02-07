@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"genes",		"host.local",			subdomain=true,	},	-- test this domain
+	{"local",		"artcrawl",		"host.local",			subdomain=true,	},	-- test this domain
 	{"roadee",		"roadee",		"roadee.lo4d.net",						},	-- any domain containing roadee
 	{"artcrawl",	"artcrawl",		"artcrawl.club",		subdomain=true, },	-- any domain containing artcrawl
 	{"itstuff",		"itstuff",		"itstuff.org.uk",						},	-- any domain containing itstuff
@@ -79,6 +79,7 @@ local function default_vars(v)
 		["2@id.wetgenes.com"]=true,
 		["14@id.wetgenes.com"]=true,
 		["109440170884180647149@id.google.com"]=true,
+		["76561197960568486@id.steamcommunity.com"]=true,
 	}
 -- possible user ids are, these are unique number ids I'm afraid so its not always easy to get the numbers from the sites
 

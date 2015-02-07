@@ -1,7 +1,7 @@
 
 head.fs.gamecake_loader="http://play.4lfa.com/gamecake/gamecake_loader.js";
 
-head.fs.swpaint_cake="http://play.4lfa.com/gamecake/swpaint.cake";
+head.fs.swankypaint_cake="http://play.4lfa.com/gamecake/swankypaint.cake";
 //head.fs.swpaint_cake="http://localhost:9999/swpaint.zip";
 
 head.load(head.fs.jquery_js,head.fs.gamecake_loader,function(){
@@ -207,7 +207,7 @@ var xhr = new XMLHttpRequest();
 
 	$("#img_pix").hide(); // show them later if they are valid images
 	$("#img_fat").hide();
-	var gamecake=gamecake_loader({div:"#paint_draw",cakefile:head.fs.swpaint_cake,msg_hook:msg_hook,loaded_hook:loaded_hook});
+	var gamecake=gamecake_loader({div:"#paint_draw",cakefile:head.fs.swankypaint_cake,msg_hook:msg_hook,loaded_hook:loaded_hook});
 
 });
 

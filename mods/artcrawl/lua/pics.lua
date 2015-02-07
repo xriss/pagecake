@@ -138,7 +138,7 @@ end
 --------------------------------------------------------------------------------
 function M.twat_search(srv,opts,t)
 	opts=opts or {} -- stop opts from being nil
-	opts.hashtag="#artcrawl OR #leedsartcrawl OR @leedsartcrawl" -- force artcrawl search
+	opts.hashtag="#artcrawl OR #art OR #leedsartcrawl OR @leedsartcrawl" -- force artcrawl search
 	
 	local q={q=opts.hashtag,result_type="recent"}
 	
@@ -158,11 +158,21 @@ function M.twat_search(srv,opts,t)
 	local r=ptwat.search(srv,q)
 	d=d.." found "..#r.statuses
 	
+	local last_stat
+	if #r.statuses>0 then -- remember last twat
+		local last_stat=r.statuses[1]
+		M.twat_since_id(srv,last_stat.id_str)
+	end
+	
+	
+	local last_twat
 	local ret={}
 	local tags={}
 	for _,twat in ipairs(r.statuses) do
 		local c=M.twat_save(srv,twat)
-		if c.valid==3 then -- only valid
+		if not last_twat then last_twat=c end
+--log(os.date("%c",c.twat_time).." : "..c.text)
+		if (c.valid==1 or c.valid==3) then -- only valid
 			c.twat=nil -- less junk
 			ret[#ret+1]=c
 			if c.hashtag then
@@ -172,8 +182,11 @@ function M.twat_search(srv,opts,t)
 		end
 	end
 	d=d.." of which "..#ret.." are good. ";
+	if last_twat then
+		d=d.." ( "..os.date("%c",last_twat.twat_time).." ) "
+	end
 	log(d)
-	log(wstr.dump(tags))
+--	log(wstr.dump(tags))
 	
 	return d
 end
@@ -183,13 +196,29 @@ end
 -- get last or first twat id, for later requests
 --
 --------------------------------------------------------------------------------
-function M.twat_since_id(srv)
-	local r=M.list(srv,{sort="twat_time-",limit=1})
-	if r[1] then return r[1].cache.id end
-end
-function M.twat_max_id(srv)
-	local r=M.list(srv,{sort="twat_time+",limit=1})
-	if r[1] then return r[1].cache.id end
+function M.twat_since_id(srv,t)
+
+	local key="key=artcrawl/pics/twat"
+	
+	if t then -- set and return
+		cache.put(srv,key,{str=t})
+--		log(t)
+		return t
+	end
+	
+	t=cache.get(srv,key) -- try cache frst
+	if type(t)=="table" and t.str then
+--		log(t.str)
+		return t.str
+	end
+
+	local r=M.list(srv,{sort="twat_time-",limit=1}) -- then try last saved value
+	t=r[1] and r[1].cache.id
+	if t then
+		cache.put(srv,key,{str=t})
+	end
+
+	return t
 end
 
 
@@ -270,14 +299,32 @@ function M.twat_save(srv,twat)
 		c.valid=c.valid+2
 	end
 	
-	if twat.retweeted_status then -- flag as retweeted (ignore if this flag is set)
-		c.valid=c.valid+4
-	end
+	c.hashtag=M.get_hashtag(srv,c)
 
 	c.text=twat.text
 	c.twat=twat -- full twat for later
 
-	c.hashtag=M.get_hashtag(srv,c)
+
+	if twat.retweeted_status then -- flag as retweeted (ignore if this flag is set)
+		c.valid=c.valid+4
+		return c
+	else
+		local t=twat.text:lower()
+		if t:find("artcrawl") then -- its an artcrawl tweet, so its legit
+		else -- probably a #art tweet, need to check if it contains a location as well
+			local tagged
+			for i,v in ipairs(crawls) do
+				if t:find(v.tag) then
+					tagged=v.tag
+					break
+				end
+			end
+			if not tagged then -- a tweet with #art but without #leeds or #bradford etc should be ignored, dont even save as art is a busy tag
+				c.valid=c.valid+4
+				return c
+			end
+		end
+	end
 	
 	M.put(srv,e)
 	
