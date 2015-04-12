@@ -88,8 +88,8 @@ var loaded_hook=function()
 // $("#lson").text()
 
 window.paint_configure=function(lson) {
-	var t=gamecake.post_message(
-		'cmd=lua\n'+
+	var t=gamecake.post(
+		'cmd=lua\n',
 		'local win=require("wetgenes.win")\n'+
 		'local oven=win.oven\n'+
 		'local paint=oven.rebake(oven.modname..".main_paint")\n'+
@@ -112,8 +112,8 @@ window.paint_get_images=function() {
 
 	$("#img_status").html("");
 
-	var t=gamecake.post_message(
-		'cmd=lua\n'+
+	var t=gamecake.post(
+		'cmd=lua\n',
 		'local win=require("wetgenes.win")\n'+
 		'local oven=win.oven\n'+
 		'local paint=oven.rebake(oven.modname..".main_paint")\n'+
@@ -184,8 +184,8 @@ var xhr = new XMLHttpRequest();
 		if (this.status == 200)
 		{
 			var x=base64ArrayBuffer(this.response);
-			gamecake.post_message(
-				'cmd=lua\n'+
+			gamecake.post(
+				'cmd=lua\n',
 				'local mime=require("mime")\n'+
 				'local win=require("wetgenes.win")\n'+
 				'local oven=win.oven\n'+

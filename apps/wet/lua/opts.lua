@@ -10,6 +10,7 @@ local opts=require("opts")
 
 vhosts_map={
 	{"local",		"artcrawl",		"host.local",			subdomain=true,	},	-- test this domain
+	{"bardslov",	"bardslov",		"bardslov.esyou.com",					},	-- any domain containing bardslov
 	{"roadee",		"roadee",		"roadee.lo4d.net",						},	-- any domain containing roadee
 	{"artcrawl",	"artcrawl",		"artcrawl.club",		subdomain=true, },	-- any domain containing artcrawl
 	{"itstuff",		"itstuff",		"itstuff.org.uk",						},	-- any domain containing itstuff
