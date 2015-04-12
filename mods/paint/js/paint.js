@@ -98,10 +98,10 @@ window.paint_configure=function(lson) {
 		' local mime=require("mime")\n'+
 		' local grd=images.get().grd\n'+
 		' local s=mime.b64( (grd:save({fmt="png"})) )\n'+
-		' win.js_post("cmd=pix\\n"..s)'+
+		' win.js_post("cmd=pix\\n",s)\n'+
 		' local grd=images.get().export_grd().g\n'+
 		' local s=mime.b64( (grd:save({fmt="png"})) )\n'+
-		' win.js_post("cmd=fat\\n"..s)\n'+
+		' win.js_post("cmd=fat\\n",s)\n'+
 		' images.set_modified(false)\n'+
 		'end\n'+
 		'paint.configure( [==['+lson+']==] )\n');
