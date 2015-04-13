@@ -138,7 +138,7 @@ end
 --------------------------------------------------------------------------------
 function M.twat_search(srv,opts,t)
 	opts=opts or {} -- stop opts from being nil
-	opts.hashtag="#artcrawl OR #art OR #leedsartcrawl OR @leedsartcrawl" -- force artcrawl search
+	opts.hashtag="#streetart OR #artcrawl OR #art OR #leedsartcrawl OR @leedsartcrawl" -- force artcrawl search
 	
 	local q={q=opts.hashtag,result_type="recent"}
 	
