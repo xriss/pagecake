@@ -1,8 +1,8 @@
 
 head.fs.gamecake_loader="http://play.4lfa.com/gamecake/gamecake_loader.js";
 
-//head.fs.swankypaint_cake="http://play.4lfa.com/gamecake/swankypaint.cake";
-head.fs.swankypaint_cake="http://host.local:9999/swankypaint.zip";
+head.fs.swankypaint_cake="http://play.4lfa.com/gamecake/swankypaint.cake";
+//head.fs.swankypaint_cake="http://host.local:9999/swankypaint.zip";
 
 head.load(head.fs.jquery_js,head.fs.gamecake_loader,function(){
 	
