@@ -66,6 +66,7 @@ function M.serv(srv)
 		view=		M.serv_view,
 		draw=		M.serv_draw,
 		admin=		M.serv_admin,
+		edit=		M.serv_edit,
 	}
 	local f=cmds[ string.lower(cmd or "") ]
 	if f then return f(srv) end
@@ -507,6 +508,67 @@ Draw {today.title} using the {today.pal.name} palette In {today.pix.width} x {to
 	
 end
 
+-----------------------------------------------------------------------------
+--
+-- the serv function, where the action happens.
+--
+-----------------------------------------------------------------------------
+function M.serv_edit(srv)
+local sess,user=d_sess.get_viewer_session(srv)
+	
+	local refined=M.fill_refined(srv,"paint/edit")
+
+--dprint(user)
+--[[
+	local id=user.cache.id.."/"..refined.today.day
+	local im=pimages.get(srv,id)
+	if im and im.cache then
+		refined.it=im.cache
+	else
+		refined.it={}
+		local c=refined.it
+		for n,v in pairs(refined.today) do c[n]=v end
+		c.title=refined.today.title
+		c.userid=user.cache.id
+		c.user_name=user.cache.name
+		c.day=refined.today.day
+		c.palette=refined.today.pal.name
+		c.palette_count=refined.today.pal.count
+		c.shader=refined.today.fat.name
+
+		c.pix_id=("paint_pix_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
+		c.pix_width=refined.today.pix.width
+		c.pix_height=refined.today.pix.height
+		c.pix_depth=refined.today.pix.depth
+
+		c.fat_id=("paint_fat_"..user.cache.id.."_"..refined.today.day):gsub("([^%w]+)","_")
+		c.fat_width=refined.today.fat.width
+		c.fat_height=refined.today.fat.height
+		c.fat_depth=refined.today.fat.depth
+
+	end
+]]
+
+	refined.swanky=[=[
+<div id="paint_draw" style=" width:100%; height:100%; "></div>
+<script>
+	head.load("/js/paint/paint_edit.js");
+</script>
+]=]
+
+	refined.example=[[
+	{swanky}
+<br/>
+<br/>
+	<img id="img_pix" src="" /><br/>
+	<img id="img_fat" src="" /><br/>
+<br/>
+<br/>
+	]]
+
+	waka.display_refined(srv,refined)	
+	
+end
 
 -----------------------------------------------------------------------------
 --
