@@ -180,9 +180,12 @@ end
 -----------------------------------------------------------------------------
 function build_notes(srv,refined)
 
-	refined.cake.note.url=refined.cake.note.url or "/"..refined.cake.pagename
-	refined.cake.note.title=refined.cake.note.title or refined.title or refined.cake.note.url
-	comments.build(srv,refined)
+-- check opts to allow comments on this page
+	if refined.opts and (refined.opts.flame=="on") then 
+		refined.cake.note.url=refined.cake.note.url or "/"..refined.cake.pagename
+		refined.cake.note.title=refined.cake.note.title or refined.title or refined.cake.note.url
+		comments.build(srv,refined)
+	end
 
 --[[
 
