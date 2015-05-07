@@ -913,6 +913,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		if user and user.cache.id == page.cache.owner then -- owner defaults to sponsor page
 			refined.cake.dimeload.goto="sponsor"
 		else
+			refined.cake.dimeload.goto="download"
 			refined.cake.dimeload.menu=""
 			refined["cake.dimeload.menu"]=""
 		end
