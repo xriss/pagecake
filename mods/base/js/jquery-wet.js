@@ -61,6 +61,10 @@ $.fn.autoembedlink=function(opts)
 			case "youtube":
 			
 				vid=link.split("v=")[1];
+				if(!vid)
+				{
+					vid=link.split("/v/")[1];
+				}
 				
 				if(vid)
 				{
