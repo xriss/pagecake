@@ -608,11 +608,12 @@ local sess,user=d_sess.get_viewer_session(srv)
 		local r=dl_downloads.list(srv,opts)
 		for i,v in ipairs(r) do
 			list[i]=v.cache
+			v.cache.datetime=os.date("%Y-%m-%d %H:%M",v.cache.created)
 		end
 		list.plate="{list_plate}"
 		refined.list_plate=[[
 <tr>
-<td> {it.created} </td>
+<td> {it.datetime} </td>
 <td> | </td>
 <td> {it.project}/{it.page}/{it.file} </td>
 <td> | </td>
