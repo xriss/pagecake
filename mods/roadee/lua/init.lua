@@ -183,7 +183,7 @@ local sess,user=d_sess.get_viewer_session(srv)
 	if not ret.status then -- nothing failed the above checks
 	
 		local id=sys.md5(posts.data.data) -- dumb key generator
-
+--[[
 		local dd=data.upload(srv,{
 			id=id,
 			name=id..".zip",
@@ -193,10 +193,10 @@ local sess,user=d_sess.get_viewer_session(srv)
 			mimetype="application/zip",
 			group="/roadee/",
 		})
-		
-		if not dd then ret.status="bad data upload" end
 
+		if not dd then ret.status="bad data upload" end
 		if not ret.status then -- nothing failed the above 
+		
 			local it=rlogs.set(srv,id,function(srv,e) -- create or update
 				local c=e.cache
 				c.data_id=dd.id				
@@ -210,6 +210,24 @@ local sess,user=d_sess.get_viewer_session(srv)
 				ret.status="ERROR" -- yeah uhm, not sure what happened there
 			end
 		end
+]]
+
+-- also save to file (will stop using the database when we see this working)
+
+		local t=sys.zip_list( posts.data.data )
+		local n=t and t[1] and t[1].name and tonumber(wstr.split(t[1].name,".")[1])
+		if n then id=os.date("%Y%m%d%H%M",n).."."..id end
+		ret.filename=id..".zip"
+
+		local fp=io.open("private/roadee/"..ret.filename,"w")
+		if fp then
+			fp:write(posts.data.data)
+			fp:close()
+			ret.status="OK"
+		else
+			ret.status="ERROR" -- failed to write file
+		end
+		
 	end
 	
 	srv.set_mimetype("application/json; charset=UTF-8")
