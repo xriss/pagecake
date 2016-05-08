@@ -59,6 +59,15 @@ end
 function serv2()
 
 	local opts=require("opts")
+
+	if opts.redirect_domains then
+		local redir=opts.redirect_domains[ngx.var.host:lower()]
+		if redir then
+			local colonport=(ngx.var.server_port and ngx.var.server_port~="80") and (":"..ngx.var.server_port) or ""
+			return ngx.redirect( ngx.var.scheme.."://"..redir..colonport..ngx.var.uri )
+		end
+	end
+	
 	local srv=serv_srv()
 
 -- force redirect to a standard domain if it is set in opts
@@ -79,10 +88,15 @@ function serv2()
 				domain=srv.subdomain.."."..domain
 				srv.subdomain=nil
 			end
+			local sd=""
+			if domain:sub(-#t.domain)==t.domain then -- push subdomains of the valid domain into the start of the url when we redirect
+				sd="/"..domain:sub(1,-#t.domain-2)
+				if sd=="/www" then sd="" end -- ignore default www
+			end
 			if not t.domains[domain] then -- redirect to a standard base domain
-log("REDIRECT:"..t.domain.." FROM "..ngx.var.host)
+log("REDIRECT:"..t.domain.." ("..sd..") FROM "..ngx.var.host)
 				local colonport=(ngx.var.server_port and ngx.var.server_port~="80") and (":"..ngx.var.server_port) or ""
-				ngx.redirect( ngx.var.scheme.."://"..t.domain..colonport..ngx.var.uri )
+				ngx.redirect( ngx.var.scheme.."://"..t.domain..colonport..sd..ngx.var.uri )
 			end
 		end
 	end

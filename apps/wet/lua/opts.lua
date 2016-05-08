@@ -9,30 +9,62 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",		"paint",		"host.local",			subdomain=true,	},	-- test this domain
-	{"bardslov",	"bardslov",		"bardslov.esyou.com",					},	-- any domain containing bardslov
-	{"roadee",		"roadee",		"roadee.lo4d.net",						},	-- any domain containing roadee
-	{"artcrawl",	"artcrawl",		"artcrawl.club",		subdomain=true, },	-- any domain containing artcrawl
-	{"itstuff",		"itstuff",		"itstuff.org.uk",						},	-- any domain containing itstuff
-	{"poop",		"poop",			"poop.lo4d.net",						},	-- any domain containing poop
-	{"paint",		"paint",		"paint.lo4d.net",						},	-- any domain containing paint
-	{"littlemiss",	"miss",			"littlemiss.esyou.com",					},	-- any domain containing littlemiss
-	{"ga-ma-yo",	"gamayo",		"ga-ma-yo.com",							},	-- any domain containing ga-ma-yo
-	{"gamayo",		"gamayo",		"ga-ma-yo.com",							},	-- any domain containing gamayo
-	{"horror",		"horror",		"horrordriv.esyou.com",					},	-- any domain containing horror
-	{"cello",		"cello",		"cello.esyou.com",						},	-- any domain containing cello
-	{"play",		"play",			"play.4lfa.com",						},	-- any domain containing play
-	{"cake",		"cake",			"cake.4lfa.com",						},	-- any domain containing cake
-	{"catch",		"catch",		"catch.4lfa.com",						},	-- any domain containing catch
-	{"cog",			"cog",			"cog.4lfa.com",							},	-- any domain containing cog
-	{"hoe",			"hoe",			"hoe.4lfa.com",							},	-- any domain containing hoe
-	{"bulbaceous",	"bulbaceous",	"bulbaceous.com",						},	-- any domain containing bulbaceous
-	{"wet",			"wetgenes",		"wet.genes.pw",							},	-- any domain containing wet
-	{"xixs",		"xixs",			"xixs.com",								},	-- any domain containing xixs
-	{"esyou",		"esyou",		"esyou.com",							},	-- any domain containing esyou
-	{"lo4d",		"lo4d",			"lo4d.net",				subdomain=true,	},	-- any domain containing lo4d
-	{"4lfa",		"4lfa",			"4lfa.com",								},	-- any domain containing 4lfa
+	{"local",      "paint",      "host.local",           subdomain=true,}, -- test this   domain
+	{"candy",      "candy",      "candy.wetgenes.com",   },                -- any  domain containing candy
+	{"bardslov",   "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
+	{"roadee",     "roadee",     "roadee.lo4d.net",      },                -- any  domain containing roadee
+	{"artcrawl",   "artcrawl",   "artcrawl.club",        subdomain=true,}, -- any  domain containing artcrawl
+	{"itstuff",    "itstuff",    "itstuff.org.uk",       },                -- any  domain containing itstuff
+	{"poop",       "poop",       "poop.lo4d.net",        },                -- any  domain containing poop
+	{"paint",      "paint",      "paint.wetgenes.com",   },                -- any  domain containing paint
+	{"littlemiss", "miss",       "littlemiss.esyou.com", },                -- any  domain containing littlemiss
+	{"ga-ma-yo",   "gamayo",     "ga-ma-yo.com",         },                -- any  domain containing ga-ma-yo
+	{"gamayo",     "gamayo",     "ga-ma-yo.com",         },                -- any  domain containing gamayo
+	{"horror",     "horror",     "horrordriv.esyou.com", },                -- any  domain containing horror
+	{"cello",      "cello",      "cello.esyou.com",      },                -- any  domain containing cello
+	{"play",       "play",       "play.wetgenes.com",    },                -- any  domain containing play
+	{"cake",       "cake",       "cake.4lfa.com",        },                -- any  domain containing cake
+	{"catch",      "catch",      "catch.4lfa.com",       },                -- any  domain containing catch
+	{"cog",        "cog",        "cog.4lfa.com",         },                -- any  domain containing cog
+	{"hoe",        "hoe",        "hoe.4lfa.com",         },                -- any  domain containing hoe
+	{"bulbaceous", "bulbaceous", "bulbaceous.com",       },                -- any  domain containing bulbaceous
+	{"wet",        "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
+	{"xixs",       "xixs",       "xixs.com",             },                -- any  domain containing xixs
+	{"esyou",      "esyou",      "esyou.com",            },                -- any  domain containing esyou
+	{"lo4d",       "lo4d",       "lo4d.net",             subdomain=true,}, -- any  domain containing lo4d
+	{"4lfa",       "4lfa",       "4lfa.com",             },                -- any  domain containing 4lfa
 } --(the last vhost is the default)
+
+-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
+redirect_domains={
+	[ "tv.wetgenes.com"           ]= "play.wetgenes.com/tv"                    ,
+	[ "dike.wetgenes.com"         ]= "play.wetgenes.com/dike"                  ,
+	[ "wetdike.wetgenes.com"      ]= "play.wetgenes.com/dike"                  ,
+	[ "estension.wetgenes.com"    ]= "play.wetgenes.com/estension"             ,
+	[ "asue1.wetgenes.com"        ]= "play.wetgenes.com/asue1"                 ,
+	[ "ballclock.wetgenes.com"    ]= "play.wetgenes.com/ballclock"             ,
+	[ "romzom.wetgenes.com"       ]= "play.wetgenes.com/romzom"                ,
+	[ "diamonds.wetgenes.com"     ]= "play.wetgenes.com/diamonds"              ,
+	[ "gojirama.wetgenes.com"     ]= "play.wetgenes.com/gojirama"              ,
+	[ "adventisland.wetgenes.com" ]= "play.wetgenes.com/advent"                ,
+	[ "advent.wetgenes.com"       ]= "play.wetgenes.com/advent"                ,
+	[ "batwsball.wetgenes.com"    ]= "play.wetgenes.com/batwsball"             ,
+	[ "bowwow.wetgenes.com"       ]= "play.wetgenes.com/bowwow"                ,
+	[ "basement.wetgenes.com"     ]= "play.wetgenes.com/basement"              ,
+	[ "mute.wetgenes.com"         ]= "play.wetgenes.com/mute"                  ,
+	[ "asue2.wetgenes.com"        ]= "play.wetgenes.com/asue2"                 ,
+	[ "take1.wetgenes.com"        ]= "play.wetgenes.com/take1"                 ,
+	[ "pixlcoop.wetgenes.com"     ]= "play.wetgenes.com/pixlcoop"              ,
+	[ "itsacoop.wetgenes.com"     ]= "play.wetgenes.com/itsacoop"              ,
+	[ "rgbtd0.wetgenes.com"       ]= "play.wetgenes.com/rgbtd0"                ,
+	[ "pief.wetgenes.com"         ]= "play.wetgenes.com/pief"                  ,
+	[ "wetcell.wetgenes.com"      ]= "play.wetgenes.com/wetcell"               ,
+	[ "only1.wetgenes.com"        ]= "play.wetgenes.com/only1"                 ,
+	[ "pokr.wetgenes.com"         ]= "play.wetgenes.com/ville#public.pokr"     ,
+	[ "zeegrind.wetgenes.com"     ]= "play.wetgenes.com/ville#public.zeegrind" ,
+	[ "ville.wetgenes.com"        ]= "play.wetgenes.com/ville"                 ,
+	[ "forum.wetgenes.com"        ]= "wetgenes.com/forum"                      ,
+}
 
 vhosts={}
 for i,v in ipairs(vhosts_map) do

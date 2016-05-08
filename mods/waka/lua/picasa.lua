@@ -47,6 +47,10 @@ function get(srv,opts)
 --	local tq=(opts.query or "select *").." limit "..opts.limit.." offset "..opts.offset
 
 	local url="https://picasaweb.google.com/data/feed/api/user/"..opts.user.."/album/"..opts.album.."?kind=photo&alt=json"..(opts.cachebreak or "")
+	
+	if opts.albumid then -- use albumid instead
+		url="https://picasaweb.google.com/data/feed/api/user/"..opts.user.."/albumid/"..opts.albumid.."?kind=photo&alt=json"..(opts.cachebreak or "")
+	end
 
 --	if opts.offset then url=url.."&start-index="..opts.offset end
 --	if opts.limit then url=url.."&max-results="..opts.limit end
