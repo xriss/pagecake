@@ -61,7 +61,7 @@ function get(srv,opts)
 	local err
 	
 	local meta=stash.get(srv,cachename) -- check cache
-	local data=meta.data
+	local data=meta and meta.data
 	if meta.updated+(cachetime) < srv.time then -- cache for 24 hours
 		data=nil
 	end
