@@ -1,5 +1,7 @@
+cd `dirname $0`
+cd ..
 
-killall pagecake.x64
+#killall pagecake.x64
 ngx/bake
 ngx/serv
 ngx/tail

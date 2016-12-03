@@ -1,14 +1,6 @@
-#!/usr/bin/env gamecake
--- build or serve an nginx version of an app
 
-local apps=require("apps")
-apps.setpaths(nil,{apps.find_bin()})
+cd `dirname $0`
+cd ..
 
-local bake_ngx=require("wetgenes.bake.ngx")
-
-local tab={}
-tab.arg={...}
-tab.ngx_listen="*:8888"
-
-bake_ngx.build(tab)
+../../../gamecake/exe/gamecake ngx/bake.lua $*
 

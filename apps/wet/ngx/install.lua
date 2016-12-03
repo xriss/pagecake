@@ -1,4 +1,3 @@
-#!/usr/bin/env gamecake
 -- build or serve an nginx version of an app
 
 local apps=require("apps")
@@ -11,7 +10,7 @@ local bake_ngx=require("wetgenes.bake.ngx")
 local tab={"release"}
 tab.arg={...}
 
-tab.cd_out="../../../www/ngx"
+tab.cd_out="~/hg/www/ngx"
 
 tab.ngx_user="wet"
 --tab.ngx_user="kriss"

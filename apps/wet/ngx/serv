@@ -1,4 +1,6 @@
+cd `dirname $0`
+cd ..
 ngx/bake
 cd .ngx
-../../../../bin/exe/pagecake -s quit -p .
-../../../../bin/exe/pagecake -p .
+../../../../gamecake/exe/pagecake -s quit -p .
+../../../../gamecake/exe/pagecake -p .
