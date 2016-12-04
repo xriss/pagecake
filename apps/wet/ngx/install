@@ -1,0 +1,6 @@
+
+cd `dirname $0`
+cd ..
+
+../../../gamecake/exe/gamecake ngx/install.lua $*
+
