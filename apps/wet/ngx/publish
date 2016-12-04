@@ -1,4 +1,4 @@
 ./ngx/install
-cd ../../../www
+cd ~/hg/www
 ./publish
 
