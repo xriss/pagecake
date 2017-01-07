@@ -9,7 +9,7 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",      "paint",      "host.local",           subdomain=true,}, -- test this   domain
+--	{"local",      "paint",      "host.local",           subdomain=true,}, -- test this   domain
 	{"candy",      "candy",      "candy.wetgenes.com",   },                -- any  domain containing candy
 	{"bardslov",   "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
 	{"roadee",     "roadee",     "roadee.lo4d.net",      },                -- any  domain containing roadee

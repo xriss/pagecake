@@ -57,7 +57,7 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 ]]
 
 	cake.html.mimetype="text/html; charset=UTF-8"
-	cake.html.head=[[<!DOCTYPE html>
+	cake.html.head=[[
 <html>
 <head>
 <meta charset="UTF-8"/>

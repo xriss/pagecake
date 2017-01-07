@@ -70,6 +70,14 @@ function serv2()
 	
 	local srv=serv_srv()
 
+	local is_local=function()
+		local begins_with=function(s,b) return s:sub(1,#b)==b end
+		if srv.ip=="127.0.0.1" then return true end
+		if begins_with(srv.ip,"10.42.") then return true end
+		if begins_with(srv.ip,"192.168.") then return true end
+		return false
+	end
+
 -- force redirect to a standard domain if it is set in opts
 
 	local t=opts.vhosts[srv.vhost] or opts
@@ -94,9 +102,11 @@ function serv2()
 				if sd=="/www" then sd="" end -- ignore default www
 			end
 			if not t.domains[domain] then -- redirect to a standard base domain
+				if not is_local() then -- do not redirect if viewing from a local domain ip
 log("REDIRECT:"..t.domain.." ("..sd..") FROM "..ngx.var.host)
-				local colonport=(ngx.var.server_port and ngx.var.server_port~="80") and (":"..ngx.var.server_port) or ""
-				ngx.redirect( ngx.var.scheme.."://"..t.domain..colonport..sd..ngx.var.uri )
+					local colonport=(ngx.var.server_port and ngx.var.server_port~="80") and (":"..ngx.var.server_port) or ""
+					ngx.redirect( ngx.var.scheme.."://"..t.domain..colonport..sd..ngx.var.uri )
+				end
 			end
 		end
 	end

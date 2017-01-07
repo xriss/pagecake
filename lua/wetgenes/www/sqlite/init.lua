@@ -49,6 +49,7 @@ end
 -- setup pragmas, should run this after opening a db
 function set_pragmas(db)
 exec(db,[[
+PRAGMA locking_mode=EXCLUSIVE;
 PRAGMA synchronous = 0 ;
 PRAGMA encoding = "UTF-8" ;
 PRAGMA journal_mode=WAL;

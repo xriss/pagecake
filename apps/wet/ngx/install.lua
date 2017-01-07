@@ -10,7 +10,7 @@ local bake_ngx=require("wetgenes.bake.ngx")
 local tab={"release"}
 tab.arg={...}
 
-tab.cd_out="/home/kriss/hg/www/ngx"
+tab.cd_out="../../../wwwgenes/cake/ngx"
 
 tab.ngx_user="wet"
 --tab.ngx_user="kriss"
