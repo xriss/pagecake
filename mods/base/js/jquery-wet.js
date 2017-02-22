@@ -74,6 +74,18 @@ $.fn.autoembedlink=function(opts)
 			
 			break;
 			
+			case "youtu":
+			
+				vid=link.split(".be/")[1];
+				
+				if(vid)
+				{
+//					vid=vid.substr(0,11); // there are 11 chars in a you tube id
+					linktype="youtube";
+				}
+			
+			break;
+
 			case "veoh":
 			
 				vid=link.split("permalinkId=")[1];
