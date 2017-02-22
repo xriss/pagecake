@@ -1,4 +1,0 @@
-ngx/bake
-cd .ngx
-../../../../bin/exe/pagecake -s quit -p .
-../../../../bin/exe/pagecake -p .

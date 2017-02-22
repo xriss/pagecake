@@ -1,6 +1,0 @@
-ngx/install
-cd ../../../wetgenes
-hg addremove
-hg ci -m.
-./publish
-ssh web "hg/wetgenes/ngx/restart"
