@@ -74,18 +74,6 @@ $.fn.autoembedlink=function(opts)
 			
 			break;
 			
-			case "youtu":
-			
-				vid=link.split(".be/")[1];
-				
-				if(vid)
-				{
-//					vid=vid.substr(0,11); // there are 11 chars in a you tube id
-					linktype="youtube";
-				}
-			
-			break;
-
 			case "veoh":
 			
 				vid=link.split("permalinkId=")[1];
@@ -118,6 +106,27 @@ $.fn.autoembedlink=function(opts)
 			break;
 		}
 	}
+
+	var slash=link.split("/");
+
+	if(slash[2])
+	{
+		switch( slash[2].toLowerCase() )
+		{
+			case "youtu.be":
+			
+				vid=slash[3];
+				
+				if(vid)
+				{
+//					vid=vid.substr(0,11); // there are 11 chars in a you tube id
+					linktype="youtube";
+				}
+			
+			break;
+		}
+	}
+
 	
 	switch(linktype)
 	{
@@ -145,7 +154,12 @@ $.fn.autoembedlink=function(opts)
 		case "youtube":
 		
 			$(this).before(
+'<iframe width="'+opts.width+'" height="'+opts.height+'" src="https://www.youtube.com/embed/'+vid+'" frameborder="0" allowfullscreen></iframe>'
+
+/*
 '<object width="'+opts.width+'" height="'+opts.height+'"><param name="movie" value="http://www.youtube.com/v/'+vid+'&hl=en&fs=1"></param><param name="allowFullScreen" value="true"></param><embed src="http://www.youtube.com/v/'+vid+'&hl=en&fs=1" type="application/x-shockwave-flash" allowfullscreen="true" width="'+opts.width+'" height="'+opts.height+'"></embed></object>'
+*/
+
 			+"<br />"
 			);
 		
