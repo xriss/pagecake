@@ -325,7 +325,7 @@ log("CREATE USER TOKEN = "..token)
 			
 		end
 		
-	elseif cmd=="login" then
+	elseif cmd=="login" or cmd=="avatar" then
 
 		if not srv.vars["name"] then
 			return put_json{error="name is missing"}
@@ -372,7 +372,37 @@ log("CREATE USER TOKEN = "..token)
 					))
 				until session_id -- until session does not clash
 
-				return put_json{session=session,name=user.login,email=user.email} -- return session (ip locked)
+				
+				local avatar_error=nil
+				if srv.vars["avatar"] then -- want to update avatar, can do this at login with a good password
+
+					avatar_error="bad format"
+
+					local mime=require("mime")
+					local wgrd=require("wetgenes.grd")
+				
+					local avatar=srv.vars["avatar"]
+					local ic=string.find(avatar,",") -- is this a dataurl or just mime66?
+					if ic then
+						avatar=string.sub(avatar,ic+1) -- strip away dataurl header, leaving just mimedata
+					end					
+					avatar=mime.unb64(avatar) -- decode base 64
+					
+					local g=wgrd.create():load_data(avatar,"png")
+					if g then
+						if g.width~=100 or g.height~=100 then
+							avatar_error="bad size"
+						else
+							g:convert("U8_RGBA")
+
+							g:save("public/wet.genes.pw/forum/images/custom_avatars/"..user.id..".png")
+
+							avatar_error=nil
+						end
+					end
+				end
+				
+				return put_json{session=session,name=user.login,email=user.email,error=avatar_error} -- return session (ip locked)
 				-- for this session to work on the forum then multiple logins must be allowed.
 			end
 			
@@ -522,15 +552,26 @@ function serv_avatar(srv)
 			where login=$1 limit 1]],name
 		))[1]
 	end
-		
-	if res and type(res.avatar_loc) == "string"then
+
+--[[
+	if res and type(res.avatar_loc) == "string" then
 		local url=string.gmatch(res.avatar_loc,"src=\"([^\"]*)")()
 		if url then
 			url=string.gsub(url,"www.wetgenes.com","wet.genes.pw") -- hack to new domain so we can remove old server sometime
 			return ngx.redirect(url)
 		end
 	end
+]]
+
+	if res and res.id then
+		local filename="wet.genes.pw/forum/images/custom_avatars/"..res.id..".png"
+		local fp=io.open("public/"..filename,"r")
+		if fp then -- only if file exists
+			fp:close()
+			return ngx.redirect("http://"..filename)
+		end
+	end
 	
-	return ngx.redirect("http://wet.genes.pw/forum/images/custom_avatars/12.png")
+	return ngx.redirect("http://wet.genes.pw/forum/images/custom_avatars/12.png") -- default bland avatar
 end
 	

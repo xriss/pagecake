@@ -4,6 +4,7 @@
 		<a class="wetjoin_header_login"  href="#">LOGIN</a>
 		<a class="wetjoin_header_join"   href="#">JOIN</a>
 		<a class="wetjoin_header_forgot" href="#">FORGOT</a>
+		<a class="wetjoin_header_avatar" href="#">AVATAR</a>
 	</div>
 	<div class="hexagon">
 	  <div class="dia"></div>
@@ -32,6 +33,31 @@
 	<div class="wetjoin_toptext">
 		You have successfully logged in to your account &amp; are now being redirected.
 		Or you could visit the <a href="http://forum.wetgenes.com/">FORUM</a>.
+	</div>
+</div>
+
+<div class="wetjoin_page_avatar">
+	<div class="wetjoin_toptext">
+		Login and select a new png file to upload as your avatar, max size is 100x100 pixels.
+	</div>
+	<div class="wetjoin_form">
+		<iframe src="" id="fakeframe" name="fakeframe" style="display:none"></iframe>
+		<form target="fakeframe" name="form" id="form" method="post" action="/">
+		<div> <input type="text" class="wetjoin_name" placeholder="Name" id="userid" /> </div>
+		<div> <input type="password" class="wetjoin_pass" placeholder="Password" id="password"/> </div>
+		<div> <input type="file" class="wetjoin_avatar" placeholder="Avatar.png" id="avatar"/> </div>
+		<div> <img class=wetjoin_avatar_preview src="" height="100" width="100" /> </div>
+		<div> <a class="wetjoin_submit_avatar wetjoin_submit" href="#">SUBMIT</a> </div>
+		</form>
+	</div>
+	<div class="wetjoin_error"></div>
+</div>
+
+<div class="wetjoin_page_avatar2">
+	<h2>AVATAR UPDATED</h2>
+	<div class="wetjoin_toptext">
+		You have successfully logged in to your account &amp; and updated your avatar.
+		Please clear your browser cach and visit the <a href="http://forum.wetgenes.com/">FORUM</a> to see if it worked.
 	</div>
 </div>
 
