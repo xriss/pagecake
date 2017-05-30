@@ -295,7 +295,7 @@ setup=function()
 
 			elseif n=="genes" then -- extra site setup
 
-				add_map(v.map,"genes","genes")
+				add_map(v.map,"genes","genes",{["#nolimit"]=true}) -- don't limit the api by default
 				
 			end
 						
