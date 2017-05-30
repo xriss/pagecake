@@ -217,7 +217,7 @@ If this was not you then all you have to do to cancel the request is ignore this
 
 Your token is : ]]..token..[[ bound to ]]..srv.ip..[[
 
-To complete this account creation please visit the following url within the next 30 minutes.
+To complete this account creation and confirm that you are over the age of 18 please visit the following url within the next 30 minutes.
 
 ]]..tokenurl..[[ 
 
