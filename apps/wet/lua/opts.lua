@@ -146,7 +146,7 @@ local function find_mods(map)
 end
 
 -- add a mapping to the map table
-local function add_map(map,name,tab)
+local function add_map(map,name,tab,tabextra)
 
 	local mapname=name
 	if type(tab)=="string" then
@@ -165,6 +165,9 @@ local function add_map(map,name,tab)
 									title=name,
 								},
 		}
+	end
+	if tabextra then
+		for n,v in pairs(tabextra) do tab[n]=v end
 	end
 	map[mapname]=tab	
 	return tab
@@ -196,7 +199,7 @@ print("test")
 	add_map(map,"note")
 	add_map(map,"profile")
 	add_map(map,"blog")
-	add_map(map,"thumbcache")
+	add_map(map,"thumbcache",nil,{["#nolimit"]=true})
 
 	return map
 end

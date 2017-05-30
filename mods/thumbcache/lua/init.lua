@@ -45,6 +45,7 @@ module("thumbcache")
 -----------------------------------------------------------------------------
 function serv(srv)
 
+-- try not to bitch about rate limits on the thumbcache.
 --	iplog.ratelimit(srv.ip,-1)
 
 	local usecache=true

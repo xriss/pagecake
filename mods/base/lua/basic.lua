@@ -86,11 +86,6 @@ fetch.countzero()
 --	if guser and guser.admin then -- trigger any special preadmin codes?
 --	else -- only non admins get rate limited
 
-		local allow,tab=iplog.ratelimit(srv.ip)
-		srv.iplog=tab -- iplog info
-		if not allow then
-			return srv.exit(429) -- drop request
-		end
 
 --	end
 
@@ -109,6 +104,7 @@ fetch.countzero()
 	local lookup=srv.opts("map")
 	local cmd
 	local f
+	local fm
 	
 	srv.url_slash_idx=4 -- let the caller know which part of the path called them
 	srv.flavour=lookup[ "#flavour" ] -- sub modules can use this flavour to seperate themselves depending when called
@@ -222,6 +218,14 @@ fetch.countzero()
 
 	srv.url_base=srv.url_domain..srv.url_base_local
 	
+	if not lookup[ "#nolimit" ] then -- can just disable rate limit for a url, eg the thumbcache
+		local allow,tab=iplog.ratelimit(srv.ip)
+		srv.iplog=tab -- iplog info
+		if not allow then
+			return srv.exit(429) -- drop request
+		end
+	end
+
 	f(srv) -- handle this base url
 	
 end
