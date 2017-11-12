@@ -19,8 +19,8 @@ vhosts_map={
 	{"poop",       "poop",       "poop.lo4d.net",        },                -- any  domain containing poop
 	{"paint",      "paint",      "paint.wetgenes.com",   },                -- any  domain containing paint
 	{"littlemiss", "miss",       "littlemiss.esyou.com", },                -- any  domain containing littlemiss
-	{"ga-ma-yo",   "gamayo",     "ga-ma-yo.com",         },                -- any  domain containing ga-ma-yo
-	{"gamayo",     "gamayo",     "ga-ma-yo.com",         },                -- any  domain containing gamayo
+	{"ga-ma-yo",   "gamayo",     "gamayo.wetgenes.com",  },                -- any  domain containing ga-ma-yo
+	{"gamayo",     "gamayo",     "gamayo.wetgenes.com",  },                -- any  domain containing gamayo
 	{"horror",     "horror",     "horrordriv.esyou.com", },                -- any  domain containing horror
 	{"cello",      "cello",      "cello.esyou.com",      },                -- any  domain containing cello
 	{"play",       "play",       "play.wetgenes.com",    },                -- any  domain containing play
