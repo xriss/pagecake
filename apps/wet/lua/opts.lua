@@ -258,7 +258,9 @@ setup=function()
 
 			if n=="4lfa" then -- extra site setup
 			
-				add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
+				v.map={} -- static site only
+				
+--				add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
 				
 			elseif n=="hoe" then -- extra site setup
 
