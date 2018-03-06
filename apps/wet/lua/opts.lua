@@ -29,10 +29,10 @@ vhosts_map={
 	{"cog",        "cog",        "cog.4lfa.com",         },                -- any  domain containing cog
 	{"hoe",        "hoe",        "hoe.4lfa.com",         },                -- any  domain containing hoe
 	{"bulbaceous", "bulbaceous", "bulbaceous.com",       },                -- any  domain containing bulbaceous
-	{"xixs",       "xixs",       "xixs.com",             },                -- any  domain containing xixs
+	{"xixs",       "xixs",       "xixs.com",             empty=true},      -- any  domain containing xixs
 	{"esyou",      "esyou",      "esyou.com",            },                -- any  domain containing esyou
 	{"lo4d",       "lo4d",       "lo4d.net",             subdomain=true,}, -- any  domain containing lo4d
-	{"4lfa",       "4lfa",       "4lfa.com",             },                -- any  domain containing 4lfa
+	{"4lfa",       "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
 	{"wet",        "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
 } --(the last vhost is the default)
 
@@ -80,6 +80,7 @@ for i,v in ipairs(vhosts_map) do
 	t.domain=v[3] -- force a redirect to this domain if domain is invalid (last entry overrides first)
 	t.domains[t.domain]=true -- valid list of domains we will serve from
 	t.subdomain=t.subdomain or v.subdomain -- flag subdomains as valid eg anything.4lfa.com is a valid 4lfa.com domain
+	t.empty=t.empty or v.empty
 end
 
 local ae_opts=require("wetgenes.www.any.opts")
@@ -254,15 +255,9 @@ setup=function()
 			
 			default_vars(v)
 
-			v.map=default_map()
-
-			if n=="4lfa" then -- extra site setup
-			
-				v.map={} -- static site only
+			v.map=v.empty and {} or default_map() 
 				
---				add_map(v.map,"comic")["#opts"].groups={"can","chow","esc","pms","teh","wetcoma"}
-				
-			elseif n=="hoe" then -- extra site setup
+			if n=="hoe" then -- extra site setup
 
 				add_map(v.map,"hoe")
 
