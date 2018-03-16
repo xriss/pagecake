@@ -34,6 +34,7 @@ vhosts_map={
 	{"lo4d",       "lo4d",       "lo4d.net",             subdomain=true,}, -- any  domain containing lo4d
 	{"4lfa",       "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
 	{"wet",        "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
+	{"itwrong",    "itwrong",    "itwrong.space",        empty=true},      -- any  domain containing itwrong
 } --(the last vhost is the default)
 
 -- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
