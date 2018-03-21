@@ -59,13 +59,13 @@ local connect=function(srv,database_name)
 		host 			= srv.opts("mysql","host") or "127.0.0.1",
 		port 			= srv.opts("mysql","port") or 3306,
 		database	 	= database_name,
-		user 			= srv.opts("mysql","user") or "root",
-		password 		= srv.opts("mysql","password") or "xxx",
+		user 			= srv.opts("mysql","user") or "wet",
+		password 		= srv.opts("mysql","password") or "wet",
 --		compact_arrays	=true,
 		max_packet_size = 1024 * 1024 }
 
 	if not ok then
-		return nil , "failed to connect: "..err..": "..errno.." "..sqlstate
+		return nil , "failed to connect: "..tostring(err)..": "..tostring(errno).." "..tostring(sqlstate)
 	end
 	
 	return db

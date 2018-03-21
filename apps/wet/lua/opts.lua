@@ -117,6 +117,8 @@ local function default_vars(v)
 		["14@id.wetgenes.com"]=true,
 		["109440170884180647149@id.google.com"]=true,
 		["76561197960568486@id.steamcommunity.com"]=true,
+		["shi@esyou.com"]=true,
+		["kriss@xixs.com"]=true,
 	}
 -- possible user ids are, these are unique number ids I'm afraid so its not always easy to get the numbers from the sites
 
