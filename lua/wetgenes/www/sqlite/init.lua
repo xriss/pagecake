@@ -7,7 +7,7 @@ if ngx then
 	log=require("wetgenes.www.any.log").log
 end
 
-local sql=require("sqlite")
+local sql=require("lsqlite3")
 local wstr=require("wetgenes.string")
 
 local function fixkind(kind) return kind:gsub("%p","_") end

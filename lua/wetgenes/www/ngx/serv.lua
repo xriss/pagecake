@@ -1,4 +1,4 @@
-local g=require("global")
+--local g=require("global")
 
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
@@ -137,8 +137,8 @@ log("REDIRECT:"..t.domain.." ("..sd..") FROM "..ngx.var.host)
 			if type(n)=="string" then
 --				log("require "..n)
 --				local m,err=pcall(require,n)
-				local m,err=xpcall(function() return require(n) end,function(eobj)
-					log( "require "..n.." failed" )
+				local m,err=xpcall(function() return require(n) end,function(msg)
+					log( "require "..n.." failed\n"..tostring(msg) )
 					log( debug.traceback() )
 				end)
 				

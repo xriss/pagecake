@@ -4,7 +4,7 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 local log=require("wetgenes.www.any.log").log
 
 
-local sql=require("sqlite")
+local sql=require("lsqlite3")
 local wstr=require("wetgenes.string")
 local wsql=require("wetgenes.www.sqlite")
 

@@ -4,11 +4,15 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 local log=require("wetgenes.www.any.log").log
 local ngx=require("ngx")
 
-local lash=require("lash")
+--local lash=require("lash") -- no more lash use resty only
 local bit=require("bit")
 local zip=require("zip")
 local wstr=require("wetgenes.string")
-local wpack=require("wetgenes.pack")
+--local wpack=require("wetgenes.pack")
+
+
+local resty_sha1   = require "resty.sha1"
+local resty_string = require "resty.string"
 
 module(...)
 local _M=require(...)
@@ -28,6 +32,15 @@ local blocksize = 64 -- 512 bits
 
 local sha1hex=function(s) local h,b = lash.SHA1.string2hex(s) ; return h end
 local sha1bin=function(s) local h,b = lash.SHA1.string2hex(s) ; return b end
+
+local sha1bin=function(s)
+	local sha1 = assert(resty_sha1:new())
+	assert(sha1:update(s))
+	return sha1:final()
+end
+local sha1hex=function(s)
+	return resty_string.to_hex( ha1bin(s) )
+end
 
 function do_hmac_sha1(key, text)
 
@@ -91,7 +104,8 @@ end
 
 function bytes_to_string(bytes)
 	if type(bytes)~="string" then
-		return wpack.tostring(bytes)
+		return assert(nil,"no bytes to string available")
+--		return wpack.tostring(bytes)
 	end
 	return bytes
 end

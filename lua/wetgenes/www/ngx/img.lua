@@ -4,7 +4,7 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 local log=require("wetgenes.www.any.log").log
 local fetch=require("wetgenes.www.any.fetch")
 local wstr=require("wetgenes.string")
-local grd=require("wetgenes.grd")
+--TODO:grd local grd=require("wetgenes.grd")
 
 module(...)
 local _M=require(...)

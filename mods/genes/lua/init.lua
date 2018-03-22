@@ -379,7 +379,7 @@ log("CREATE USER TOKEN = "..token)
 					avatar_error="bad format"
 
 					local mime=require("mime")
-					local wgrd=require("wetgenes.grd")
+--TODO:grd					local wgrd=require("wetgenes.grd")
 				
 					local avatar=srv.vars["avatar"]
 					local ic=string.find(avatar,",") -- is this a dataurl or just mime66?
