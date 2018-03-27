@@ -736,7 +736,7 @@ function refined_project_sponsor(srv,refined)
 
 	local posts=make_posts(srv)		
 
-	refined.cake.dimeload.goto="sponsor"
+	refined.cake.dimeload["goto"]="sponsor"
 	
 
 	local send={}
@@ -757,32 +757,32 @@ function refined_project_sponsor(srv,refined)
 
 	if not refined.cake.user then
 
-		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload["goto"]="sponsor"
 		refined.cake.dimeload.error_text=[[you must login to sponsor]]
 
 	elseif #send.code<3 then -- error, code is too short
 
-		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload["goto"]="sponsor"
 		refined.cake.dimeload.error_text=[[secret name is too short]]
 	
 	elseif #send.about>4096 then
 
-		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload["goto"]="sponsor"
 		refined.cake.dimeload.error_text=[[about text is too long]]
 	
 	elseif (not oldpage) and send.dimes<1 then
 	
-		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload["goto"]="sponsor"
 		refined.cake.dimeload.error_text=[[must use 1 or more dimes to create a page]]
 
 	elseif send.dimes>refined.cake.dimeload.user.avail then
 	
-		refined.cake.dimeload.goto="buy"
+		refined.cake.dimeload["goto"]="buy"
 		refined.cake.dimeload.error_text=[[you need to buy more dimes]]
 
 	elseif oldpage and (oldpage.owner~=send.owner) then
 
-		refined.cake.dimeload.goto="sponsor"
+		refined.cake.dimeload["goto"]="sponsor"
 		refined.cake.dimeload.error_text=[[that secret code is already used by someone else]]
 	
 	else
@@ -912,9 +912,9 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		refined.cake.note.opts_view="private" -- allow comments but do not publicise them
 		
 		if user and user.cache.id == page.cache.owner then -- owner defaults to sponsor page
-			refined.cake.dimeload.goto="sponsor"
+			refined.cake.dimeload["goto"]="sponsor"
 		else
-			refined.cake.dimeload.goto="download"
+			refined.cake.dimeload["goto"]="download"
 			refined.cake.dimeload.menu=""
 			refined["cake.dimeload.menu"]=""
 		end
@@ -954,7 +954,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 		if fname then
 		
 --			if not user then
---				refined.cake.dimeload.goto="download"
+--				refined.cake.dimeload["goto"]="download"
 --				refined.cake.dimeload.error_text=[[You must be logged in to download.]]
 				
 -- check for a recent log entry and allow a free rety of the download without any extra cost
@@ -1011,7 +1011,7 @@ local dluser if user then dluser=dl_users.manifest(srv,user.cache.id) end
 				return ngx.exec("/@private/dimeload/"..pname.."/"..fname)
 
 			else
-				refined.cake.dimeload.goto="buy"
+				refined.cake.dimeload["goto"]="buy"
 				refined.cake.dimeload.error_text=[[no dimes available to download with]]
 			end
 		end

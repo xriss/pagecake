@@ -173,7 +173,7 @@ function M.fill_cake(srv,refined)
 </div>
 ]=]
 
-	cake.dimeload.goto=""
+	cake.dimeload["goto"]=""
 	cake.dimeload.js=[[
 <script>
 head.js( head.fs.jquery_js , head.fs.jquery_wet_js , "/js/dimeload/dimeload.js",function(){
