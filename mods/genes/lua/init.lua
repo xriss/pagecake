@@ -1,7 +1,7 @@
 -- copy all globals into locals, some locals are prefixed with a G to reduce name clashes
 local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,Gload,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require=coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,getfenv,getmetatable,ipairs,load,loadfile,loadstring,next,pairs,pcall,print,rawequal,rawget,rawset,select,setfenv,setmetatable,tonumber,tostring,type,unpack,_VERSION,xpcall,module,require
 
-local lash=require("lash")
+--local lash=require("lash")
 
 local wet_html=require("wetgenes.html")
 
@@ -28,6 +28,27 @@ local waka=require("waka")
 
 local cache=require("wetgenes.www.any.cache")
 local mail=require("wetgenes.www.any.mail")
+
+local resty_sha1   = require "resty.sha1"
+local resty_md5    = require "resty.md5"
+local resty_string = require "resty.string"
+local sha1bin=function(s)
+	local sha1 = assert(resty_sha1:new())
+	assert(sha1:update(s))
+	return sha1:final()
+end
+local sha1hex=function(s)
+	return (resty_string.to_hex( sha1bin(s) ))
+end
+local md5bin=function(s)
+	local md5 = assert(resty_md5:new())
+	assert(md5:update(s))
+	return md5:final()
+end
+local md5hex=function(s)
+	return (resty_string.to_hex( sha1bin(s) ))
+end
+
 
 
 local clean_username=function(s)
@@ -262,7 +283,7 @@ log("CREATE USER TOKEN = "..token)
 			local pass=d.pass
 			local email=d.email
 			local salt=token:sub(1,10)
-			local passhash=lash.SHA1.string2hex( salt .. lash.SHA1.string2hex(pass) )
+			local passhash=sha1hex( salt .. sha1hex(pass) )
 
 			local user=assert(query(db,[[
 				select * from fud26_users
@@ -294,7 +315,7 @@ log("CREATE USER TOKEN = "..token)
 			local pass=d.pass
 			local email=d.email
 			local salt=token:sub(1,10)
-			local passhash=lash.SHA1.string2hex( salt .. lash.SHA1.string2hex(pass) )
+			local passhash=sha1hex( salt .. sha1hex(pass) )
 			
 			-- check user and email again before we try and create a new user
 			local user=assert(query(db,[[
@@ -351,9 +372,9 @@ log("CREATE USER TOKEN = "..token)
 
 			local passOK=false -- set to true if the password is correct
 			if type(user.salt)=="string" then
-			 	passOK = ( user.passwd == lash.SHA1.string2hex( user.salt .. lash.SHA1.string2hex(pass) ) )
+			 	passOK = ( user.passwd == sha1hex( user.salt .. sha1hex(pass) ) )
 			else
-				passOK = ( user.passwd == lash.MD5.string2hex(pass) )
+				passOK = ( user.passwd == md5hex(pass) )
 			end
 
 			if passOK then -- authentication is a success, create a session and return it
@@ -365,7 +386,7 @@ log("CREATE USER TOKEN = "..token)
 				))
 				
 				repeat
-					session=lash.MD5.string2hex(user.id..user.login..user.email..os.time())
+					session=string.sub(md5hex(user.id..user.login..user.email..os.time()),1,32)
 					local session_id=assert(query(db,[[
 						INSERT INTO fud26_ses (ses_id, time_sec, sys_id, user_id,ip_addr) VALUES ($1,$2,$3,$4,$5);
 						]],session,os.time(),"",user.id,srv.ip

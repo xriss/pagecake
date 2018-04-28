@@ -13,6 +13,15 @@ local wstr=require("wetgenes.string")
 
 local resty_sha1   = require "resty.sha1"
 local resty_string = require "resty.string"
+local sha1bin=function(s)
+	local sha1 = assert(resty_sha1:new())
+	assert(sha1:update(s))
+	return sha1:final()
+end
+local sha1hex=function(s)
+	return (resty_string.to_hex( sha1bin(s) ))
+end
+
 
 module(...)
 local _M=require(...)
@@ -30,17 +39,6 @@ end
 
 local blocksize = 64 -- 512 bits
 
-local sha1hex=function(s) local h,b = lash.SHA1.string2hex(s) ; return h end
-local sha1bin=function(s) local h,b = lash.SHA1.string2hex(s) ; return b end
-
-local sha1bin=function(s)
-	local sha1 = assert(resty_sha1:new())
-	assert(sha1:update(s))
-	return sha1:final()
-end
-local sha1hex=function(s)
-	return resty_string.to_hex( ha1bin(s) )
-end
 
 function do_hmac_sha1(key, text)
 

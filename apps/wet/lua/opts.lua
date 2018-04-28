@@ -9,7 +9,6 @@ module("opts")
 local opts=require("opts")
 
 vhosts_map={
-	{"local",      "wetgenes",      "localhost",            subdomain=true,}, -- test this   domain
 	{"api",        "genes",      "api.wetgenes.com",     },                -- any  domain with api in it
 	{"candy",      "candy",      "candy.wetgenes.com",   },                -- any  domain containing candy
 	{"bardslov",   "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
@@ -35,6 +34,7 @@ vhosts_map={
 	{"4lfa",       "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
 	{"wet",        "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
 	{"itwrong",    "itwrong",    "itwrong.space",        empty=true},      -- any  domain containing itwrong
+	{"local",      "itwrong",    "localhost",            empty=true,subdomain=true,}, -- test this   domain
 } --(the last vhost is the default)
 
 -- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
