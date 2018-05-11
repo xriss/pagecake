@@ -67,6 +67,7 @@ redirect_domains={
 	[ "ville.wetgenes.com"        ]= "play.wetgenes.com/ville"                  ,
 	[ "forum.wetgenes.com"        ]= "wetgenes.com/forum"                       ,
 	[ "join.wetgenes.com"         ]= "api.wetgenes.com/js/genes/join/join.html" ,
+	[ "wetgenes.4lfa.com"         ]= "wetgenes.com"                             ,
 }
 
 vhosts={}
