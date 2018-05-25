@@ -14,7 +14,7 @@ vhosts_map={
 	{"bardslov",   "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
 	{"roadee",     "roadee",     "roadee.lo4d.net",      },                -- any  domain containing roadee
 	{"artcrawl",   "artcrawl",   "artcrawl.club",        subdomain=true,}, -- any  domain containing artcrawl
-	{"itstuff",    "itstuff",    "itstuff.org.uk",       },                -- any  domain containing itstuff
+	{"itstuff",    "itstuff",    "itstuff.org.uk",       empty=true},      -- any  domain containing itstuff
 	{"poop",       "poop",       "poop.lo4d.net",        },                -- any  domain containing poop
 	{"paint",      "paint",      "paint.wetgenes.com",   },                -- any  domain containing paint
 	{"littlemiss", "miss",       "littlemiss.esyou.com", },                -- any  domain containing littlemiss
