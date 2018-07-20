@@ -166,15 +166,15 @@ function serv(srv)
 
 --log("thumb",wstr.dump(data))
 
-				pcall(function()
+--				pcall(function()
 					image=img.get( data.body , data.mimetype ) -- convert to image
-				end)
+--				end)
 				
 -- crop it to desired aspect ratio and or size?
 				local px=0
 				local py=0
-				local ix=image.width
-				local iy=image.height
+				local ix=image and image.width
+				local iy=image and image.height
 
 				if image and image.width>0 and image.height>0 then				
 						

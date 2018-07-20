@@ -4,7 +4,7 @@ local coroutine,package,string,table,math,io,os,debug,assert,dofile,error,_G,get
 local log=require("wetgenes.www.any.log").log
 local fetch=require("wetgenes.www.any.fetch")
 local wstr=require("wetgenes.string")
---TODO:grd local grd=require("wetgenes.grd")
+local wgrd=require("wetgenes.grd")
 
 module(...)
 local _M=require(...)
@@ -14,14 +14,13 @@ package.loaded["wetgenes.www.any.img"]=_M
 
 
 function get(data,fmt)
---	log("img.get:")
-	
+--	log("img.get:")	
 
 --	local gfmt=grd.HINT_PNG
 --	if fmt=="jpeg" or fmt=="image/jpeg" then gfmt=grd.HINT_JPG end
 --	if fmt=="gif" or fmt=="image/gif" then gfmt=grd.HINT_GIF end
 
-	local g=grd.create()
+	local g=wgrd.create()
 	g:load_data(data)
 
 	return g
@@ -32,7 +31,7 @@ function resize(g,x,y)
 
 	if g.width==0 or g.height==0 then return nil end
 
-	g:convert(grd.FMT_U8_RGBA) -- need this format
+	g:convert(wgrd.FMT_U8_RGBA) -- need this format
 
 	if ( x * g.height/g.width ) <= y then -- aspect fits at maximum width
 
@@ -50,14 +49,15 @@ end
 function composite(t)
 --log("img.composite:",wstr.dump(t))
 
-	local go=grd.create(grd.FMT_U8_RGBA,t.width,t.height,1)
+
+	local go=wgrd.create(wgrd.FMT_U8_RGBA,t.width,t.height,1)
 	
 	if t.color then
 		go:clear(t.color)
 	end
 	
 	for i,v in ipairs(t) do
-		v[1]:convert(grd.FMT_U8_RGBA_PREMULT)
+		v[1]:convert(wgrd.FMT_U8_RGBA_PREMULT)
 		assert(go:blit(v[1],v[2],v[3],v[4],v[5],v[6],v[7]))
 	end
 	
@@ -67,9 +67,9 @@ end
 
 function memsave(g,fmt)
 
-	local gfmt=grd.HINT_PNG
+	local gfmt=wgrd.HINT_PNG
 	if fmt then fmt=fmt:lower() end
-	if fmt=="jpeg" then gfmt=grd.HINT_JPG else fmt="png" end
+	if fmt=="jpeg" then gfmt=wgrd.HINT_JPG else fmt="png" end
 --[[
 	local function file_read(filename)
 		local fp=assert(io.open(filename,"rb"))
