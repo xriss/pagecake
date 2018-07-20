@@ -416,7 +416,7 @@ log("CREATE USER TOKEN = "..token)
 						else
 							g:convert("U8_RGBA")
 
-							g:save("public/wet.genes.pw/forum/images/custom_avatars/"..user.id..".png")
+							g:save("public/wetgenes.com/forum/images/custom_avatars/"..user.id..".png")
 
 							avatar_error=nil
 						end
@@ -578,14 +578,14 @@ function serv_avatar(srv)
 	if res and type(res.avatar_loc) == "string" then
 		local url=string.gmatch(res.avatar_loc,"src=\"([^\"]*)")()
 		if url then
-			url=string.gsub(url,"www.wetgenes.com","wet.genes.pw") -- hack to new domain so we can remove old server sometime
+			url=string.gsub(url,"www.wetgenes.com","wetgenes.com") -- hack to new domain so we can remove old server sometime
 			return ngx.redirect(url)
 		end
 	end
 ]]
 
 	if res and res.id then
-		local filename="wet.genes.pw/forum/images/custom_avatars/"..res.id..".png"
+		local filename="wetgenes.com/forum/images/custom_avatars/"..res.id..".png"
 		local fp=io.open("public/"..filename,"r")
 		if fp then -- only if file exists
 			fp:close()
@@ -593,6 +593,6 @@ function serv_avatar(srv)
 		end
 	end
 	
-	return ngx.redirect("http://wet.genes.pw/forum/images/custom_avatars/12.png") -- default bland avatar
+	return ngx.redirect("http://wetgenes.com/forum/images/custom_avatars/12.png") -- default bland avatar
 end
 	
