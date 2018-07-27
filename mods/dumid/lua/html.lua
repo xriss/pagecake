@@ -82,22 +82,8 @@ end
 dumid_choose=function(d)
 
 	local more="" -- more logins that may not be available
-	
-	
-	if d.twitter then
-more=more..[[
-	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/twitter/?continue={continue}">Twitter</a></div>
-]]
-	end
-
-	if d.facebook then
-more=more..[[
-	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/facebook/?continue={continue}">Facebook</a></div>
-]]
-	end
 
 more=more..[[
-	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/jedi/?continue={continue}">Jedi</a></div>
 	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/email/?continue={continue}">Email</a></div>
 ]]
 
@@ -107,7 +93,6 @@ more=more..[[
 <div class="dum-butts">
 	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/genes/?continue={continue}">Wetgenes</a></div>
 	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/steam/?continue={continue}">Steam</a></div>
-	<div class="dum-butt_wrap"><a class="dum-butt" href="{srv.url_base}login/google/?continue={continue}">Google</a></div>
 ]]..more..
 [[	<div class="clear"></div>
 </div>]]
