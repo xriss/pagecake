@@ -342,6 +342,10 @@ local sess,user=d_sess.get_viewer_session(srv)
 	
 	refined.button =dl_paypal.button(srv,{custom=user.cache.id,quantity="{A}"})
 	refined.button10 =dl_paypal.button(srv,{custom=user.cache.id,quantity=10})
+	refined.button20 =dl_paypal.button(srv,{custom=user.cache.id,quantity=20})
+	refined.button30 =dl_paypal.button(srv,{custom=user.cache.id,quantity=30})
+	refined.button40 =dl_paypal.button(srv,{custom=user.cache.id,quantity=40})
+	refined.button50 =dl_paypal.button(srv,{custom=user.cache.id,quantity=50})
 	refined.button100=dl_paypal.button(srv,{custom=user.cache.id,quantity=100})
 	refined.button200=dl_paypal.button(srv,{custom=user.cache.id,quantity=200})
 	
