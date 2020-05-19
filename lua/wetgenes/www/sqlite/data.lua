@@ -47,7 +47,7 @@ local function fixkind(kind) return kind:gsub("%p","_") end
 -- can over ride this function to open dbs from other places
 function getdb(kind)
 
-local prefix="sqlite/"
+local prefix="/devcake/wwwgenes/ngx/sqlite/"
 local postfix=".sqlite"
 
 -- at this point we can choose to return a single database no matter what the kind

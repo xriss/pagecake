@@ -48,12 +48,18 @@ end
 
 -- setup pragmas, should run this after opening a db
 function set_pragmas(db)
+
+-- let this fail in local testing network mounts
+pcall( function()
+
 exec(db,[[
 PRAGMA locking_mode=EXCLUSIVE;
 PRAGMA synchronous = 0 ;
 PRAGMA encoding = "UTF-8" ;
 PRAGMA journal_mode=WAL;
 ]])
+
+end)
 
 -- tunrning sync off is dangerous, but so is life
 -- technically its only dangerous if you lose power whilst writing to disk
