@@ -24,6 +24,9 @@ function open(dbs,prefix,kind,postfix) -- multiple opens are ok and get you the 
 	
 	if db then return db end -- already open
 	
+	
+	print( "SQLITE : "..prefix..kind..postfix )
+	
 	db=assert(sql.open(prefix..kind..postfix))
 
 	set_pragmas(db) -- always run this

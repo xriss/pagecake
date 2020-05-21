@@ -9,12 +9,7 @@ package.loaded["wetgenes.www.any.log"]=_M
 
 
 function log(...)
-
--- only error seems to work?
-
 	if (...) then
-		return ngx.log(ngx.NOTICE,...)
+		print(...)
 	end
---	return core.log(a,b)
-
 end

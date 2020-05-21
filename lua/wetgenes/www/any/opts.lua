@@ -73,6 +73,5 @@ end
 
 
 
-dat.set_defs(_M) -- create basic data handling funcs
-
-dat.setup_db(_M) -- make sure DB exists and is ready
+--dat.set_defs(_M) -- create basic data handling funcs
+--dat.setup_db(_M) -- make sure DB exists and is ready

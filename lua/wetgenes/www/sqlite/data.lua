@@ -14,21 +14,22 @@ local ngx=ngx -- only on ngx?
 
 local fixvalue=wsql.fixvalue
 
-module(...)
-local wdata=require(...) -- this is us
-package.loaded["wetgenes.www.any.data"]=wdata
+
+
+local M={ modname=(...) } ; package.loaded[M.modname]=M
+local wdata=M
+
 
 local opts=require("opts")
 
 local cache=require("wetgenes.www.any.cache")
-local wdatadef=require("wetgenes.www.any.datadef")
 
 
-function countzero()
-	count=0
-	api_time=0
+function wdata.countzero()
+	wdata.count=0
+	wdata.api_time=0
 end
-countzero()
+wdata.countzero()
 
 local kind_props={}	-- default global props mapped to kinds
 
@@ -37,7 +38,7 @@ local function apis()
 	start_time=os.time()
 end
 local function apie(...)
-	api_time=api_time+os.time()-start_time
+	wdata.api_time=wdata.api_time+os.time()-start_time
 	return ...
 end
 
@@ -45,7 +46,7 @@ end
 local function fixkind(kind) return kind:gsub("%p","_") end
 
 -- can over ride this function to open dbs from other places
-function getdb(kind)
+function wdata.getdb(kind)
 
 local prefix="/devcake/wwwgenes/ngx/sqlite/"
 local postfix=".sqlite"
@@ -59,22 +60,22 @@ local postfix=".sqlite"
 	if ngx and ngx.ctx and ngx.ctx.vhost then
 		vhost=ngx.ctx.vhost
 	end
-	db=wsql.open(wsql.dbs,prefix,vhost,postfix)
+	local db=wsql.open(wsql.dbs,prefix,vhost,postfix)
 	return db
 end
 
-function keyinfo(keystr)
+function wdata.keyinfo(keystr)
 	local t=wstr.split(keystr,"/")	
 	return {kind=t[1],id=tonumber(t[2]) or t[2] }
 end
 
-function keystr(kind,id,parent)
+function wdata.keystr(kind,id,parent)
 	return kind.."/"..id
 end
 
 
 
-function del(key,t)
+function wdata.del(key,t)
 	key=key and ( key.key or key ) -- turn an ent into a key
 	local kind=fixkind(key and key.kind)
 	local id=key and key.id
@@ -83,9 +84,9 @@ function del(key,t)
 --	log("data.del:",kind)
 	apis()
 	
-	count=count+0.5
+	wdata.count=wdata.count+0.5
 	
-	local db=getdb(kind)
+	local db=wdata.getdb(kind)
 
 	local s
 	if type(id)=="number" then
@@ -99,16 +100,16 @@ function del(key,t)
 	return true
 end
 
-function put(ent,t)
+function wdata.put(ent,t)
 	local kind=fixkind(ent and ent.key and ent.key.kind)
 	local id=ent and ent.key and ent.key.id
 	local ret
 --	log(wstr.serialize(ent))
 --	log("data.put:",kind)
 	apis()
-	count=count+0.5
+	wdata.count=wdata.count+0.5
 
-	local db=getdb(kind)
+	local db=wdata.getdb(kind)
 	
 	local s=wsql.make_replace(kind,ent.props)
 	
@@ -120,19 +121,19 @@ function put(ent,t)
 	ent.cache.id=id -- fix id
 	
 	apie()
-	return keystr(kind,id)
+	return wdata.keystr(kind,id)
 end
 
-function get(ent,t)
+function wdata.get(ent,t)
 	local kind=fixkind(ent and ent.key and ent.key.kind)
 	local id=ent and ent.key and ent.key.id
 	local ret
 --	log(wstr.serialize(ent))
 --	log("data.get:",kind)
 	apis()
-	count=count+0.5
+	wdata.count=wdata.count+0.5
 
-	local db=getdb(kind)
+	local db=wdata.getdb(kind)
 
 	local s
 	if type(id)=="number" then
@@ -156,16 +157,16 @@ end
 	return ent.props and ent
 end
 
-function query(q)
+function wdata.query(q)
 	local original_kind=q.kind
 	local kind=fixkind(q and q.kind)
 	
 	local ret={list={}}
 --	log("data.query:")
 	apis()
-	count=count+1
+	wdata.count=wdata.count+1
 	
-	local db=getdb(kind)
+	local db=wdata.getdb(kind)
 	q.kind=kind -- patchup kind
 	ret.code=wsql.make_query(q)
 	q.kind=original_kind -- and restore it
@@ -186,9 +187,9 @@ function query(q)
 	return ret
 end
 
-function rollback(t)
+function wdata.rollback(t)
 end
-function commit(t)
+function wdata.commit(t)
 	return true
 end
 
@@ -215,7 +216,7 @@ end
 -- end
 --
 -----------------------------------------------------------------------------
-function begin()
+function wdata.begin()
 --	log("data.begin:")
 
 	local t={}
@@ -225,26 +226,26 @@ function begin()
 	t.done=false -- set to true on commit or rollback to disable all methods
 	
  -- these methods are the same as the global ones but operate on this transaction
- 	t.del=function(ent)	if t.fail or t.done then return nil end return del(ent,t) end
-	t.put=function(ent)	if t.fail or t.done then return nil end return put(ent,t) end
-	t.get=function(ent)	if t.fail or t.done then return nil end return get(ent,t) end
-	t.query=function(q)	if t.fail or t.done then return nil end return query(q,t) end
+ 	t.del=function(ent)	if t.fail or t.done then return nil end return wdata.del(ent,t) end
+	t.put=function(ent)	if t.fail or t.done then return nil end return wdata.put(ent,t) end
+	t.get=function(ent)	if t.fail or t.done then return nil end return wdata.get(ent,t) end
+	t.query=function(q)	if t.fail or t.done then return nil end return wdata.query(q,t) end
 	
 	t.rollback=function() -- returns false to imply that nothing was commited
 		if t.done then return false end -- safe to rollback repeatedly
 		t.done=true
-		t.fail=not rollback(t) -- we always set fail and return false
+		t.fail=not wdata.rollback(t) -- we always set fail and return false
 		return not t.fail
 	end	
 	
 	t.commit=function() -- returns true if commited, false if not
 		if t.done then return false end -- safe to rollback repeatedly
 		if t.fail then -- rollback rather than commit
-			return rollback(t)
+			return wdata.rollback(t)
 		end
 		t.done=true
 		apis()
-		t.fail=not commit(t)
+		t.fail=not wdata.commit(t)
 		return not t.fail
 	end
 
@@ -269,7 +270,7 @@ end
 -- and then build_props will do the reverse in preperation for a put
 --
 -----------------------------------------------------------------------------
-function build_cache(e)
+function wdata.build_cache(e)
 
 	if e.props.json then -- expand the json data
 	
@@ -303,7 +304,7 @@ end
 -- rather than encoded into props.json
 --
 -----------------------------------------------------------------------------
-function build_props(e)
+function wdata.build_props(e)
 
 	local t={}
 	local ignore={kind=true,id=true,parent=true,json=true,} -- special names to ignore
@@ -331,19 +332,22 @@ function build_props(e)
 end
 
 
-function set_defs(env)
+function wdata.set_defs(env)
+	local wdatadef=require("wetgenes.www.any.datadef")
 	return wdatadef.set_defs(env)
 end
 
-function build_q_filters(...)
+function wdata.build_q_filters(...)
+	local wdatadef=require("wetgenes.www.any.datadef")
 	return wdatadef.build_q_filters(...)
 end
 
-function build_qq_filters(...)
+function wdata.build_qq_filters(...)
+	local wdatadef=require("wetgenes.www.any.datadef")
 	return wdatadef.build_qq_filters(...)
 end
 
-function setup_db(env,srv)
+function wdata.setup_db(env,srv)
 	if opts and opts.vhosts and ngx and ngx.ctx then
 	
 		srv=srv or ngx.ctx
@@ -352,17 +356,17 @@ function setup_db(env,srv)
 
 		for n,b in pairs(opts.vhosts) do
 			srv.vhost=n
-			setup_dbv(env,srv)
+			wdata.setup_dbv(env,srv)
 		end
 
 		srv.vhost=old_vhost
 		
 	else
-		setup_dbv(env,srv)
+		wdata.setup_dbv(env,srv)
 	end
 end
 
-function setup_dbv(env,srv)
+function wdata.setup_dbv(env,srv)
 
 -- make sure database exists and is setup
 
@@ -371,7 +375,7 @@ function setup_dbv(env,srv)
 --	log("data.setup_db:",kind)
 
 
-	local db=getdb(kind)
+	local db=wdata.getdb(kind)
 
 -- all data has these fields	
 	local info={
@@ -407,3 +411,5 @@ function setup_dbv(env,srv)
 	wsql.set_info(db,kind,info)
 	
 end
+
+
