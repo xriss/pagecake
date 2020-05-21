@@ -17,7 +17,7 @@ opts.init=function()
 	
 	
 
-	local vhosts_map={
+	opts.vhosts_map={
 	{"api",        "genes",      "api.wetgenes.com",     },                -- any  domain with api in it
 	{"candy",      "candy",      "candy.wetgenes.com",   },                -- any  domain containing candy
 	{"bardslov",   "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
@@ -43,8 +43,8 @@ opts.init=function()
 	{"4lfa",       "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
 	{"wet",        "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
 	{"itwrong",    "itwrong",    "itwrong.4lfa.com",     empty=true},      -- any  domain containing itwrong
-	{"local",      "itwrong",    "localhost",            empty=true,subdomain=true,}, -- test this domain
-	{"10.10.10.10","itwrong",    "10.10.10.10",          empty=true,subdomain=true,}, -- test this domain (vagrant)
+	{"local",      "wetgenes",   "localhost",            subdomain=true,}, -- test this domain
+	{"10.10.10.10","wetgenes",   "10.10.10.10",          subdomain=true,}, -- test this domain (vagrant)
 	} --(the last vhost is the default)
 
 	-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
@@ -81,7 +81,7 @@ opts.init=function()
 	}
 
 	local vhosts={}
-	for i,v in ipairs(vhosts_map) do
+	for i,v in ipairs(opts.vhosts_map) do
 	-- setup one table per website (which may have multiple search strings above)
 		local t=vhosts[ v[2] ] or {}
 		vhosts[ v[2] ]=t
