@@ -76,14 +76,19 @@ local connect=function(srv,database_name)
 
 	db:set_timeout(1000) -- 1 sec
 
-	local ok, err, errno, sqlstate = db:connect{
-		host 			= srv.opts("mysql","host") or "127.0.0.1",
-		port 			= srv.opts("mysql","port") or 3306,
+	local dbopts={
 		database	 	= database_name,
-		user 			= srv.opts("mysql","user") or "wet",
-		password 		= srv.opts("mysql","password") or "wet",
+		path 			= srv.opts("mysql","path"),
+		host 			= srv.opts("mysql","host"),
+		port 			= srv.opts("mysql","port"),
+		user 			= srv.opts("mysql","user"),
+		password 		= srv.opts("mysql","password"),
 --		compact_arrays	=true,
-		max_packet_size = 1024 * 1024 }
+		max_packet_size = 1024 * 1024,
+	}
+--print(wstr.dump(dbopts))
+
+	local ok, err, errno, sqlstate = db:connect(dbopts)
 
 	if not ok then
 		return nil , "failed to connect: "..tostring(err)..": "..tostring(errno).." "..tostring(sqlstate)
