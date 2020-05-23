@@ -421,7 +421,7 @@ log("CREATE USER TOKEN = "..token)
 						else
 							g:convert("U8_RGBA")
 
-							g:save("public/wetgenes.com/forum/images/custom_avatars/"..user.id..".png")
+							g:save("/server/public/wetgenes.com/forum/images/custom_avatars/"..user.id..".png")
 
 							avatar_error=nil
 						end
@@ -591,7 +591,7 @@ function serv_avatar(srv)
 
 	if res and res.id then
 		local filename="wetgenes.com/forum/images/custom_avatars/"..res.id..".png"
-		local fp=io.open("public/"..filename,"r")
+		local fp=io.open("/server/public/"..filename,"r")
 		if fp then -- only if file exists
 			fp:close()
 			return ngx.redirect("http://"..filename)

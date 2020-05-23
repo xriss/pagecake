@@ -69,8 +69,8 @@ end
 function file_read(filename)
 	local d
 	local fp=io.open(filename,"r")
-	if not fp then fp=io.open("public/"..filename,"r") end -- try in public
-	if not fp then fp=io.open("private/"..filename,"r") end -- or private
+	if not fp then fp=io.open("/server/public/"..filename,"r") end -- try in public
+	if not fp then fp=io.open("/server/private/"..filename,"r") end -- or private
 	if fp then
 		d=fp:read("*a")
 		fp:close()

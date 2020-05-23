@@ -185,7 +185,7 @@ function image(srv)
 		if #nums==16 then break end
 	end
 	
-	local d=img.get(sys.file_read("public/art/dice/plain/d"..die..".png"))
+	local d=img.get(sys.file_read("/server/public/art/dice/plain/d"..die..".png"))
 
 	local imgs={}
 	local comp={width=#nums*100, height=100, color=tonumber("ffffff",16), format="JPEG"}

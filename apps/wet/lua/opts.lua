@@ -81,7 +81,7 @@ opts.init=function()
 	} --(the last vhost is the default)
 
 	-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
-	local redirect_domains={
+	opts.redirect_domains={
 	[ "tv.wetgenes.com"           ]= "play.wetgenes.com/tv"                     ,
 	[ "dike.wetgenes.com"         ]= "play.wetgenes.com/dike"                   ,
 	[ "wetdike.wetgenes.com"      ]= "play.wetgenes.com/dike"                   ,
