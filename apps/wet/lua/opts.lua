@@ -51,33 +51,33 @@ opts.init=function()
 	
 
 	opts.vhosts_map={
-	{"api",        "genes",      "api.wetgenes.com",     },                -- any  domain with api in it
-	{"candy",      "candy",      "candy.wetgenes.com",   },                -- any  domain containing candy
-	{"bardslov",   "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
-	{"roadee",     "roadee",     "roadee.lo4d.net",      },                -- any  domain containing roadee
-	{"artcrawl",   "artcrawl",   "artcrawl.lo4d.net",    subdomain=true,}, -- any  domain containing artcrawl
-	{"itstuff",    "itstuff",    "itstuff.org.uk",       empty=true},      -- any  domain containing itstuff
-	{"poop",       "poop",       "poop.lo4d.net",        },                -- any  domain containing poop
-	{"paint",      "paint",      "paint.wetgenes.com",   },                -- any  domain containing paint
-	{"littlemiss", "miss",       "littlemiss.esyou.com", },                -- any  domain containing littlemiss
-	{"ga-ma-yo",   "gamayo",     "gamayo.wetgenes.com",  },                -- any  domain containing ga-ma-yo
-	{"gamayo",     "gamayo",     "gamayo.wetgenes.com",  },                -- any  domain containing gamayo
-	{"horror",     "horror",     "horrordriv.esyou.com", },                -- any  domain containing horror
-	{"cello",      "cello",      "cello.esyou.com",      },                -- any  domain containing cello
-	{"play",       "play",       "play.wetgenes.com",    },                -- any  domain containing play
-	{"cake",       "cake",       "cake.4lfa.com",        },                -- any  domain containing cake
-	{"catch",      "catch",      "catch.4lfa.com",       },                -- any  domain containing catch
-	{"cog",        "cog",        "cog.4lfa.com",         },                -- any  domain containing cog
-	{"hoe",        "hoe",        "hoe.4lfa.com",         },                -- any  domain containing hoe
-	{"bulbaceous", "bulbaceous", "bulbaceous.com",       },                -- any  domain containing bulbaceous
-	{"xixs",       "xixs",       "xixs.com",             empty=true},      -- any  domain containing xixs
-	{"esyou",      "esyou",      "esyou.com",            },                -- any  domain containing esyou
-	{"lo4d",       "lo4d",       "lo4d.net",             subdomain=true,}, -- any  domain containing lo4d
-	{"4lfa",       "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
-	{"wet",        "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
-	{"itwrong",    "itwrong",    "itwrong.4lfa.com",     empty=true},      -- any  domain containing itwrong
-	{"local",      "wetgenes",   "localhost",            subdomain=true,}, -- test this domain
-	{"10.10.10.10","wetgenes",   "10.10.10.10",          subdomain=true,}, -- test this domain (vagrant)
+	{"api",           "genes",      "api.wetgenes.com",     },                -- any  domain with api in it
+	{"candy",         "candy",      "candy.wetgenes.com",   },                -- any  domain containing candy
+	{"bardslov",      "bardslov",   "bardslov.esyou.com",   },                -- any  domain containing bardslov
+	{"roadee",        "roadee",     "roadee.lo4d.net",      },                -- any  domain containing roadee
+	{"artcrawl",      "artcrawl",   "artcrawl.lo4d.net",    subdomain=true,}, -- any  domain containing artcrawl
+	{"itstuff",       "itstuff",    "itstuff.org.uk",       empty=true},      -- any  domain containing itstuff
+	{"poop",          "poop",       "poop.lo4d.net",        },                -- any  domain containing poop
+	{"paint",         "paint",      "paint.wetgenes.com",   },                -- any  domain containing paint
+	{"littlemiss",    "miss",       "littlemiss.esyou.com", },                -- any  domain containing littlemiss
+	{"ga-ma-yo",      "gamayo",     "gamayo.wetgenes.com",  },                -- any  domain containing ga-ma-yo
+	{"gamayo",        "gamayo",     "gamayo.wetgenes.com",  },                -- any  domain containing gamayo
+	{"horror",        "horror",     "horrordriv.esyou.com", },                -- any  domain containing horror
+	{"cello",         "cello",      "cello.esyou.com",      },                -- any  domain containing cello
+	{"play",          "play",       "play.wetgenes.com",    },                -- any  domain containing play
+	{"cake",          "cake",       "cake.4lfa.com",        },                -- any  domain containing cake
+	{"catch",         "catch",      "catch.4lfa.com",       },                -- any  domain containing catch
+	{"cog",           "cog",        "cog.4lfa.com",         },                -- any  domain containing cog
+	{"hoe",           "hoe",        "hoe.4lfa.com",         },                -- any  domain containing hoe
+	{"bulbaceous",    "bulbaceous", "bulbaceous.com",       },                -- any  domain containing bulbaceous
+	{"xixs",          "xixs",       "xixs.com",             empty=true},      -- any  domain containing xixs
+	{"esyou",         "esyou",      "esyou.com",            },                -- any  domain containing esyou
+	{"lo4d",          "lo4d",       "lo4d.net",             subdomain=true,}, -- any  domain containing lo4d
+	{"4lfa",          "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
+	{"wet",           "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
+	{"itwrong",       "itwrong",    "itwrong.4lfa.com",     empty=true},      -- any  domain containing itwrong
+	{"local",         "wetgenes",   "localhost",            subdomain=true,}, -- test this domain
+	{"192.168.56.56", "wetgenes",   "192.168.56.56",        subdomain=true,}, -- test this domain (vagrant)
 	} --(the last vhost is the default)
 
 	-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
