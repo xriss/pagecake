@@ -3,22 +3,16 @@
 local bake=require("wetgenes.bake")
 local wpath=require("wetgenes.path")
 
-
-print( wpath.dir( wpath.resolve( arg[0] ) ) )
-
 local lfs=require("lfs")
 local wstr=require("wetgenes.string")
 
-
-
-
 	
 	-- where we are building from
-	bake.cd_root	=	wpath.dir( arg[0] )
+	bake.cd_root	=	wpath.parse( wpath.resolve( arg[0] ) ).dir
 	-- where we are building from
-	bake.cd_app		=	wpath.dir( bake.cd_root , "apps/wet/" )
+	bake.cd_app		=	wpath.parse( wpath.resolve( bake.cd_root , "apps/wet/" ) ).dir
 	-- where we are building to
-	bake.cd_out		=	arg[1]  or wpath.dir( bake.cd_root , "../wwwgenes/ngx/" )
+	bake.cd_out		=	arg[1]  or wpath.parse( wpath.resolve( bake.cd_root , "../wwwgenes/ngx/" ) ).dir
 
 -- we need this one
 	lfs.mkdir(bake.cd_out)
@@ -29,6 +23,16 @@ local wstr=require("wetgenes.string")
 
 
 -- combine all possible lua files into one lua dir in the .ngx output dir
+
+	local opts={basedir=bake.cd_root.."../gamecake/",dir="lua",filter=""}
+	local r=bake.findfiles(opts)
+	for i,v in ipairs(r.ret) do
+		local fname=wpath.resolve( bake.cd_out , v )
+		print(fname)
+		bake.create_dir_for_file(fname)
+		bake.copyfile(opts.basedir.."/"..v,fname)
+	end
+
 
 	local opts={basedir=bake.cd_root,dir="lua",filter=""}
 	local r=bake.findfiles(opts)
