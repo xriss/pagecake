@@ -428,7 +428,7 @@ log("CREATE USER TOKEN = "..token)
 					end
 				end
 				
-				return put_json{session=session,name=user.login,email=user.email,error=avatar_error} -- return session (ip locked)
+				return put_json{session=session,name=user.login,email=user.email,error=avatar_error,ip=srv.ip,id=user.id} -- return session (ip locked)
 				-- for this session to work on the forum then multiple logins must be allowed.
 			end
 			
@@ -546,7 +546,7 @@ log("UPDATE USER TOKEN = "..token)
 
 		if not user then return put_json{error="invalid session"} end
 
-		return put_json{name=user.login,id=user.id}
+		return put_json{name=user.login,email=user.email,id=user.id,ip=session.ip_addr,session=session.ses_id}
 
 	end
 end
