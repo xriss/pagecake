@@ -134,6 +134,8 @@ function serv(srv)
 		serv_avatar(srv)
 	elseif cmd=="user" then
 		serv_user(srv)
+	elseif cmd=="score" then
+		serv_score(srv)
 	end
 end
 
@@ -201,7 +203,7 @@ function serv_user(srv)
 			return put_json{error="name is already taken",name=name}
 		end
 
-		iplog.ratelimit(srv.ip,10)	-- only slow down fishing of this API for emails, not choosing a valid name
+		iplog.ratelimit(srv.ip,100)	-- only slow down fishing of this API for emails, not choosing a valid name
 		
 		local user=assert(query(db,[[
 			select * from fud26_users
@@ -365,7 +367,7 @@ log("CREATE USER TOKEN = "..token)
 		local email=srv.vars["email"] or srv.vars["name"]
 		local pass=srv.vars["pass"]
 
-		iplog.ratelimit(srv.ip,10)	-- slow down fishing of this API
+		iplog.ratelimit(srv.ip,100)	-- slow down fishing of this API
 		local db = assert(connect(srv))	
 
 		local user=assert(query(db,[[
@@ -457,7 +459,7 @@ log("CREATE USER TOKEN = "..token)
 			return put_json{error="pass is too short"}
 		end
 		
-		iplog.ratelimit(srv.ip,100)	-- really slow down abuse of this API
+		iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
 		
 		local db = assert(connect(srv))	
 	
@@ -530,12 +532,15 @@ log("UPDATE USER TOKEN = "..token)
 			SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
 		))[1]
 
-		if not session then return put_json{error="invalid session"} end
+		if not session then
+			iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
+			return put_json{error="invalid session"}
+		end
 
 		local ip=srv.vars["ip"] or srv.ip -- can check an alternative IP against the session
 		
 		if session.ip_addr~=ip then
-			iplog.ratelimit(srv.ip,10)	-- slow down abuse of this API
+			iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
 			return put_json{error="invalid session"}
 		end
 
@@ -544,7 +549,10 @@ log("UPDATE USER TOKEN = "..token)
 			where id=$1 limit 1]],session.user_id
 		))[1]
 
-		if not user then return put_json{error="invalid session"} end
+		if not user then
+			iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
+			return put_json{error="invalid session"}
+		end
 
 		return put_json{name=user.login,email=user.email,id=user.id,ip=session.ip_addr,session=session.ses_id}
 
@@ -601,3 +609,36 @@ function serv_avatar(srv)
 	return ngx.redirect("http://wetgenes.com/forum/images/custom_avatars/12.png") -- default bland avatar
 end
 	
+
+-----------------------------------------------------------------------------
+--
+-- submit or retreve scores for various games
+--
+-----------------------------------------------------------------------------
+function serv_score(srv)
+
+	if not srv.vars["session"] then
+		return put_json{error="session is missing"}
+	end
+
+	local db = assert(connect(srv))	
+
+	local session=assert(query(db,[[
+		SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
+	))[1]
+
+	if not session then
+		iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
+		return put_json{error="invalid session"}
+	end
+
+	if session.ip_addr~=srv.ip then
+		iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
+		return put_json{error="invalid session"}
+	end
+
+
+
+	return put_json{error="unknown"}
+
+end

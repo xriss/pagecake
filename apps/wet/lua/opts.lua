@@ -76,8 +76,8 @@ opts.init=function()
 	{"4lfa",          "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
 	{"wet",           "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
 	{"itwrong",       "itwrong",    "itwrong.4lfa.com",     empty=true},      -- any  domain containing itwrong
-	{"local",         "cake",   "localhost",            subdomain=true,}, -- test this domain
-	{"192.168.56.56", "cake",   "192.168.56.56",        subdomain=true,}, -- test this domain (vagrant)
+	{"local",         "genes",      "localhost",            subdomain=true,}, -- test this domain
+	{"192.168.56.56", "genes",      "192.168.56.56",        subdomain=true,}, -- test this domain (vagrant)
 	} --(the last vhost is the default)
 
 	-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well

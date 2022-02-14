@@ -112,9 +112,9 @@ function ratelimit(ip,n)
 	inc(it,n)
 	put(it) -- we do not care about overwrites, numbers are fuzzy
 	if it.admin then return true,it end -- admin flag means it is always ok
-	if it.mhd[1][1] > 200   then return false,it end -- max requests per minute
-	if it.mhd[1][2] > 2000  then return false,it end -- max requests per hour
-	if it.mhd[1][3] > 20000 then return false,it end -- max requests per day
+	if it.mhd[1][1] > 1000   then return false,it end -- max requests per minute
+	if it.mhd[1][2] > 10000  then return false,it end -- max requests per hour
+	if it.mhd[1][3] > 100000 then return false,it end -- max requests per day
 	return true,it
 end
 
