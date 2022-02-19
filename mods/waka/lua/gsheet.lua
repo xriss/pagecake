@@ -16,6 +16,14 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 local json=require("wetgenes.json")
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("waka.gsheet")
 
 -- we need to be able to pull in data from a google sheet this means a bit of url get and a bit of cache

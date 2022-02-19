@@ -50,6 +50,14 @@ local note_html=require("note.html")
 
 
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("waka")
 local function make_put(srv)
 	return function(a,b)

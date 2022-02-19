@@ -14,8 +14,16 @@ local replace=wet_html.replace
 local url_esc=wet_html.url_esc
 
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module(...)
-local _M=require(...)
+--local _M=require(...)
 
 local base_html=require("base.html")
 

@@ -6,6 +6,14 @@ local log=require("wetgenes.www.any.log").log -- grab the func from the package
 
 
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("admin.ipv4")
 
 local tab

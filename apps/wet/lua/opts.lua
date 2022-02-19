@@ -76,8 +76,8 @@ opts.init=function()
 	{"4lfa",          "4lfa",       "4lfa.com",             empty=true},      -- any  domain containing 4lfa
 	{"wet",           "wetgenes",   "wetgenes.com",         },                -- any  domain containing wet
 	{"itwrong",       "itwrong",    "itwrong.4lfa.com",     empty=true},      -- any  domain containing itwrong
-	{"local",         "genes",      "localhost",            subdomain=true,}, -- test this domain
-	{"192.168.56.56", "genes",      "192.168.56.56",        subdomain=true,}, -- test this domain (vagrant)
+	{"local",         "wetgenes",   "localhost",            subdomain=true,}, -- test this domain
+	{"192.168.56.56", "wetgenes",   "192.168.56.56",        subdomain=true,}, -- test this domain (vagrant)
 	} --(the last vhost is the default)
 
 	-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
@@ -109,7 +109,7 @@ opts.init=function()
 	[ "zeegrind.wetgenes.com"     ]= "play.wetgenes.com/ville#public.zeegrind"  ,
 	[ "ville.wetgenes.com"        ]= "play.wetgenes.com/ville"                  ,
 	[ "forum.wetgenes.com"        ]= "wetgenes.com/forum"                       ,
-	[ "join.wetgenes.com"         ]= "api.wetgenes.com/js/genes/join/join.html" ,
+	[ "join.wetgenes.com"         ]= "wetgenes.com/js/genes/join/join.html"     ,
 	[ "wetgenes.4lfa.com"         ]= "wetgenes.com"                             ,
 	}
 
@@ -243,10 +243,11 @@ print("test")
 		elseif n=="wetgenes" then -- extra site setup
 
 			add_map(v.map,"forum","forum") -- test forum
+			add_map(v.map,"genes","genes")
 
 		elseif n=="genes" then -- extra site setup
 
-			add_map(v.map,"genes","genes",{["#nolimit"]=true}) -- don't limit the api by default
+			add_map(v.map,"genes","genes")
 			
 			opts.map=v.map -- remember this one globally to stop crashes in old code
 		end

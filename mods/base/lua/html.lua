@@ -11,6 +11,8 @@ local whtml=require("wetgenes.html")
 --module
 local M={ modname=(...) } ; package.loaded[M.modname]=M
 
+M.import=function() -- dummy to stop crash
+end
 
 -- fill cake with juicy chunks ready to be served
 function M.fill_cake(srv)
@@ -58,6 +60,7 @@ head.fs.codemirror_css="/css/base/codemirror.css";
 
 	cake.html.mimetype="text/html; charset=UTF-8"
 	cake.html.head=[[
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8"/>

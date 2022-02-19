@@ -42,8 +42,16 @@ local waka=require("waka")
 
 local dprint=function(...) log(wstr.dump(...)) end
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("note")
-local M=require("note")
+local M=_M
 
 local forum=require("forum")
 

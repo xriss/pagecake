@@ -62,6 +62,14 @@ end
 
 local ngx=require("ngx")
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("genes")
 
 
@@ -616,6 +624,12 @@ end
 --
 -----------------------------------------------------------------------------
 function serv_score(srv)
+
+	local put_json=function(j)
+		srv.set_header("Access-Control-Allow-Origin","*")
+		srv.set_mimetype("application/json; charset=UTF-8")
+		srv.put(json.encode(j) or "{}")
+	end
 
 	if not srv.vars["session"] then
 		return put_json{error="session is missing"}

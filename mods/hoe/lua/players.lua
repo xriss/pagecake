@@ -28,8 +28,16 @@ local rounds=require("hoe.rounds")
 
 
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("hoe.players")
-local _M=require(...)
+--local _M=require(...)
 
 default_props=
 {

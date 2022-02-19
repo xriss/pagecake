@@ -51,6 +51,14 @@ local LAYER_PUBLISHED = 0
 local LAYER_DRAFT     = 1
 local LAYER_SHADOW    = 2
 
+-- replacement version of module that does not global
+local module=function(modname, ...)
+	local ns={ _NAME = modname , _PACKAGE = string.gsub (modname, "[^.]*$", "") }
+	ns._M = ns
+	package.loaded[modname] = ns
+	setfenv (2, ns)
+	for _,f in ipairs({...}) do f(ns) end
+end
 module("blog")
 
 
