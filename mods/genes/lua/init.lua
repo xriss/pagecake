@@ -82,7 +82,7 @@ local connect=function(srv,database_name)
 		return nil , "failed to instantiate mysql: ".. err
 	end
 
-	db:set_timeout(1000) -- 1 sec
+	db:set_timeout(10000) -- 10 sec
 
 	local dbopts={
 		database	 	= database_name,
@@ -122,7 +122,7 @@ local query=function(db,q,...)
 	local a={...}
 	local res, err, errno, sqlstate = db:query(qreplace(q,a))
 	if not res then
-		return nil , "bad result: "..err..": "..errno..": "..sqlstate.."."
+		return nil , "bad result: "..tostring(err)..": "..tostring(errno)..": "..tostring(sqlstate).."."
 	end
 	return res
 end
@@ -622,8 +622,13 @@ end
 --
 -- submit or retreve scores for various games
 --
+-- 13705
+--
 -----------------------------------------------------------------------------
 function serv_score(srv)
+
+	local cmd=srv.url_slash[srv.url_slash_idx+1]
+
 
 	local put_json=function(j)
 		srv.set_header("Access-Control-Allow-Origin","*")
@@ -631,28 +636,107 @@ function serv_score(srv)
 		srv.put(json.encode(j) or "{}")
 	end
 
-	if not srv.vars["session"] then
-		return put_json{error="session is missing"}
+	local check_session=function(db)
+		if not srv.vars["session"] then
+			return put_json{error="session is missing"}
+		end
+
+		local session=assert(query(db,[[
+			SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
+		))[1]
+
+		if not session then
+			iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
+			return put_json{error="invalid session"}
+		end
+
+		if session.ip_addr~=srv.ip then
+			iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
+			return put_json{error="invalid session"}
+		end
+		
+		return session
+	end
+	
+	local session
+	local game=tonumber( srv.vars["game"] ) -- wetdike is 6
+	local seed=tonumber( srv.vars["seed"] )
+	local score=tonumber( srv.vars["score"] )
+	local replay=tostring( srv.vars["replay"] )
+
+	if game~=6 then -- wetdike only for now
+		return put_json{error="invalid game"}
 	end
 
 	local db = assert(connect(srv))	
 
-	local session=assert(query(db,[[
-		SELECT * FROM fud26_ses WHERE ses_id=$1 limit 1]],srv.vars["session"]
-	))[1]
+	if     cmd=="submit" then
 
-	if not session then
-		iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
-		return put_json{error="invalid session"}
+		session=check_session(db)
+		if not session then return end -- need session to continue
+		
+		local user_id=tonumber(session.id)
+
+		query(db,[[ START TRANSACTION; ]])
+
+		local oldscore=query(db,[[
+select * from wet_beta_scores
+where game=$1 and seed=$2 and forum_id=$3 ;
+		]],game,seed,session.id)
+	
+		if oldscore[1] then -- we have an old score so update it
+			if score > tonumber(oldscore[1].score) then -- only write a higher score
+				query(db,[[
+UPDATE wet_beta_scores where id=$1 SET score=$2,replay=$3 ;
+				]],oldscore[1].id,score,replay)
+			end
+		else
+			query(db,[[
+INSERT INTO wet_beta_scores (game,seed,forum_id,audit,created,score,replay) VALUES ($1,$2,0,$3,$4,$5) ;
+			]],game,seed,user_id,os.time(),score,replay)
+		end
+		query(db,[[ COMMIT; ]])
+
+		local scores=query(db,[[
+select score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
+where game=$1 and seed=$2 and forum_id=$3 ;
+		]],game,seed,user_id)
+
+		return put_json{scores=scores}
+
+	elseif cmd=="high" then -- all users top 10 for this game and seed
+
+		local scores=query(db,[[
+select score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
+where game=$1 and seed=$2 and forum_id!=0 and audit>=0 order by 1 desc limit 10;
+		]],game,seed)
+		return put_json{scores=scores}
+
+	elseif cmd=="last" then  -- my scores for this game and the last 10 seeds
+
+		session=check_session(db)
+		if not session then return end -- need session to continue
+
+		local user_id=tonumber(session.id)
+
+		local scores=query(db,[[
+select score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
+where game=$1 and seed>=$2 and seed<=$3 and forum_id=$4 ;
+		]],game,seed-9,seed,user_id)
+		
+		return put_json{scores=scores}
+
+	elseif cmd=="rank" then  -- a rank is total score for the last 10 seeds
+
+		local scores=query(db,[[
+select SUM(score) as score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
+where game=$1 and seed>=$2 and seed<=$3 and forum_id!=0 and audit>=0 group by forum_id order by 1 desc limit 10;
+		]],game,seed-9,seed)
+		
+		return put_json{scores=scores}
+
 	end
 
-	if session.ip_addr~=srv.ip then
-		iplog.ratelimit(srv.ip,100)	-- slow down abuse of this API
-		return put_json{error="invalid session"}
-	end
-
-
-
-	return put_json{error="unknown"}
+	return put_json{error="unknown",scores=scores}
 
 end
