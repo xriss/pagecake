@@ -675,63 +675,63 @@ function serv_score(srv)
 		session=check_session(db)
 		if not session then return end -- need session to continue
 		
-		local user_id=tonumber(session.id)
+		local user_id=tonumber(session.user_id)
 
-		query(db,[[ START TRANSACTION; ]])
+		assert(query(db,[[ START TRANSACTION; ]]))
 
-		local oldscore=query(db,[[
+		local oldscore=assert(query(db,[[
 select * from wet_beta_scores
 where game=$1 and seed=$2 and forum_id=$3 ;
-		]],game,seed,session.id)
+		]],game,seed,session.user_id))
 	
 		if oldscore[1] then -- we have an old score so update it
 			if score > tonumber(oldscore[1].score) then -- only write a higher score
-				query(db,[[
-UPDATE wet_beta_scores where id=$1 SET score=$2,replay=$3 ;
-				]],oldscore[1].id,score,replay)
+				assert(query(db,[[
+UPDATE wet_beta_scores SET score=$2,replay=$3 WHERE id=$1 ;
+				]],oldscore[1].id,score,replay))
 			end
 		else
-			query(db,[[
-INSERT INTO wet_beta_scores (game,seed,forum_id,audit,created,score,replay) VALUES ($1,$2,0,$3,$4,$5) ;
-			]],game,seed,user_id,os.time(),score,replay)
+			assert(query(db,[[
+INSERT INTO wet_beta_scores (game,seed,forum_id,created,score,replay,audit,host,user_id,moves,time) VALUES ($1,$2,$3,$4,$5,$6,0,0,0,0,0) ;
+			]],game,seed,user_id,os.time(),score,replay))
 		end
-		query(db,[[ COMMIT; ]])
+		assert(query(db,[[ COMMIT; ]]))
 
-		local scores=query(db,[[
+		local scores=assert(query(db,[[
 select score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
 where game=$1 and seed=$2 and forum_id=$3 ;
-		]],game,seed,user_id)
+		]],game,seed,user_id))
 
 		return put_json{scores=scores}
 
 	elseif cmd=="high" then -- all users top 10 for this game and seed
 
-		local scores=query(db,[[
+		local scores=assert(query(db,[[
 select score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
 where game=$1 and seed=$2 and forum_id!=0 and audit>=0 order by 1 desc limit 10;
-		]],game,seed)
+		]],game,seed))
 		return put_json{scores=scores}
 
-	elseif cmd=="last" then  -- my scores for this game and the last 10 seeds
+	elseif cmd=="days" then  -- my scores for this game and the last 10 seeds
 
 		session=check_session(db)
 		if not session then return end -- need session to continue
 
-		local user_id=tonumber(session.id)
+		local user_id=tonumber(session.user_id)
 
-		local scores=query(db,[[
+		local scores=assert(query(db,[[
 select score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
 where game=$1 and seed>=$2 and seed<=$3 and forum_id=$4 ;
-		]],game,seed-9,seed,user_id)
+		]],game,seed-9,seed,user_id))
 		
 		return put_json{scores=scores}
 
 	elseif cmd=="rank" then  -- a rank is total score for the last 10 seeds
 
-		local scores=query(db,[[
+		local scores=assert(query(db,[[
 select SUM(score) as score,seed,forum_id,login from wet_beta_scores JOIN fud26_users ON (fud26_users.id = forum_id)
 where game=$1 and seed>=$2 and seed<=$3 and forum_id!=0 and audit>=0 group by forum_id order by 1 desc limit 10;
-		]],game,seed-9,seed)
+		]],game,seed-9,seed))
 		
 		return put_json{scores=scores}
 
