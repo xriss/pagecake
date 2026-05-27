@@ -9,10 +9,17 @@ local wstr=require("wetgenes.string")
 	
 	-- where we are building from
 	bake.cd_root	=	wpath.parse( wpath.resolve( arg[0] ) ).dir
+bake.cd_root="/devcake/pagecake"
 	-- where we are building from
 	bake.cd_app		=	wpath.parse( wpath.resolve( bake.cd_root , "apps/wet/" ) ).dir
+bake.cd_app="/devcake/pagecake/apps/wet"
 	-- where we are building to
-	bake.cd_out		=	arg[1]  or wpath.parse( wpath.resolve( bake.cd_root , "../wwwgenes/ngx/" ) ).dir
+	bake.cd_out		=	arg[1]  or wpath.parse( wpath.resolve( bake.cd_root , "wwwgenes/ngx/" ) ).dir
+bake.cd_out="/devcake/wwwgenes/ngx"
+
+print( "bake.cd_root" , bake.cd_root )
+print( "bake.cd_app" , bake.cd_app )
+print( "bake.cd_out" , bake.cd_out )
 
 -- we need this one
 	lfs.mkdir(bake.cd_out)
