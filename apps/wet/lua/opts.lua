@@ -82,35 +82,8 @@ opts.init=function()
 
 	-- a low level force redirect of some domains, we can probably get away with a /page/or/two as well
 	opts.redirect_domains={
-	[ "tv.wetgenes.com"           ]= "play.wetgenes.com/tv"                     ,
-	[ "dike.wetgenes.com"         ]= "play.wetgenes.com/dike"                   ,
-	[ "wetdike.wetgenes.com"      ]= "play.wetgenes.com/dike"                   ,
-	[ "estension.wetgenes.com"    ]= "play.wetgenes.com/estension"              ,
-	[ "asue1.wetgenes.com"        ]= "play.wetgenes.com/asue1"                  ,
-	[ "ballclock.wetgenes.com"    ]= "play.wetgenes.com/ballclock"              ,
-	[ "romzom.wetgenes.com"       ]= "play.wetgenes.com/romzom"                 ,
-	[ "diamonds.wetgenes.com"     ]= "play.wetgenes.com/diamonds"               ,
-	[ "gojirama.wetgenes.com"     ]= "play.wetgenes.com/gojirama"               ,
-	[ "adventisland.wetgenes.com" ]= "play.wetgenes.com/advent"                 ,
-	[ "advent.wetgenes.com"       ]= "play.wetgenes.com/advent"                 ,
-	[ "batwsball.wetgenes.com"    ]= "play.wetgenes.com/batwsball"              ,
-	[ "bowwow.wetgenes.com"       ]= "play.wetgenes.com/bowwow"                 ,
-	[ "basement.wetgenes.com"     ]= "play.wetgenes.com/basement"               ,
-	[ "mute.wetgenes.com"         ]= "play.wetgenes.com/mute"                   ,
-	[ "asue2.wetgenes.com"        ]= "play.wetgenes.com/asue2"                  ,
-	[ "take1.wetgenes.com"        ]= "play.wetgenes.com/take1"                  ,
-	[ "pixlcoop.wetgenes.com"     ]= "play.wetgenes.com/pixlcoop"               ,
-	[ "itsacoop.wetgenes.com"     ]= "play.wetgenes.com/itsacoop"               ,
-	[ "rgbtd0.wetgenes.com"       ]= "play.wetgenes.com/rgbtd0"                 ,
-	[ "pief.wetgenes.com"         ]= "play.wetgenes.com/pief"                   ,
-	[ "wetcell.wetgenes.com"      ]= "play.wetgenes.com/wetcell"                ,
-	[ "only1.wetgenes.com"        ]= "play.wetgenes.com/only1"                  ,
-	[ "pokr.wetgenes.com"         ]= "play.wetgenes.com/ville#public.pokr"      ,
-	[ "zeegrind.wetgenes.com"     ]= "play.wetgenes.com/ville#public.zeegrind"  ,
-	[ "ville.wetgenes.com"        ]= "play.wetgenes.com/ville"                  ,
 	[ "forum.wetgenes.com"        ]= "wetgenes.com/forum"                       ,
 	[ "join.wetgenes.com"         ]= "wetgenes.com/js/genes/join/join.html"     ,
-	[ "wetgenes.4lfa.com"         ]= "wetgenes.com"                             ,
 	}
 
 	local vhosts={}
