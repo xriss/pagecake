@@ -230,7 +230,7 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 "openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&"..
 "openid.ns.sreg=http%3A%2F%2Fopenid.net%2Fextensions%2Fsreg%2F1.1&"..
 "openid.return_to="..wet_html.url_esc(srv.url_base.."callback/"..dat.."/?continue="..wet_html.url_esc(continue)).."&"..
-"openid.realm="..wet_html.url_esc("http://"..srv.url_slash[3].."/")
+"openid.realm="..wet_html.url_esc("https://"..srv.url_slash[3].."/")
 
 
 	if dat=="jedi" then
@@ -290,12 +290,12 @@ local openidquery="openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&"..
 		local callback=srv.url_base.."callback/wetgenes/?continue="..wet_html.url_esc(continue)
 		local tld="com"
 --		if srv.url_slash[3]=="host.local:8080" then tld="local" end
-		return srv.redirect("http://lua.wetgenes."..tld.."/dumid.lua?continue="..wet_html.url_esc(callback))
+		return srv.redirect("https://lua.wetgenes."..tld.."/dumid.lua?continue="..wet_html.url_esc(callback))
 		
 	elseif dat=="genes" then
 	
 		local callback=srv.url_base.."callback/genes/?continue="..wet_html.url_esc(continue)
-		return srv.redirect("http://api.wetgenes.com:1408/js/genes/join/join.html?dumid="..wet_html.url_esc(callback))
+		return srv.redirect("https://api.wetgenes.com/js/genes/join/join.html?dumid="..wet_html.url_esc(callback))
 
 	elseif dat=="facebook" then
 	
@@ -369,7 +369,7 @@ local put=make_put(srv)
 	if srv.gets.continue then continue=srv.gets.continue end -- where we wish to end up
 
 
-	if continue:sub(1,7) == "http://" then -- this is an ok continue url
+	if continue:sub(1,7) == "https://" then -- this is an ok continue url
 	else
 		if continue:sub(1,6) == "http:/" then -- facebook? fucks up the redirect url, which is nice, this unfucks it
 			continue="http://"..continue:sub(7)
@@ -491,7 +491,7 @@ local put=make_put(srv)
 		if srv.gets.confirm then
 			srv.set_cookie{name="fud_session",value=wet_html.url_esc(srv.gets.confirm),domain=srv.domain,path="/",live=os.time()+(60*60*24*28)}
 
-			local s="http://api.wetgenes.com:1408/genes/user/session?session="..srv.gets.confirm.."&ip="..srv.ip
+			local s="https://api.wetgenes.com/genes/user/session?session="..srv.gets.confirm.."&ip="..srv.ip
 			local got=fetch.get(s) -- check the session for the ip talking to us (wont work on host.local)
 			if got and type(got.body=="string") then
 				got=json.decode(got.body)
@@ -517,7 +517,7 @@ local put=make_put(srv)
 			local callback=srv.url_base.."callback/wetgenes/?continue="..wet_html.url_esc(continue)
 			local tld="com"
 			if srv.url_slash[3]=="host.local:8080" then tld="local" end
-			local s="http://lua.wetgenes."..tld.."/dumid.lua?continue="..wet_html.url_esc(callback)
+			local s="https://lua.wetgenes."..tld.."/dumid.lua?continue="..wet_html.url_esc(callback)
 			
 			local got=fetch.get(s.."&hash="..hash) -- ask for confirmation from server
 			if got and type(got.body=="string") then

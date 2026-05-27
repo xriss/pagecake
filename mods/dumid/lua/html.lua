@@ -33,7 +33,7 @@ dumid_header=function(d)
 
 	d.title=d.title or "Choose your dum id!"
 	
-	d.jquery_js="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"
+	d.jquery_js="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"
 		
 	if d.srv.url_slash[3]=="host.local:8080" then -- a local shop only servs local people
 		d.jquery_js="/js/jquery-1.4.2.min.js"
@@ -70,7 +70,7 @@ dumid_footer=function(d)
 	return replace([[
 
 		<div class="dum-foot">
-			This is a <a href="http://www.wetgenes.com/">dumid</a> login system.
+			This is a <a href="https://www.wetgenes.com/">dumid</a> login system.
 		</div>
 	</div>
 </div>
