@@ -16,10 +16,12 @@ bake.cd_app="/devcake/pagecake/apps/wet/"
 	-- where we are building to
 	bake.cd_out		=	arg[1]  or wpath.parse( wpath.resolve( bake.cd_root , "wwwgenes/ngx/" ) ).dir
 bake.cd_out="/devcake/wwwgenes/ngx/"
+bake.cd_public="/server/public"
 
 print( "bake.cd_root" , bake.cd_root )
 print( "bake.cd_app" , bake.cd_app )
 print( "bake.cd_out" , bake.cd_out )
+print( "bake.cd_public" , bake.cd_public )
 
 -- we need this one
 	lfs.mkdir(bake.cd_out)
@@ -55,7 +57,7 @@ print( "bake.cd_out" , bake.cd_out )
 	local opts={basedir=bake.cd_app,dir="public",filter=""}
 	local r=bake.findfiles(opts)
 	for i,v in ipairs(r.ret) do
-		local fname=wpath.resolve( bake.cd_out , v )
+		local fname=wpath.resolve( bake.cd_public , v )
 		print(fname)
 		bake.create_dir_for_file(fname)
 		bake.copyfile(opts.basedir.."/"..v,fname)
@@ -88,7 +90,7 @@ print( "bake.cd_out" , bake.cd_out )
 			local opts={basedir=bake.cd_root.."/mods/"..n.."/"..s,dir="",filter=""}
 			local r=bake.findfiles(opts)
 			for i,v in ipairs(r.ret) do
-				local fname=wpath.resolve( bake.cd_out , "public" , s , n , v )
+				local fname=wpath.resolve( bake.cd_public , s , n , v )
 				print(fname)
 				bake.create_dir_for_file(fname)
 				bake.copyfile(opts.basedir.."/"..v,fname)
