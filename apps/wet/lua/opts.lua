@@ -84,6 +84,8 @@ opts.init=function()
 	opts.redirect_domains={
 	[ "forum.wetgenes.com"        ]= "wetgenes.com/forum"                       ,
 	[ "join.wetgenes.com"         ]= "wetgenes.com/js/genes/join/join.html"     ,
+	[ "play.wetgenes.com"         ]= "tv.wetgenes.com/index.html#"     ,
+	[ "play.4lfa.com"      	      ]= "tv.wetgenes.com/index.html#"     ,
 	}
 
 	local vhosts={}
